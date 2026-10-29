@@ -1585,7 +1585,7 @@ dogfood(struct monst *mon, struct obj *obj)
         case MEATBALL:
         case MEAT_RING:
         case MEAT_STICK:
-        case HUGE_CHUNK_OF_MEAT:
+        case ENORMOUS_MEATBALL:
             return carni ? DOGFOOD : MANFOOD;
         case EGG:
             if (obj->corpsenm == PM_PYROLISK && !likes_fire(mptr))

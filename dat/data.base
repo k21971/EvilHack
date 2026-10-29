@@ -275,7 +275,7 @@ anu
 	Anu was the Babylonian god of the heavens, the monarch of
 	the north star.  He was the oldest of the Babylonian gods,
 	the father of all gods, and the ruler of heaven and destiny.
-	Anu features strongly in the _atiku_ festival in
+	Anu features strongly in the _akitu_ festival in
 	Babylon, Uruk and other cities.
 # takes "apelike creature" when specifying 'Y'
 ape
@@ -4329,6 +4329,7 @@ mastodon
 	weapon for the poorer classes.
 		[ Wikipedia, the free encyclopedia ]
 meat*
+enormous meatball
 huge chunk of meat
 	Some hae meat and canna eat,
 	And some would eat that want it;
@@ -6810,7 +6811,7 @@ spellbook of stone to flesh
 
 	Any objects made of mineral or gemstone that are in the path of
 	the spell, or in open inventory of the target, will turn into
-	meat (e.g. a boulder will turn into a huge chunk of meat, rings
+	meat (e.g. a boulder will turn into an enormous meatball, rings
 	into a meat ring, and so forth).
 
 	If this spell is cast at a statue of a monster, there is a good

@@ -978,7 +978,7 @@ engulfer_digests_food(struct obj *obj)
        corpse, glob, or meat <item> but not other types of food */
     if (digests(u.ustuck->data)
         && (obj->otyp == CORPSE || obj->globby
-            || obj->otyp == MEATBALL || obj->otyp == HUGE_CHUNK_OF_MEAT
+            || obj->otyp == MEATBALL || obj->otyp == ENORMOUS_MEATBALL
             || obj->otyp == MEAT_RING || obj->otyp == MEAT_STICK)) {
         boolean could_petrify = FALSE,
                 could_poly = FALSE, could_slime = FALSE,
@@ -1569,7 +1569,18 @@ currentlevel_rewrite(void)
     return nhfp;
 }
 
+void
+do_idlecheckpoint(void)
+{
+    program_state.in_idlecheckpoint = 1;
 #ifdef INSURANCE
+    save_currentstate();
+#endif /* INSURANCE */
+    program_state.in_idlecheckpoint = 0;
+}
+
+#ifdef INSURANCE
+
 void
 save_currentstate(void)
 {

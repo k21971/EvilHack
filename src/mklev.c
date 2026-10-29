@@ -1337,6 +1337,7 @@ makelevel(void)
     }
     level_status_init();
     level_status.making = 1;
+    gw.whitelist_shk |= 0x02;
 
     oinit(); /* assign level dependent obj probabilities */
     clear_level_structures();
@@ -1520,6 +1521,7 @@ makelevel(void)
         nhl_pcall_handle(gl.luacore, 1, 0, "makelevel", NHLpa_panic);
         lua_settop(gl.luacore, 0);
     }
+    gw.whitelist_shk &= ~0x02;
     level_status.making = 0, level_status.ready = 1;
 }
 

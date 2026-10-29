@@ -117,61 +117,72 @@ botl.h        color.h       config.h      config1.h     context.h
 coord.h       cstd.h        decl.h        defsym.h      dgn_file.h
 display.h     dlb.h         dungeon.h     engrave.h     extern.h
 flag.h        fnamesiz.h    func_tab.h    global.h      hack.h
-hacklib.h     integer.h     isaac64.h     lint.h        mail.h
-mcastu.h      mextra.h      mfndpos.h     micro.h       mkroom.h
-monattk.h     mondata.h     monflag.h     monst.h       monsters.h
+hacklib.h     integer.h     isaac64.h     lint.h        mac68kconf.h
+mactty.h      macwin.h      mail.h        mcastu.h      mextra.h
+mfndpos.h     micro.h       mkroom.h      monattk.h     mondata.h
+monflag.h     monst.h       monsters.h    mttypriv.h    nhlua.h
 nhmd4.h       nhregex.h     obj.h         objclass.h    objects.h
 optlist.h     patchlevel.h  pcconf.h      permonst.h    prop.h
 quest.h       rect.h        region.h      revision.h    rm.h
 savefile.h    seffects.h    selvar.h      sfmacros.h    sfprocs.h
 skills.h      sndprocs.h    sp_lev.h      spell.h       stairs.h
 sym.h         sys.h         tcap.h        tileset.h     timeout.h
-tradstdc.h    trap.h        unixconf.h    vision.h      vmsconf.h
-warnings.h    weight.h      winami.h      wincurs.h     windconf.h
-winprocs.h    wintype.h     you.h         youprop.h
+tosconf.h     tradstdc.h    trap.h        unixconf.h    vision.h
+vmsconf.h     warnings.h    weight.h      winami.h      wincurs.h
+windconf.h    winprocs.h    wintype.h     you.h         youprop.h
 
 (file for tty versions)
 wintty.h
 
-outdated:
-(files that are no longer maintained for current game code)
-.travis.yml
+nhlua:
+(files in top directory)
+README_NHLUA     nhlua-update.sh
+
+nhlua/lua:
+(files in top directory)
+Makefile  README
+
+nhlua/lua/doc:
+(files in top directory)
+OSIApproved.png  contents.html    index.css        logo.png
+lua.1            lua.css          luac.1           manual.css
+manual.html      readme.html
+
+nhlua/lua/src:
+(files in top directory)
+Makefile    lapi.c      lapi.h      lauxlib.c   lauxlib.h   lbaselib.c
+lcode.c     lcode.h     lcorolib.c  lctype.c    lctype.h    ldblib.c
+ldebug.c    ldebug.h    ldo.c       ldo.h       ldump.c     lfunc.c
+lfunc.h     lgc.c       lgc.h       linit.c     liolib.c    ljumptab.h
+llex.c      llex.h      llimits.h   lmathlib.c  lmem.c      lmem.h
+loadlib.c   lobject.c   lobject.h   lopcodes.c  lopcodes.h  lopnames.h
+loslib.c    lparser.c   lparser.h   lprefix.h   lstate.c    lstate.h
+lstring.c   lstring.h   lstrlib.c   ltable.c    ltable.h    ltablib.c
+ltm.c       ltm.h       lua.c       lua.h       lua.hpp     luac.c
+luaconf.h   lualib.h    lundump.c   lundump.h   lutf8lib.c  lvm.c
+lvm.h       lzio.c      lzio.h
 
 outdated/dat:
 (files that are no longer maintained for current game code)
 symbols
 
 outdated/include:
-(files for GEM versions)
-bitmfile.h  gem_rsc.h   load_img.h  wingem.h
-
 (file for GNOME versions)
 winGnome.h
 
 (files for all versions)
-beconf.h    def_os2.h   os2conf.h   system.h    tosconf.h   trampoli.h
-wceconf.h
+beconf.h    def_os2.h   os2conf.h   system.h    trampoli.h  wceconf.h
 
 (files for various Macintosh versions)
-mac-carbon.h  mac-qt.h      mac-term.h    macconf.h     macpopup.h
-mactty.h      macwin.h      mttypriv.h
+mac-carbon.h  mac-qt.h      mac-term.h    macpopup.h
 
 outdated/sys/atari:
-(files for Atari version - untested for 5.0)
-Install.tos   atarifnt.uue  nethack.mnu   setup.g       tos.c
-unx2atar.sed
+(files that are no longer maintained for current game code)
+Install.tos
 
 outdated/sys/be:
 (files for BeOS version - untested for 5.0)
 README    bemain.c
-
-outdated/sys/mac:
-(files for 68K Macintosh versions)
-Files.r       Install.mw    MacHelp       NHDeflts      NHrsrc.hqx
-NHsound.hqx   News          README        carbon.plist  dprintf.c
-maccurs.c     macerrs.c     macfile.c     machelp.hqx   macmain.c
-macmenu.c     mactopl.c     mactty.c      macunix.c     macwin.c
-mgetline.c    mmodal.c      mrecover.c    mrecover.hqx  mttymain.c
 
 outdated/sys/msdos:
 (files for deprecated real mode msdos version)
@@ -188,10 +199,12 @@ README.linux    cross-amiga.sh
 
 outdated/sys/unix/hints:
 (files that are no longer maintained for current game code)
-cross-amiga     linux           linux-chroot    linux-qt4
-linux-qt5       linux-x11       macosx          macosx10.5
-macosx10.7      macosx10.8      macosx10.10     macosx10.10-qt
-macosx10.14
+cross-amiga         linux               linux-chroot
+linux-qt4           linux-qt5           linux-x11
+macosx              macosx10.5          macosx10.7
+macosx10.8          macosx10.10         macosx10.10-qt
+macosx10.14         solaris             solaris-playground
+unix
 
 outdated/sys/unix/hints/include:
 (files that are no longer maintained for current game code)
@@ -231,11 +244,6 @@ qt3_win.cpp          qt3_win.h            qt3_xpms.h
 qt3tableview.cpp     qt3tableview.h       tileedit.cpp
 tileedit.h
 
-outdated/win/gem:
-(files for GEM versions - untested for 5.0)
-Install.gem  bitmfile.c   gem_rsc.uu   gem_rso.uu   gr_rect.c    gr_rect.h
-load_img.c   tile2img.c   title.uu     wingem.c     wingem1.c    xpm2img.c
-
 outdated/win/gnome:
 (files for GNOME versions - untested for 5.0)
 README      gn_xpms.h   gnaskstr.c  gnaskstr.h  gnbind.c    gnbind.h
@@ -248,6 +256,10 @@ gnyesno.h   mapbg.xpm
 sound/fmod:
 (file in top directory)
 fmod.c
+
+sound/mac68ksound:
+(file in top directory)
+mac68ksound.c
 
 sound/macsound:
 (file in top directory)
@@ -324,7 +336,7 @@ wizcmds.c   worm.c      worn.c      write.c     zap.c
 
 submodules:
 (files in top directory)
-CHKSUMS      lua          pdcurses     pdcursesmod
+pdcurses     pdcursesmod
 
 sys/amiga:
 (files for Amiga versions)
@@ -337,6 +349,14 @@ winamenu.c       winami.c         winchar.c        windefs.h
 winext.h         winfuncs.c       winkey.c         winproto.h
 winreq.c         winstr.c         xpm2iff_host.c
 
+sys/atari:
+(files for Atari version)
+README.Crosscompiling  README.tos             atarifnt.uue
+bmp2img_host.c         crashlog.c             crashlog.h
+install-toolchain.sh   keytrans.h             nethack.cnf
+nethack.mnu            run-hatari.sh          sbrk.c
+setup.g                tos.c                  unx2atar.sed
+
 sys/libnh:
 (files in top directory)
 README.md    libnhmain.c  sysconf
@@ -344,6 +364,29 @@ README.md    libnhmain.c  sysconf
 sys/libnh/test:
 (files in top directory)
 README.md  libtest.c  run.sh
+
+sys/mac68k:
+(files for 68K Macintosh versions)
+BUILD.md            Files.r             Install.mw
+MacHelp             NHDeflts            NHrsrc.hqx
+NHsound.hqx         README              ReadMe.txt
+carbon.plist        dprintf.c           macalloc.c
+maccompat.h         maccurs.c           macerrs.c
+macfile.c           machelp.hqx         macmain.c
+macmap.c            macmap.h            macmenu.c
+macprefs.c          macstat.c           mactile.c
+mactile.h           mactopl.c           mactty.c
+macunix.c           macwin.c            mgetline.c
+mmodal.c            mrecover.c          mrecover.hqx
+mttymain.c          nhcfrg.r            nhmapwind.r
+nhmenus.r           nhsize.r            nhtiles_template.r
+nhtitle.r           nhvers.r            scsidriver.bin
+
+sys/mac68k/tools:
+(files for 68K Macintosh versions)
+decode_hqx.py          dump_rsrc.py           encode_hqx.py
+make_info.py           make_scsi_image2.py    retro68_elf2mac.patch
+rsrc_to_rez.py         strip_rsrc.py          wav2snd.py
 
 sys/msdos:
 (files for MSDOS version)
@@ -425,20 +468,18 @@ NetHack.xcscheme   makedefs.xcscheme  recover.xcscheme
 
 sys/unix/hints:
 (files for configuring UNIX NetHack versions)
-bsd.500             linux-minimal       linux.500
-macOS.500           macosx.sh           solaris
-solaris-playground  unix
+bsd.501        linux-minimal  linux.501      macOS.501      macosx.sh
 
 sys/unix/hints/include:
 (files for configuring UNIX NetHack versions)
-compiler.500       cross-post.500     cross-pre1.500     cross-pre2.500
-dirs-perms.500     gbdates-post.500   gbdates-pre.500    linuxdistro.500
-misc.500           multisnd-post.500  multisnd1-pre.500  multisnd2-pre.500
-multiw-1.500       multiw-2.500       response.500       whichbsd.500
+compiler.501       cross-post.501     cross-pre1.501     cross-pre2.501
+dirs-perms.501     gbdates-post.501   gbdates-pre.501    linuxdistro.501
+misc.501           multisnd-post.501  multisnd1-pre.501  multisnd2-pre.501
+multiw-1.501       multiw-2.501       response.501       whichbsd.501
 
 sys/vms:
 (files for VMS version)
-Install.vms       Install370.vms    Makefile.dat      Makefile.doc
+Install.vms       Install501.vms    Makefile.dat      Makefile.doc
 Makefile.src      Makefile.top      Makefile.utl      Makefile_dat.vms
 Makefile_doc.vms  Makefile_src.vms  Makefile_top.vms  Makefile_utl.vms
 install.com       nethack.com       oldcrtl.c         spec_lev.com
@@ -564,10 +605,6 @@ sys/windows/vs/makedefs:
 (files for Visual Studio Community builds)
 aftermakedefs.proj  makedefs.vcxproj
 
-sys/windows/vs/nhlua_h:
-(file for Visual Studio Community builds)
-nhlua_h.vcxproj
-
 sys/windows/vs/package:
 (files for Visual Studio Community builds)
 package.nmake    package.vcxproj
@@ -607,8 +644,9 @@ test_sel.lua  test_shk.lua  test_src.lua  testmove.lua  testwish.lua
 
 util:
 (files for all versions)
-dlb_main.c  makedefs.c  mdgrep.h    mdgrep.pl   panic.c     recover.c
-sfctool.c   sfexpasc.c  sftags.c    stripbs.c
+dlb_main.c         makedefs.c         mdgrep.h           mdgrep.pl
+panic.c            recover.c          sfctool.c          sfexpasc.c
+sftags.c           stripbs.c          tile2pict.c        tile2pict_quant.h
 
 win/Qt:
 (files for the Qt 4 or 5 widget library - X11, Windows, Mac OS X)
@@ -643,6 +681,12 @@ win/curses:
 Bugs.txt    Readme.txt  Todo.txt    cursdial.c  cursdial.h  cursinit.c
 cursinit.h  cursinvt.c  cursinvt.h  cursmain.c  cursmesg.c  cursmesg.h
 cursmisc.c  cursmisc.h  cursstat.c  cursstat.h  curswins.c  curswins.h
+
+win/gem:
+(files for GEM versions)
+Install.gem  gem_rsc.h    gem_rsc.uu   gem_rso.uu   gr_rect.c    gr_rect.h
+load_img.c   load_img.h   rip.uu       title.uu     title2.uu    wingem.c
+wingem.h     wingem1.c
 
 win/macosx:
 (files for macosx versions)

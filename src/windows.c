@@ -23,7 +23,8 @@ extern void win_X11_init(int);
 extern struct window_procs Qt_procs;
 #endif
 #ifdef GEM_GRAPHICS
-/*#include "wingem.h"*/
+extern struct window_procs Gem_procs;
+extern void win_Gem_init(int);
 #endif
 #ifdef MAC68K
 extern struct window_procs mac_procs;
@@ -1229,7 +1230,7 @@ dump_fmtstr(
                 else
                     Strcpy(tmpbuf, "{current date+time}");
                 break;
-            case 'v': /* version, eg. "5.0.0,-0" */
+            case 'v': /* version, eg. "1.0.0,-0" */
                 Sprintf(tmpbuf, "%s", version_string(verbuf, sizeof verbuf));
                 break;
             case 'u': /* UID */

@@ -404,6 +404,21 @@ Using the cross-compiler, build the following targets:
        tty sources:        win/tty/getline.c, win/tty/termcap.c,
                            win/tty/topl.c, win/tty/wintty.c
 
+       lua sources:        Typically compiled into a static libary and linked
+                           into the game executable to interpret lua level
+                           description files, lua dungeon description files,
+                           and a lua quest text file. The Lua source files
+                           are in nhlua/lua/src:
+
+                           lua.c, lapi.c, lauxlib.c, lbaselib.c, lcode.c,
+                           lcorolib.c, lctype.c, ldblib.c, ldebug.c,
+                           ldo.c, ldump.c, lfunc.c, lgc.c, linit.c,
+                           liolib.c, llex.c, lmathlib.c, lmem.c,
+                           loadlib.c, lobject.c, lopcodes.c,
+                           loslib.c, lparser.c, lstate.c, lstring.c,
+                           lstrlib.c, ltable.c, ltablib.c, ltm.c,
+                           lundump.c, lutf8lib.c, lvm.c, lzio.c
+
        generated (if req'd):
                           src/tile.c
 
@@ -412,24 +427,8 @@ Using the cross-compiler, build the following targets:
        system support in *sys.c as well as others sources pertaining to your
        specific target platform(s).
 
-    b) Lua (mandatory in 5.0)
 
-          lib/lua-5.4.8/src
-
-                   from sources: lua.c, lapi.c, lauxlib.c, lbaselib.c, lcode.c,
-                                 lcorolib.c, lctype.c, ldblib.c, ldebug.c,
-                                 ldo.c, ldump.c, lfunc.c, lgc.c, linit.c,
-                                 liolib.c, llex.c, lmathlib.c, lmem.c,
-                                 loadlib.c, lobject.c, lopcodes.c,
-                                 loslib.c, lparser.c, lstate.c, lstring.c,
-                                 lstrlib.c, ltable.c, ltablib.c, ltm.c,
-                                 lundump.c, lutf8lib.c, lvm.c, lzio.c,
-                                 lbitlib.c
-                   purpose:      links into the game executable to interpret
-                                 lua level description files, lua dungeon
-                                 description files, and a lua quest text file.
-
-    d) recover (optional if desired/required; some targets have recover
+    b) recover (optional if desired/required; some targets have recover
        functionality built into NetHack itself)
 
     c) Additional optional library packages/obj files as required
@@ -479,7 +478,7 @@ Cross-compiler pre-built binary downloads:
            bash sys/msdos/fetch-cross-compiler.sh
 
     That script won't install anything, it just does file fetches and stores
-    them in subfolders of lib. The linux.500 and macOS.500 hints files are
+    them in subfolders of lib. The linux.501 and macOS.501 hints files are
     configured to find the cross-compiler there if you add
         CROSS_TO_MSDOS=1
     on your make command line.
@@ -490,13 +489,11 @@ Cross-compiler pre-built binary downloads:
 
     On your linux host:
 
-        cd sys/unix ; sh setup.sh hints/linux.500 ; cd ../..
-        make fetch-lua
+        cd sys/unix ; sh setup.sh hints/linux.501 ; cd ../..
 
     On your macOS host:
 
-        cd sys/unix ; sh setup.sh hints/macOS.500 ; cd ../..
-        make fetch-lua
+        cd sys/unix ; sh setup.sh hints/macOS.501 ; cd ../..
 
     The MSDOS cross-compile can then be carried out by specifying
     CROSS_TO_MSDOS=1 on the make command line:
@@ -579,21 +576,20 @@ Author of 5.0 support:   Ingo Paschke
 
         # Clone NetHack 5.0 source
         cd NetHack
-        sys/unix/setup.sh sys/unix/hints/linux.500
-        make fetch-lua
+        sys/unix/setup.sh sys/unix/hints/linux.501
         make CROSS_TO_AMIGA=1 fetch-regex
         make CROSS_TO_AMIGA=1 all
         make CROSS_TO_AMIGA=1 package
 
-        The distribution ZIP is created at targets/amiga/NH500AMI.ZIP.
+        The distribution ZIP is created at targets/amiga/NH501AMI.ZIP (or NH501AMIn.ZIP where
+        n is a sequence number for the revision of the binary)..
 
         On your macOS host, the Amiga cross-compile can be carried out by specifying
         CROSS_TO_AMIGA=1 on the make command line:
 
         # Clone NetHack 5.0 source
         cd NetHack
-        sys/unix/setup.sh sys/unix/hints/macOS.500
-        make fetch-lua
+        sys/unix/setup.sh sys/unix/hints/macOS.501
         make CROSS_TO_AMIGA=1 fetch-regex
         make CROSS_TO_AMIGA=1 all
         make CROSS_TO_AMIGA=1 package
@@ -665,13 +661,11 @@ Cross-compiler url: https://emscripten.org/docs/getting_started/downloads.html
 
     On your linux host, prepare to cross-compile NetHack as follows:
 
-        cd sys/unix ; sh setup.sh hints/linux.500 ; cd ../..
-        make fetch-lua
+        cd sys/unix ; sh setup.sh hints/linux.501 ; cd ../..
 
     On your macOS host, prepare to cross-compile NetHack as follows:
 
-        cd sys/unix ; sh setup.sh hints/macOS.500 ; cd ../..
-        make fetch-lua
+        cd sys/unix ; sh setup.sh hints/macOS.501 ; cd ../..
 
     Then, cross-compile to targets/wasm as follows:
 
@@ -693,7 +687,7 @@ Cross-compiler url: https://emscripten.org/docs/getting_started/downloads.html
 
     The cross-compiler hints additions are enclosed inside ifdef sections
     and shouldn't interfere with the non-cross-compile builds using
-    hints/linux.500 or hints/macOS.500.
+    hints/linux.501 or hints/macOS.501.
 
 
   +--------------------------------+
@@ -713,8 +707,7 @@ Cross-compiler url:
         sudo apt install g++-mipsel-linux-gnu
 
     On your linux host, prepare to cross-compile NetHack as follows:
-        cd sys/unix ; sh setup.sh hints/linux.500 ; cd ../..
-        make fetch-lua
+        cd sys/unix ; sh setup.sh hints/linux.501 ; cd ../..
 
     Then, cross-compile to targets/mips as follows:
         make CROSS_TO_MIPS=1 fetch-ncurses
@@ -726,7 +719,7 @@ Cross-compiler url:
 
     The cross-compiler hints additions are enclosed inside ifdef sections
     and shouldn't interfere with the non-cross-compile builds using
-    hints/linux.500 or hints/macOS.500.
+    hints/linux.501 or hints/macOS.501.
 
 
 ---

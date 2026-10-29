@@ -52,65 +52,65 @@ SRCDIR = $(NHSROOT)/src
 
 # flags may have to be changed as required
 # flags for 286 Xenix:
-# CFLAGS = -Ml2t16 -O -LARGE -I../include
+# CFLAGS = -Ml2t16 -O -LARGE -I../include -I../nhlua/lua/src
 # LFLAGS = -Ml -F 4000 -SEG 512
 
 # flags for 286 Microport SysV-AT
-# CFLAGS = -DDUMB -Ml -I../include
+# CFLAGS = -DDUMB -Ml -I../include -I../nhlua/lua/src
 # LFLAGS = -Ml
 
 # flags for Atari GCC (3.2.1)
 # CFLAGS = -O -I../include
 # LFLAGS = -s
 # flags for Atari GCC (3.3)
-# CFLAGS = -mshort -O2 -I../include
+# CFLAGS = -mshort -O2 -I../include -I../nhlua/lua/src
 # LFLAGS = -mshort -s
 
 # flags for Apollos using their native cc
 # (as long as it claims to be __STDC__ but isn't)
-# CFLAGS = -DAPOLLO -O -I../include
+# CFLAGS = -DAPOLLO -O -I../include -I../nhlua/lua/src
 
 # flags for AIX 3.1 cc on IBM RS/6000 to define
 # a suitable subset of standard libraries
 # (note that there is more info regarding the "-qchars=signed"
 # switch in file Install.unx note 8)
-# CFLAGS = -D_NO_PROTO -D_XOPEN_SOURCE -O -I../include -qchars=signed
+# CFLAGS = -D_NO_PROTO -D_XOPEN_SOURCE -O -I../include -I../nhlua/lua/src -qchars=signed
 # and for AIX 3.2:
-# CFLAGS = -D_NO_PROTO -D_XOPEN_SOURCE -D_ALL_SOURCE -O -I../include -qchars=signed
+# CFLAGS = -D_NO_PROTO -D_XOPEN_SOURCE -D_ALL_SOURCE -O -I../include -I../nhlua/lua/src -qchars=signed
 
 # flags for A/UX 2.01 using native cc or c89
 # gcc predefines AUX so that's not needed there
-# CFLAGS = -ZS -D_POSIX_SOURCE -O -I../include -DAUX
+# CFLAGS = -ZS -D_POSIX_SOURCE -O -I../include -I../nhlua/lua/src -DAUX
 
 # flags for IRIX 4.0.x using native cc
 # SGI cc 3.10 will fail to compile makedefs with -O
-# CFLAGS = -I../include -D__STDC__ -woff 100,293
+# CFLAGS = -I../include -I../nhlua/lua/src -D__STDC__ -woff 100,293
 
 # flags for Linux
 #   compile normally
-# CFLAGS = -O2 -fomit-frame-pointer -I../include
+# CFLAGS = -O2 -fomit-frame-pointer -I../include -I../nhlua/lua/src
 # LFLAGS = -L/usr/lib64
 #   OR compile backwards compatible a.out format
-# CFLAGS = -O2 -b i486-linuxaout -fomit-frame-pointer -I../include
+# CFLAGS = -O2 -b i486-linuxaout -fomit-frame-pointer -I../include -I../nhlua/lua/src
 # LFLAGS = -b i486-linuxaout -L/usr/X11R6/lib
 
 # flags for BeOS using the command line
 #   BeOS on a Mac/BeBox:
 #CC = mwcc
-#CFLAGS = -I../include
+#CFLAGS = -I../include -I../nhlua/lua/src
 #   BeOS on Intel:
 # the default values are fine
 
 # flags for debugging:
-# CFLAGS = -g -I../include
+# CFLAGS = -g -I../include -I../nhlua/lua/src
 
-#CFLAGS = -O -I../include
+#CFLAGS = -O -I../include -I../nhlua/lua/src
 #LFLAGS =
 
 #fallback defaults if not set
-CFLAGS ?= -I../include
+CFLAGS ?= -I../include -I../nhlua/lua/src
 
-# -lm required by lua
+# -lm required by Lua
 LFLAGS += -lm
 
 # we specify C preprocessor flags via CFLAGS; files built with default rules
@@ -495,15 +495,11 @@ tile2x11: tile2x11.o $(TEXT_IO) $(HACKLIB)
 	$(CLINK) $(LFLAGS) -o tile2x11 tile2x11.o $(TEXT_IO) \
 		$(HACKLIB) $(LIBS)
 
-tile2img.ttp: tile2img.o bitmfile.o $(TEXT_IO)
-	$(CLINK) $(LFLAGS) -o tile2img.ttp tile2img.o bitmfile.o \
-		$(TEXT_IO) $(LIBS)
-
 tile2bmp: tile2bmp.o $(TEXT_IO) $(HACKLIB)
 	$(CLINK) $(LFLAGS) -o tile2bmp tile2bmp.o $(TEXT_IO) $(HACKLIB)
 
-xpm2img.ttp: xpm2img.o bitmfile.o
-	$(CLINK) $(LFLAGS) -o xpm2img.ttp xpm2img.o bitmfile.o $(LIBS)
+tile2pict: tile2pict.o $(TEXT_IO) $(HACKLIB)
+	$(CLINK) $(LFLAGS) -o tile2pict tile2pict.o $(TEXT_IO) $(HACKLIB)
 
 tile2beos: tile2beos.o $(TEXT_IO) $(HACKLIB)
 	$(CXXLINK) $(LFLAGS) -o tile2beos tile2beos.o \
@@ -537,17 +533,12 @@ ppmwrite.o: $(CCRESP) ../win/share/ppmwrite.c $(CONFIG_H) ../win/share/tile.h
 tile2bmp.o: $(CCRESP) ../win/share/tile2bmp.c $(HACK_H) ../win/share/tile.h
 	$(CC) $(CFLAGS) $(CSTD) -I../win/share -c ../win/share/tile2bmp.c -o $@
 
+tile2pict.o: $(CCRESP) ../util/tile2pict.c $(HACK_H) ../win/share/tile.h
+	$(CC) $(CFLAGS) $(CSTD) -I../win/share -c ../util/tile2pict.c -o $@
+
 tile2x11.o: $(CCRESP) ../win/X11/tile2x11.c $(HACK_H) ../win/share/tile.h \
 						../include/tile2x11.h
 	$(CC) $(CFLAGS) $(CSTD) -I../win/share -c ../win/X11/tile2x11.c -o $@
-
-tile2img.o: $(CCRESP) ../win/gem/tile2img.c $(HACK_H) ../win/share/tile.h \
-						../include/bitmfile.h
-	$(CC) $(CFLAGS) $(CSTD) -I../win/share -c ../win/gem/tile2img.c -o $@
-xpm2img.o: $(CCRESP) ../win/gem/xpm2img.c $(HACK_H) ../include/bitmfile.h
-	$(CC) $(CFLAGS) $(CSTD) -c ../win/gem/xpm2img.c -o $@
-bitmfile.o: $(CCRESP) ../win/gem/bitmfile.c ../include/bitmfile.h
-	$(CC) $(CFLAGS) $(CSTD) -c ../win/gem/bitmfile.c -o $@
 
 tile2beos.o: $(CCRESP) ../win/BeOS/tile2beos.cpp $(HACK_H) ../win/share/tile.h
 	$(CXX) $(CFLAGS) $(CSTD) -I../win/share -c ../win/BeOS/tile2beos.cpp -o $@
@@ -600,8 +591,6 @@ $(OBJDIR)/dlb.o: $(CCRESP) ../src/dlb.c $(CONFIG_H) ../include/dlb.h
 # this differs substantially from what Makefile.src specifies
 $(OBJDIR)/date.o: $(CCRESP) ../src/date.c $(CONFIG_H)
 	$(CC) $(CFLAGS) $(CSTD) -c ../src/date.c -o $@
-../include/nhlua.h:
-	@( cd .. ; $(MAKE) lua_support )
 # make sure hack.h dependencies get transitive information
 $(HACK_H): $(CONFIG_H)
 	@( cd ../src ; $(MAKE) $(HACK_H) )
@@ -628,7 +617,7 @@ clean: clean-fixup
 # obsolete dgn_comp and lev_comp could be left around from 3.6.x
 spotless: clean
 	-rm -f makedefs recover dlb $(HACKLIB)
-	-rm -f gif2txt txt2ppm tile2x11 tile2img.ttp xpm2img.ttp \
-		tilemap tileedit tile2bmp uudecode
+	-rm -f gif2txt txt2ppm tile2x11 \
+		tilemap tileedit tile2bmp tile2pict uudecode
 	-rm -f dgn_comp* dgn_lex.c dgn_yacc.c ../include/dgn_comp.h \
 		lev_comp* lev_lex.c lev_yacc.c ../include/lev_comp.h

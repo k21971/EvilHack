@@ -1,0 +1,23 @@
+#=================================================================
+# NetHack 5.0  include/whichbsd $NHDT-Date: 1791741359 2026/10/11 17:55:59 $  $NHDT-Branch: NetHack-5.0 $ $NHDT-Revision: 1.4 $
+# 
+#
+.ifdef WHICHBSD
+.undef WHICHBSD
+.endif
+
+OS!=uname -s
+
+.if ${OS} == "FreeBSD"
+WHICHBSD=FREEBSD
+.elif ${OS} == "OpenBSD"
+WHICHBSD=OPENBSD
+.elif ${OS} == "NetBSD"
+WHICHBSD=NETBSD
+.else
+WHICHBSD=OTHERBSD
+.endif
+
+# End of whichbsd -PRE section
+#=================================================================
+

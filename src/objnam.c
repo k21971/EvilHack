@@ -3932,6 +3932,7 @@ static const struct alt_spellings {
     { "lantern", LANTERN },
     { "mattock", DWARVISH_MATTOCK },
     { "bearded axe", DWARVISH_BEARDED_AXE },
+    { "amulet of flight", AMULET_OF_FLYING },
     { "amulet of poison resistance", AMULET_VERSUS_POISON },
     { "amulet of protection", AMULET_OF_GUARDING },
     { "amulet of telepathy", AMULET_OF_ESP },
@@ -3957,8 +3958,8 @@ static const struct alt_spellings {
     { "tripe", TRIPE_RATION },
     { "cookie", FORTUNE_COOKIE },
     { "pie", CREAM_PIE },
-    { "huge meatball", HUGE_CHUNK_OF_MEAT }, /* likely conflated name */
-    { "huge chunk of meat", HUGE_CHUNK_OF_MEAT }, /* original name */
+    { "huge meatball", ENORMOUS_MEATBALL }, /* likely conflated name */
+    { "huge chunk of meat", ENORMOUS_MEATBALL }, /* original name */
     { "marker", MAGIC_MARKER },
     { "hook", GRAPPLING_HOOK },
     { "grappling iron", GRAPPLING_HOOK },

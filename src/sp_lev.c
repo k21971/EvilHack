@@ -2445,7 +2445,9 @@ create_object(object *o, struct mkroom *croom)
            subsequent SP_OBJ_CONTENT specs into the wrong bag.
            Skip the container-init step in that case */
         if (!(o->containment & SP_OBJ_CONTENT)) {
+            gw.whitelist_shk |= 1;
             delete_contents(otmp);
+            gw.whitelist_shk &= ~1;
             if (container_idx < MAX_CONTAINMENT) {
                 container_obj[container_idx] = otmp;
                 container_idx++;

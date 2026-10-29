@@ -1115,7 +1115,8 @@ shop_keeper(char rmno)
             int hmm UNUSED = 1;
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED \
      && NH_DEVEL_STATUS != NH_STATUS_POSTRELEASE)
-            impossible("untrustworthy null shkp; level_status.shkready"
+         if (wizard && !gw.whitelist_shk)
+            impossible("debug: untrustworthy null shkp; level_status.shkready"
                         " is FALSE (%d, %d, %d, %d)",
                         level_status.making, level_status.loading,
                         level_status.shkready, level_status.ready);

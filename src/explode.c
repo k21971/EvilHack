@@ -215,14 +215,14 @@ explode(
     boolean starting = 1;
     boolean visible, any_shield;
     boolean was_tame; /* target's tameness before the blast */
-    int uhurt = 0; /* 0=unhurt, 1=items damaged, 2=you and items damaged */
-    const char *str = (const char *) 0;
+    int uhurt = 0, /* 0=unhurt, 1=items damaged, 2=you and items damaged */
+        do_hallu = 0;
+    const char *str = (const char *) 0, *unmorphed_str = (const char *) 0;
     struct monst *mtmp, *mdef = 0;
     uchar adtyp;
     int explmask[3][3]; /* 0=normal explosion, 1=do shieldeff, 2=do nothing */
     coordxy xx, yy, hero_x, hero_y;
-    boolean shopdamage = FALSE, do_hallu = FALSE, inside_engulfer,
-            grabbed, grabbing;
+    boolean shopdamage = FALSE, inside_engulfer, grabbed, grabbing;
     coord grabxy;
     char hallu_buf[BUFSZ], killr_buf[BUFSZ];
     short exploding_wand_typ = 0;
@@ -316,9 +316,24 @@ explode(
         /* when explode() is called recursively, svk.killer.name might change
            so retain a copy of the current value for this explosion */
         str = strcpy(killr_buf, svk.killer.name);
-        do_hallu = (Hallucination
-                    && (strstri(str, "'s explosion")
-                        || strstri(str, "s' explosion")));
+
+        unmorphed_str = strstr(str, "morphed into an ");
+        if (unmorphed_str) {
+            unmorphed_str += 16;
+        } else {
+            unmorphed_str = strstr(str, "morphed into a ");
+            if (unmorphed_str)
+                unmorphed_str += 15;
+        }
+
+        if (Hallucination) {
+            do_hallu = ((strstri(str, "'s explosion")
+                         || strstri(str, "s' explosion")))
+                           ? 1
+                       : (strstr(str, "explosion of an ")) ? 2
+                       : (strstr(str, "explosion of a "))  ? 3
+                                                           : 0;
+        }
     }
     if (type == PHYS_EXPL_TYPE) {
         /* currently only gas spores */
@@ -533,7 +548,9 @@ explode(
                 } else if (cansee(xx, yy)) {
                     if (mtmp->m_ap_type)
                         seemimic(mtmp);
-                    pline("%s is caught in the %s!", Monnam(mtmp), str);
+                    pline("%s is caught in the %s%s!", Monnam(mtmp),
+                          unmorphed_str ? s_suffix(unmorphed_str) : str,
+                          unmorphed_str ? " explosion" : "");
                 }
 
                 /* water shields a submerged target from fire and acid */
@@ -569,7 +586,9 @@ explode(
                     if (resist(mtmp, olet, 0, FALSE)) {
                         /* inside_engulfer: <xx,yy> == <u.ux,u.uy> */
                         if (cansee(xx, yy) || inside_engulfer)
-                            pline("%s resists the %s!", Monnam(mtmp), str);
+                            pline("%s resists the %s%s!", Monnam(mtmp),
+                                  unmorphed_str ? s_suffix(unmorphed_str) : str,
+                                  unmorphed_str ? " explosion" : "");
                         mdam = (dam + 1) / 2;
                     }
                     /* if grabber is reaching into hero's spot and
@@ -642,7 +661,9 @@ explode(
                 } while (*hallu_buf != lowc(*hallu_buf));
                 str = hallu_buf;
             }
-            You("are caught in the %s!", str);
+            You("are caught in the %s%s!",
+                unmorphed_str ? s_suffix(unmorphed_str) : str,
+                unmorphed_str ? " explosion" : "");
             iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
         }
         /* do property damage first, in case we end up leaving bones;
@@ -1324,8 +1345,8 @@ mon_explodes(
 {
     struct monst *save_exploder;
     boolean save_attacked;
-    int dmg;
-    int type;
+    int dmg, type, recent_altform = NON_PM;
+
     if (mattk->damn) {
         dmg = d((int) mattk->damn, (int) mattk->damd);
     }
@@ -1349,6 +1370,9 @@ mon_explodes(
         return;
     }
 
+    if (mon->cham != NON_PM && is_shapeshifter(&mons[mon->cham])) {
+        recent_altform = monsndx(mon->data);
+    }
     /* Kill it now so it won't appear to be caught in its own explosion.
      * Must check to see if already dead - which happens if this is called
      * from an AT_BOOM attack upon death. */
@@ -1358,8 +1382,15 @@ mon_explodes(
 
     /* This might end up killing you, too; you never know...
      * also, it is used in explode() messages */
-    Sprintf(svk.killer.name, "%s explosion",
-            s_suffix(pmname(mon->data, Mgender(mon))));
+
+    if (recent_altform != NON_PM && is_shapeshifter(mon->data)) {
+        Sprintf(svk.killer.name, "explosion of %s morphed into %s",
+                an(pmname(mon->data, Mgender(mon))),
+                an(pmname(&mons[recent_altform], Mgender(mon))));
+    } else {
+        Sprintf(svk.killer.name, "%s explosion",
+                s_suffix(pmname(mon->data, Mgender(mon))));
+    }
     svk.killer.format = KILLED_BY_AN;
 
     /* credit the exploding monster for blast kills (set after the

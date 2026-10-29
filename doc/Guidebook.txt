@@ -15,7 +15,7 @@
                        Original version - Eric S. Raymond
       (Edited and expanded for EvilHack 1.0.0 by Keith Simpson and others)
 
-                                October 22, 2026
+                                October 29, 2026
 
 
 
@@ -5250,7 +5250,7 @@
        Each SOUND entry is broken down into the following parts:
 
        MESG        - message  window  mapping  (the  only  one supported in
-                     5.0.0);
+                     5.0.0 and beyond);
        msgtype     - optional; message type to use, see  "Configuring  Mes-
                      sage Types"
        pattern     - the pattern to match;
@@ -5866,7 +5866,7 @@
        ing placeholders:
 
            %% - literal `%'
-           %v - version (eg. "5.0.0-0")
+           %v - version (eg. "1.0.0-0")
            %u - game UID
            %t - game start time, UNIX timestamp format
            %T - current time, UNIX timestamp format

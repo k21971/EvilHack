@@ -156,7 +156,7 @@ picklock(void)
                 alreadyunlocked = !(gx.xlock.door->doormask & D_LOCKED);
             } else {
                 gx.xlock.box->otrapped = 0;
-                gx.xlock.box->tknown = 0;
+                gx.xlock.box->tknown = 1; /* known not trapped */
                 what = (gx.xlock.box->otyp == CHEST) ? "chest" : "box";
                 alreadyunlocked = !gx.xlock.box->olocked;
             }
@@ -1534,7 +1534,7 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
         {
             static const short meats[] = {
                 MEATBALL, MEAT_STICK, MEAT_RING, STRIP_OF_BACON,
-                HUGE_CHUNK_OF_MEAT
+                ENORMOUS_MEATBALL
             };
             int i, n = rn1(3, 2); /* 2..4 meat items */
 

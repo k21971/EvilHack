@@ -1309,8 +1309,8 @@ FOOD("meat stick",            0,  1,  1, 0, FLESH,   5, HI_FLESH,
         MEAT_STICK),
 FOOD("strip of bacon",        0,  1,  1, 0, FLESH,   5, HI_FLESH,
         STRIP_OF_BACON),
-FOOD("huge chunk of meat",    0, 20,400, 0, FLESH,2000, HI_FLESH,
-        HUGE_CHUNK_OF_MEAT),
+FOOD("enormous meatball",     0, 20,400, 0, FLESH,2000, HI_FLESH,
+        ENORMOUS_MEATBALL),
 /* special cases because they aren't mergable */
 /* === OBJECT entries === */
 OBJECT(OBJ("meat ring", NoDes),

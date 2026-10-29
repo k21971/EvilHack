@@ -869,7 +869,9 @@ static const struct instance_globals_w g_init_w = {
     NULL, /* worn_slot_exempt */
     /* new */
     { wdmode_traditional, NO_COLOR },       /* wsettings */
-    0L,                                     /* were.c, allmain.c */
+    /* were.c, allmain.c */
+    0L,                                     /* were_changes */
+    0L,                                     /* whitelist_shk */
     TRUE, /* havestate*/
 };
 

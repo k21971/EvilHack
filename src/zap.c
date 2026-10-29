@@ -1043,7 +1043,7 @@ probe_objchain(struct obj *otmp)
             otmp->lknown = 1;
             if (!SchroedingersBox(otmp))
                 otmp->cknown = 1;
-        } else if (otmp->otyp == TIN)
+        } else if (otmp->otyp == TIN || otmp->otyp == EGG)
             otmp->known = 1;
     }
 }
@@ -2656,7 +2656,7 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
     case ROCK_CLASS: /* boulders and statues */
     case TOOL_CLASS: /* figurines */
         if (obj->otyp == BOULDER) {
-            obj = poly_obj(obj, HUGE_CHUNK_OF_MEAT);
+            obj = poly_obj(obj, ENORMOUS_MEATBALL);
             smell = TRUE;
         } else if (obj->otyp == STATUE || obj->otyp == FIGURINE) {
             ptr = &mons[obj->corpsenm];

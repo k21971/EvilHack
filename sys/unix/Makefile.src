@@ -105,18 +105,18 @@ SYSOBJ ?= $(TARGETPFX)ioctl.o $(TARGETPFX)unixmain.o $(TARGETPFX)unixtty.o \
 
 # flags may have to be changed as required
 # flags for 286 Xenix:
-# CFLAGS = -Ml2t16 -O -LARGE -I../include
+# CFLAGS = -Ml2t16 -O -LARGE -I../include -I../nhlua/lua/src
 # LFLAGS = -Ml -F 4000 -SEG 512
 
 # flags for 286 Microport SysV-AT
-# CFLAGS = -DDUMB -Ml -I../include
+# CFLAGS = -DDUMB -Ml -I../include -I../nhlua/lua/src
 # LFLAGS = -Ml
 
 # flags for Atari gcc (3.2.1)
-# CFLAGS = -O -I../include
+# CFLAGS = -O -I../include -I../nhlua/lua/src
 # LFLAGS = -s
 # flags for Atari gcc (3.3)
-# CFLAGS = -mshort -O2 -fomit-frame-pointer -I../include
+# CFLAGS = -mshort -O2 -fomit-frame-pointer -I../include -I../nhlua/lua/src
 # LFLAGS = -mshort -s
 
 # Curses, use one of the following:
@@ -128,51 +128,51 @@ SYSOBJ ?= $(TARGETPFX)ioctl.o $(TARGETPFX)unixmain.o $(TARGETPFX)unixtty.o \
 # a suitable subset of standard libraries
 # (note that there is more info regarding the "-qchars=signed"
 # switch in file Install.unx note 8)
-# CFLAGS = -D_NO_PROTO -D_XOPEN_SOURCE -O -I../include -qchars=signed
+# CFLAGS = -D_NO_PROTO -D_XOPEN_SOURCE -O -I../include -I../nhlua/lua/src -qchars=signed
 #
 # Some of our subroutines are complex enough that this is required for full
 # optimization under AIX 3.2 (I don't know about 3.1).
 #
-# CFLAGS = -D_NO_PROTO -D_XOPEN_SOURCE -D_ALL_SOURCE -O -I../include -qchars=signed -qmaxmem=5000
+# CFLAGS = -D_NO_PROTO -D_XOPEN_SOURCE -D_ALL_SOURCE -O -I../include -I../nhlua/lua/src -qchars=signed -qmaxmem=5000
 
 # flags for A/UX 2.01 using native cc or c89
 # gcc predefines AUX so that's not needed there
 # Remember to use -lcurses for WINLIB below !
-# CFLAGS = -ZS -D_POSIX_SOURCE -O -I../include -DAUX
+# CFLAGS = -ZS -D_POSIX_SOURCE -O -I../include -I../nhlua/lua/src -DAUX
 
 # flags for IRIX 4.0.x using native cc
 # The include files are __STDC__, but have bugs involving const
-# CFLAGS = -O -I../include -D__STDC__ -Dconst= -woff 100,293
+# CFLAGS = -O -I../include -I../nhlua/lua/src -D__STDC__ -Dconst= -woff 100,293
 # LFLAGS = -s
 
 # flags for BSD/OS 2.0
-# CFLAGS = -O -I../include -I/usr/X11/include
+# CFLAGS = -O -I../include -I../nhlua/lua/src -I/usr/X11/include
 # LFLAGS = -L/usr/X11/lib
 
 # flags for Linux
 #   compile normally
-# CFLAGS = -O2 -fomit-frame-pointer -I../include
+# CFLAGS = -O2 -fomit-frame-pointer -I../include -I../nhlua/lua/src
 # LFLAGS = -L/usr/lib64
 #   OR compile backwards compatible a.out format
-# CFLAGS = -O2 -b i486-linuxaout -fomit-frame-pointer -I../include
+# CFLAGS = -O2 -b i486-linuxaout -fomit-frame-pointer -I../include -I../nhlua/lua/src
 # LFLAGS = -b i486-linuxaout -L/usr/X11R6/lib
 
 # flags for BeOS
 #   on a Mac/BeBox:
 #CC = mwcc
-#CFLAGS = -r -I../include
+#CFLAGS = -r -I../include -I../nhlua/lua/src
 #LINK = mwld
 #LFLAGS = -map nethack.xMAP
 #   on Intel:
-#CFLAGS = -O -I../include
+#CFLAGS = -O -I../include -I../nhlua/lua/src
 #LINK = gcc
 #LFLAGS = -Xlinker -soname=_APP_
 
 # Compile with PDCurses installed in a separate directory that doesn't
 # conflict with the system curses/ncurses library
-#CFLAGS = -O -I../include -I/usr/local/include/pdcurses
+#CFLAGS = -O -I../include -I../nhlua/lua/src -I/usr/local/include/pdcurses
 # Same as above, but for XCurses
-#CFLAGS = -O -DXCURSES -I../include -I/usr/local/include/pdcurses
+#CFLAGS = -O -DXCURSES -I../include -I../nhlua/lua/src -I/usr/local/include/pdcurses
 # Compile against system curses library, such as ncurses
 #CFLAGS = -O -I../include
 #
@@ -183,13 +183,13 @@ SYSOBJ ?= $(TARGETPFX)ioctl.o $(TARGETPFX)unixmain.o $(TARGETPFX)unixtty.o \
 #X11CFLAGS=
 
 # flags for debugging:
-# CFLAGS = -g -I../include
+# CFLAGS = -g -I../include -I../nhlua/lua/src
 
-#CFLAGS = -O -I../include
+#CFLAGS = -O -I../include -I../nhlua/lua/src
 #LFLAGS =
 
 #fallback values, only if these are not already set
-CFLAGS ?= -I../include
+CFLAGS ?= -I../include -I../nhlua/lua/src
 LINK ?= $(CC)
 
 AR ?= ar
@@ -503,11 +503,9 @@ TARGET_HACKLIB ?= $(TARGETPFX)hacklib.a
 MAKEDEFS ?= ../util/makedefs
 
 # -lm required by lua
-LUA_VERSION ?=5.4.8
-LUABASE ?= liblua-$(LUA_VERSION).a
-LUALIB ?= ../lib/lua/$(LUABASE)
+LUATOPLIB = nhlua/lua/src/libnhlua.a
+LUALIB ?= ../nhlua/lua/src/libnhlua.a
 LUALIBS ?= $(LUALIB) -lm $(DLLIB)
-LUAHEADERS ?= lib/lua-$(LUA_VERSION)/src
 
 # timestamp files to reduce `make' overhead and shorten .o dependency lists
 CONFIG_H = ../src/config.h-t
@@ -730,8 +728,8 @@ DUMB.Setup:	../include/extern.h
 	cp ../include/extern.DUMB ../include/extern.h
 	@touch DUMB.Setup
 
-$(LUALIB) ../include/nhlua.h:
-	@( cd .. ; $(MAKE) lua_support )
+$(LUALIB):
+	@( cd .. ; $(MAKE) $(LUATOPLIB) )
 
 #	dependencies for makedefs and its outputs, which the util
 #	Makefile is responsible for keeping up to date
@@ -829,7 +827,6 @@ clean:
 
 spotless: clean
 	-rm -f a.out core $(HACKLIB) $(GAMEBIN) Sys*
-	-rm -f ../include/nhlua.h
 	-rm -f ../include/date.h #created but no longer used, at least by core
 	-rm -f ../include/onames.h ../include/pm.h #obsolete generated files
 	-rm -f $(GENTILECFILE) *.moc Qt*.h-t
@@ -845,7 +842,7 @@ updatedepend: updatedepend-setup
 	cp Makefile.src ../../src && \
 	make -C ../../src MAKEFILE_NAME=Makefile.src -f Makefile.src depend2 && \
 	mv ../../src/Makefile.src .
-	@rm -f ../$(HACK_H) ../../include/nhlua.h
+	@rm -f ../$(HACK_H)
 
 # check pwd, create bogus derived files
 updatedepend-setup:
@@ -855,15 +852,6 @@ updatedepend-setup:
 		echo "updatedepend must be run in sys/unix"; exit 1; \
 	fi
 	touch ../$(HACK_H)
-	@	# generate bogus files
-	echo "Generating bogus include/nhlua.h"
-	(HFILE=../../include/nhlua.h && \
-	echo '/* bogus nhlua.h for updatedepend ONLY */' > $$HFILE && \
-	echo '#error bogus include/nhlua.h' >> $$HFILE && \
-	echo '#include "../$(LUAHEADERS)/lua.h"' >> $$HFILE && \
-	echo '#include "../$(LUAHEADERS)/lualib.h"' >> $$HFILE && \
-	echo '#include "../$(LUAHEADERS)/lauxlib.h"' >> $$HFILE && \
-	echo '/*nhlua.h*/' >> $$HFILE )
 	@echo "Generating bogus $(GENTILECFILE)"
 	@echo '#error bogus include/nhlua.h' > ../../src/tile.c
 	@echo "#include \"hack.h\"" >> ../../src/tile.c
@@ -889,7 +877,7 @@ depend2:	$(WINQTMOC)
 	@echo '# see make depend above' >> $(MAKEFILE_NAME)
 	- diff Makefile.bak $(MAKEFILE_NAME)
 	@rm -f Makefile.bak
-	@rm -f ../include/nhlua.h $(GENTILECFILE)
+	@rm -f $(GENTILECFILE)
 
 # DO NOT DELETE THIS LINE OR CHANGE ANYTHING BEYOND IT
 

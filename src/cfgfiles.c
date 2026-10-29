@@ -1907,6 +1907,22 @@ parse_conf_file(FILE *fp, boolean (*proc)(char *arg))
     free_config_sections();
 
     while (fgets(parser.inbuf, parser.inbufsz, fp)) {
+#ifdef MAC68K
+        /* Classic Mac text files use CR line endings; fgets() only
+           stops at LF, so a CR-only file is read as one long line.
+           Convert the first bare CR to LF so parse_conf_buf sees it
+           as a line ending, then seek back so the rest is re-read. */
+        if (!strchr(parser.inbuf, '\n')) {
+            char *cr = strchr(parser.inbuf, '\r');
+            if (cr) {
+                long remaining = (long) strlen(cr + 1);
+                *cr = '\n';
+                *(cr + 1) = '\0';
+                if (remaining > 0)
+                    fseek(fp, -remaining, SEEK_CUR);
+            }
+        }
+#endif
         parse_conf_buf(&parser, proc);
         if (parser.pbreak)
             break;
@@ -2052,7 +2068,7 @@ disregard_this_config_statement(int statement_idx)
 }
 
 void
-clear_ignore_errors_on_unmatched(void)
+clear_ignore_errors_on_unmatch(void)
 {
     ignore_errors_on_unmatched = FALSE;
 }
@@ -2083,7 +2099,7 @@ rcfile_interface_options(void)
     heed_all_options();
     disregard_this_option(opt_windowtype);
     disregard_this_option(opt_soundlib);
-    clear_ignore_errors_on_unmatched();
+    clear_ignore_errors_on_unmatch();
     ignore_statement_errors = FALSE;
 }
 
@@ -2099,7 +2115,7 @@ rcfile_only_this_option(enum opt heeded_option)
     rcfile();
     heed_all_config_statements();
     heed_all_options();
-    clear_ignore_errors_on_unmatched();
+    clear_ignore_errors_on_unmatch();
     ignore_statement_errors = FALSE;
 }
 
@@ -2115,7 +2131,7 @@ rcfile_only_this_statement(int statementid)
     rcfile();
     heed_all_config_statements();
     heed_all_options();
-    clear_ignore_errors_on_unmatched();
+    clear_ignore_errors_on_unmatch();
     ignore_statement_errors = FALSE;
 }
 
@@ -2149,7 +2165,7 @@ portable_sysconf_only_this_statement(int statementid)
             config_error_done();
             heed_all_config_statements();
             heed_all_options();
-            clear_ignore_errors_on_unmatched();
+            clear_ignore_errors_on_unmatch();
             ignore_statement_errors = FALSE;
             if (sysopt.portable_device_paths) {
                 Snprintf(portable_device_path, sizeof portable_device_path,
@@ -2219,7 +2235,7 @@ rcfile_only_some_mswin_options(void)
     rcfile();
     heed_all_config_statements();
     heed_all_options();
-    clear_ignore_errors_on_unmatched();
+    clear_ignore_errors_on_unmatch();
     ignore_statement_errors = FALSE;
 }
 #endif /* MSWIN_GRAPHICS */

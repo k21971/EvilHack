@@ -21,8 +21,6 @@ jobs:
     - uses: actions/checkout@v5
     - name: setup
       run: cd sys/unix && sh setup.sh hints/$HINTS_FILE
-    - name: fetch lua
-      run: make fetch-lua
     - name: make all
       run: make all
     # make install and artifact upload need a runner-writable PREFIX;

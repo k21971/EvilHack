@@ -1,4 +1,4 @@
-# NetHack 5.0  linux.500 $NHDT-Date: 1693519390 2023/08/31 22:03:10 $  $NHDT-Branch: keni-crashweb2 $:$NHDT-Revision: 1.61 $
+# NetHack 5.0  linux hints $NHDT-Date: 1693519390 2023/08/31 22:03:10 $  $NHDT-Branch: keni-crashweb2 $:$NHDT-Revision: 1.61 $
 # Copyright (c) Kenneth Lorber, Kensington, Maryland, 2007.
 # NetHack may be freely redistributed.  See license for details.
 #
@@ -15,10 +15,9 @@
 #-PRE xxxx
 
 WHICH_OS=Linux
-HINTSVERSION := 500
+HINTSVERSION := 501
 
 ifdef MAKEFILE_TOP
-LUA_VERSION=5.4.8
 ifeq ($(MAKELEVEL),0)
 PRECHECK+=checkmakefiles
 # all files included from this hints file get listed
@@ -34,22 +33,22 @@ HINTSINCLFILES := $(addsuffix .$(HINTSVERSION), $(HINTSINCLNAMES))
 endif
 endif
 
-# linux.500 hints file provides a single-user build for Linux (such
+# linux.501 hints file provides a single-user build for Linux (such
 # as Ubuntu focal).
 
 # tty and curses, tty by default (set here so the shared
-# multiw-1.500 stays as vanilla ships it)
+# multiw-1.501 stays as vanilla ships it)
 WANT_WIN_TTY=1
 WANT_WIN_CURSES=1
 WANT_DEFAULT=tty
 
 # note: '#-INCLUDE' is not just a comment
-#        multiw-1.500 contains sections 1 to 2
-#-INCLUDE multiw-1.500
+#        multiw-1.501 contains sections 1 to 2
+#-INCLUDE multiw-1.501
 
 # Server chroot layout. HACKDIR is the path inside the chroot that is
 # compiled into the binary; INSTDIR/VARDIR resolve under the source
-# tree because dirs-perms.500 sets PREFIX=$(abspath $(NHSROOT)).
+# tree because dirs-perms.501 sets PREFIX=$(abspath $(NHSROOT)).
 HACKDIR=/evilhack-1.0.0
 INSTDIR=$(PREFIX)$(HACKDIR)
 VARDIR=$(INSTDIR)/var
@@ -58,10 +57,10 @@ VARFILEPERM=0600
 VARDIRPERM=0755
 
 # note: '#-INCLUDE' is not just a comment
-#        it pulls in the contents of dirs-perms.500
-#-INCLUDE dirs-perms.500
+#        it pulls in the contents of dirs-perms.501
+#-INCLUDE dirs-perms.501
 
-#-INCLUDE linuxdistro.500
+#-INCLUDE linuxdistro.501
 
 ifndef LIBXPM
 LIBXPM= -L/opt/X11/lib -lXpm
@@ -80,7 +79,7 @@ USE_NOSTATICFN = 1
 #USE_NONOSTATICFN = 1
 
 #-----------------------------------------------------------------------------
-#-INCLUDE cross-pre1.500
+#-INCLUDE cross-pre1.501
 
 
 #-----------------------------------------------------------------------------
@@ -88,7 +87,7 @@ USE_NOSTATICFN = 1
 # you're reading this in Makefile augmented by hints, that may not be true).
 #
 
-#-INCLUDE multiw-2.500
+#-INCLUDE multiw-2.501
 
 #QT6 prior to compiler include
 ifdef WANT_WIN_QT6
@@ -97,21 +96,17 @@ ADDITIONAL_NO_WARN_GPPCCX=-Wno-sfinae-incomplete
 ADDITIONAL_NO_WARN_CLANGCCX=-Wno-c++26-extensions
 endif   # WANT_WIN_QT6
 
-# compiler.500 contains compiler detection and adjustments common
+# compiler.501 contains compiler detection and adjustments common
 # to both linux and macOS
 
-#-INCLUDE compiler.500
+#-INCLUDE compiler.501
 
-# full debug info, no optimisation (compiler.500 ships -g);
+
+# full debug info, no optimisation (compiler.501 ships -g);
 # CFLAGS is built from CCFLAGS lazily, so this override takes effect
-CCFLAGS = -g3 -O0
+CCFLAGS = -g3 -O0 -I../nhlua/lua/src
 
 ifdef WANT_SYSTEM_LUA
-ifndef LUA_VERSION
-LUA_VERSION := 5.4.8
-endif
-LUASUBDELIM := $(subst ., ,$(LUA_VERSION))
-LUASHVER := $(word 1, $(LUASUBDELIM)).$(word 2, $(LUASUBDELIM))
 
 ifeq ($(LINUX_DISTRO),alpine)
 # prereq: doas apk add lua5.4-dev
@@ -180,27 +175,23 @@ $(info Existance of package $(LUAPKGNAME) verified)
 ifeq ($(LINUX_DISTRO),fedora)
 LUACFLAGS := $(shell pkg-config --cflags lua-$(LUASHVER))
 LUALIBS := $(shell pkg-config --libs lua-$(LUASHVER))
-LUAHEADERS := /usr/include/lua$(LUASHVER)
+LUAHEADERS := $(NHSROOT)/nhlua/lua/src
 LUATESTTARGET := $(LUAHEADERS)/lua.h
 #
 else ifeq ($(LINUX_DISTRO),ubuntu)
-LUACFLAGS := -I/usr/include/lua$(LUASHVER)
+LUACFLAGS := -I$(NHSROOT)/nhlua/lua/src
 LUALIBS := -llua$(LUASHVER) -lm -ldl
-LUAHEADERS := /usr/include/lua$(LUASHVER)
+LUAHEADERS := $(NHSROOT)/nhlua/lua/src
 LUATESTTARGET := $(LUAHEADERS)/lua.h
 #
 else ifeq ($(SHELLPKG),pkg-config)
 LUACFLAGS := $(shell pkg-config --cflags lua-$(LUASHVER))
 LUALIBS := $(shell pkg-config --libs lua-$(LUASHVER))
-LUAHEADERS := /usr/include/lua$(LUASHVER)
+LUAHEADERS := $(NHSROOT)/nhlua/lua/src
 LUATESTTARGET := $(LUAHEADERS)/lua.h
 endif
 #
 LUAHPREFIX=
-#LUATOP=
-#LUAMAKEFLAGS=
-#LUA2NHTOP=
-#LUABASELIB=
 LUATOPLIB=
 LUALIBBUILT=
 LUALIB=
@@ -223,10 +214,10 @@ endif    # g++ greater than or equal to 14
 endif   # WANT_WIN_QT6
 endif  # WANT_WIN_QT
 
-# misc.500 must come after compiler.500
+# misc.501 must come after compiler.501
 # and after QTDIR is defined.
 #
-#-INCLUDE misc.500
+#-INCLUDE misc.501
 
 ifeq "$(USE_ASAN)" "1"
 CFLAGS+=-fsanitize=address
@@ -340,7 +331,7 @@ endif   #HAVE_NCURSESW
 endif   #USE_CURSESLIB
 
 #
-#-INCLUDE multisnd1-pre.500
+#-INCLUDE multisnd1-pre.501
 #
 
 ifeq "$(CCISCLANG)" "1"
@@ -355,15 +346,15 @@ endif
 # gcc-specific ends
 endif
 
-# WINCFLAGS set from multiw-2.500
-# SNDCFLAGS set from multisnd-pre.500
+# WINCFLAGS set from multiw-2.501
+# SNDCFLAGS set from multisnd-pre.501
 CFLAGS+= $(WINCFLAGS)
 CFLAGS+= $(SNDCFLAGS)
 CFLAGS+= $(NHCFLAGS)
 CFLAGS+= $(LIBCFLAGS)
 
-# WINCFLAGS set from multiw-2.500
-# SNDCFLAGS set from multisnd-pre.500
+# WINCFLAGS set from multiw-2.501
+# SNDCFLAGS set from multisnd-pre.501
 CCXXFLAGS+= $(WINCFLAGS)
 CCXXFLAGS+= $(SNDCFLAGS)
 CCXXFLAGS+= $(NHCFLAGS)
@@ -434,7 +425,7 @@ endif
 # -x: if built without dlb, some versions of mkfontdir think *.lev are fonts
 POSTINSTALL += bdftopcf win/X11/nh10.bdf > $(HACKDIR)/nh10.pcf; ( cd $(HACKDIR); mkfontdir -x .lev );
 # separate from CFLAGS so that we don't pass it to every file
-X11CFLAGS = -I/opt/X11/include
+X11CFLAGS = -I/opt/X11/include $(COMPILERX11CFLAGS)
 # avoid repeated complaints about _X_NONNULL(args...) in <X11/Xfuncproto.h>
 X11CFLAGS += -Wno-variadic-macros
 ifdef USE_XFT
@@ -544,15 +535,15 @@ CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
 # On this server the chroot is populated by install-to-chroot.sh as an explicit,
 # reviewable step; `make all` should only ever produce artifacts in the tree.
 # The auto-install was harmless here (INSTDIR resolves to the source tree, since
-# dirs-perms.500 sets PREFIX to the tree unless WANT_SHARED_INSTALL) --
+# dirs-perms.501 sets PREFIX to the tree unless WANT_SHARED_INSTALL) --
 # but `install:` runs `rm -rf $(INSTDIR) $(VARDIR)`, so anything that ever made
 # PREFIX resolve at the chroot would turn a plain build into deleting the
 # playground and every save. Not a risk worth carrying for a staging dir nothing
 # consumes. `make install` remains available explicitly if it is ever wanted.
 # NOTE: SYSCF is always on: the NHCFLAGS line above adds -DSYSCF,
 # -DSYSCF_FILE and -DSECURE unconditionally, so the CFLAGS line here
-# only repeats them (as vanilla's linux.500 does). On Linux,
-# dirs-perms.500 picks the install layout from WANT_SHARED_INSTALL
+# only repeats them (as vanilla's linux.501 does). On Linux,
+# dirs-perms.501 picks the install layout from WANT_SHARED_INSTALL
 # alone (it reads WANT_SOURCE_INSTALL only on macOS), so neither hints
 # file sets WANT_SOURCE_INSTALL; this block runs only when it's given
 # on the make command line.
@@ -608,28 +599,28 @@ CHGRP=true
 # manpages directory
 MANDIR=/usr/share/man/man6
 #
-#-INCLUDE cross-pre2.500
+#-INCLUDE cross-pre2.501
 #
 
 #
-#-INCLUDE gbdates-pre.500
+#-INCLUDE gbdates-pre.501
 #
 
 #
-#-INCLUDE multisnd2-pre.500
+#-INCLUDE multisnd2-pre.501
 #
 
 #
-#-INCLUDE response.500
+#-INCLUDE response.501
 #
 
 #-POST
 
 #
-#-INCLUDE gbdates-post.500
+#-INCLUDE gbdates-post.501
 #
 #
-#-INCLUDE multisnd-post.500
+#-INCLUDE multisnd-post.501
 #
 
 ifdef MAKEFILE_TOP
@@ -642,8 +633,8 @@ endif
 endif
 
 ifdef WANT_LIBNH
-$(TARGETPFX)libnh.a: $(HOBJ) $(LIBNHSYSOBJ) ../lib/lua/liblua-$(LUA_VERSION).a
-	$(AR) rcs $@ $(HOBJ) $(LIBNHSYSOBJ) ../lib/lua/liblua-$(LUA_VERSION).a
+$(TARGETPFX)libnh.a: $(HOBJ) $(LIBNHSYSOBJ) $(LUALIB)
+	$(AR) rcs $@ $(HOBJ) $(LIBNHSYSOBJ) $(LUALIB)
 	@echo "$@ built."
 $(TARGETPFX)libnhmain.o : ../sys/libnh/libnhmain.c $(HACK_H)
 	$(CC) $(CFLAGS) -c -o$@ $<
@@ -653,6 +644,6 @@ $(TARGETPFX)libnhmain.o : ../sys/libnh/libnhmain.c $(HACK_H)
 endif  # WANT_LIBNH
 
 #
-#-INCLUDE cross-post.500
+#-INCLUDE cross-post.501
 #
 

@@ -3383,6 +3383,7 @@ domove_core(void)
                 /* could skip this since we're about to call u_on_newpos() */
                 if (u.usteed)
                     u.usteed->mx = u.ux, u.usteed->my = u.uy;
+                nomul(0);
             }
         }
     }  /* mtmp != NULL */

@@ -73,6 +73,23 @@
 /****************************************************************************/
 /* Version 5.0.x */
 
+/*  Patch 1, work in progress
+ *
+ *  Monsters marked off-the-map while still on svl.level.monlist.could bank
+ *    movement credits, which would then get used up in rapid succession if
+ *    placed on the map (steed that hero dismounts from, whether intentionally
+ *    or unintentionally, or bones files; possibly migration to another level.
+ *
+ *  Spurious messages were issued repeatedly when a vault guard was parked
+ *    off the map at 0,0 and intended to be hidden from display.
+ *
+ *  The monster id's associated with usteed and ustuck were not being written
+ *    to the checkpoint file, so recover capability from a sudden game halt
+ *    was lost if the hero was riding or swallowed at the time the game
+ *    ceased.
+ *
+ */
+
 /*
  *  NetHack 5.0.0, May 2, 2026
  *
