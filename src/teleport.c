@@ -1244,28 +1244,41 @@ dotele(
 
 /* wizard mode level teleport into the Planes from outside them: hand
    over the Amulet if the hero lacks it, or for an Infidel the imbued
-   Idol of Moloch that stands in for it */
+   Idol of Moloch that goto_level() requires instead (Infidels start
+   with the Amulet itself, so it is no guide for them) */
 staticfn void
 wiz_endgame_prereq(d_level *newlevel)
 {
     struct obj *amu;
 
-    if (!In_endgame(newlevel) || In_endgame(&u.uz) || u.uhave.amulet)
+    if (!In_endgame(newlevel) || In_endgame(&u.uz))
         return;
-    if (Role_if(PM_INFIDEL)) {
-        /* Infidels enter the Planes with their imbued quest artifact
-           instead of the Amulet itself */
-        amu = mksobj(FIGURINE, TRUE, FALSE);
-        amu = oname(amu, artiname(ART_IDOL_OF_MOLOCH), ONAME_KNOW_ARTI);
-        amu->spe = 1; /* imbued */
-        u.uevent.uimbued_idol = 1;
+    if (Role_if(PM_INFIDEL) && !u.uevent.uimbued_idol) {
+        for (amu = gi.invent; amu; amu = amu->nobj)
+            if (amu->oartifact == ART_IDOL_OF_MOLOCH)
+                break;
+        if (amu) {
+            /* imbue the carried Idol as prayer would */
+            amu->spe = 1;
+            u.uevent.uimbued_idol = 1;
+            u.uhave.amulet = 1;
+            u.uamulet_on_planes = 0;
+        } else {
+            amu = mksobj(FIGURINE, TRUE, FALSE);
+            amu = oname(amu, artiname(ART_IDOL_OF_MOLOCH),
+                        ONAME_KNOW_ARTI);
+            amu->spe = 1; /* imbued */
+            u.uevent.uimbued_idol = 1;
+            /* ordinarily we'd use hold_another_object() for something
+               like this, but we don't want fumbling or already full
+               pack to interfere */
+            amu = addinv(amu);
+        }
+    } else if (!u.uhave.amulet) {
+        amu = addinv(mksobj(AMULET_OF_YENDOR, TRUE, FALSE));
     } else {
-        amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE);
+        return;
     }
-    /* ordinarily we'd use hold_another_object() for something like
-       this, but we don't want fumbling or already full pack to
-       interfere */
-    amu = addinv(amu);
     prinv("Endgame prerequisite:", amu, 0L);
 }
 
