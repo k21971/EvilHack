@@ -188,7 +188,7 @@ endif
 #==============================================================================
 
 #  The version of the game this Makefile was designed for
-NETHACK_VERSION="5.0.0"
+NETHACK_VERSION="1.0.0"
 
 # A brief version for use in macros
 NHV1=$(subst .,,$(NETHACK_VERSION))
@@ -1386,7 +1386,7 @@ $(ONH)/%.o: $(TTY)/%.c | $(ONH)
 $(ONH)/%.o: $(WCURSES)/%.c | $(ONH)
 	$(cc) $(CFLAGSNH) $(PDCINCL) $< -o$@
 
-$(NHRES): $(MSWIN)/NetHack.rc $(WAV) $(MSWIN)/NetHack.ico | $(ONH)
+$(NHRES): $(MSWIN)/evilhack.rc $(WAV) $(MSWIN)/NetHack.ico | $(ONH)
 	$(rc) --include-dir=$(MSWIN) $(RCFLAGS) --input=$< -o$@
 
 $(ONH):

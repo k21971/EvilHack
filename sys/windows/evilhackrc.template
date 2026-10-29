@@ -146,22 +146,22 @@ OPTIONS=hilite_pet,!toptenwin
 # point at must exist.  NetHack will not create them for you.
 #
 # The location that documentation and helps files are placed
-#HACKDIR=c:\User\USERNAME\NetHack\5.0
+#HACKDIR=c:\User\USERNAME\NetHack\1.0
 #
 # The location that level files in progress are stored (writeable)
-#LEVELDIR=c:\User\USERNAME\AppData\Local\NetHack\5.0
+#LEVELDIR=c:\User\USERNAME\AppData\Local\NetHack\1.0
 #
 # The location where saved games are kept (writeable)
-#SAVEDIR=c:\User\USERNAME\AppData\Local\NetHack\5.0
+#SAVEDIR=c:\User\USERNAME\AppData\Local\NetHack\1.0
 #
 # The location that bones files are kept (writeable)
-#BONESDIR=c:\ProgramData\NetHack\5.0
+#BONESDIR=c:\ProgramData\NetHack\1.0
 #
 # The location that score files are kept (writeable)
-#SCOREDIR=c:\ProgramData\NetHack\5.0
+#SCOREDIR=c:\ProgramData\NetHack\1.0
 #
 # The location that file synchronization locks are stored (writeable)
-#LOCKDIR=c:\ProgramData\NetHack\5.0
+#LOCKDIR=c:\ProgramData\NetHack\1.0
 #
 
 # Finnish keyboards might need these modifications uncommented. 

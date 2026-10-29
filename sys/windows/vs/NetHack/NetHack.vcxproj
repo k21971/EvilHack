@@ -317,7 +317,7 @@
     <ClInclude Include="$(IncDir)revision.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(WinWin32Dir)NetHack.rc" />
+    <ResourceCompile Include="$(WinWin32Dir)evilhack.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="$(WinWin32Dir)nethack.ico" />

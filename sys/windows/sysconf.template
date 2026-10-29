@@ -109,25 +109,25 @@ HIDEUSAGE=1
 #
 # The location that a record of game aborts and self-diagnosed game problems
 # is kept (default=HACKDIR, writeable)
-#TROUBLEDIR=%USERPROFILE%\NetHack\5.0
+#TROUBLEDIR=%USERPROFILE%\NetHack\1.0
 #
 # The location that documentation and helps files are placed
-#HACKDIR=%USERPROFILE%\NetHack\5.0
+#HACKDIR=%USERPROFILE%\NetHack\1.0
 #
 # The location that level files in progress are stored (writeable)
-#LEVELDIR=%USERPROFILE%\AppData\Local\NetHack\5.0
+#LEVELDIR=%USERPROFILE%\AppData\Local\NetHack\1.0
 #
 # The location where saved games are kept (writeable)
-#SAVEDIR=%USERPROFILE%\AppData\Local\NetHack\5.0
+#SAVEDIR=%USERPROFILE%\AppData\Local\NetHack\1.0
 #
 # The location that bones files are kept (writeable)
-#BONESDIR=c:\ProgramData\NetHack\5.0
+#BONESDIR=c:\ProgramData\NetHack\1.0
 #
 # The location that score files are kept (writeable)
-#SCOREDIR=c:\ProgramData\NetHack\5.0
+#SCOREDIR=c:\ProgramData\NetHack\1.0
 #
 # The location that file synchronization locks are stored (writeable)
-#LOCKDIR=c:\ProgramData\NetHack\5.0
+#LOCKDIR=c:\ProgramData\NetHack\1.0
 
 # URL loaded for creating reports to the NetHack DevTeam
 #CRASHREPORTURL=https://nethack.org/links/cr-5.0.1.html
