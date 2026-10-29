@@ -13,7 +13,7 @@ des.terrain({ selection = selection.rect(00,00,78,20), typ = " " });
 
 -- Dungeon Description
 des.region(selection.area(00,00,78,20), "lit")
-des.non_diggable(selection.area(00,00,75,20))
+des.non_diggable(selection.area(00,00,78,20))
 
 
 -- wu wei
