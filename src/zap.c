@@ -4681,6 +4681,8 @@ weffects(struct obj *obj)
 {
     int otyp = obj->otyp;
     boolean disclose = FALSE, was_unkn = !objects[otyp].oc_name_known;
+    /* dozap() tracks the wand being zapped through gc.current_wand */
+    boolean tracked = (obj == gc.current_wand);
 
     /* the steed and swallowed zaps reach bhitm() without a beam loop
        to clear the knockback skip marker */
@@ -4719,6 +4721,10 @@ weffects(struct obj *obj)
             impossible("weffects: unexpected spell or wand");
         disclose = TRUE;
     }
+    /* angering a temple priest brings down his god's lightning, which
+       might have destroyed the wand */
+    if (tracked && !gc.current_wand)
+        disclose = FALSE;
     if (disclose) {
         learnwand(obj);
         if (was_unkn)

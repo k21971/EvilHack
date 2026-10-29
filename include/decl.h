@@ -218,6 +218,8 @@ struct instance_globals_b {
     /* pickup.c */
     boolean bucx_filter;
     struct obj *blasting_bag; /* bag of holding whose contents are flying */
+    struct obj *bag_to_blast; /* bag of holding set to blow up once its
+                               * trigger's blast is over */
 
     /* zap.c */
     struct monst *buzzer; /* zapper/caster/breather who initiates buzz() */

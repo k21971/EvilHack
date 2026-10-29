@@ -232,6 +232,7 @@ static const struct instance_globals_b g_init_b = {
     /* pickup.c */
     FALSE, /* bucx_filter */
     NULL, /* blasting_bag */
+    NULL, /* bag_to_blast */
     /* zap.c */
     NULL, /* buzzer -- monst that zapped/cast/breathed to initiate buzz() */
     FALSE, /* bot_disabled */

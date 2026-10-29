@@ -35,6 +35,7 @@ extern void dump_end_screendump(void);
 #endif
 staticfn void dump_everything(int, time_t);
 staticfn void fixup_death(int);
+staticfn void spill_blasting_bag(struct obj *) NO_NNARGS;
 #endif /* SFCTOOL */
 staticfn int wordcount(char *);
 staticfn void bel_copy1(char **, char *);
@@ -1164,45 +1165,54 @@ odds_and_ends(struct obj *list, int what)
 }
 #endif
 
+/* a carried bag of holding blowing up when the game ends is gone, but
+   what it still held lands at the hero's feet, bypassing pickup and
+   flooreffects(), and is never sold: unpaid goods go back to stock, the
+   hero's own things stay the hero's; one on the floor is emptied where
+   it lies when bones are made */
+staticfn void
+spill_blasting_bag(struct obj *bag)
+{
+    struct obj *otmp;
+    struct monst *shkp;
+
+    if (!bag || (bag->where != OBJ_INVENT && bag->where != OBJ_FREE))
+        return;
+    shkp = costly_spot(u.ux, u.uy)
+               ? shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE)) : 0;
+    if (shkp && !inhishop(shkp))
+        shkp = 0;
+    while ((otmp = bag->cobj) != 0) {
+        obj_extract_self(otmp);
+        if (u.uswallow) {
+            if (otmp->unpaid)
+                (void) stolen_value(otmp, u.ux, u.uy, TRUE, TRUE);
+            /* mpickobj() finds the shop of any unpaid contents here */
+            otmp->ox = u.ux, otmp->oy = u.uy;
+            (void) mpickobj(u.ustuck, otmp);
+            continue;
+        }
+        place_object(otmp, u.ux, u.uy);
+        if (shkp) {
+            if (otmp->unpaid)
+                subfrombill(otmp, shkp);
+            else
+                boh_hero_goods(otmp);
+        }
+    }
+}
+
 /* deal with some objects which may be in an abnormal state at end of game */
 void
 done_object_cleanup(void)
 {
     int ox, oy;
-    struct obj *otmp;
-    struct monst *shkp;
 
-    /* a carried bag of holding blowing up when the game ends is gone, but
-       what it still held lands at the hero's feet, bypassing pickup and
-       flooreffects(), and is never sold: unpaid goods go back to stock,
-       the hero's own things stay the hero's; one on the floor is emptied
-       where it lies when bones are made */
-    if (gb.blasting_bag && (gb.blasting_bag->where == OBJ_INVENT
-                            || gb.blasting_bag->where == OBJ_FREE)) {
-        shkp = costly_spot(u.ux, u.uy)
-                   ? shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE)) : 0;
-        if (shkp && !inhishop(shkp))
-            shkp = 0;
-        while ((otmp = gb.blasting_bag->cobj) != 0) {
-            obj_extract_self(otmp);
-            if (u.uswallow) {
-                if (otmp->unpaid)
-                    (void) stolen_value(otmp, u.ux, u.uy, TRUE, TRUE);
-                /* mpickobj() finds the shop of any unpaid contents here */
-                otmp->ox = u.ux, otmp->oy = u.uy;
-                (void) mpickobj(u.ustuck, otmp);
-                continue;
-            }
-            place_object(otmp, u.ux, u.uy);
-            if (shkp) {
-                if (otmp->unpaid)
-                    subfrombill(otmp, shkp);
-                else
-                    boh_hero_goods(otmp);
-            }
-        }
-    }
-    gb.blasting_bag = (struct obj *) 0;
+    spill_blasting_bag(gb.blasting_bag);
+    /* a carried bag of holding waiting for its trigger's blast to end is
+       in use too, so inven_inuse() below would use it up whole */
+    spill_blasting_bag(gb.bag_to_blast);
+    gb.blasting_bag = gb.bag_to_blast = (struct obj *) 0;
 
     /* might have been killed while using a disposable item, so make sure
        it's gone prior to inventory disclosure and creation of bones */

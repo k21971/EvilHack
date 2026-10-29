@@ -945,6 +945,9 @@ autopick_testobj(struct obj *otmp, boolean calc_costly)
     /* first check: reject if an unpaid item in a shop */
     if (costly && !otmp->no_charge)
         return FALSE;
+    /* or if it's in use, such as a bag of holding blowing up */
+    if (otmp->in_use)
+        return FALSE;
 
     /* pickup_thrown/pickup_stolen/nopick_dropped override pickup_types and
        exceptions */
@@ -3058,10 +3061,14 @@ in_container(struct obj *obj)
        other than a bag of holding is destroyed with all it holds, so
        what can't be destroyed falls at the hero's feet first */
     boom = (Is_mbag(gc.current_container) && mbag_explodes(obj, 0));
-    /* a floor bag about to blow up stays put while things land at the
-       hero's feet ahead of and during its blast */
-    if (boom && floor_container)
+    /* a bag about to blow up stays put until it's used up below: things
+       landing at the hero's feet ahead of and during its blast can knock
+       a floor bag down a hole, autopickup could take it, and a change of
+       form during a trigger's blast can drop a carried one */
+    if (boom) {
         gc.current_container->in_use = 1;
+        gb.bag_to_blast = gc.current_container;
+    }
     trigname[0] = '\0';
     if (boom && obj->otyp != BAG_OF_HOLDING
         && has_indestructible_contents(obj)) {
@@ -3149,6 +3156,8 @@ in_container(struct obj *obj)
             useupf(gc.current_container, gc.current_container->quan);
         else
             panic("in_container:  bag not found.");
+        /* an unpaid bag goes onto the shop's billobjs list, not freed */
+        gb.bag_to_blast = (struct obj *) 0;
 
         if (hesperides)
             losehp(Maybe_Half_Phys(d(12, 12)),
@@ -4472,6 +4481,9 @@ tipcontainer(struct obj *box) /* or bag */
                         || otmp->otyp == BAG_OF_DEVOURING)
                         makeknown(otmp->otyp);
 
+                    /* keep the bag where it is until it's used up below */
+                    targetbox->in_use = 1;
+                    gb.bag_to_blast = targetbox;
                     /* if putting one bag of holding into another, first
                        blow up the one going in, then (below) blow up the
                        one it's going into */
@@ -4490,6 +4502,7 @@ tipcontainer(struct obj *box) /* or bag */
                         useup(targetbox);
                     else
                         useupf(targetbox, targetbox->quan);
+                    gb.bag_to_blast = (struct obj *) 0;
                     targetbox = 0; /* it's gone */
                     nobj = 0; /* stop tipping; want loop to exit 'normally' */
 
