@@ -2625,7 +2625,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       inferred); "opening a iron container" (pickup.c); NO_MATERIAL
       passes valid_obj_material(); matdensities[] is unclamped on
       restore (a 5-bit field, 25 entries).
-      CLOSED 2026-10-30 (session 276, HASH-A; BUG-2670, 2671; master
+      CLOSED 2026-10-30 (session 276, 25e7a270b; BUG-2670, 2671; master
       frozen-unfixed). not_spec_material()'s whole-string test was
       strcmp() while its caller matches strncmpi(), so a bare lowercase
       wish never reached the read; a capitalized one ("Silver", "Gold",
@@ -3263,7 +3263,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mon->data->msize (worn.c), so a giant-race soldier or priest
       that picks up a cloak or robe wears it. Master: never. Use
       r_data(). Code read only.
-      CLOSED 2026-10-30 (session 276, HASH-B; BUG-2673, 2674). The
+      CLOSED 2026-10-30 (session 276, 3341295eb; BUG-2673, 2674). The
       plain r_data() swap would have taken ordinary cloaks from
       centaur-race monsters (Plan stress test); RULED 2026-10-30
       (AskUserQuestion): MIRROR THE HERO'S canwearobj() RULE.
@@ -12950,7 +12950,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pyrolisk egg gets no tier line for that hit; master has no
       pyrolisk arm (parity n/a). Candidate: report the tier before the
       early return when the target survived. LOW.
-      CLOSED 2026-10-30 (session 276, HASH-C; BUG-2672). The egg arm
+      CLOSED 2026-10-30 (session 276, 13a6eb43b; BUG-2672). The egg arm
       saves mon->mhp before explode() and calls print_mon_wounded()
       when the target lives; explode() never moves it, and the other
       doreturn exits wound no surviving target. Battery T2 (Healer,
@@ -24633,7 +24633,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hugs, saw it 2-3 times a round (PRE, seen live). Fix: drop the
       wrap leg's AT_HUGS line (hmonas() already printed it) and check
       the shade path. LOW (text).
-      CLOSED 2026-10-30 (session 276, HASH-C; BUG-2666, 2667; master
+      CLOSED 2026-10-30 (session 276, 13a6eb43b; BUG-2666, 2667; master
       and vanilla alike, frozen-unfixed). The wrap leg's crush line is
       gone: hmonas() prints it for a held target and "You grab <mon>!"
       on the grab round. The shade path: hmonas()'s noncorporeal arm
@@ -27414,7 +27414,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       dropped a hero into a moat with no way out (wizard-mode "Die?"
       n). LOW (record; upstream-reportable once confirmed on a plain
       drowning).
-      CLOSED 2026-10-30 (session 276, HASH-D; BUG-2668, 2675). The
+      CLOSED 2026-10-30 (session 276, a3456df76; BUG-2668, 2675). The
       first line is pooleffects()'s, on the landing inside
       safe_teleds() (not describe_decor()). Master's shape: the rescue
       line only for a hero still in the water. drown() now calls
@@ -27821,7 +27821,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       cloaks). The branch says "Your cloak tears apart!", "The clasp
       on your cloak ...", "You cannot wear armor over a cloak." for
       scales. One-line port; check its callers. LOW (text).
-      CLOSED 2026-10-30 (session 276, HASH-A; BUG-2665). Master's arm
+      CLOSED 2026-10-30 (session 276, 25e7a270b; BUG-2665). Master's arm
       ported inside `if (cloak)`; every caller read right (vtense()
       stops at " of "). Battery T1: T the suit, W armor, W a second
       cloak and T the scales PRE "...your cloak first." / "over a
@@ -31969,7 +31969,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (minted 2026-10-26, session 262, Plan agent; vanilla-shared).
       "This drawbridge cannot be destroyed." prints for a monster's mine
       out of sight on the Valley or the Wizard's Tower levels.
-      CLOSED 2026-10-30 (session 276, HASH-D; BUG-2669; master
+      CLOSED 2026-10-30 (session 276, a3456df76; BUG-2669; master
       frozen-unfixed - the protected-bridge refusal is EvilHack's,
       vanilla has none). RULED 2026-10-30 (AskUserQuestion): SEEN OR
       ADJACENT - the line prints when the hero sees the span or the
@@ -34376,8 +34376,8 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-30 | The corpse-sex hint (ac3d71a82) walks obj->nobj, so a floor pile in look_here() / query_objlist() is compared with every floor object placed earlier on the level; it keys corpses by stale inventory letters; empty slots read mnums 0 (giant ant), so any lettered giant ant corpse is named "male" / "female"; corpse_xname() reads CORPSTAT_NEUTER as "male". Official_nh50 b0c09c878; BUG-2660, src/invent.c objnam.c pickup.c | found (branch-fixed cc6654f75); not sent; triage pending |
 | 2026-10-30 | engulfer_digests_food() (e726cc22c) delobj()s a dropped Rider corpse, which delobj() refuses: the corpse stays OBJ_FREE with its REVIVE_MON timer (timer sanity "can't locate obj"), and the next save panics in obj_is_local(), recursively through the emergency save. Reached by dropping or an overweight wish inside a purple worm. Official_nh50 b0c09c878; BUG-2662, src/do.c | found (branch-fixed bac4a8947: skip obj_indestructible(), so dropz() mpickobj()s it); not sent; triage pending |
 | 2026-10-30 | curses menu_determine_pages() re-places a menu entry taller than a page on new pages forever, or backs up to a NULL prev_item and crashes when it is the first entry; menu_is_multipage() misses an overflowing last entry (the footer overwrites it); paging counts selectable rows at width - 4 while the draw wraps at width - 6 when an object symbol shows. Official_nh50 b0c09c878 (and 3.6); BUG-2663, win/curses/cursdial.c | found (branch-fixed b871f0f35); not sent; triage pending |
-| 2026-10-30 | A hero's AT_HUGS AD_WRAP hit on a held target prints "<Mon> is being crushed." twice (hmonas() and mhitm_ad_wrap()'s uhitm leg). On a noncorporeal target, hmonas()'s shade arm ("deals damage but never grabs hold") calls damageum(), and the wrap leg then grabs the shade 1 in 10 or zeroes the damage with "You brush against ...". Official_nh50 b0c09c878 (and 3.6); BUG-2666, 2667, src/uhitm.c | found (branch-fixed HASH-C: the wrap leg leaves hug holds and the crush line to hmonas(); an unheld hug deals specialdmg); not sent; triage pending |
-| 2026-10-30 | A life-saved drowning reads "You are back on solid ground." (pooleffects() on safe_teleds()'s landing) and then "You find yourself on solid ground." (rescued_from_terrain()'s fallback). Seen on a plain drowning with an amulet and with wizard mode's Die? n. Official_nh50 b0c09c878; BUG-2668, src/trap.c | found (branch-fixed HASH-D: the rescue line only for a hero still in the water, called before drown() clears u.uinwater); not sent; triage pending |
+| 2026-10-30 | A hero's AT_HUGS AD_WRAP hit on a held target prints "<Mon> is being crushed." twice (hmonas() and mhitm_ad_wrap()'s uhitm leg). On a noncorporeal target, hmonas()'s shade arm ("deals damage but never grabs hold") calls damageum(), and the wrap leg then grabs the shade 1 in 10 or zeroes the damage with "You brush against ...". Official_nh50 b0c09c878 (and 3.6); BUG-2666, 2667, src/uhitm.c | found (branch-fixed 13a6eb43b: the wrap leg leaves hug holds and the crush line to hmonas(); an unheld hug deals specialdmg); not sent; triage pending |
+| 2026-10-30 | A life-saved drowning reads "You are back on solid ground." (pooleffects() on safe_teleds()'s landing) and then "You find yourself on solid ground." (rescued_from_terrain()'s fallback). Seen on a plain drowning with an amulet and with wizard mode's Die? n. Official_nh50 b0c09c878; BUG-2668, src/trap.c | found (branch-fixed a3456df76: the rescue line only for a hero still in the water, called before drown() clears u.uinwater); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
