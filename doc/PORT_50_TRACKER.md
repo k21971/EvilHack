@@ -12161,7 +12161,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       REVIVE and a ROT timer both set. After BUG-2650 a Rider out of an
       ice box revives instead; the give-up arm still runs when revive()
       fails for other reasons (no room), so include it in the trace.
-      CLOSED 2026-10-30 (session 275, commit pending; BUG-2661; the
+      CLOSED 2026-10-30 (session 275, bac4a8947; BUG-2661; the
       Rider half master-shared). RULED 2026-10-30 (AskUserQuestion): a
       failed troll revival rots. revive_mon()'s rot arm calls
       set_corpsenm() only when undead_to_corpse() changes the id or the
@@ -13244,7 +13244,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       minimum, reachable by resizing) hangs on both builds. Fix shape:
       when the entry starts the page, keep it there and clip it. Needs
       a reproducer in play first. LOW.
-      CLOSED 2026-10-30 (session 275, commit pending; BUG-2663;
+      CLOSED 2026-10-30 (session 275, b871f0f35; BUG-2663;
       upstream-reportable, master-shared). menu_entry_cols() is shared
       by paging and drawing (an object symbol's 2 columns were counted
       only when drawing); menu_is_multipage() tests overflow before
@@ -19769,7 +19769,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       out of water (fmon)" x8. Session 257 does not touch
       #wizloaddes; the POST run's filler just had no hidden swimmers.
       Check what #wizloaddes clears from the replaced level.
-      CLOSED 2026-10-30 (session 275, commit pending; BUG-2664;
+      CLOSED 2026-10-30 (session 275, b871f0f35; BUG-2664;
       EvilHack-only, wizard mode). Diagnosis corrected: #wizloaddes
       clears the old level (makemap_remove_mons()); mkmap()'s Mines
       rivers guard reads the level the hero stands on, so a loaded
@@ -20050,7 +20050,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       corpse". Needs a trace (corpse_xname()'s gender prefix for a
       unique or Rider corpse; how a wished unique corpse sets
       CORPSTAT_GENDER). LOW.
-      CLOSED 2026-10-30 (session 275, commit pending; BUG-2660;
+      CLOSED 2026-10-30 (session 275, cc6654f75; BUG-2660;
       vanilla 5.0 ac3d71a82, upstream-reportable). The sex hint (corpses
       of different sex don't stack) walked obj->nobj, so a floor pile
       was compared with every object placed earlier on the level, keyed
@@ -20096,7 +20096,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (wizard: carry a Death corpse, get swallowed by a purple worm,
       drop it; watch the revive timer), then a fix (skip the digestion
       for an obj_resists() object, or mpickobj() it). LOW.
-      CLOSED 2026-10-30 (session 275, commit pending; BUG-2662;
+      CLOSED 2026-10-30 (session 275, bac4a8947; BUG-2662;
       vanilla e726cc22c, upstream-reportable; master's dropz() kept
       every corpse in the engulfer). Worse than a leak: the free
       corpse's timer tripped timer sanity at once and the next save
@@ -26550,7 +26550,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       that floor (flooding, melting), whose own code ends them. Census
       the floor-changing callers (liquid_flow(), trap_ice_effects(),
       boulder_hits_pool()) before narrowing. LOW (plannable).
-      CLOSED 2026-10-30 (session 275, commit pending; BUG-2657, 2658;
+      CLOSED 2026-10-30 (session 275, 0401309e7; BUG-2657, 2658;
       master-shared). trap.c u_held_by_trap(): both helpers end only a
       TT_BEARTRAP / TT_WEB / TT_PIT hold of their own trap type. Census
       of the 52 callers (Plan agent): only liquid_flow() relied on the
@@ -26571,7 +26571,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       refuses any trap on the hero's square. RULED 2026-10-30
       (AskUserQuestion): SKIP THE HERO'S SQUARE, as shopkeepers do. LOW
       (plannable).
-      CLOSED 2026-10-30 (session 275, commit pending; BUG-2659). Also
+      CLOSED 2026-10-30 (session 275, 0401309e7; BUG-2659). Also
       RULED 2026-10-30 (AskUserQuestion): a monster caught in the trap
       waits too - the branch shopkeeper's repairable_damage() shape,
       tested before the prayer line. Battery T2 (minetn-6 temple): a
@@ -27193,7 +27193,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       A FLYING OR FLOATING STEED CARRIES ITS MONSTER RIDER, as session
       235 ruled for the hero (BUG-2401); a shared helper across those
       sites. LOW (plannable).
-      CLOSED 2026-10-30 (session 275, commit pending; BUG-2655, 2656;
+      CLOSED 2026-10-30 (session 275, 0401309e7 and bac4a8947;
+      BUG-2655, 2656;
       master-shared). Also RULED 2026-10-30 (AskUserQuestion x2): DROPS
       + NEW LIQUID - water, lava, sewage and open air under a carried
       rider spare it, pathing unchanged (riders still route around
@@ -34239,9 +34240,9 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-30 | A web on melting ice is deleted with plain deltrap() (trap_ice_effects()), so a hero caught in it keeps TT_WEB with no web; a levitating hero then drowns instead of floating. Official_nh50 b0c09c878; BUG-2648, src/trap.c | found (branch-fixed 8c329ab34); not sent; triage pending |
 | 2026-10-30 | An earthquake's do_pit() keeps only is_flyer() / is_clinger() monsters up, so a levitating or flying-by-gear monster falls into the chasm; a monster held by a web or bear trap the chasm replaces keeps mtrapped (maketrap() ends only the hero's hold). Official_nh50 b0c09c878; BUG-2644..2646, src/music.c dig.c | found (branch-fixed 941e8f270; the branch's stay-up is silent by ruling); not sent; triage pending |
 | 2026-10-30 | delfloortrap() ends the hero's hold with reset_utrap(TRUE), so a returned levitation is told before the event's own line ("You start to float in the air!" then "As you dig, the hole fills with water!"). Official_nh50 b0c09c878; BUG-2647, src/trap.c (the branch's fix uses its deferred-lift machinery, not upstream's) | found (branch-fixed 8c329ab34); not sent; triage pending |
-| 2026-10-30 | The corpse-sex hint (ac3d71a82) walks obj->nobj, so a floor pile in look_here() / query_objlist() is compared with every floor object placed earlier on the level; it keys corpses by stale inventory letters; empty slots read mnums 0 (giant ant), so any lettered giant ant corpse is named "male" / "female"; corpse_xname() reads CORPSTAT_NEUTER as "male". Official_nh50 b0c09c878; BUG-2660, src/invent.c objnam.c pickup.c | found (branch-fixed, commit pending); not sent; triage pending |
-| 2026-10-30 | engulfer_digests_food() (e726cc22c) delobj()s a dropped Rider corpse, which delobj() refuses: the corpse stays OBJ_FREE with its REVIVE_MON timer (timer sanity "can't locate obj"), and the next save panics in obj_is_local(), recursively through the emergency save. Reached by dropping or an overweight wish inside a purple worm. Official_nh50 b0c09c878; BUG-2662, src/do.c | found (branch-fixed, commit pending: skip obj_indestructible(), so dropz() mpickobj()s it); not sent; triage pending |
-| 2026-10-30 | curses menu_determine_pages() re-places a menu entry taller than a page on new pages forever, or backs up to a NULL prev_item and crashes when it is the first entry; menu_is_multipage() misses an overflowing last entry (the footer overwrites it); paging counts selectable rows at width - 4 while the draw wraps at width - 6 when an object symbol shows. Official_nh50 b0c09c878 (and 3.6); BUG-2663, win/curses/cursdial.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-10-30 | The corpse-sex hint (ac3d71a82) walks obj->nobj, so a floor pile in look_here() / query_objlist() is compared with every floor object placed earlier on the level; it keys corpses by stale inventory letters; empty slots read mnums 0 (giant ant), so any lettered giant ant corpse is named "male" / "female"; corpse_xname() reads CORPSTAT_NEUTER as "male". Official_nh50 b0c09c878; BUG-2660, src/invent.c objnam.c pickup.c | found (branch-fixed cc6654f75); not sent; triage pending |
+| 2026-10-30 | engulfer_digests_food() (e726cc22c) delobj()s a dropped Rider corpse, which delobj() refuses: the corpse stays OBJ_FREE with its REVIVE_MON timer (timer sanity "can't locate obj"), and the next save panics in obj_is_local(), recursively through the emergency save. Reached by dropping or an overweight wish inside a purple worm. Official_nh50 b0c09c878; BUG-2662, src/do.c | found (branch-fixed bac4a8947: skip obj_indestructible(), so dropz() mpickobj()s it); not sent; triage pending |
+| 2026-10-30 | curses menu_determine_pages() re-places a menu entry taller than a page on new pages forever, or backs up to a NULL prev_item and crashes when it is the first entry; menu_is_multipage() misses an overflowing last entry (the footer overwrites it); paging counts selectable rows at width - 4 while the draw wraps at width - 6 when an object symbol shows. Official_nh50 b0c09c878 (and 3.6); BUG-2663, win/curses/cursdial.c | found (branch-fixed b871f0f35); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
