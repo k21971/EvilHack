@@ -2333,9 +2333,11 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
                 /* a heavy hit knocks the hero back a square, or out of
-                   the saddle; an anchoring artifact holds */
+                   the saddle; an anchoring artifact holds, and so does a
+                   praying hero's shimmering light */
                 if (tmp > ((otyp == WAN_STRIKING) ? 16 : 12) && zapper
-                    && !u.ustuck && !m_is_steadfast(&gy.youmonst)) {
+                    && !u.ustuck && !m_is_steadfast(&gy.youmonst)
+                    && !u.uinvulnerable) {
                     int kx = sgn(u.ux - zapper->mx),
                         ky = sgn(u.uy - zapper->my);
                     struct obj *saddle = u.usteed

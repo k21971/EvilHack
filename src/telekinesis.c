@@ -782,6 +782,10 @@ m_dotelekinesis(struct monst *mtmp)
         return FALSE;
 
     target_is_you = (mdef == &gy.youmonst);
+    /* a praying hero's shimmering light turns this aside as it does
+       every other attack; the flayer acts otherwise this turn */
+    if (target_is_you && u.uinvulnerable)
+        return FALSE;
     tx = target_is_you ? u.ux : mdef->mx;
     ty = target_is_you ? u.uy : mdef->my;
     dist = max(abs(mx - tx), abs(my - ty));

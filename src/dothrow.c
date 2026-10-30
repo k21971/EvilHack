@@ -1188,6 +1188,11 @@ hurtle(int dx, int dy, int range, boolean verbose)
 {
     coord uc, cc;
 
+    /* a praying hero's shimmering light holds the hero in place; the
+       prayer's helplessness, protection and closing message stay */
+    if (u.uinvulnerable)
+        return;
+
     /* The chain is stretched vertically, so you shouldn't be able to move
      * very far diagonally.  The premise that you should be able to move one
      * spot leads to calculations that allow you to only move one spot away
@@ -1242,6 +1247,10 @@ void
 mhurtle(struct monst *mon, int dx, int dy, int range)
 {
     coord mc, cc;
+
+    /* nor does the steed a praying hero rides go anywhere */
+    if (mon == u.usteed && u.uinvulnerable)
+        return;
 
     wakeup(mon, !svc.context.mon_moving);
     /* at the very least, debilitate the monster; unique monsters

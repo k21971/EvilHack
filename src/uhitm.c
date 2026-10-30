@@ -8522,6 +8522,12 @@ mhitm_knockback(
         }
     }
 
+    /* a praying hero's shimmering light holds the hero in place, and
+       the steed the hero rides; mattacku() lets a blow at the steed
+       through ahead of its own prayer check */
+    if (u.uinvulnerable && (u_def || mdef == u.usteed))
+        return FALSE;
+
     /* monsters must be alive */
     if (DEADMONSTER(magr) || (!u_def && DEADMONSTER(mdef)))
         return FALSE;

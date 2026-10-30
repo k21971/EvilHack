@@ -3537,7 +3537,11 @@ artifact_hit(
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
                            + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
-            } else if (hurtle_distance && !unsolid(mdef->data)) {
+            } else if (hurtle_distance && !unsolid(mdef->data)
+                       /* a praying hero's shimmering light holds the
+                          hero, and the steed the hero rides, in place */
+                       && !(u.uinvulnerable
+                            && (youdefend || mdef == u.usteed))) {
                 if (youattack && !u.uswallow) {
                     You("smash %s backwards%s", mon_nam(mdef),
                         canseemon(mdef) ? exclam(4 * hurtle_distance)
