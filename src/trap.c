@@ -7917,10 +7917,11 @@ deltrap_with_ammo(struct trap *trap, int do_what)
     /* if the hero is tethered to a buried iron ball, that hold belongs
        to the ball rather than to the trap being deleted; preserve it,
        matching delfloortrap; a live tree's branches or roots hold the
-       hero for the tree, so keep that hold too */
+       hero for the tree, so keep that hold too; any lift the hold kept
+       down is told after the caller's event */
     if (u.utrap && u.utraptype != TT_BURIEDBALL && !u_tree_held()
         && u_at(trap->tx, trap->ty))
-        reset_utrap(TRUE);
+        reset_utrap_deferred();
     deltrap(trap);
     newsym(tx, ty);
 
@@ -8059,9 +8060,10 @@ delfloortrap(struct trap *ttmp)
 
         if (u_at(ttmp->tx, ttmp->ty)) {
             /* a buried ball's chain and a live tree's grip don't come
-               from the floor */
-            if (u.utraptype != TT_BURIEDBALL && !u_tree_held())
-                reset_utrap(TRUE);
+               from the floor; any lift the hold kept down is told after
+               the caller's event (the flood, the dig) */
+            if (u.utrap && u.utraptype != TT_BURIEDBALL && !u_tree_held())
+                reset_utrap_deferred();
         } else if ((mtmp = m_at(ttmp->tx, ttmp->ty)) != 0) {
             mtmp->mtrapped = 0;
         }
@@ -8997,9 +8999,10 @@ trap_ice_effects(coordxy x, coordxy y, boolean ice_is_melting)
             deltrap_with_ammo(ttmp, DELTRAP_PLACE_AMMO);
         } else if (ttmp->ammo) { /* should not really happen */
             deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
-        } else {
-            if (!undestroyable_trap(ttmp->ttyp))
-                deltrap(ttmp);
+        } else if (!undestroyable_trap(ttmp->ttyp)) {
+            /* unlike deltrap(), this lets go of a hero caught in the
+               trap (a web; no pit sits on ice) */
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
         }
     }
 }

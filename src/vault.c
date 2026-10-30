@@ -93,9 +93,12 @@ clear_fcorr(struct monst *grd, boolean forceshow)
         if (IS_STWALL(lev->typ)) {
             /* destroy any trap here (pit dug by you, hole dug via
                wand while levitating or by monster, bear trap or land
-               mine via object, spun web) when spot reverts to stone */
+               mine via object, spun web) when spot reverts to stone;
+               a trap's ammo or part (a bear trap, a land mine, arrows)
+               stays, embedded in the rock like the other objects here,
+               and a hero held there is let go */
             if ((trap = t_at(fcx, fcy)) != 0)
-                deltrap(trap);
+                deltrap_with_ammo(trap, DELTRAP_PLACE_AMMO);
             /* undo scroll/wand/spell of light affecting this spot */
             if (lev->typ == STONE)
                 blackout(fcx, fcy);
@@ -713,8 +716,10 @@ wallify_vault(struct monst *grd)
                     obj_extract_self(rocks);
                     obfree(rocks, (struct obj *) 0);
                 }
+                /* a trap's ammo or part (a bear trap, a land mine,
+                   arrows) stays and is embedded with the rest */
                 if ((trap = t_at(x, y)) != 0)
-                    deltrap(trap);
+                    deltrap_with_ammo(trap, DELTRAP_PLACE_AMMO);
 
                 if (x == lox)
                     typ = (y == loy) ? TLCORNER

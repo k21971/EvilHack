@@ -1020,10 +1020,12 @@ close_drawbridge(coordxy x, coordxy y)
     (void) revive_nasty(x2, y2, (char *) 0);
     delallobj(x, y);
     delallobj(x2, y2);
+    /* a trap's ammo or part (a bear trap, a land mine, arrows) goes
+       with it, and a hero held there is let go */
     if ((t = t_at(x, y)) != 0)
-        deltrap(t);
+        deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     if ((t = t_at(x2, y2)) != 0)
-        deltrap(t);
+        deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     del_engr_at(x, y);
     del_engr_at(x2, y2);
     newsym(x, y);
@@ -1087,10 +1089,12 @@ open_drawbridge(coordxy x, coordxy y)
     }
     (void) revive_nasty(x, y, (char *) 0);
     delallobj(x, y);
+    /* a trap's ammo or part (a bear trap, a land mine, arrows) goes
+       with it, and a hero held there is let go */
     if ((t = t_at(x, y)) != 0)
-        deltrap(t);
+        deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     if ((t = t_at(x2, y2)) != 0)
-        deltrap(t);
+        deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     del_engr_at(x, y);
     del_engr_at(x2, y2);
     newsym(x, y);
@@ -1167,10 +1171,12 @@ destroy_drawbridge(coordxy x, coordxy y)
     wake_nearto(x, y, 500);
     lev2->typ = DOOR;
     lev2->doormask = D_NODOOR;
+    /* a trap's ammo or part (a bear trap, a land mine, arrows) goes
+       with it, and a hero held there is let go */
     if ((t = t_at(x, y)) != 0)
-        deltrap(t);
+        deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     if ((t = t_at(x2, y2)) != 0)
-        deltrap(t);
+        deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     del_engr_at(x, y);
     del_engr_at(x2, y2);
     for (i = rn2(6); i > 0; --i) { /* scatter some debris */
