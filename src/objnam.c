@@ -2282,7 +2282,8 @@ corpse_xname(
     unsigned cxn_flags) /* bitmask of CXN_xxx values */
 {
     char *nambuf;
-    int omndx = otmp->corpsenm;
+    int omndx = otmp->corpsenm,
+        cgend = (otmp->spe & CORPSTAT_GENDER);
     boolean ignore_quan = (cxn_flags & CXN_SINGULAR) != 0,
             /* suppress "the" from "the unique monster corpse" */
         no_prefix = (cxn_flags & CXN_NO_PFX) != 0,
@@ -2340,9 +2341,11 @@ corpse_xname(
        into the code, so the() has been modified to deal with capitalized
        monster names; we could switch to using it below like an() */
 
-    gndr = (gndr_prefix && otmp->spe & CORPSTAT_MALE) != 0     ? "male "
-           : (gndr_prefix && otmp->spe & CORPSTAT_FEMALE) != 0 ? "female "
-                                                               : "";
+    /* only a real sex is named; CORPSTAT_NEUTER sets both bits */
+    gndr = !gndr_prefix                   ? ""
+           : (cgend == CORPSTAT_MALE)     ? "male "
+           : (cgend == CORPSTAT_FEMALE)   ? "female "
+                                          : "";
     if (!adjective || !*adjective) {
         Strcat(nambuf, gndr);
         /* normal case:  newt corpse */

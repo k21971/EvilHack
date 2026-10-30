@@ -1541,7 +1541,7 @@ extern void perm_invent_toggled(boolean negated);
 extern void prepare_perminvent(winid window);
 extern struct obj *carrying_stoning_corpse(void);
 extern void repopulate_perminvent(void);
-extern int check_for_puzzling_nonmerge(struct obj *);
+extern int check_for_puzzling_nonmerge(struct obj *, boolean);
 
 /* ### ioctl.c ### */
 

@@ -1086,7 +1086,8 @@ query_objlist(const char *qstr,        /* query string */
         return 1;
     }
 
-    puzzling_count = check_for_puzzling_nonmerge(olist);
+    puzzling_count = check_for_puzzling_nonmerge(olist,
+                                                 (qflags & BY_NEXTHERE) != 0);
 
     sortflags = (((flags.sortloot == 'f'
                    || (flags.sortloot == 'l' && !(qflags & USE_INVLET)))

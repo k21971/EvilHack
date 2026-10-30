@@ -2892,39 +2892,54 @@ count_unidentified(struct obj *objchn)
     return unid_cnt;
 }
 
-/* mark the puzzling items */
+/* mark the puzzling items: corpses of one monster in this pack or pile
+   that differ in sex; a floor pile is chained by nexthere, any
+   other list by nobj; a corpse is known by its inventory letter, so one
+   never carried, or a letter two corpses here share, gives no hint */
 int
-check_for_puzzling_nonmerge(struct obj *objchn)
+check_for_puzzling_nonmerge(struct obj *objchn, boolean by_nexthere)
 {
     int i, k, idx, puzzling_cnt = 0, ilet, mnums[invlet_basic + 1],
                 gndr[invlet_basic + 1];
+    char seen[invlet_basic + 1];
     struct obj *obj;
     boolean at_least_one = FALSE;
 
     gp.puzzling_criteria = 0;
-    for (i = 0; i < invlet_basic + 1; ++i)
-        gp.puzzling_ilets[i] = mnums[i] = gndr[i] = 0;
+    for (i = 0; i < invlet_basic + 1; ++i) {
+        gp.puzzling_ilets[i] = seen[i] = 0;
+        mnums[i] = NON_PM; /* an unused slot; PM_GIANT_ANT is 0 */
+        gndr[i] = CORPSTAT_RANDOM;
+    }
 
-    for (obj = objchn; obj; obj = obj->nobj) {
-        if (obj->otyp == CORPSE
-            && obj->corpsenm >= 0 && obj->corpsenm < NUMMONS) {
-            ilet = obj->invlet;
-            idx = (ilet >= 'A' && ilet <= 'Z')   ? ilet - 'A'
-                  : (ilet >= 'a' && ilet <= 'z') ? ilet - 'a' + 26
-                                                 : 53;
-            if (idx < 53) {
-                mnums[idx] = obj->corpsenm;
-                gndr[idx] = (obj->spe & CORPSTAT_MALE) ? CORPSTAT_MALE
-                                                       : CORPSTAT_FEMALE;
-                at_least_one = TRUE;
-            }
+    for (obj = objchn; obj; obj = by_nexthere ? obj->nexthere : obj->nobj) {
+        if (obj->otyp != CORPSE)
+            continue;
+        ilet = obj->invlet;
+        idx = (ilet >= 'A' && ilet <= 'Z')   ? ilet - 'A'
+              : (ilet >= 'a' && ilet <= 'z') ? ilet - 'a' + 26
+                                             : invlet_basic;
+        if (idx >= invlet_basic)
+            continue; /* never carried, or the '#' overflow slot */
+        if (seen[idx]) {
+            /* two corpses here share a stale letter; a mark on that
+               letter couldn't tell them apart */
+            mnums[idx] = NON_PM;
+            continue;
+        }
+        seen[idx] = 1;
+        if (ismnum(obj->corpsenm)) {
+            mnums[idx] = obj->corpsenm;
+            /* the raw sex bits, as mergable() compares spe */
+            gndr[idx] = (obj->spe & CORPSTAT_GENDER);
+            at_least_one = TRUE;
         }
     }
     if (at_least_one) {
         for (i = 0; i < invlet_basic; ++i) {
+            if (mnums[i] == NON_PM)
+                continue;
             for (k = i + 1; k < invlet_basic; ++k) {
-                if (k == i)
-                    continue;
                 if (mnums[k] == mnums[i] && gndr[k] != gndr[i]) {
                     ++puzzling_cnt;
                     gp.puzzling_ilets[i] = gp.puzzling_ilets[k] = 1;
@@ -3469,7 +3484,7 @@ display_pickinv(
             sortedinvent[0].obj = (struct obj *) 0;
     }
 
-    puzzling_count = check_for_puzzling_nonmerge(gi.invent);
+    puzzling_count = check_for_puzzling_nonmerge(gi.invent, FALSE);
 
     start_menu(win, menu_behavior);
     any = cg.zeroany;
@@ -4482,7 +4497,7 @@ look_here(
     }
 
     otmp = svl.level.objects[u.ux][u.uy];
-    puzzling_count = check_for_puzzling_nonmerge(otmp);
+    puzzling_count = check_for_puzzling_nonmerge(otmp, TRUE);
     dfeature = dfeature_at(u.ux, u.uy, fbuf2);
     if (dfeature && !strcmp(dfeature, "pool of water") && Underwater)
         dfeature = 0;
