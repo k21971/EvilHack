@@ -1856,9 +1856,15 @@ hmon_hitmon_misc_obj(
                 }
                 useup_eggs(obj);
             } else if (obj->corpsenm == PM_PYROLISK) {
+                int pre_hp = mon->mhp; /* for print_mon_wounded() */
+
                 useup_eggs(obj);
                 explode(mon->mx, mon->my, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0,
                         EXPL_FIERY);
+                /* the blast is this hit's damage, and the early return
+                   skips the tail where a Healer senses it */
+                if (!DEADMONSTER(mon))
+                    print_mon_wounded(mon, pre_hp);
                 hmd->doreturn = TRUE;
                 hmd->retval = !DEADMONSTER(mon);
                 return;
@@ -5508,7 +5514,13 @@ mhitm_ad_wrap(
             /* a grab aimed at a long worm's tail cannot take hold */
             boolean tailmiss = gn.notonhead;
 
-            if (!u.ustuck && !tailmiss && !rn2(10)) {
+            if (mattk->aatyp == AT_HUGS && u.ustuck != mdef) {
+                /* hmonas() takes a hug's hold itself, so the only hug
+                   that gets here unheld is one on a noncorporeal target;
+                   it deals its blessed or silver damage, as the physical
+                   hug's leg does, but never grabs hold */
+                mhm->damage = mhm->specialdmg;
+            } else if (!u.ustuck && !tailmiss && !rn2(10)) {
                 if (m_slips_free(magr, mdef, mattk)) {
                     mhm->damage = 0;
                 } else {
@@ -5550,8 +5562,6 @@ mhitm_ad_wrap(
                     mhm->hitflags = DEADMONSTER(mdef) ? M_ATTK_DEF_DIED
                                                       : M_ATTK_HIT;
                     mhm->done = TRUE;
-                } else if (mattk->aatyp == AT_HUGS) {
-                    pline("%s is being crushed.", Monnam(mdef));
                 } else if (mattk->aatyp == AT_TENT) {
                     if (racial_illithid(mdef)) {
                         You("sense %s is kin, and release your grip.",
