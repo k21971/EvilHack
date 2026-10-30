@@ -17,9 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-30, after session 274's
-  quake / tell-after / trace-trio slice: six LOW rows closed, three
-  minted and closed, five minted open): 557 rows closed, 107 open
+- Phase 2 status (refreshed 2026-10-30, after session 275's
+  ruled-trio / traces / corpse-timer / investigations slice: nine
+  LOW rows closed, three minted open): 566 rows closed, 101 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -340,7 +340,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 96 LOW: small parity rows, quirks and watch/record-only items.
+  - 90 LOW: small parity rows, quirks and watch/record-only items.
+    Session 275 closed nine (BUG-2655..2664): a flying or
+    floating steed carries its monster rider over pits, chasms,
+    holes, floor traps, water, lava, sewage and open air, and a
+    rider left over a hole drops when its steed lands, dies or is
+    parted from it (ruled; pathing unchanged); a deleted trap ends
+    only its own hold and a flood ends a solidified-floor hold
+    (ruled); the temple priest leaves a trap alone while the hero
+    or a trapped monster is in it (ruled); the corpse-sex hint
+    looks only at the pile or pack and names only a real sex
+    (ruled); a norevive troll twitches once and a giving-up Rider
+    stays down (ruled: a failed troll revival rots); a Rider corpse
+    dropped in a purple worm stays in it (no save panic); curses
+    clips a menu entry taller than a page (it hung or crashed);
+    #wizloaddes makes no Mines rivers (ruled); the bear trap left
+    on a dug hole closed as the 1-in-3 drop. Minted three: corpses
+    with no recorded sex, the ice box ZOMBIFY_MON timer, a grounded
+    steed held up by its rider's own lift.
     Session 274 closed six (BUG-2643..2652) and, in Phase 6, the idle
     checkpoint row (BUG-2653, 2654): an earthquake cracks sand
     silently and leaves anything lifted by gear or a spell up over its
@@ -12126,7 +12143,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mind flayer and the caller is told it died. The monster leg
       asks mlifesaver_works() first (BUG-2285). Fix shape: gate the
       polymon() and the died flag on DEADMONSTER(mdef). Plannable.
-- [ ] LOW: a norevive troll corpse twitches again and again (minted
+- [x] LOW: a norevive troll corpse twitches again and again (minted
       2026-10-11, session 213, battery C anomaly; branch pre-existing).
       A norevive corpse keeps its REVIVE_MON timer by design (it rots
       instead when the timer fires). revive_mon()'s rot arm (do.c)
@@ -12144,6 +12161,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       REVIVE and a ROT timer both set. After BUG-2650 a Rider out of an
       ice box revives instead; the give-up arm still runs when revive()
       fails for other reasons (no room), so include it in the trace.
+      CLOSED 2026-10-30 (session 275, commit pending; BUG-2661; the
+      Rider half master-shared). RULED 2026-10-30 (AskUserQuestion): a
+      failed troll revival rots. revive_mon()'s rot arm calls
+      set_corpsenm() only when undead_to_corpse() changes the id or the
+      corpse is a zombie corpse (the zombie revert and a draugr's rise
+      keep the restart). Battery T3: four norevive troll-class corpses
+      PRE 2 / 3 / 4 / 6 twitches, revive_mon re-queued after each first
+      twitch; POST one twitch each, then only rot_corpse; a forced
+      Rider give-up PRE left revive_mon queued, POST rot_corpse only.
 - [x] MED: a mongone()d Ice Queen revives off the map (BUG-2291)
       - FIXED 2026-10-12 (session 215, commit 1ea54e976, tracker
       89b6bfe9f; closure notes in BUGFIXES_ARCHIVE): ruled "stays
@@ -13207,7 +13233,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       columns and on curses, rows of 254 / 255 / 256 characters split
       with nothing lost, one whole dumplog row (text and HTML), other
       windows and ^P history identical to PRE. LOW.
-- [ ] LOW: curses menu paging hangs on an entry taller than a page
+- [x] LOW: curses menu paging hangs on an entry taller than a page
       (minted 2026-10-15, session 231, from the code reviewer;
       vanilla-shared, upstream-reportable). win/curses/cursdial.c
       menu_determine_pages() has no case for an entry taller than a
@@ -13218,6 +13244,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       minimum, reachable by resizing) hangs on both builds. Fix shape:
       when the entry starts the page, keep it there and clip it. Needs
       a reproducer in play first. LOW.
+      CLOSED 2026-10-30 (session 275, commit pending; BUG-2663;
+      upstream-reportable, master-shared). menu_entry_cols() is shared
+      by paging and drawing (an object symbol's 2 columns were counted
+      only when drawing); menu_is_multipage() tests overflow before
+      stepping (an overflowing last entry had the footer drawn over
+      it); an entry that starts its page and still overflows is clipped
+      there; the draw stops at num_lines. #call names stop at 62
+      characters, so play needs a small terminal. Battery T4 at 40x15
+      curses with a 239-character called name (gdb): PRE `i` hung in
+      menu_determine_pages(), `r` `?` with the scroll first crashed at
+      the loop step; POST clipped on its own page, paging and ESC work;
+      110x45 menus identical on both.
 - [x] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
@@ -19722,7 +19760,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       captain's warg turn hostile with their riders (battery C / B
       PRE: peaceful). Sleep rays, gas, des asleep / paralyzed and
       ^G "sleeping" still reach only the rider, as ruled.
-- [ ] LOW investigation: #wizloaddes over a filler level left its
+- [x] LOW investigation: #wizloaddes over a filler level left its
       hidden eels on room floor (minted 2026-10-23, session 257
       battery C, on session 256's branch build; wizard mode only).
       Loading minetn-1 over a Mines filler that held hidden piranhas
@@ -19731,6 +19769,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       out of water (fmon)" x8. Session 257 does not touch
       #wizloaddes; the POST run's filler just had no hidden swimmers.
       Check what #wizloaddes clears from the replaced level.
+      CLOSED 2026-10-30 (session 275, commit pending; BUG-2664;
+      EvilHack-only, wizard mode). Diagnosis corrected: #wizloaddes
+      clears the old level (makemap_remove_mons()); mkmap()'s Mines
+      rivers guard reads the level the hero stands on, so a loaded
+      minetn-1 got a filler's rivers and hidden swimmers, and its map
+      painted floor and walls over them. RULED 2026-10-30
+      (AskUserQuestion): no rivers under #wizloaddes - the guard also
+      needs !iflags.lua_testing. Battery T4 (Mines 4): minefill x3 PRE
+      water and hidden swimmers on 2 of 3, POST none; minetn-1 PRE 5
+      sanity lines, swimmers on floor and in a wall, POST none;
+      #wizmakemap still makes rivers 5 / 5.
 - [x] LOW: obj_typename() appends " stone" to non-gem GEMSTONE items
       (minted 2026-10-15, session 230, by batteries T2 / T3). Master
       1464c4a98 (the magic chests commit, whose row is closed) added
@@ -19994,14 +20043,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cube "Needs salt..." on consecration. POST "You cannot eat that!",
       no floor prompt, no menu entry; an iron long sword and a scroll of
       light still eaten.
-- [ ] LOW: a pickup menu names a wished Rider corpse "female Death's
+- [x] LOW: a pickup menu names a wished Rider corpse "female Death's
       corpse" (minted 2026-10-30, session 274, battery T3 anomaly, PRE
       binary; not seen on POST, other staging). The tip's spill list said
       "Death's corpse"; the pickup menu and `:` said "female Death's
       corpse". Needs a trace (corpse_xname()'s gender prefix for a
       unique or Rider corpse; how a wished unique corpse sets
       CORPSTAT_GENDER). LOW.
-- [ ] LOW: a bear trap's object stays on the hole dug through it
+      CLOSED 2026-10-30 (session 275, commit pending; BUG-2660;
+      vanilla 5.0 ac3d71a82, upstream-reportable). The sex hint (corpses
+      of different sex don't stack) walked obj->nobj, so a floor pile
+      was compared with every object placed earlier on the level, keyed
+      by stale letters (an overweight wished corpse is lettered before
+      it drops) and against empty slots (any lettered giant ant corpse
+      read "male" / "female"); neuter read "male". RULED 2026-10-30
+      (AskUserQuestion): fix 5.0's hint - nexthere for floor piles,
+      NON_PM empty slots, a letter two corpses share dropped, raw sex
+      bits; only exactly male / female is named. Battery T3: giant ant
+      PRE "female", POST plain; a male jackal with the female 4 squares
+      away PRE "male", POST plain; both in one pile named on both; a
+      killed and a wished lichen PRE "male lichen corpse", POST plain.
+      Minted: corpses with no recorded sex (row below).
+- [ ] LOW: corpses with no recorded sex never stack with sexed or
+      neuter ones (minted 2026-10-30, session 275, corpse-sex trace;
+      vanilla 5.0 shape, record). mkcorpstat() writes spe 0 for a
+      level-made corpse and a killed neuter monster leaves 0, while a
+      wished or random neuter corpse gets CORPSTAT_NEUTER (3) and a
+      killed monster its sex; mergable() compares spe whole, so a lichen
+      kill and a wished lichen corpse never stack and the fixed hint
+      names neither. Record unless a ruling wants 0 to merge. LOW.
+- [x] LOW: a bear trap's object stays on the hole dug through it
       (minted 2026-10-30, session 274, battery T2 anomaly, both builds).
       A held, levitating hero zapping digging down: dighole()'s magic
       disarm places the beartrap object, digactualhole() makes a HOLE,
@@ -20009,7 +20080,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       where 1) instead of falling through. Needs a trace (dighole()'s
       PLACE_AMMO before maketrap(), digactualhole()'s oldobjs / newobjs
       test and impact_drop()'s down_gate()). LOW.
-- [ ] LOW: a Rider corpse digested by an engulfer leaks as a free
+      CLOSED 2026-10-30 (session 275, no code; record). Not a bug:
+      impact_drop() keeps each object on a new hole 2 times in 3
+      (dokick.c rn2(3)), the beartrap object like any other; master the
+      same, and vanilla too (it buries and unearths the trap first, so
+      it also calls pickup(1): a flying hero there is told "You see here
+      a beartrap", a levitating one nothing).
+- [x] LOW: a Rider corpse digested by an engulfer leaks as a free
       object (minted 2026-10-15, session 230, by the held-tips Plan
       agent; vanilla-shared, upstream-reportable). do.c
       engulfer_digests_food() prints "<corpse> is instantly
@@ -20019,6 +20096,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (wizard: carry a Death corpse, get swallowed by a purple worm,
       drop it; watch the revive timer), then a fix (skip the digestion
       for an obj_resists() object, or mpickobj() it). LOW.
+      CLOSED 2026-10-30 (session 275, commit pending; BUG-2662;
+      vanilla e726cc22c, upstream-reportable; master's dropz() kept
+      every corpse in the engulfer). Worse than a leak: the free
+      corpse's timer tripped timer sanity at once and the next save
+      panicked in obj_is_local() (recursively, through the emergency
+      save). engulfer_digests_food() skips obj_indestructible() objects
+      (RNG-free), so dropz()'s mpickobj() keeps a Rider corpse in the
+      engulfer, as throwing does. Battery T3: an overweight "Pestilence
+      corpse" wish inside a purple worm PRE "The corpse is instantly
+      digested!", `S` -> panic, core dumped; POST kept in the worm's
+      inventory with its revive timer, save and restore clean. Minted:
+      the ice box ZOMBIFY_MON timer (row below).
+- [ ] LOW: a corpse in an ice box keeps its ZOMBIFY_MON timer (minted
+      2026-10-30, session 275, corpse-timer trace; vanilla-shared).
+      pickup.c in_container() and the container-to-container move stop
+      only ROT_CORPSE and REVIVE_MON when a corpse goes into an ice box,
+      so the corpse of a zombie's victim (gz.zombify) or an actual
+      zombie corpse can still rise from inside the box. Needs a trace
+      (what zombify_mon() does to an OBJ_CONTAINED corpse; whether the
+      box should stop it as it does REVIVE_MON). LOW.
 - [x] LOW: a dwarf Valkyrie never starts with the bearded axe (minted
       2026-10-15, session 229, by battery T1; master-shared). Master
       8041aacfe gave dwarves `{ PM_DWARF, LONG_SWORD,
@@ -26440,7 +26537,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       only the latter. Minted from the census: the helpers free holds
       the deleted trap never made, and temple repair deletes the trap
       under a wall-passing hero (rows below).
-- [ ] LOW: deleted traps release holds they never made (minted
+- [x] LOW: deleted traps release holds they never made (minted
       2026-10-30, session 274, from the tell-after census;
       master-shared). delfloortrap() and deltrap_with_ammo() end any
       hold on the square but a buried-ball chain or a live tree's grip:
@@ -26453,7 +26550,20 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       that floor (flooding, melting), whose own code ends them. Census
       the floor-changing callers (liquid_flow(), trap_ice_effects(),
       boulder_hits_pool()) before narrowing. LOW (plannable).
-- [ ] LOW: a temple priest repairs the trap under a wall-passing hero
+      CLOSED 2026-10-30 (session 275, commit pending; BUG-2657, 2658;
+      master-shared). trap.c u_held_by_trap(): both helpers end only a
+      TT_BEARTRAP / TT_WEB / TT_PIT hold of their own trap type. Census
+      of the 52 callers (Plan agent): only liquid_flow() relied on the
+      release for a floor-changing event - it ends TT_INFLOOR itself now
+      (BUG-2658: with no trap there a flooded hero stayed stuck in the
+      floor under water); grass goes through each caller's
+      grass_gone_release() ("The vegetation releases you." then the
+      landing). Battery T2: the helpers on a squeaky board under a floor
+      or grass hold PRE freed, POST held; a pick-axe up at a rock trap
+      and a forced failed land-mine set PRE freed, POST still stuck;
+      the flood PRE entered drown() stuck in the floor, POST freed
+      first; own bear trap and web still free the hero.
+- [x] LOW: a temple priest repairs the trap under a wall-passing hero
       (minted 2026-10-30, session 274, from the tell-after census).
       priest.c temple_repair_damage() skips the hero's square only when
       !Passes_walls, so a xorn-form hero caught in a bear trap or web in
@@ -26461,6 +26571,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       refuses any trap on the hero's square. RULED 2026-10-30
       (AskUserQuestion): SKIP THE HERO'S SQUARE, as shopkeepers do. LOW
       (plannable).
+      CLOSED 2026-10-30 (session 275, commit pending; BUG-2659). Also
+      RULED 2026-10-30 (AskUserQuestion): a monster caught in the trap
+      waits too - the branch shopkeeper's repairable_damage() shape,
+      tested before the prayer line. Battery T2 (minetn-6 temple): a
+      Passes_walls hero on a dug pit PRE freed by the repair, POST kept
+      until the hero stepped off; a trapped newt PRE freed, POST still
+      trapped; a hero without Passes_walls postponed on both.
 - [x] LOW: a web on melting ice keeps holding the hero (minted and
       closed 2026-10-30, session 274, by the tell-after Plan agent;
       master and vanilla 5.0). trap_ice_effects() deleted the web with
@@ -27067,7 +27184,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       1d4, POST "The lichen falls into a chasm!" 1d6, dug pit POST "The
       lichen falls into your pit!"; already-in-a-pit controls
       unchanged.
-- [ ] LOW: a flying or floating steed does not carry its monster rider
+- [x] LOW: a flying or floating steed does not carry its monster rider
       over a drop (minted 2026-10-30, session 274, by the quake Plan
       agent; master-shared). Only the rider's own lift counts in
       do_pit(), digactualhole(), trapeffect_pit() / trapeffect_hole()
@@ -27076,6 +27193,34 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       A FLYING OR FLOATING STEED CARRIES ITS MONSTER RIDER, as session
       235 ruled for the hero (BUG-2401); a shared helper across those
       sites. LOW (plannable).
+      CLOSED 2026-10-30 (session 275, commit pending; BUG-2655, 2656;
+      master-shared). Also RULED 2026-10-30 (AskUserQuestion x2): DROPS
+      + NEW LIQUID - water, lava, sewage and open air under a carried
+      rider spare it, pathing unchanged (riders still route around
+      water and known traps, so the term sits at mintrap()'s gate, not
+      in check_in_air()); text "The Nazgul flies over the pit." / "The
+      Nazgul flies back up." (the steed's verb). mondata.h
+      mon_steed_airborne() at the trap gate, the pit and hole effects,
+      do_pit(), digactualhole(), create_pit_under(),
+      mon_falls_unsupported(), minliquid_core(), dochug()'s plummet,
+      mon_slowed_by_sewage(), e_survives_at() and the boulder fill; a
+      rider over a hole drops at its next turn when its steed lands,
+      dies or is parted from it. Battery T1: PRE the Nazgul was caught,
+      blown up, fell into pits, chasms and holes, a hill orc on a fell
+      beast drowned and burned, and the raised drawbridge killed both;
+      POST all spared, m_harmless_trap() equal on both builds, a lift
+      lost over a hole drops the rider once. Minted: a grounded steed
+      held up by its rider's own lift (row below).
+- [ ] LOW: a grounded steed held up by its rider's own lift (minted
+      2026-10-30, session 275, ruled-trio Plan agent and reviewer;
+      master-shared, record). A rider with its own flight or a
+      levitation spell routes over water, lava, open air or a hole
+      (mfndpos() reads the rider's lift), carrying a grounded steed
+      along off the map; the steed then drowns or plummets on its own
+      move, and one set back on a hole when its rider is moved away or
+      dies (separate_steed_and_rider()) never drops. Outside the
+      session 275 ruling (the steed carries the rider, not the
+      reverse). LOW.
 - [x] LOW: the earthquake never cracks sand (minted 2026-10-27, session
       265 reviewer; master-shared; needs a ruling). SAND (rm.h 38) is
       IS_ROOM floor terrain like GRASS (no hiding in it on the branch),
@@ -34094,6 +34239,9 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-30 | A web on melting ice is deleted with plain deltrap() (trap_ice_effects()), so a hero caught in it keeps TT_WEB with no web; a levitating hero then drowns instead of floating. Official_nh50 b0c09c878; BUG-2648, src/trap.c | found (branch-fixed 8c329ab34); not sent; triage pending |
 | 2026-10-30 | An earthquake's do_pit() keeps only is_flyer() / is_clinger() monsters up, so a levitating or flying-by-gear monster falls into the chasm; a monster held by a web or bear trap the chasm replaces keeps mtrapped (maketrap() ends only the hero's hold). Official_nh50 b0c09c878; BUG-2644..2646, src/music.c dig.c | found (branch-fixed 941e8f270; the branch's stay-up is silent by ruling); not sent; triage pending |
 | 2026-10-30 | delfloortrap() ends the hero's hold with reset_utrap(TRUE), so a returned levitation is told before the event's own line ("You start to float in the air!" then "As you dig, the hole fills with water!"). Official_nh50 b0c09c878; BUG-2647, src/trap.c (the branch's fix uses its deferred-lift machinery, not upstream's) | found (branch-fixed 8c329ab34); not sent; triage pending |
+| 2026-10-30 | The corpse-sex hint (ac3d71a82) walks obj->nobj, so a floor pile in look_here() / query_objlist() is compared with every floor object placed earlier on the level; it keys corpses by stale inventory letters; empty slots read mnums 0 (giant ant), so any lettered giant ant corpse is named "male" / "female"; corpse_xname() reads CORPSTAT_NEUTER as "male". Official_nh50 b0c09c878; BUG-2660, src/invent.c objnam.c pickup.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-10-30 | engulfer_digests_food() (e726cc22c) delobj()s a dropped Rider corpse, which delobj() refuses: the corpse stays OBJ_FREE with its REVIVE_MON timer (timer sanity "can't locate obj"), and the next save panics in obj_is_local(), recursively through the emergency save. Reached by dropping or an overweight wish inside a purple worm. Official_nh50 b0c09c878; BUG-2662, src/do.c | found (branch-fixed, commit pending: skip obj_indestructible(), so dropz() mpickobj()s it); not sent; triage pending |
+| 2026-10-30 | curses menu_determine_pages() re-places a menu entry taller than a page on new pages forever, or backs up to a NULL prev_item and crashes when it is the first entry; menu_is_multipage() misses an overflowing last entry (the footer overwrites it); paging counts selectable rows at width - 4 while the draw wraps at width - 6 when an object symbol shows. Official_nh50 b0c09c878 (and 3.6); BUG-2663, win/curses/cursdial.c | found (branch-fixed, commit pending); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -34479,6 +34627,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-30 | Ruled-trio / traces / corpse-timer / investigations slice rulings (Phase 2 session 275, AskUserQuestion x3, seven questions, all as recommended). (1) SLICE (multiSelect): all four offered groups (the ruled trio, session 274's two traces, the corpse-timer traces, the curses and #wizloaddes investigations). (2) RIDER SCOPE: drops + new liquid - a carried monster rider is spared by pits, holes, chasms, floor traps, and water, lava, sewage or open air opening under it; pathing unchanged (riders still route around water and known traps). (3) TEMPLE: the priest also leaves a trap alone while a monster is caught in it (the branch shopkeeper's shape). (4) RIDER TEXT: the rider is the subject with the steed's verb ("The Nazgul flies over the pit." / "flies back up."). (5) CORPSE SEX: fix 5.0's hint (pile or pack only, no giant ant or neuter misnaming); corpses of different sex still don't stack. (6) TROLL RETRY: a troll whose revival fails rots (the rot arm's intent and vanilla; 0.9.3's retry was a side effect). (7) #wizloaddes: no Mines rivers on a level loaded for testing. | maintainer |
 | 2026-10-30 | Quake / tell-after / trace-trio / idle-checkpoint slice rulings (Phase 2 session 274, AskUserQuestion x5, eleven questions, all as recommended). (1) SLICE (multiSelect): all four offered groups. (2) RIDER ICE BOX: Riders always revive (master's revive() never read norevive). (3) PRAYER: hold in place - nothing hurtles the hero or the steed, no knockback, a mind flayer's telekinesis skips a praying hero; stray rays, missiles, sleep and webbing still hit (master and vanilla). (4) EATING: non-food indestructible items can't be eaten. (5) QUAKE, HELD GROUNDED MONSTER: falls like the hero ("falls into a chasm!", 1d6). (6) MONSTER RIDERS: a flying or floating steed carries its monster rider - a ruled row. (7) AMMO TRAPS on a drawbridge / vault corridor: fold in, destroyed at the bridge, embedded in the vault rock. (8) DELETED TRAPS: release only their own hold - a ruled row. (9) TEMPLE PRIEST: skips the hero's square like shopkeepers - a ruled row. (10) ICE QUEEN AFTER RECOVERY: revives right after the restore, before the hero can act. (11) DUG PIT: matches the quake (a held grounded monster falls in). Decided without asking: the melting-ice web release is silent; the dead TT_BEARTRAP re-checks after deltrap_with_ammo() in floorfood() / dig() stay. | maintainer |
 | 2026-10-29 | Upstream Tourist cut rulings (5.0 fixes session 273). (1) PRIORITY (asked in conversation): the BUG-2635 row (vanilla 5.0.1 Tourist home level does not load) MOVES TO THE FRONT of the send queue as #60, cut ahead of #59 and #22; re-derived against vanilla it is C, not G (two impossible()s on every Tourist's first quest-portal trip), so the C-only ruling covers it. AskUserQuestion x1, three questions, all as recommended: (2) SCOPE = ONE PATCH for the levels and the quest text (over levels-only now with the text held as M, and over two PRs at once); (3) male=1 SHAPE = female=0 in the level files, data only and the same as the branch fix (over teaching lspo_monster() to read male= as lspo_object() does for statues); (4) a PRE / POST evilhack-game-tester run on the scratch vanilla build (over static checks only). | maintainer |
 | 2026-10-29 | Upstream catch-up 2 rulings (session 272; conversation plus AskUserQuestion x8, 22 questions). (0) MERGE NOW: take official 5.0.1 work-in-progress b0c09c878 rather than wait for the 5.0.1 release (maintainer asked; source is official upstream directly, the Hardfought fork having no 5.0.1 work). (1) VERSION (stated in conversation): EvilHack stays 1.0.0-0 whatever vanilla's patchlevel.h says, until the maintainer says otherwise. (2) TOURIST QUEST: TAKE UPSTREAM's Discworld rewrite with its bugs fixed (over keep-EvilHack and EvilHack-text-plus-levels), EvilHack's bell / kill-the-leader / forfeit lines written in the new voice and approved as rendered, gotit2 in the new voice (as recommended). (3) MONK LOCATE: take upstream's lava level (over master's cave), no-dig widened. (4) MEAT ROOM: keep it and rename EvilHack's "huge chunk of meat" to 5.0's "enormous meatball" (maintainer's own option, over drop / keep-with-old-name). (5) LUDIOS: keep spawns (as recommended). (6) JELLYFISH: upstream (03,02), replacing the 2026-10-03 (01,02) ruling (as recommended). (7) SHAPESHIFTER EXPLOSIONS: upstream wording plus its two name-leak fixes (as recommended). (8) "amulet of flight" alias kept (as recommended). (9) Each asked individually, all as recommended: pet-swap travel stop, box trap-knowledge fixes, probing carried eggs, tutorial 'D' engraving, data.base "akitu", shop_keeper() check wizard-only / silent in makelevel, #wizlevelport names with a shared Amulet / Idol prerequisite. (10) ICE QUEEN vs idle checkpoint: accept, LOW row (as recommended; the follow-up reviewer later found the recovery can panic on a timed item - recorded in the row). (11) PLATFORMS: the revived mac68k / Atari-GEM / Amiga ports are in scope for later PLATFORM PARITY slices; this merge verified on Linux tty/curses only (as recommended). (12) WINDOWS / DOC VERSION IDS: EvilHack 1.0.0 (as recommended). (13) BATTERY: POST-only on the merged install (as recommended). | maintainer |
