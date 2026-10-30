@@ -17,9 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-30, after session 275's
-  ruled-trio / traces / corpse-timer / investigations slice: nine
-  LOW rows closed, three minted open): 566 rows closed, 101 open
+- Phase 2 status (refreshed 2026-10-30, after session 276's
+  text one-liners slice: eight rows closed, one LOW minted open):
+  574 rows closed, 94 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -334,13 +334,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     other hand's plain weapon no longer counts); cancellation also
     ends Stoneskin's stoning resistance, and spares a form's or
     race's reflection and vulnerabilities.
-  - 10 untagged: port gaps (Muse offense items, creeping mound
-    meatfood(), monster chest_trap(), des-placed mplayer sex, look_at_monster buffer, "pairs of"),
+  - 9 untagged: port gaps (Muse offense items, creeping mound
+    meatfood(), monster chest_trap(), des-placed mplayer sex,
+    look_at_monster buffer; "pairs of" closed by design, session 276),
     rows that wait on other work (endgame plane order with Phase
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 90 LOW: small parity rows, quirks and watch/record-only items.
+  - 84 LOW: small parity rows, quirks and watch/record-only items.
+    Session 276 closed seven (BUG-2665..2675) and the untagged
+    "pairs of" row (ruled: keep vanilla's Webster "2 pair of"):
+    dragon scales are a "set of dragon scales" again; one crush
+    line per hero hug, and a hug on a shade deals its blessed or
+    silver damage and never grabs (ruled); a life-saved drowning
+    says where the hero landed once, and climbing out onto
+    EvilHack terrain reads "on the grass", "on the sand", "in
+    shallow water", "in raw sewage" (ruled fold-in); the protected
+    drawbridge refusal shows only when seen or adjacent and an
+    unseen one identifies no wand (ruled); a capitalized bare
+    material wish no longer fires "singular of null?" and the
+    iron-container killer reads "an iron"; a Healer senses a
+    pyrolisk egg's blast; monsters follow the hero's cloak rule
+    (giant race: only a wrapping; centaurs, driders and small
+    monsters with hands: any cloak, ruled) and the druid / vampire
+    form exemption covers only the hero (ruled fold-in). Minted
+    one: a pet never counts a mummy wrapping as better armor.
     Session 275 closed nine (BUG-2655..2664): a flying or
     floating steed carries its monster rider over pits, chasms,
     holes, floor traps, water, lava, sewage and open air, and a
@@ -2600,13 +2618,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       5.0-native rest.
       PROGRESS (2026-10-25, session 261): burnarmor()'s helm name reads
       item->material (BUG-2588, be6bd0f84), master's read.
-- [ ] LOW: materials nits (minted 2026-10-19 by the Materials
+- [x] LOW: materials nits (minted 2026-10-19 by the Materials
       umbrella audit; master-shared, its "fix master first" void
       since the freeze). not_spec_material() reads one past the NUL
       on a bare "silver" wish (objnam.c; inside the buffer, no crash,
       inferred); "opening a iron container" (pickup.c); NO_MATERIAL
       passes valid_obj_material(); matdensities[] is unclamped on
       restore (a 5-bit field, 25 entries).
+      CLOSED 2026-10-30 (session 276, HASH-A; BUG-2670, 2671; master
+      frozen-unfixed). not_spec_material()'s whole-string test was
+      strcmp() while its caller matches strncmpi(), so a bare lowercase
+      wish never reached the read; a capitalized one ("Silver", "Gold",
+      "SILVER") did, and it was worse than inferred: PRE "singular of
+      null?  Program in disorder!" (paniclog x3) and a paper spellbook
+      ("Note: material silver is not valid for this object"). Now
+      strcmpi(); POST "Silver" / "SILVER" = "silver" (a silver wand),
+      "Gold" = "gold" (a gold piece), no impossible. The killer reads
+      "opening an iron container" (an(); battery T1 at `break done`,
+      tombstone "opening an iron / container"). NO_MATERIAL and
+      matdensities[] closed with no code: every valid_obj_material()
+      caller passes a real material (the wish path guards
+      d.material > 0), and only a corrupt save reaches an
+      out-of-range material (a clamp would be a band-aid heal).
 - [x] LOW: dmgval() reads the natural hero's role monster (minted
       2026-10-20, session 244, by the touch-sear slice; master-
       shared). dmgval() takes ptr = r_data(mdef), the role monster
@@ -3223,13 +3256,45 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       D the review folds on the final build) - every leg PASS,
       paniclogs empty; the welded two-hander gate re-staged by D7 (a
       gnome lord refuses a two-hander).
-- [ ] LOW: a giant-race monster can wear any cloak (minted 2026-10-19
+- [x] LOW: a giant-race monster can wear any cloak (minted 2026-10-19
       by the Racial monsters umbrella audit, its B2 reviewer nit).
       m_dowear() admits the cloak slot by WrappingAllowed(r_data()),
       but m_dowear_type()'s mummy-wrapping-only size test reads
       mon->data->msize (worn.c), so a giant-race soldier or priest
       that picks up a cloak or robe wears it. Master: never. Use
       r_data(). Code read only.
+      CLOSED 2026-10-30 (session 276, HASH-B; BUG-2673, 2674). The
+      plain r_data() swap would have taken ordinary cloaks from
+      centaur-race monsters (Plan stress test); RULED 2026-10-30
+      (AskUserQuestion): MIRROR THE HERO'S canwearobj() RULE.
+      find_best_armor_recurse()'s W_ARMC test: a cantweararm() monster
+      takes an ordinary cloak only when r_data() is MZ_SMALL, a mummy
+      wrapping only as WrappingAllowed() says; the reviewer's LOW
+      folded master's MZ_SMALL arm back into m_dowear()'s gate (5.0's
+      WrappingAllowed() needs humanoid()). So a giant-race monster or
+      a giant wears only a wrapping (5.0's wrapping kept, ruled
+      2026-09-29), and centaurs, driders and small non-humanoids with
+      hands wear any cloak, as on master. RULED fold-in, the Plan
+      stress test's find (BUG-2674, master-shared, frozen-unfixed):
+      sliparm() / breakarm() applied the druid_form / vampire_form
+      exemption (the hero's own form) to every monster; now only to
+      &gy.youmonst. Batteries T4 / T5: giant-race soldier PRE the
+      elven cloak, POST the mummy wrapping only (cloak alone: none);
+      forest centaur PRE none, POST the cloak; quasit (MZ_SMALL,
+      M1_REGEN only) PRE none, POST the cloak, a wrapping on neither;
+      hobbit and an unraced soldier wear it on both; with the hero a
+      wild-shaped wolf a hill giant PRE put on ring mail
+      (breakarm 0), POST refused (breakarm 1), natural form both
+      refuse.
+- [ ] LOW: a pet never counts a mummy wrapping as better armor (minted
+      2026-10-30, session 276, the code reviewer's LOW; master's shape,
+      record). dogmove.c is_better_armor() turns down any armor for a
+      cantweararm() pet unless it is a cloak and the pet's own
+      data->msize is MZ_SMALL - master's test, with no race and no
+      wrapping arm - so a tame giant or giant-race pet passes over a
+      mummy wrapping that m_dowear() would put on it (5.0's wrapping,
+      kept 2026-09-29). Align it with find_best_armor_recurse()'s rule
+      if it matters in play.
 - [ ] LOW watch: Racial monsters live-coverage residue (minted
       2026-10-19 by the umbrella audit; static and reviewer checks
       only): drow temple darkening, gnome Int / nymph Cha quotes and
@@ -12877,7 +12942,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       --More-- and a tip window. Observation (parity): a monster's
       thrown missile hitting the pet prints no tier line (not a
       mattackm() path; master the same).
-- [ ] Pyrolisk-egg bash skips the Healer tier line (LOW; minted
+- [x] Pyrolisk-egg bash skips the Healer tier line (LOW; minted
       2026-09-12 by the Healer wound sensing slice from a reviewer LOW):
       hmon_hitmon()'s 5.0-only pyrolisk-egg arm (uhitm.c ~1783-1789)
       damages the target through explode() and then doreturn-exits
@@ -12885,6 +12950,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pyrolisk egg gets no tier line for that hit; master has no
       pyrolisk arm (parity n/a). Candidate: report the tier before the
       early return when the target survived. LOW.
+      CLOSED 2026-10-30 (session 276, HASH-C; BUG-2672). The egg arm
+      saves mon->mhp before explode() and calls print_mon_wounded()
+      when the target lives; explode() never moves it, and the other
+      doreturn exits wound no surviving target. Battery T2 (Healer,
+      jackal at 100/100): PRE no tier line after "The jackal is caught
+      in the fireball!", POST "The jackal is slightly wounded."; a
+      scalpel control prints on both.
 - [x] Terrain concealment (concealed_spot/explain_terrain) NOT PORTED
       (NEW, minted 2026-09-08 by the pokedex slice; MED). Master's
       concealed_spot() + the explain_terrain() macro (display.h) name
@@ -14227,12 +14299,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the monster); repro = wizard game, wish Amulet, climb from Dlvl 1
       with a nymph on the level, 50 monsters on the entrance plane.
       Paniclog copy: session scratchpad paniclog-final-smoke.txt.
-- [ ] "pairs of" at quan > 1 (NEW, minted 2026-07-28 by this slice's
+- [x] "pairs of" at quan > 1 (NEW, minted 2026-07-28 by this slice's
       battery). A stack of the mergeable pair-items renders "2 pair of
       meat gloves" where it wants "2 pairs of". Only reachable on the
       FOOD_CLASS meat gloves and boots, since armor does not merge.
       Master has the identical construction so this is master parity, not
       a regression - but neither tree pluralizes the "pair".
+      CLOSED 2026-10-30 (session 276, no code). makeplural() skips
+      "pair of" on purpose: its comment cites Webster ("3 pairs of
+      dancers" for people, "3 pair of boots" for objects). RULED
+      2026-10-30 (AskUserQuestion): KEEP "2 pair of", vanilla and
+      master's documented usage.
 - [x] passive_obj() has no AD_DISN case (NEW, minted 2026-07-30 from
       the 2026-07-29 review of the July 24-29 commits; HIGH; verified
       still live at mint time). LANDED SAME DAY as BUG-1400 (battery
@@ -24548,7 +24625,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         runs damageum(), and the wrap leg's 1-in-10 roll can
         set_ustuck() the shade, against hmonas()'s "never grabs hold"
         comment.
-- [ ] LOW: a hero's hug prints "<Mon> is being crushed." twice
+- [x] LOW: a hero's hug prints "<Mon> is being crushed." twice
       (minted 2026-09-29, session 158 battery; vanilla 5.0 and master
       too). hmonas()'s AT_HUGS arm prints it when mon == u.ustuck,
       then damageum() -> mhitm_ad_wrap()'s hero leg prints it again
@@ -24556,6 +24633,23 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hugs, saw it 2-3 times a round (PRE, seen live). Fix: drop the
       wrap leg's AT_HUGS line (hmonas() already printed it) and check
       the shade path. LOW (text).
+      CLOSED 2026-10-30 (session 276, HASH-C; BUG-2666, 2667; master
+      and vanilla alike, frozen-unfixed). The wrap leg's crush line is
+      gone: hmonas() prints it for a held target and "You grab <mon>!"
+      on the grab round. The shade path: hmonas()'s noncorporeal arm
+      ("deals damage but never grabs hold") called damageum(), and
+      the wrap leg then grabbed the shade 1 in 10 or zeroed the damage
+      with "You try to grab the shade!" / "You brush against ...".
+      RULED 2026-10-30 (AskUserQuestion): FOLLOW THE COMMENT - an
+      AT_HUGS hit on an unheld target (only a noncorporeal one gets
+      there) deals mhm->specialdmg, as the AD_PHYS hug leg gives it,
+      and never grabs (the Plan stress test caught that an empty
+      guard would have dealt the full dice). Battery T2: python PRE
+      grab round two crush lines, then three a round, POST one, then
+      two; salamander the same shape; blessed-cloak salamander on a
+      shade PRE "You try to grab the shade!" 67 rounds then a grab
+      (u.ustuck = the shade), POST 30 rounds "You hug the shade." x2,
+      u.ustuck nil, damage = specialdmg 2-3 on each traced hug.
 - [x] MED: greased gear does not resist theft - PORTED 2026-09-29
       (session 159, commit `Port master's greased-gear theft
       resistance.` = 0612d2a42, tracker c860058f4, BUG-2021 through
@@ -27310,7 +27404,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hooks (dighole(), do_break_wand(), blow_up_landmine(), a lava
       wish) reach it too. Candidate: skip the over-drop defer when
       `Wwalking && is_pool_or_lava()`. LOW (needs a trace).
-- [ ] LOW: a life-saved drowning reads "You are back on solid ground."
+- [x] LOW: a life-saved drowning reads "You are back on solid ground."
       then "You find yourself on solid ground." (minted 2026-10-13,
       session 220, battery B; upstream-shared, Official_nh50
       drown()). safe_teleds() lands the hero and describe_decor()'s
@@ -27320,6 +27414,23 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       dropped a hero into a moat with no way out (wizard-mode "Die?"
       n). LOW (record; upstream-reportable once confirmed on a plain
       drowning).
+      CLOSED 2026-10-30 (session 276, HASH-D; BUG-2668, 2675). The
+      first line is pooleffects()'s, on the landing inside
+      safe_teleds() (not describe_decor()). Master's shape: the rescue
+      line only for a hero still in the water. drown() now calls
+      rescued_from_terrain(DROWNING) before clearing u.uinwater, and
+      its DROWNING case is silent when the landing already cleared it
+      (every pooleffects() path that does prints a line). RULED fold-in
+      (BUG-2675, the Plan stress test's find): back_on_ground() read
+      EvilHack terrain as "You are back in grass." / "in sand." /
+      "in a water." (a puddle) / "in a raw sewage."; now "on the
+      grass", "on the sand", "in shallow water", "in raw sewage"
+      ("over" when aloft). Battery T3: a 3x3 pool corner with the
+      levitation ring removed, PRE "You are back on solid ground." /
+      "You find yourself on solid ground." with the amulet and with
+      Die? n, POST the first line only; POST all four terrain lines
+      as ruled, floor unchanged. Confirmed on a plain drowning:
+      upstream-reportable.
 - [ ] LOW: a starting kitten turned untame and peaceful with no hero
       interaction (minted 2026-10-06, session 188, battery B anomaly on
       the POST build; seen once, not traced). Between T:16 and T:18 the
@@ -27704,12 +27815,20 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       flight, then lava, then losehp()) leaves the remaining arms
       testing the old form. The paths are contrived. Re-read the form
       after each arm, or record. LOW.
-- [ ] LOW: cloak_simple_name() lacks master's dragon-scales arm
+- [x] LOW: cloak_simple_name() lacks master's dragon-scales arm
       (minted 2026-09-29, session 157 battery A2). Master returns "set
       of dragon scales" for Is_dragon_scales() (EvilHack's scales are
       cloaks). The branch says "Your cloak tears apart!", "The clasp
       on your cloak ...", "You cannot wear armor over a cloak." for
       scales. One-line port; check its callers. LOW (text).
+      CLOSED 2026-10-30 (session 276, HASH-A; BUG-2665). Master's arm
+      ported inside `if (cloak)`; every caller read right (vtense()
+      stops at " of "). Battery T1: T the suit, W armor, W a second
+      cloak and T the scales PRE "...your cloak first." / "over a
+      cloak." / "already wearing a cloak." / "You finish taking off
+      your cloak.", POST "set of dragon scales" in all four; an elven
+      cloak still reads "cloak". Left as is: canwearobj()'s "The cloak
+      will not fit on your body." names its slot, not the item.
 - [x] MED: sounds.c lacks the consumer half of master 9a63bec08 -
       PORTED 2026-09-28 (session 156, commit `Port master's animal
       chat sounds and pet moods.` = 0a9626794, tracker 81a54619f,
@@ -31846,10 +31965,24 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ICED_MOAT, a doorway, melt timer running; a crocodile by a pool,
       no crash on either; Valley PRE moat over the span or portcullis,
       POST intact.
-- [ ] LOW: destroy_drawbridge()'s refusal line has no sight check
+- [x] LOW: destroy_drawbridge()'s refusal line has no sight check
       (minted 2026-10-26, session 262, Plan agent; vanilla-shared).
       "This drawbridge cannot be destroyed." prints for a monster's mine
       out of sight on the Valley or the Wizard's Tower levels.
+      CLOSED 2026-10-30 (session 276, HASH-D; BUG-2669; master
+      frozen-unfixed - the protected-bridge refusal is EvilHack's,
+      vanilla has none). RULED 2026-10-30 (AskUserQuestion): SEEN OR
+      ADJACENT - the line prints when the hero sees the span or the
+      portcullis or is next to either. destroy_drawbridge() returns
+      boolean (FALSE for no drawbridge or an untold refusal), and
+      zap_map()'s striking arm learns the wand only on TRUE (Plan
+      stress test: an unseen refusal would have identified it
+      silently). Callers that ignore the result take no (void) cast
+      (reviewer LOW, style only). Battery T3 (Valley, unidentified
+      wand): blind at distance 3 PRE the line and the wand learned,
+      POST silent and unknown (a breakpoint confirmed the beam reached
+      the bridge); blind adjacent and sighted adjacent print on both;
+      the bridge held every time.
 - [ ] LOW: hella-2's raised span over its moat counts as dry ground
       (minted 2026-10-26, session 262, Plan agent; record). is_moat() is
       false on a hella level, so a mine can be set on the raised DB_MOAT
@@ -34243,6 +34376,8 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-30 | The corpse-sex hint (ac3d71a82) walks obj->nobj, so a floor pile in look_here() / query_objlist() is compared with every floor object placed earlier on the level; it keys corpses by stale inventory letters; empty slots read mnums 0 (giant ant), so any lettered giant ant corpse is named "male" / "female"; corpse_xname() reads CORPSTAT_NEUTER as "male". Official_nh50 b0c09c878; BUG-2660, src/invent.c objnam.c pickup.c | found (branch-fixed cc6654f75); not sent; triage pending |
 | 2026-10-30 | engulfer_digests_food() (e726cc22c) delobj()s a dropped Rider corpse, which delobj() refuses: the corpse stays OBJ_FREE with its REVIVE_MON timer (timer sanity "can't locate obj"), and the next save panics in obj_is_local(), recursively through the emergency save. Reached by dropping or an overweight wish inside a purple worm. Official_nh50 b0c09c878; BUG-2662, src/do.c | found (branch-fixed bac4a8947: skip obj_indestructible(), so dropz() mpickobj()s it); not sent; triage pending |
 | 2026-10-30 | curses menu_determine_pages() re-places a menu entry taller than a page on new pages forever, or backs up to a NULL prev_item and crashes when it is the first entry; menu_is_multipage() misses an overflowing last entry (the footer overwrites it); paging counts selectable rows at width - 4 while the draw wraps at width - 6 when an object symbol shows. Official_nh50 b0c09c878 (and 3.6); BUG-2663, win/curses/cursdial.c | found (branch-fixed b871f0f35); not sent; triage pending |
+| 2026-10-30 | A hero's AT_HUGS AD_WRAP hit on a held target prints "<Mon> is being crushed." twice (hmonas() and mhitm_ad_wrap()'s uhitm leg). On a noncorporeal target, hmonas()'s shade arm ("deals damage but never grabs hold") calls damageum(), and the wrap leg then grabs the shade 1 in 10 or zeroes the damage with "You brush against ...". Official_nh50 b0c09c878 (and 3.6); BUG-2666, 2667, src/uhitm.c | found (branch-fixed HASH-C: the wrap leg leaves hug holds and the crush line to hmonas(); an unheld hug deals specialdmg); not sent; triage pending |
+| 2026-10-30 | A life-saved drowning reads "You are back on solid ground." (pooleffects() on safe_teleds()'s landing) and then "You find yourself on solid ground." (rescued_from_terrain()'s fallback). Seen on a plain drowning with an amulet and with wizard mode's Die? n. Official_nh50 b0c09c878; BUG-2668, src/trap.c | found (branch-fixed HASH-D: the rescue line only for a hero still in the water, called before drown() clears u.uinwater); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -34628,6 +34763,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-30 | Text one-liners slice rulings (Phase 2 session 276, AskUserQuestion x4, eight questions, all as recommended). (1) SLICE: the text one-liners group (eight rows). (2) "2 PAIR OF": keep vanilla's Webster usage, row closed by design. (3) SHADE HUG: follow hmonas()'s comment - a hug on a noncorporeal target deals its blessed or silver damage and never grabs. (4) DRAWBRIDGE REFUSAL: printed when the hero sees the span or portcullis or is next to either; an untold refusal identifies no wand. (5) MONSTER CLOAK SIZE: mirror the hero's canwearobj() rule (centaurs and driders wear any cloak, as on master; giant race only a wrapping). (6) Fold in the druid / vampire form exemption bug in sliparm() / breakarm() (hero only). (7) Fold in back_on_ground()'s terrain wording: "on the grass", "on the sand", "in shallow water", "in raw sewage". (8) Delta battery on the reviewer fold (m_dowear()'s MZ_SMALL gate arm): launch now. | maintainer |
 | 2026-10-30 | Ruled-trio / traces / corpse-timer / investigations slice rulings (Phase 2 session 275, AskUserQuestion x3, seven questions, all as recommended). (1) SLICE (multiSelect): all four offered groups (the ruled trio, session 274's two traces, the corpse-timer traces, the curses and #wizloaddes investigations). (2) RIDER SCOPE: drops + new liquid - a carried monster rider is spared by pits, holes, chasms, floor traps, and water, lava, sewage or open air opening under it; pathing unchanged (riders still route around water and known traps). (3) TEMPLE: the priest also leaves a trap alone while a monster is caught in it (the branch shopkeeper's shape). (4) RIDER TEXT: the rider is the subject with the steed's verb ("The Nazgul flies over the pit." / "flies back up."). (5) CORPSE SEX: fix 5.0's hint (pile or pack only, no giant ant or neuter misnaming); corpses of different sex still don't stack. (6) TROLL RETRY: a troll whose revival fails rots (the rot arm's intent and vanilla; 0.9.3's retry was a side effect). (7) #wizloaddes: no Mines rivers on a level loaded for testing. | maintainer |
 | 2026-10-30 | Quake / tell-after / trace-trio / idle-checkpoint slice rulings (Phase 2 session 274, AskUserQuestion x5, eleven questions, all as recommended). (1) SLICE (multiSelect): all four offered groups. (2) RIDER ICE BOX: Riders always revive (master's revive() never read norevive). (3) PRAYER: hold in place - nothing hurtles the hero or the steed, no knockback, a mind flayer's telekinesis skips a praying hero; stray rays, missiles, sleep and webbing still hit (master and vanilla). (4) EATING: non-food indestructible items can't be eaten. (5) QUAKE, HELD GROUNDED MONSTER: falls like the hero ("falls into a chasm!", 1d6). (6) MONSTER RIDERS: a flying or floating steed carries its monster rider - a ruled row. (7) AMMO TRAPS on a drawbridge / vault corridor: fold in, destroyed at the bridge, embedded in the vault rock. (8) DELETED TRAPS: release only their own hold - a ruled row. (9) TEMPLE PRIEST: skips the hero's square like shopkeepers - a ruled row. (10) ICE QUEEN AFTER RECOVERY: revives right after the restore, before the hero can act. (11) DUG PIT: matches the quake (a held grounded monster falls in). Decided without asking: the melting-ice web release is silent; the dead TT_BEARTRAP re-checks after deltrap_with_ammo() in floorfood() / dig() stay. | maintainer |
 | 2026-10-29 | Upstream Tourist cut rulings (5.0 fixes session 273). (1) PRIORITY (asked in conversation): the BUG-2635 row (vanilla 5.0.1 Tourist home level does not load) MOVES TO THE FRONT of the send queue as #60, cut ahead of #59 and #22; re-derived against vanilla it is C, not G (two impossible()s on every Tourist's first quest-portal trip), so the C-only ruling covers it. AskUserQuestion x1, three questions, all as recommended: (2) SCOPE = ONE PATCH for the levels and the quest text (over levels-only now with the text held as M, and over two PRs at once); (3) male=1 SHAPE = female=0 in the level files, data only and the same as the branch fix (over teaching lspo_monster() to read male= as lspo_object() does for statues); (4) a PRE / POST evilhack-game-tester run on the scratch vanilla build (over static checks only). | maintainer |
