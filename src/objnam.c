@@ -4765,8 +4765,9 @@ not_spec_material(const char *str, int material)
        material and get a random item, made of that material, from the set
        of items that can be made of that material, but this was never a
        feature anyway; it would give a totally random object even if the
-       material-object combo was invalid */
-    if (!strcmp(str, matstr)) {
+       material-object combo was invalid; case-blind like the caller's
+       match, which also keeps the description test below in bounds */
+    if (!strcmpi(str, matstr)) {
         return TRUE;
     }
     /* does it match some object? */
@@ -7067,6 +7068,9 @@ const char *
 cloak_simple_name(struct obj *cloak)
 {
     if (cloak) {
+        /* EvilHack's dragon scales are worn as a cloak */
+        if (Is_dragon_scales(cloak))
+            return "set of dragon scales";
         switch (cloak->otyp) {
         case ROBE:
             return "robe";

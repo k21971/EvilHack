@@ -2878,7 +2878,8 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
               : is_suit(otmp) ? c_suit
                 : 0;
     if (which && cantweararm(&gy.youmonst)
-        /* same exception for cloaks as used in m_dowear() */
+        /* same exception for cloaks as used in m_dowear() and
+           find_best_armor_recurse() */
         && (which != c_cloak
             || ((otmp->otyp != MUMMY_WRAPPING)
                 ? gy.youmonst.data->msize != MZ_SMALL
@@ -4515,7 +4516,8 @@ disintegrate_arm(struct obj *atmp)
         if (otmp->lamplit)
             end_burn(otmp, FALSE);
         urgent_pline("Your %s crumbles and turns to dust!",
-                     /* cloak/robe/apron/smock (ID'd apron)/wrapping */
+                     /* cloak/robe/apron/smock (ID'd apron)/wrapping/
+                        set of dragon scales */
                      cloak_simple_name(otmp));
     } else if (!resistedc
              && (otmp = maybe_destroy_armor(uarm, atmp, &resistedsuit)) != 0) {

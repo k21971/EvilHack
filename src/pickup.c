@@ -2219,7 +2219,8 @@ do_loot_cont(
                   : Is_box(cobj) ? "lid" : "container",
               cobj->material == SILVER ? "sears your flesh"
                                        : "hurts to touch");
-        Sprintf(kbuf, "opening a %s container", materialnm[cobj->material]);
+        Sprintf(kbuf, "opening %s container",
+                an(materialnm[cobj->material]));
         losehp(rnd(sear_damage(cobj->material)), kbuf, KILLED_BY);
     }
 
