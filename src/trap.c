@@ -73,6 +73,7 @@ staticfn int disarm_squeaky_board(struct trap *);
 staticfn int disarm_shooting_trap(struct trap *);
 staticfn int disarm_spear_trap(struct trap *);
 staticfn void clear_conjoined_pits(struct trap *);
+staticfn boolean u_held_by_trap(int);
 staticfn boolean adj_nonconjoined_pit(struct trap *);
 staticfn int try_lift(struct monst *, struct trap *, int, boolean);
 staticfn int help_monster_out(struct monst *, struct trap *);
@@ -2621,6 +2622,7 @@ trapeffect_pit(
 
         fallverb = "falls";
         if (!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp)
+            || mon_steed_airborne(mtmp)
             || (mtmp->wormno && count_wsegs(mtmp) > 5)) {
             if (forcetrap && !Sokoban) {
                 /* openfallingtrap; not inescapable here */
@@ -2686,6 +2688,7 @@ trapeffect_hole(
             return Trap_Effect_Finished; /* don't activate it after all */
         }
         if (!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp)
+            || mon_steed_airborne(mtmp)
             || (mtmp->wormno && count_wsegs(mtmp) > 5)
             || mptr->msize >= MZ_HUGE) {
             if (forcetrap && !Sokoban) {
@@ -4484,7 +4487,11 @@ mintrap(struct monst *mtmp, unsigned mintrapflags)
                    && !trap->madeby_u) {
             ; /* nothing here, the trap effects will handle messaging */
         } else if (!forcetrap) {
-            if (floor_trigger(tt) && check_in_air(mtmp, mintrapflags)) {
+            /* a flying or floating steed carries its rider over the
+               trap; not in check_in_air(), whose m_harmless_trap()
+               caller steers monsters around traps they know of */
+            if (floor_trigger(tt) && (check_in_air(mtmp, mintrapflags)
+                                      || mon_steed_airborne(mtmp))) {
                 return Trap_Effect_Finished;
             }
             if (already_seen && rn2(4) && !forcebungle)
@@ -7823,6 +7830,17 @@ deltrap(struct trap *trap)
     dealloc_trap(trap);
 }
 
+/* is the hero's hold the one a trap of type ttyp makes? solidified
+   floor, lava, grass, a tree or a buried ball's chain hold the hero for
+   something else, which a deleted trap leaves alone */
+staticfn boolean
+u_held_by_trap(int ttyp)
+{
+    return (boolean) ((u.utraptype == TT_BEARTRAP && ttyp == BEAR_TRAP)
+                      || (u.utraptype == TT_WEB && ttyp == WEB)
+                      || (u.utraptype == TT_PIT && is_pit(ttyp)));
+}
+
 /* delete a trap, but handle any ammo in it; the values for do_what are
    the DELTRAP_*_AMMO constants; if called with a trap without ammo,
    this should function like deltrap; if called with DELTRAP_RETURN_AMMO,
@@ -7914,13 +7932,11 @@ deltrap_with_ammo(struct trap *trap, int do_what)
         }
         objchn = (struct obj *) 0;
     }
-    /* if the hero is tethered to a buried iron ball, that hold belongs
-       to the ball rather than to the trap being deleted; preserve it,
-       matching delfloortrap; a live tree's branches or roots hold the
-       hero for the tree, so keep that hold too; any lift the hold kept
+    /* only the hold this trap made ends with it, matching delfloortrap;
+       a buried ball's chain, a tree, grass, lava or solidified floor
+       keeps the hero until its own code lets go; any lift the hold kept
        down is told after the caller's event */
-    if (u.utrap && u.utraptype != TT_BURIEDBALL && !u_tree_held()
-        && u_at(trap->tx, trap->ty))
+    if (u.utrap && u_held_by_trap(trap->ttyp) && u_at(trap->tx, trap->ty))
         reset_utrap_deferred();
     deltrap(trap);
     newsym(tx, ty);
@@ -8059,10 +8075,11 @@ delfloortrap(struct trap *ttmp)
         struct monst *mtmp;
 
         if (u_at(ttmp->tx, ttmp->ty)) {
-            /* a buried ball's chain and a live tree's grip don't come
-               from the floor; any lift the hold kept down is told after
-               the caller's event (the flood, the dig) */
-            if (u.utrap && u.utraptype != TT_BURIEDBALL && !u_tree_held())
+            /* only the trap's own hold ends here; a buried ball's chain,
+               a tree, grass or solidified floor is left to the caller's
+               event (liquid_flow() ends the floor's); any lift the hold
+               kept down is told after that event (the flood, the dig) */
+            if (u.utrap && u_held_by_trap(ttmp->ttyp))
                 reset_utrap_deferred();
         } else if ((mtmp = m_at(ttmp->tx, ttmp->ty)) != 0) {
             mtmp->mtrapped = 0;

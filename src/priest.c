@@ -227,8 +227,14 @@ temple_repair_damage(
             return 0;
     }
     ttmp = t_at(x, y);
-    if (ttmp && u_at(x, y) && !Passes_walls)
-        return 0;
+    /* a trap waits while the hero stands on it or a monster is caught
+       in it, as a shopkeeper's does (repairable_damage()) */
+    if (ttmp) {
+        if (u_at(x, y))
+            return 0;
+        if ((mtmp = m_at(x, y)) != 0 && mtmp->mtrapped)
+            return 0;
+    }
 
     if (once && *once) {
         if (canseemon(priest))

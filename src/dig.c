@@ -15,6 +15,7 @@ staticfn boolean watchman_canseeu(struct monst *) NONNULLARG1;
 staticfn int adj_pit_checks(coord *, char *) NONNULLARG2;
 staticfn void pit_flow(struct trap *, schar);
 staticfn boolean furniture_handled(coordxy, coordxy, boolean);
+staticfn const char *mon_lift_verb(struct monst *) NONNULLARG1;
 
 /* Indices returned by dig_typ() */
 enum dig_types {
@@ -649,6 +650,18 @@ dig(void)
     return 1;
 }
 
+/* the verb for a monster kept up over a new pit: its own lift first,
+   else the steed's that carries it */
+staticfn const char *
+mon_lift_verb(struct monst *mtmp)
+{
+    struct monst *lifter = mtmp;
+
+    if (!mon_airborne(mtmp) && mon_steed_airborne(mtmp))
+        lifter = ERID(mtmp)->mon_steed;
+    return (is_flyer(lifter->data) || can_fly(lifter)) ? "flies" : "floats";
+}
+
 staticfn boolean
 furniture_handled(coordxy x, coordxy y, boolean madeby_u)
 {
@@ -855,12 +868,10 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                any other falls into the pit below */
             if (mtmp->mtrapped && !pit_hold && !mtmp->wormno)
                 mtmp->mtrapped = 0;
-            if (is_flyer(mtmp->data) || is_floater(mtmp->data)
-                || can_levitate(mtmp) || can_fly(mtmp)) {
+            if (mon_airborne(mtmp) || mon_steed_airborne(mtmp)) {
                 if (canseemon(mtmp))
                     pline("%s %s over the pit.", Monnam(mtmp),
-                          (is_flyer(mtmp->data) || can_fly(mtmp))
-                              ? "flies" : "floats");
+                          mon_lift_verb(mtmp));
             } else if (mon_tree_held(mtmp)) {
                 ; /* held above the pit, as the hero is */
             } else if (mtmp != madeby)
@@ -921,6 +932,7 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                 /*[don't we need special sokoban handling here?]*/
                 if (!grounded(mtmp->data)
                     || can_levitate(mtmp) || can_fly(mtmp)
+                    || mon_steed_airborne(mtmp)
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
                     || mtmp->data->msize >= MZ_HUGE
                     /* a live tree's hold keeps it above the hole */
@@ -980,6 +992,10 @@ liquid_flow(
         return;
     }
 
+    /* the floor that held the hero fast is under liquid now; a deleted
+       trap ends only its own hold (delfloortrap()) */
+    if (u_spot && u.utrap && u.utraptype == TT_INFLOOR)
+        reset_utrap_deferred();
     if (ttmp)
         (void) delfloortrap(ttmp); /* will untrap monster if one is here */
     /* if any objects were frozen here, they're released now */
@@ -2822,12 +2838,10 @@ create_pit_under(struct monst *mdef, struct monst *magr)
         if (mintrap(mdef, NO_TRAP_FLAGS) == Trap_Moved_Mon) {
             sent_down_hole = TRUE; /* went off level */
         } else if (!DEADMONSTER(mdef)
-                   && (is_flyer(mdef->data) || is_floater(mdef->data)
-                       || can_levitate(mdef) || can_fly(mdef))) {
+                   && (mon_airborne(mdef) || mon_steed_airborne(mdef))) {
             if (canseemon(mdef))
                 pline_mon(mdef, "%s %s back up.", Monnam(mdef),
-                          (is_flyer(mdef->data) || can_fly(mdef))
-                              ? "flies" : "floats");
+                          mon_lift_verb(mdef));
             mdef->mtrapped = 0; /* maybe still held, but not stuck in pit */
         }
     }

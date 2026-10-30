@@ -1257,25 +1257,30 @@ minliquid_core(struct monst *mtmp)
     boolean inpool, inlava, infountain, inforge, inshallow, inopenair;
     boolean waterwall = is_waterwall(mtmp->mx,mtmp->my);
 
-    /* [ceiling clingers are handled below] */
+    /* [ceiling clingers are handled below]; a monster's flying or
+       floating steed keeps its rider up, as its own lift would */
     inpool = (is_pool(mtmp->mx, mtmp->my)
               && (!(is_flyer(mtmp->data) || is_floater(mtmp->data)
-                    || can_levitate(mtmp) || can_fly(mtmp))
+                    || can_levitate(mtmp) || can_fly(mtmp)
+                    || mon_steed_airborne(mtmp))
                   /* there's no "above the surface" on the plane of water */
                   || Is_waterlevel(&u.uz)));
     inlava = (is_lava(mtmp->mx, mtmp->my)
               && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
-                   || can_levitate(mtmp) || can_fly(mtmp)));
+                   || can_levitate(mtmp) || can_fly(mtmp)
+                   || mon_steed_airborne(mtmp)));
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
     inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
     inshallow = ((is_puddle(mtmp->mx, mtmp->my)
                   || is_sewage(mtmp->mx, mtmp->my))
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
-                      || can_levitate(mtmp) || can_fly(mtmp)));
+                      || can_levitate(mtmp) || can_fly(mtmp)
+                      || mon_steed_airborne(mtmp)));
     inopenair = (is_open_air(mtmp->mx, mtmp->my)
                  && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
                       || is_clinger(mtmp->data) || can_levitate(mtmp)
-                      || can_fly(mtmp) || ((mtmp == u.usteed) && Flying)));
+                      || can_fly(mtmp) || ((mtmp == u.usteed) && Flying)
+                      || mon_steed_airborne(mtmp)));
 
     /* Flying and levitation keeps our steed out of the liquid
        (but not water-walking or swimming; note: if hero is in a
@@ -8902,9 +8907,9 @@ terrain_effects(void)
 }
 
 /* nothing holds a grounded monster up over the hole or trap door it
-   stands on: not a trap it is caught in, a hold, flight, levitation, its
-   size or length, a rider's place on its back, or the hero it holds or
-   who holds it */
+   stands on: not a trap it is caught in, a hold, flight, levitation, a
+   steed that flies or floats, its size or length, a rider's place on
+   its back, or the hero it holds or who holds it */
 staticfn boolean
 mon_falls_unsupported(struct monst *mtmp)
 {
@@ -8915,15 +8920,16 @@ mon_falls_unsupported(struct monst *mtmp)
             && !ustuck_self_or_steed(mtmp)
             && !mtmp->mtrapped && !mtmp->mentangled
             && grounded(mtmp->data) && !mon_airborne(mtmp)
+            && !mon_steed_airborne(mtmp)
             && !(mtmp->wormno && count_wsegs(mtmp) > 5)
             && mtmp->data->msize < MZ_HUGE);
 }
 
 /* a monster has just lost what held it up (a vegetation hold, its
-   levitation): if it stands on a hole or trap door, it drops through at
-   the start of its own next turn (mon_unsupported_fall()), as the hero's
-   deferred landing does before the hero acts; the hold's or lift's own
-   message comes first. A teleport cancels it (rloc_to_core()) */
+   levitation, its steed's lift): if it stands on a hole or trap door, it
+   drops through at the start of its own next turn (mon_unsupported_fall()),
+   as the hero's deferred landing does before the hero acts; the hold's or
+   lift's own message comes first. A teleport cancels it (rloc_to_core()) */
 void
 mon_lost_support(struct monst *mtmp)
 {

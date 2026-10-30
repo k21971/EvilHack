@@ -235,6 +235,12 @@
 #define mon_airborne(mon) \
     (is_flyer((mon)->data) || is_floater((mon)->data) \
      || can_fly(mon) || can_levitate(mon))
+/* a monster carried by the flying or floating steed it rides, as the
+   hero's steed carries the hero (the Flying macro's steed term) */
+#define mon_steed_airborne(mon) \
+    (has_erid(mon) && ERID(mon)->mon_steed                          \
+     && !DEADMONSTER(ERID(mon)->mon_steed)                          \
+     && mon_airborne(ERID(mon)->mon_steed))
 #define can_wwalk(mon) \
     ((mon_resistancebits(mon) & MR2_WATERWALK) != 0)
 #define has_claws(ptr) \

@@ -1000,7 +1000,8 @@ mon_slowed_by_sewage(struct monst *mtmp)
         || passes_walls(mdat) || can_levitate(mtmp) || can_fly(mtmp)
         || can_wwalk(mtmp) || defended(mtmp, AD_SLOW)
         || resists_slow(r_data(mtmp))
-        || ((mtmp == u.usteed) && Flying))
+        || ((mtmp == u.usteed) && Flying)
+        || mon_steed_airborne(mtmp)) /* carried over it */
         return FALSE;
     return TRUE;
 }
@@ -1118,11 +1119,13 @@ dochug(struct monst *mtmp)
     else
         mon_adjust_speed(mtmp, 3, (struct obj *) 0);
 
-    /* being in midair where gravity is still in effect can be lethal */
+    /* being in midair where gravity is still in effect can be lethal;
+       a flying or floating steed carries its rider */
     if (is_open_air(mtmp->mx, mtmp->my)
         && !(is_flyer(mdat) || is_floater(mdat) || can_levitate(mtmp)
              || can_fly(mtmp) || is_clinger(mdat)
-             || ((mtmp == u.usteed) && Flying))) {
+             || ((mtmp == u.usteed) && Flying)
+             || mon_steed_airborne(mtmp))) {
         if (canseemon(mtmp))
             pline_mon(mtmp, "%s plummets several thousand feet to %s death.",
                       Monnam(mtmp), mhis(mtmp));

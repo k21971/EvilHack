@@ -265,13 +265,18 @@ separate_steed_and_rider(struct monst *rider)
         }
         if (rider_moved) {
             place_monster(steed, orig_x, orig_y);
-        } else if (enexto_core_mon(&cc, orig_x, orig_y, steed,
-                                   NO_MM_FLAGS)) {
-            /* rider stuck at orig; find a different spot for steed */
-            place_monster(steed, cc.x, cc.y);
         } else {
-            /* truly nowhere to put the steed - dismiss it */
-            mongone(steed);
+            if (enexto_core_mon(&cc, orig_x, orig_y, steed,
+                                NO_MM_FLAGS)) {
+                /* rider stuck at orig; find a different spot for steed */
+                place_monster(steed, cc.x, cc.y);
+            } else {
+                /* truly nowhere to put the steed - dismiss it */
+                mongone(steed);
+            }
+            /* the steed no longer holds up a rider left over a hole */
+            if (!DEADMONSTER(rider))
+                mon_lost_support(rider);
         }
     }
     /* place rider if steed dies and rider is still alive; else-if so
@@ -281,6 +286,7 @@ separate_steed_and_rider(struct monst *rider)
     else if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
         remove_monster(steed->mx, steed->my); /* remove pointer to steed */
         place_monster(rider, rider->mx, rider->my);
+        mon_lost_support(rider); /* its steed held it over a hole */
     }
     /* place steed if rider dies and steed is still alive */
     else if (!DEADMONSTER(steed) && DEADMONSTER(rider))
@@ -1708,16 +1714,26 @@ maybewakesteed(struct monst *steed)
     finish_meating(steed);
 }
 
-/* the hero's steed may have gained or lost the flight or floating that
-   carries its rider (worn gear, a spell running out, a new shape);
-   was_airborne is the lift it had before */
+/* a steed may have gained or lost the flight or floating that carries
+   its rider (worn gear, a spell running out, a new shape); was_airborne
+   is the lift it had before */
 void
 steed_lift_changed(struct monst *mon, boolean was_airborne)
 {
     struct trap *ttmp;
+    struct monst *rider;
 
-    if (mon != u.usteed || !was_airborne == !mon_airborne(mon))
+    if (!was_airborne == !mon_airborne(mon))
         return;
+    if (mon != u.usteed) {
+        /* a monster's steed came down: its rider drops through a hole
+           at its own next turn, as from its own lift; water, lava and
+           open air are the rider's own terrain checks then */
+        if (was_airborne && mon->ridden_by
+            && (rider = get_mon_rider(mon)) != 0 && !DEADMONSTER(rider))
+            mon_lost_support(rider);
+        return;
+    }
     disp.botl = TRUE; /* status: 'Fly' */
     /* riding blocks stealth unless hero+steed fly */
     steed_vs_stealth();

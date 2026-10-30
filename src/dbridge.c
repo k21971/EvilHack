@@ -420,6 +420,8 @@ e_survives_at(struct entity *etmp, coordxy x, coordxy y)
 {
     if (noncorporeal(etmp->edata))
         return TRUE;
+    /* a monster's flying or floating steed carries it over the moat,
+       as the hero's steed does through Flying */
     if (is_pool(x, y))
         return (boolean) ((is_u(etmp) && (Wwalking || Amphibious || Breathless
                                           || Swimming || Flying || Levitation))
@@ -427,14 +429,18 @@ e_survives_at(struct entity *etmp, coordxy x, coordxy y)
                           || is_flyer(etmp->edata)
                           || is_floater(etmp->edata)
                           || can_levitate(etmp->emon)
-                          || can_fly(etmp->emon));
+                          || can_fly(etmp->emon)
+                          || (!is_u(etmp)
+                              && mon_steed_airborne(etmp->emon)));
     /* must force call to lava_effects in e_died if is_u */
     if (is_lava(x, y))
         return (boolean) ((is_u(etmp) && (Levitation || Flying))
                           || likes_lava(etmp->edata)
                           || is_flyer(etmp->edata)
                           || can_levitate(etmp->emon)
-                          || can_fly(etmp->emon));
+                          || can_fly(etmp->emon)
+                          || (!is_u(etmp)
+                              && mon_steed_airborne(etmp->emon)));
     if (is_db_wall(x, y))
         return (boolean) (is_u(etmp) ? Passes_walls
                           : passes_walls(etmp->edata));
@@ -1021,7 +1027,7 @@ close_drawbridge(coordxy x, coordxy y)
     delallobj(x, y);
     delallobj(x2, y2);
     /* a trap's ammo or part (a bear trap, a land mine, arrows) goes
-       with it, and a hero held there is let go */
+       with it, and a hero the trap held is let go */
     if ((t = t_at(x, y)) != 0)
         deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     if ((t = t_at(x2, y2)) != 0)
@@ -1090,7 +1096,7 @@ open_drawbridge(coordxy x, coordxy y)
     (void) revive_nasty(x, y, (char *) 0);
     delallobj(x, y);
     /* a trap's ammo or part (a bear trap, a land mine, arrows) goes
-       with it, and a hero held there is let go */
+       with it, and a hero the trap held is let go */
     if ((t = t_at(x, y)) != 0)
         deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     if ((t = t_at(x2, y2)) != 0)
@@ -1172,7 +1178,7 @@ destroy_drawbridge(coordxy x, coordxy y)
     lev2->typ = DOOR;
     lev2->doormask = D_NODOOR;
     /* a trap's ammo or part (a bear trap, a land mine, arrows) goes
-       with it, and a hero held there is let go */
+       with it, and a hero the trap held is let go */
     if ((t = t_at(x, y)) != 0)
         deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
     if ((t = t_at(x2, y2)) != 0)

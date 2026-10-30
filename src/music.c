@@ -283,10 +283,11 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
     /* We have to check whether monsters or hero falls into a
        new pit....  Note: if we get here, chasm is non-Null. */
     if (mtmp) {
-        /* a monster that flies or floats stays up over the chasm, quietly;
-           a live tree's branches or roots hold it above the chasm, as
-           they do the hero */
-        if (!mon_airborne(mtmp) && !is_clinger(mtmp->data)
+        /* a monster that flies or floats, or rides a steed that does,
+           stays up over the chasm, quietly; a live tree's branches or
+           roots hold it above the chasm, as they do the hero */
+        if (!mon_airborne(mtmp) && !mon_steed_airborne(mtmp)
+            && !is_clinger(mtmp->data)
             && !mon_tree_held(mtmp)
             && !(mtmp->wormno && worm_hit[mtmp->wormno])) {
             /* one held by a web or bear trap falls like any other; a long
