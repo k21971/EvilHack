@@ -76,6 +76,8 @@ static void curs_pad_menu(nhmenu *, boolean) NONNULLARG1;
 static nhmenu *get_menu(winid wid); /* might return Null */
 static char menu_get_accel(boolean first);
 static void menu_determine_pages(nhmenu *menu) NONNULLARG1;
+static int menu_entry_cols(nhmenu *menu, nhmenu_item *item,
+                           int width) NONNULLARG12;
 static boolean menu_is_multipage(nhmenu *menu, int width,
                                                       int height) NONNULLARG1;
 static void menu_win_size(nhmenu *menu) NONNULLARG1;
@@ -949,6 +951,22 @@ menu_get_accel(boolean first)
 }
 
 
+/* Number of text columns an entry wraps to; must match the columns
+   menu_display_page() leaves it */
+
+static int
+menu_entry_cols(nhmenu *menu, nhmenu_item *item, int width)
+{
+    int cols = width;
+
+    if (item->identifier.a_void != NULL)
+        cols -= 4; /* Space for accelerator */
+    if (item->glyphinfo.glyph != NO_GLYPH && menu->show_obj_syms)
+        cols -= 2; /* Glyph and a space */
+    return cols;
+}
+
+
 /* Determine if menu will require multiple pages to display */
 
 static boolean
@@ -964,21 +982,22 @@ menu_is_multipage(nhmenu *menu, int width, int height)
 
     while (menu_item_ptr != NULL) {
         menu_item_ptr->line_num = curline;
-        if (menu_item_ptr->identifier.a_void == NULL) {
-            num_lines = curses_num_lines(menu_item_ptr->str, width);
-        } else {
-            if (menu_item_ptr->accelerator != GOLD_SYM) {
-                if (++accel_per_page > MAX_ACCEL_PER_PAGE)
-                    break;
-            }
-            /* Add space for accelerator */
-            num_lines = curses_num_lines(menu_item_ptr->str, width - 4);
+        if (menu_item_ptr->identifier.a_void != NULL
+            && menu_item_ptr->accelerator != GOLD_SYM) {
+            if (++accel_per_page > MAX_ACCEL_PER_PAGE)
+                break;
         }
+        num_lines = curses_num_lines(menu_item_ptr->str,
+                                     menu_entry_cols(menu, menu_item_ptr,
+                                                     width));
         menu_item_ptr->num_lines = num_lines;
         curline += num_lines;
+        /* an entry that overflows needs the page footer even when it
+           is the last one */
+        if (curline > height)
+            break;
         menu_item_ptr = menu_item_ptr->next_item;
-        if (curline > height
-            || (curline > height - 2 && height == menu_max_height())) {
+        if (curline > height - 2 && height == menu_max_height()) {
             break;
         }
     }
@@ -1014,17 +1033,26 @@ menu_determine_pages(nhmenu *menu)
          menu_item_ptr = menu_item_ptr->next_item) {
         menu_item_ptr->page_num = page_num;
         menu_item_ptr->line_num = curline;
-        if (menu_item_ptr->identifier.a_void == NULL) {
-            num_lines = curses_num_lines(menu_item_ptr->str, width);
-        } else {
-            if (menu_item_ptr->accelerator != GOLD_SYM)
-                ++accel_per_page;
-            /* Add space for accelerator */
-            num_lines = curses_num_lines(menu_item_ptr->str, width - 4);
-        }
+        if (menu_item_ptr->identifier.a_void != NULL
+            && menu_item_ptr->accelerator != GOLD_SYM)
+            ++accel_per_page;
+        num_lines = curses_num_lines(menu_item_ptr->str,
+                                     menu_entry_cols(menu, menu_item_ptr,
+                                                     width));
         menu_item_ptr->num_lines = num_lines;
         curline += num_lines;
-        if (curline > page_end || accel_per_page > MAX_ACCEL_PER_PAGE) {
+        if (curline > page_end && menu_item_ptr->line_num == tmpline) {
+            /* it starts its page and is still too tall: clip it there
+               rather than re-placing it on new pages forever (or backing
+               up past the first entry) */
+            menu_item_ptr->num_lines = max(page_end - tmpline, 1);
+            if (menu_item_ptr->next_item) {
+                ++page_num;
+                accel_per_page = 0; /* reset */
+                curline = tmpline;
+            }
+        } else if (curline > page_end
+                   || accel_per_page > MAX_ACCEL_PER_PAGE) {
             ++page_num;
             accel_per_page = 0; /* reset */
             curline = tmpline;
@@ -1330,6 +1358,9 @@ menu_display_page(
             curses_menu_color_attr(win, color, attr, ON);
 
         num_lines = curses_num_lines(menu_item_ptr->str, entry_cols);
+        /* an entry taller than a page was clipped to it */
+        if (num_lines > menu_item_ptr->num_lines)
+            num_lines = menu_item_ptr->num_lines;
         for (count = 0; count < num_lines; count++) {
             if (menu_item_ptr->str && *menu_item_ptr->str) {
                 tmpstr = curses_break_str(menu_item_ptr->str,

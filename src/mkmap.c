@@ -647,7 +647,11 @@ mkmap(lev_init *init_lev)
     if (join)
         join_map(bg_typ, fg_typ);
 
-    if (In_mines(&u.uz) && !In_hell(&u.uz)) {
+    /* a level loaded by #wizloaddes (or Lua's des.reset_level()) is
+       judged by where the hero stands, so a town map could be laid over
+       a filler's rivers and their hidden swimmers; such a load gets
+       none */
+    if (In_mines(&u.uz) && !In_hell(&u.uz) && !iflags.lua_testing) {
         if (!Is_minetn_level(&u.uz) && !Is_branchlev(&u.uz)) {
             if (rn2(u.uz.dlevel + 1))
                 mkrivers((boolean) lit);
