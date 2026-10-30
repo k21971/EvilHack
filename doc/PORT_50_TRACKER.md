@@ -17,10 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-28, after session 270's
-  crash-MED slice: the three MED rows minted by the 5.0 fixes
-  sessions closed, five rows minted and closed): 548 rows closed,
-  108 open
+- Phase 2 status (refreshed 2026-10-30, after session 274's
+  quake / tell-after / trace-trio slice: six LOW rows closed, three
+  minted and closed, five minted open): 557 rows closed, 107 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -341,7 +340,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 97 LOW: small parity rows, quirks and watch/record-only items.
+  - 96 LOW: small parity rows, quirks and watch/record-only items.
+    Session 274 closed six (BUG-2643..2652) and, in Phase 6, the idle
+    checkpoint row (BUG-2653, 2654): an earthquake cracks sand
+    silently and leaves anything lifted by gear or a spell up over its
+    chasms, silently; a web or bear trap that a quake or a dug pit
+    replaces lets go of its monster, so a lifted one is free and a
+    grounded one falls in like the hero (ruled); a returned levitation
+    or flight is told after the event that freed the hero ("As you
+    dig, the hole fills with water!  You start to float in the air!");
+    a web on melting ice lets go of the hero; a drawbridge or a vault
+    guard's corridor takes a bear trap or land mine with its object
+    (destroyed at the bridge, embedded in the vault rock, ruled); a
+    Rider out of an ice box rises again (ruled, master's behavior); the
+    prayer's shimmering light holds the hero and the steed in place -
+    no telekinetic pull or throw, no knockback, no hurtle (ruled; stray
+    rays, missiles and sleep still hit, as in master and vanilla); a
+    hero can't eat the Sword of Annihilation or a scroll of
+    consecration (ruled); and an idle checkpoint waits out a death in
+    progress and keeps a defeated Ice Queen, who revives once when the
+    recovered game is restored (ruled). Minted five: monster riders on
+    a flying steed (ruled), deleted traps releasing holds they never
+    made (ruled), temple repair under a wall-passing hero (ruled), a
+    "female Death's corpse" name and a bear trap left on its hole
+    (traces).
     The upstream triage (2026-10-26) minted one: a symbols keyword can
     match a longer symbol name (live on the branch and upstream).
     Session 262 closed eleven (BUG-2602..2615): #saveoptions and the
@@ -11855,7 +11877,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       trap). Battery C: squeaky boards and trap doors fire after the
       answer (PRE mid-prayer, and PRE's fall damage landed while
       invulnerable); statue traps the same on both.
-- [ ] LOW: a praying hero can be hurtled or hit by a stray beam
+- [x] LOW: a praying hero can be hurtled or hit by a stray beam
       (minted 2026-10-18, session 239 follow-up, from the prayer-trap
       trace; master-shared). A master mind flayer's telekinetic pull
       (telekinesis.c, from monmove.c with no prayer check) or a stray
@@ -11868,6 +11890,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       it too. LOW (needs a trace of each, then a ruling).
       Session 259 Plan agent (same class): a monster's ball of webbing
       hitting a praying hero runs dotrap(web) mid-prayer (mthrowu.c).
+      TRACED and RULED 2026-10-30 (session 274; AskUserQuestion, HOLD IN
+      PLACE): nomul()'s kludge clears u.uinvulnerable whenever it
+      lengthens helplessness, hurtle() blanks "You finish your prayer."
+      and its water arm (gm.multi = 0 + drown()) leaves prayer_done
+      pending; EvilHack-only reachers: telekinesis (pull and push),
+      mbhitm()'s knockback, Ogresmasher, mattacku()'s steed arm (it runs
+      before the prayer gate, so an AD_CLOB blow at the steed moves the
+      rider). Stray rays, missiles, sleep and webbing stay as in master
+      and vanilla (not gated there either).
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2651, master
+      frozen-unfixed). m_dotelekinesis() skips a praying-hero target;
+      mhitm_knockback() (after the cursed-saddle switch), the
+      Ogresmasher arm and mbhitm()'s knockback skip the praying hero
+      and the steed under them; hurtle() and mhurtle(u.usteed) return
+      at once while u.uinvulnerable. Battery T3: hurtle(1,0,5,0) at a
+      mid-prayer breakpoint PRE moved 5, uinvulnerable 0, multi -5,
+      nomovemsg "", no "You finish your prayer."; POST unmoved, 1, -3,
+      the message and the answer. mhurtle(u.usteed) PRE moved hero and
+      pony 3; POST unmoved. Master mind flayer: PRE pulled the hero
+      mid-prayer (then melee, brain eaten) and hurled a dagger; POST
+      four prayers, no pull or hurl; regression without prayer pulls
+      and hurls.
 - [ ] LOW: a minliquid() survivor sent into limbo still takes its move
       (minted 2026-10-11, session 212, reviewer re-review; branch
       pre-existing). minliquid()'s survivor arms (lava, water, a
@@ -12094,6 +12138,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ROT_CORPSE took over. Official_nh50's revive_mon() has no
       set_corpsenm() there. Needs a trace (master's zombie corpse path,
       then whether the call should skip non-zombified corpses).
+      Session 274 battery T3 (PRE): a Rider's give-up arm ("You feel
+      much less hassled.") goes through the same set_corpsenm(), which
+      re-arms REVIVE_MON for a Rider - the corpse kept twitching with a
+      REVIVE and a ROT timer both set. After BUG-2650 a Rider out of an
+      ice box revives instead; the give-up arm still runs when revive()
+      fails for other reasons (no room), so include it in the trace.
 - [x] MED: a mongone()d Ice Queen revives off the map (BUG-2291)
       - FIXED 2026-10-12 (session 215, commit 1ea54e976, tracker
       89b6bfe9f; closure notes in BUGFIXES_ARCHIVE): ruled "stays
@@ -19894,13 +19944,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       was taken out of a migrating bag, a fallen box got a loot prompt;
       POST the rest travels inside the box, no loot prompt, the fallen
       box is skipped.
-- [ ] LOW: a Rider corpse taken out of an ice box never revives
+- [x] LOW: a Rider corpse taken out of an ice box never revives
       (minted 2026-10-19, session 240, by the Plan agent).
       removed_from_icebox() sets norevive for every corpse but an ice
       troll's and revive() refuses a norevive corpse, so the Rider only
       twitches until it rots; #loot take-out, a broken ice box and
       session 240's spare (a destroyed ice box) all go through it.
       Needs a master census, then a ruling. LOW.
+      CENSUS 2026-10-30 (session 274): master's revive() never reads
+      norevive (master's removed_from_icebox() set it on every corpse),
+      so master's Riders rise again; vanilla 5.0 has the gate (328dc5bdf)
+      and the bug. RULED (AskUserQuestion): RIDERS ALWAYS REVIVE.
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2650, master
+      unaffected; upstream-reportable). revive() ignores norevive for a
+      Rider. Battery T3: Death's corpse frozen in an ice box then tipped
+      out - PRE "Death's corpse twitches feebly." ~15 times over 89
+      turns ("You feel much less hassled." at T:81, still twitching);
+      POST "Death rises from the dead in a whirl of spectral skulls!" 6
+      turns after the tip; touched at once: PRE twitches and stays,
+      POST rises.
 - [x] LOW: an exploding box on a shop floor is charged twice (minted
       2026-10-19, session 240, by battery D; master + vanilla 5.0).
       chest_trap() charges stolen_value() for the box with its contents,
@@ -19911,13 +19973,42 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       frozen-unfixed; upstream-reportable). The floor loop skips the box
       itself. Battery C: PRE 66 = 16 + 4 + 30 + 16, POST 51 = 16 + 5 +
       30. Master as PRE (battery M9).
-- [ ] LOW: a rock-mole-form hero may be able to eat the Sword of
+- [x] LOW: a rock-mole-form hero may be able to eat the Sword of
       Annihilation (minted 2026-10-18, session 239 follow-up, from the
       container census; inferred, not traced). is_edible()'s
       obj_resists() line is commented out (vanilla too), so
       eatspecial()'s useup() may destroy an indestructible metal item,
       a site BUG-2369's delobj audit did not cover. LOW (needs a
       trace).
+      TRACED 2026-10-30 (session 274): confirmed, EvilHack-only - vanilla's
+      indestructible set is all oc_unique or food, EvilHack's
+      obj_indestructible() grew the Sword (STEEL: rock mole, xorn), the
+      scroll of consecration (PAPER: gelatinous cube, fire elemental),
+      the Armor of Retribution and the Infidel's Idol; a carried one was
+      destroyed, a floor one eaten for nutrition again and again.
+      RULED (AskUserQuestion): CAN'T EAT THEM.
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2652, master
+      frozen-unfixed). is_edible() refuses a non-food obj_indestructible()
+      item. Battery T3: PRE rock mole "This steel long sword named the
+      Sword of Annihilation is delicious!", floor prompt, `i` "Eat this";
+      cube "Needs salt..." on consecration. POST "You cannot eat that!",
+      no floor prompt, no menu entry; an iron long sword and a scroll of
+      light still eaten.
+- [ ] LOW: a pickup menu names a wished Rider corpse "female Death's
+      corpse" (minted 2026-10-30, session 274, battery T3 anomaly, PRE
+      binary; not seen on POST, other staging). The tip's spill list said
+      "Death's corpse"; the pickup menu and `:` said "female Death's
+      corpse". Needs a trace (corpse_xname()'s gender prefix for a
+      unique or Rider corpse; how a wished unique corpse sets
+      CORPSTAT_GENDER). LOW.
+- [ ] LOW: a bear trap's object stays on the hole dug through it
+      (minted 2026-10-30, session 274, battery T2 anomaly, both builds).
+      A held, levitating hero zapping digging down: dighole()'s magic
+      disarm places the beartrap object, digactualhole() makes a HOLE,
+      the hero floats, and the beartrap lies on the hole square ('(',
+      where 1) instead of falling through. Needs a trace (dighole()'s
+      PLACE_AMMO before maketrap(), digactualhole()'s oldobjs / newobjs
+      test and impact_drop()'s down_gate()). LOW.
 - [ ] LOW: a Rider corpse digested by an engulfer leaks as a free
       object (minted 2026-10-15, session 230, by the held-tips Plan
       agent; vanilla-shared, upstream-reportable). do.c
@@ -26322,7 +26413,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       alike). "The clasp on your leg vanishes." / "Something
       opens..." now come first, then "You start to float in the
       air!".
-- [ ] LOW: delfloortrap() and deltrap_with_ammo() tell the returned
+- [x] LOW: delfloortrap() and deltrap_with_ammo() tell the returned
       lift before the event's own line (minted 2026-10-17, session
       236, Plan agent; master-shared shape). Both end the hero's hold
       with reset_utrap(TRUE) inside the helper, so liquid_flow()'s
@@ -26331,6 +26422,73 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Ruled shape: the 2026-10-07 TELL IT AFTER THE EVENT ruling;
       ruled 2026-10-17 a separate slice (about 51 callers to census;
       reset_utrap_deferred() is the likely tool). LOW (plannable).
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2647, master
+      frozen-unfixed). Both helpers end the hold with
+      reset_utrap_deferred(). Census of all 51 call sites (Explore
+      agent): 25 never see a held hero (level creation after
+      goto_level()'s reset, shop repair, untrap / spinweb refusals,
+      mkinvpos()'s own deferral), the rest are told by the moveloop
+      backstop or digactualhole()'s explicit tells; no site wants the
+      lift first and none needs a new tell (one inside liquid_flow(),
+      melt_ice() or zap_over_floor() would land mid-event).
+      create_pit_under() no longer double-tells. Battery T2: dig down
+      out of a bear trap, eat the bear trap as a rust monster, dig next
+      to water - PRE "You start to float in the air!" first, POST after
+      "You dig a hole through the floor." / "This beartrap is
+      delicious!" / "As you dig, the hole fills with water!"; a pit
+      fiend's hurl PRE told the float and "You float back up.", POST
+      only the latter. Minted from the census: the helpers free holds
+      the deleted trap never made, and temple repair deletes the trap
+      under a wall-passing hero (rows below).
+- [ ] LOW: deleted traps release holds they never made (minted
+      2026-10-30, session 274, from the tell-after census;
+      master-shared). delfloortrap() and deltrap_with_ammo() end any
+      hold on the square but a buried-ball chain or a live tree's grip:
+      apply.c set_trap()'s failed set frees a hero stuck in solidified
+      lava (TT_INFLOOR), dig.c use_pick_axe2() digging out a falling
+      rock trap from below frees a floor or grass hold. RULED 2026-10-30
+      (AskUserQuestion): ONLY ITS OWN HOLD - a deleted bear trap ends a
+      bear-trap hold, a web a web hold, a pit a pit hold; lava,
+      solidified floor and grass holds stay unless the event changes
+      that floor (flooding, melting), whose own code ends them. Census
+      the floor-changing callers (liquid_flow(), trap_ice_effects(),
+      boulder_hits_pool()) before narrowing. LOW (plannable).
+- [ ] LOW: a temple priest repairs the trap under a wall-passing hero
+      (minted 2026-10-30, session 274, from the tell-after census).
+      priest.c temple_repair_damage() skips the hero's square only when
+      !Passes_walls, so a xorn-form hero caught in a bear trap or web in
+      a temple wall is freed by the repair; shk.c repairable_damage()
+      refuses any trap on the hero's square. RULED 2026-10-30
+      (AskUserQuestion): SKIP THE HERO'S SQUARE, as shopkeepers do. LOW
+      (plannable).
+- [x] LOW: a web on melting ice keeps holding the hero (minted and
+      closed 2026-10-30, session 274, by the tell-after Plan agent;
+      master and vanilla 5.0). trap_ice_effects() deleted the web with
+      plain deltrap(), so a hero caught in it kept TT_WEB with no web
+      (a levitating hero then drowned instead of floating; a swimmer
+      stayed "stuck to the web").
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2648;
+      upstream-reportable). The web arm goes through
+      deltrap_with_ammo() under the undestroyable_trap() guard (no pit
+      sits on ice; bear traps take the ammo arm). Battery T2:
+      trap_ice_effects() on a held hero's web - PRE trap gone, utrap 10,
+      TT_WEB, "You are stuck to the web." on bare ice; POST utrap 0,
+      pending lift told on the next action.
+- [x] LOW: drawbridge and vault-corridor deletions of an ammo trap
+      (minted and closed 2026-10-30, session 274, by the tell-after
+      Plan agent; master-shared). dbridge.c close / open /
+      destroy_drawbridge() and vault.c clear_fcorr() / wallify_vault()
+      deleted traps with plain deltrap(): a bear trap, land mine or
+      crafted arrow trap there tripped impossible("deleting trap (...)
+      containing ammo (...)?") and a hero held there kept the hold.
+      RULED 2026-10-30 (AskUserQuestion): FOLD IN - the drawbridge
+      destroys the ammo with the span's objects, the vault keeps it
+      embedded in the rock like the other objects there.
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2649).
+      deltrap_with_ammo(DESTROY) / (PLACE). Battery T2: a bear trap on
+      the Castle's lowered span, bridge closed - PRE "deleting trap (6)
+      containing ammo (300)?" and a paniclog line; POST silent, no
+      trap or object left.
 - [x] LOW: dig() on a level that cannot be dug down deletes a web the
       hero is caught in and leaves the hold (minted 2026-10-17,
       session 236, Plan agent; master-shared). dig.c dig()'s
@@ -26866,7 +27024,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       buried ball." then the water, no chain break (floor's outcome).
       The reviewer's grass-hider LOW did not reproduce: maketrap()
       already calls maybe_unhide_at(), so no call was added.
-- [ ] LOW: the earthquake drops floaters and levitating or flying-capable
+- [x] LOW: the earthquake drops floaters and levitating or flying-capable
       monsters into its chasms (minted 2026-10-27, session 265 Plan
       agent; master-shared; needs a ruling). do_pit()'s monster arm
       skips only is_flyer() and is_clinger() forms, so a floating eye,
@@ -26881,7 +27039,44 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       for a monster that stays over the chasm, as the quake is quiet;
       rejected digactualhole()'s "<Mon> floats / flies over the
       chasm." line and recording. Master frozen-unfixed. Plannable.
-- [ ] LOW: the earthquake never cracks sand (minted 2026-10-27, session
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2644, master
+      frozen-unfixed). do_pit()'s arm tests mon_airborne() (the same
+      four tests). The floating eye named above is M1_FLY here and
+      already stayed up; the bug hit gear- or spell-lifted monsters.
+      Battery T1: a gnome lord with levitation, then flight, PRE "The
+      gnome lord falls into a chasm!" and damage, POST silent, unhurt.
+      Minted and closed alongside (BUG-2645, 2646): the held-over web
+      or bear-trap hold (rows below). Minted: monster riders on a
+      flying steed (row below).
+- [x] LOW: a monster in a web or bear trap that a quake or dug pit
+      replaces keeps that hold (minted and closed 2026-10-30, session
+      274, by the quake Plan agent; master and vanilla 5.0). maketrap()
+      ends the hero's hold when it replaces a trap, never a monster's:
+      a lifted monster sat ~40 turns "in" a pit it flies over (the bat
+      in a web already did, is_flyer()); a grounded one counted as
+      already in the pit - no fall line, 1d4 not 1d6 on a quake, no
+      fall at all into a dug pit. RULED 2026-10-30 (AskUserQuestion x2):
+      FALLS LIKE THE HERO, and a dug pit MATCHES THE QUAKE.
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2645 the
+      lifted case, BUG-2646 the grounded case). do_pit() and
+      digactualhole() snapshot whether the replaced trap was a pit; a
+      web or bear trap's hold ends with it (a long worm's tail square
+      keeps the old reading). Battery T1: bat in a web PRE mtrapped 1,
+      POST 0 (quake and dug pit); levitating gnome lord in a bear trap
+      PRE 1d4 and held, POST unhurt and free; lichen in a web PRE silent
+      1d4, POST "The lichen falls into a chasm!" 1d6, dug pit POST "The
+      lichen falls into your pit!"; already-in-a-pit controls
+      unchanged.
+- [ ] LOW: a flying or floating steed does not carry its monster rider
+      over a drop (minted 2026-10-30, session 274, by the quake Plan
+      agent; master-shared). Only the rider's own lift counts in
+      do_pit(), digactualhole(), trapeffect_pit() / trapeffect_hole()
+      and check_in_air(): a Nazgul on a fell beast falls into a chasm
+      or pit while its steed flies. RULED 2026-10-30 (AskUserQuestion):
+      A FLYING OR FLOATING STEED CARRIES ITS MONSTER RIDER, as session
+      235 ruled for the hero (BUG-2401); a shared helper across those
+      sites. LOW (plannable).
+- [x] LOW: the earthquake never cracks sand (minted 2026-10-27, session
       265 reviewer; master-shared; needs a ruling). SAND (rm.h 38) is
       IS_ROOM floor terrain like GRASS (no hiding in it on the branch),
       and do_earthquake()'s switch has no case for it on either tree.
@@ -26892,6 +27087,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       GRASS group, with no message for the terrain itself (the
       maintainer also kept the grass case silent: an empty square just
       shows its pit). Master frozen-unfixed. Plannable.
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2643, master
+      frozen-unfixed). Battery T1: three sand squares under a force-13
+      quake - PRE still SAND with no trap, POST ROOM with a pit each, no
+      line naming sand.
 - [x] LOW: monsters left entangled on another level never count
       down (minted 2026-10-18, session 239 follow-up, from the vine
       census; port loss, master parity). Master's
@@ -33573,7 +33772,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       master; keep it. Sweep `rg -i nethack` over the player-facing
       strings when this lands. LOW (branding).
 
-- [ ] LOW: idle checkpoint vs a defeated Ice Queen (minted
+- [x] LOW: idle checkpoint vs a defeated Ice Queen (minted
       2026-10-29, session 272, catch-up 2; RULED accept + track).
       Upstream's idle checkpoint (34e91f177 / 96e217c3f; opt-in
       `idlecheckpoint`, curses / Windows console / Qt) skips dmonsfree()
@@ -33587,6 +33786,29 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       if she carried a timed item relink_timers() panics "can't find
       o_id". Candidate fix: skip only `mstate & MON_DETACH` there and
       make a dead-but-attached queen restore and revive.
+      CLOSED 2026-10-30 (session 274, commit pending; BUG-2653, 2654;
+      upstream-reportable part BUG-2653). The candidate alone was
+      unsafe: a monster between its fatal damage and m_detach() (a
+      --More-- in the kill lines, nemdead()'s pager inside m_detach())
+      is dead and undetached too, still owning its inventory, so it
+      can't be skipped (relink panic) or written (freed with its
+      minvent on restore). do_idlecheckpoint() now waits out a death in
+      progress; savemonchn() keeps a parked dead guard (vanilla: its
+      corridor was never cleared after recovery) and a pending queen;
+      during a restore dmonsfree() lets her wait and savelev() doesn't
+      purge for her (restlevelfile() would revive her, then the
+      current level is read back in dead: a double revival);
+      place_monster() puts her back on her square while restoring; and
+      dorecover() revives her once at its end, before the hero can act
+      (ruled 2026-10-30, AskUserQuestion; a pacifist bumping her dead
+      body would have "killed" her). Battery T4 (gdb do_idlecheckpoint()
+      plus SIGKILL and recovery): the queen with a lit candle PRE "can't
+      find o_id 100" panic on recovery, POST restored, release lines once
+      after the welcome, Luck +2 and alignment +2 once, she keeps the
+      candle; without the candle PRE she is gone for good; a gnome lord
+      with a lit candle checkpointed inside m_detach() PRE level file
+      rewritten and "can't find o_id 80", POST not rewritten, recovered
+      alive with its candle.
 - [x] LOW: #wizlevelport Endgame prerequisite for an Infidel already
       carrying the unimbued Idol (minted 2026-10-29, session 272) -
       FIXED the same session as BUG-2639 (60487b7e3): the battery
@@ -33867,6 +34089,11 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-07-31 | trap.c sink_into_lava() reduces only `u.uhp` even when the hero is polymorphed - the dormant real-form pool, while the active `u.mh` never shrinks (their own rehumanize() comment calls reducing u.uhp while poly'd a code bug). The branch's exclusive-pool form (BUG-1423) is the fix shape. Identical in NetHack50 and Official_nh50 | fixed on branch (BUG-1423, exclusive form); not yet sent; triage 2026-10-26 @60a39eb52: G, live |
 | 2026-07-31 | trap.c cnv_trap_obj() runs `if (u.utrap && u_at(ttmp->tx, ttmp->ty)) reset_utrap(TRUE);` with no TT_BURIEDBALL carve-out, silently freeing a Punished hero from a buried iron ball when a co-located trap converts to objects; upstream's own delfloortrap() carries the carve-out (the same defeat EvilHack fixed at deltrap_with_ammo(), BUG-1422 - EvilHack has no cnv_trap_obj to fix). Reviewer find, verified in Official_nh50 | found (no branch counterpart); not yet sent; triage 2026-10-26 @60a39eb52: G, live, not fixed on the branch |
 | 2026-08-01 | dungeon.c init_dungeon_levels()/init_dungeon_branches() fill their proto_dungeon arrays BEFORE the LEV_LIMIT/BRANCH_LIMIT panics that follow the loops - the lua_len count is file-driven and unbounded, so an oversized dungeon.lua corrupts final_lev[] (later dereferenced by place_level), tmpbranch[], then pd's own counters (which can suppress the panic itself), and past ~25 slots over the limit the init_dungeons() stack frame - instead of the intended clean panic. 3.6's compiled loader checked before Fread-filling, and its dgn_comp.y compile-time validation layer was dropped by the Lua rewrite, so the runtime guard's ordering is the only protection left. Byte-identical in NetHack50 and Official_nh50 (both functions). Battery-proven end-to-end on the branch: padded nhdat -> clean pre-loop panic, write breakpoints unhit | fixed on branch (BUG-1453, pre-loop bounds); report artifact ~/nh50-dungeon-init-guards.patch; sent as PR #1714 (2026-10-26, fix-dungeon-init-guards); triage 2026-10-26 @60a39eb52: C (memory, latent), live, patch nh50-dungeon-init-guards.patch ready |
+| 2026-10-30 | The idle checkpoint (34e91f177 / 96e217c3f) leaves every DEADMONSTER out of savemonchn() but still writes the timers and light sources of their inventories (obj_is_local() -> mon_is_local() counts them local): a checkpoint taken while a monster is between its fatal damage and m_detach() (an idle --More-- in the kill messages, nemdead()'s qt_pager() inside m_detach()) makes the recovery panic in relink_timers() "can't find o_id" if it carried a lit lamp or candle, an egg or a corpse; and a dead vault guard parked until its fake corridor is gone is dropped, so a recovered game never clears the corridor. Official_nh50 b0c09c878; BUG-2653, src/do.c save.c | found (branch-fixed, commit pending: no idle checkpoint while a death is in progress; savemonchn() keeps PARKEDMONSTER()); not sent; triage pending; battery T4 reproduced the panic |
+| 2026-10-30 | A Rider corpse taken out of an ice box (or spilled from a destroyed one) never revives: removed_from_icebox() sets norevive on every corpse but an ice troll's and revive()'s norevive gate (328dc5bdf) refuses it, so it twitches until revive_mon()'s 1-in-99 give-up. Official_nh50 b0c09c878; BUG-2650, src/zap.c | found (branch-fixed, commit pending: revive() ignores norevive for a Rider); not sent; triage pending |
+| 2026-10-30 | A web on melting ice is deleted with plain deltrap() (trap_ice_effects()), so a hero caught in it keeps TT_WEB with no web; a levitating hero then drowns instead of floating. Official_nh50 b0c09c878; BUG-2648, src/trap.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-10-30 | An earthquake's do_pit() keeps only is_flyer() / is_clinger() monsters up, so a levitating or flying-by-gear monster falls into the chasm; a monster held by a web or bear trap the chasm replaces keeps mtrapped (maketrap() ends only the hero's hold). Official_nh50 b0c09c878; BUG-2644..2646, src/music.c dig.c | found (branch-fixed, commit pending; the branch's stay-up is silent by ruling); not sent; triage pending |
+| 2026-10-30 | delfloortrap() ends the hero's hold with reset_utrap(TRUE), so a returned levitation is told before the event's own line ("You start to float in the air!" then "As you dig, the hole fills with water!"). Official_nh50 b0c09c878; BUG-2647, src/trap.c (the branch's fix uses its deferred-lift machinery, not upstream's) | found (branch-fixed, commit pending); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -34252,6 +34479,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-30 | Quake / tell-after / trace-trio / idle-checkpoint slice rulings (Phase 2 session 274, AskUserQuestion x5, eleven questions, all as recommended). (1) SLICE (multiSelect): all four offered groups. (2) RIDER ICE BOX: Riders always revive (master's revive() never read norevive). (3) PRAYER: hold in place - nothing hurtles the hero or the steed, no knockback, a mind flayer's telekinesis skips a praying hero; stray rays, missiles, sleep and webbing still hit (master and vanilla). (4) EATING: non-food indestructible items can't be eaten. (5) QUAKE, HELD GROUNDED MONSTER: falls like the hero ("falls into a chasm!", 1d6). (6) MONSTER RIDERS: a flying or floating steed carries its monster rider - a ruled row. (7) AMMO TRAPS on a drawbridge / vault corridor: fold in, destroyed at the bridge, embedded in the vault rock. (8) DELETED TRAPS: release only their own hold - a ruled row. (9) TEMPLE PRIEST: skips the hero's square like shopkeepers - a ruled row. (10) ICE QUEEN AFTER RECOVERY: revives right after the restore, before the hero can act. (11) DUG PIT: matches the quake (a held grounded monster falls in). Decided without asking: the melting-ice web release is silent; the dead TT_BEARTRAP re-checks after deltrap_with_ammo() in floorfood() / dig() stay. | maintainer |
 | 2026-10-29 | Upstream Tourist cut rulings (5.0 fixes session 273). (1) PRIORITY (asked in conversation): the BUG-2635 row (vanilla 5.0.1 Tourist home level does not load) MOVES TO THE FRONT of the send queue as #60, cut ahead of #59 and #22; re-derived against vanilla it is C, not G (two impossible()s on every Tourist's first quest-portal trip), so the C-only ruling covers it. AskUserQuestion x1, three questions, all as recommended: (2) SCOPE = ONE PATCH for the levels and the quest text (over levels-only now with the text held as M, and over two PRs at once); (3) male=1 SHAPE = female=0 in the level files, data only and the same as the branch fix (over teaching lspo_monster() to read male= as lspo_object() does for statues); (4) a PRE / POST evilhack-game-tester run on the scratch vanilla build (over static checks only). | maintainer |
 | 2026-10-29 | Upstream catch-up 2 rulings (session 272; conversation plus AskUserQuestion x8, 22 questions). (0) MERGE NOW: take official 5.0.1 work-in-progress b0c09c878 rather than wait for the 5.0.1 release (maintainer asked; source is official upstream directly, the Hardfought fork having no 5.0.1 work). (1) VERSION (stated in conversation): EvilHack stays 1.0.0-0 whatever vanilla's patchlevel.h says, until the maintainer says otherwise. (2) TOURIST QUEST: TAKE UPSTREAM's Discworld rewrite with its bugs fixed (over keep-EvilHack and EvilHack-text-plus-levels), EvilHack's bell / kill-the-leader / forfeit lines written in the new voice and approved as rendered, gotit2 in the new voice (as recommended). (3) MONK LOCATE: take upstream's lava level (over master's cave), no-dig widened. (4) MEAT ROOM: keep it and rename EvilHack's "huge chunk of meat" to 5.0's "enormous meatball" (maintainer's own option, over drop / keep-with-old-name). (5) LUDIOS: keep spawns (as recommended). (6) JELLYFISH: upstream (03,02), replacing the 2026-10-03 (01,02) ruling (as recommended). (7) SHAPESHIFTER EXPLOSIONS: upstream wording plus its two name-leak fixes (as recommended). (8) "amulet of flight" alias kept (as recommended). (9) Each asked individually, all as recommended: pet-swap travel stop, box trap-knowledge fixes, probing carried eggs, tutorial 'D' engraving, data.base "akitu", shop_keeper() check wizard-only / silent in makelevel, #wizlevelport names with a shared Amulet / Idol prerequisite. (10) ICE QUEEN vs idle checkpoint: accept, LOW row (as recommended; the follow-up reviewer later found the recovery can panic on a timed item - recorded in the row). (11) PLATFORMS: the revived mac68k / Atari-GEM / Amiga ports are in scope for later PLATFORM PARITY slices; this merge verified on Linux tty/curses only (as recommended). (12) WINDOWS / DOC VERSION IDS: EvilHack 1.0.0 (as recommended). (13) BATTERY: POST-only on the merged install (as recommended). | maintainer |
 | 2026-10-29 | Upstream Lua cut rulings (5.0 fixes session 271, AskUserQuestion x2). (1) VANILLA RUNS (as recommended): the #54 / #55 repros run in a vanilla wizard-mode game built and installed in a scratch source-tree playground, unfixed and fixed, so the PR text quotes vanilla. (2) #54 (TNNT V2, Lua finalizers refused memory) goes to X, NO SEND - the maintainer picked it over the recommended "re-tier C latent, keep it queued" and over "send now as hardening": upstream's in-tree Lua 5.5.1 reserves the finalizer call's CallInfos and stack with luaD_checkminstack() before GCTM() stops the collector, NetHack's only finalizers allocate nothing and the sandbox has no setmetatable, so nothing in vanilla reaches the -1 (0 lines from TNNT's repro there, 40 on the branch's Lua 5.4.8). The branch keeps BUG-2627. #55 is cut alone. | maintainer |
