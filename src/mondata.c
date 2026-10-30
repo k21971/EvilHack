@@ -880,11 +880,9 @@ sliparm(struct monst *mon)
     struct permonst *ptr = r_data(mon);
 
     /* a hero druid in wildshape or a vampire in a shift form keeps
-       worn gear merged with the new form instead of losing it */
-    if (druid_form)
-        return FALSE;
-
-    if (vampire_form)
+       worn gear merged with the new form instead of losing it; both
+       tests read the hero's own form, so they are for the hero alone */
+    if (mon == &gy.youmonst && (druid_form || vampire_form))
         return FALSE;
 
     return (boolean) (is_whirly(ptr) || ptr->msize <= MZ_SMALL
@@ -909,11 +907,9 @@ breakarm(struct monst *mon)
     if (ptr == &mons[PM_DRIDER])
         return FALSE;
 
-    /* worn gear merges with a druid wildshape or vampire shift form */
-    if (druid_form)
-        return FALSE;
-
-    if (vampire_form)
+    /* worn gear merges with a hero druid's wildshape or a hero
+       vampire's shift form */
+    if (mon == &gy.youmonst && (druid_form || vampire_form))
         return FALSE;
 
     return (boolean) (bigmonst(ptr)

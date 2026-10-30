@@ -1288,11 +1288,12 @@ m_dowear(struct monst *mon, boolean creation)
     /* can't put on shirt if already wearing suit */
     if (can_wear_armor && !(mon->misc_worn_check & W_ARM))
         m_dowear_type(mon, W_ARMU, creation, FALSE);
-    /* WrappingAllowed() makes any size between small and huge eligible;
-       treating small as a special case allows hobbits, gnomes, and
-       kobolds to wear all cloaks; large and huge allows giants and such
-       to wear mummy wrappings but not other cloaks */
-    if (can_wear_armor || WrappingAllowed(r_data(mon)))
+    /* treating small as a special case allows hobbits, gnomes, kobolds
+       and other small monsters with hands to wear all cloaks;
+       WrappingAllowed() lets giants and such wear mummy wrappings but
+       not other cloaks (find_best_armor_recurse() sorts out which) */
+    if (can_wear_armor || r_data(mon)->msize == MZ_SMALL
+        || WrappingAllowed(r_data(mon)))
         m_dowear_type(mon, W_ARMC, creation, FALSE);
     m_dowear_type(mon, W_ARMH, creation, FALSE);
     /* bracers fill the shield slot but leave the hands free, so the
@@ -1397,8 +1398,14 @@ find_best_armor_recurse(
         case W_ARMC:
             if (!is_cloak(obj))
                 continue;
-            /* mummy wrapping is only cloak allowed when bigger than human */
-            if (mon->data->msize > MZ_HUMAN && obj->otyp != MUMMY_WRAPPING)
+            /* the hero's rule in canwearobj(): a monster that can't wear
+               body armor fits an ordinary cloak only when small, and a
+               mummy wrapping as WrappingAllowed() says; the race's size
+               counts, and a centaur or drider wears any cloak */
+            if (cantweararm(mon)
+                && ((obj->otyp != MUMMY_WRAPPING)
+                        ? r_data(mon)->msize != MZ_SMALL
+                        : !WrappingAllowed(r_data(mon))))
                 continue;
             /* avoid mummy wrapping if it will allow hero to see mon (unless
                this is a new mummy; an invisible one is feasible via ^G) */
