@@ -229,7 +229,10 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
 {
     struct monst *mtmp;
     struct obj *otmp;
-    struct trap *chasm;
+    struct trap *chasm = t_at(x, y);
+    /* a pit already here keeps whoever is down in it; the hold of a web
+       or bear trap goes with the trap maketrap() replaces */
+    boolean pit_hold = (chasm && is_pit(chasm->ttyp));
     schar filltype;
 
     chasm = maketrap(x, y, PIT);
@@ -280,12 +283,17 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
     /* We have to check whether monsters or hero falls into a
        new pit....  Note: if we get here, chasm is non-Null. */
     if (mtmp) {
-        /* a live tree's branches or roots hold it above the chasm, as
+        /* a monster that flies or floats stays up over the chasm, quietly;
+           a live tree's branches or roots hold it above the chasm, as
            they do the hero */
-        if (!is_flyer(mtmp->data) && !is_clinger(mtmp->data)
+        if (!mon_airborne(mtmp) && !is_clinger(mtmp->data)
             && !mon_tree_held(mtmp)
             && !(mtmp->wormno && worm_hit[mtmp->wormno])) {
-            boolean m_already_trapped = mtmp->mtrapped;
+            /* one held by a web or bear trap falls like any other; a long
+               worm's tail square says nothing about its head's hold */
+            boolean m_already_trapped = (mtmp->mtrapped
+                                         && (pit_hold || mtmp->mx != x
+                                             || mtmp->my != y));
 
             mtmp->mtrapped = 1;
             if (!m_already_trapped) { /* suppress messages */
@@ -328,6 +336,10 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
             }
             if (mtmp->wormno && !DEADMONSTER(mtmp))
                 worm_hit[mtmp->wormno] = TRUE;
+        } else if (mtmp->mtrapped && !pit_hold && !mtmp->wormno) {
+            /* it stays up; the web or bear trap that held it is the chasm
+               now (maketrap() frees the hero so, deltrap() any monster) */
+            mtmp->mtrapped = 0;
         }
     } else if (u_at(x, y)) {
         if (u_tethered()) {
@@ -510,6 +522,7 @@ do_earthquake(int force, boolean player_caused)
             case CORR:
             case ROOM:
             case GRASS: /* cracks like the floor; do_pit() lets go its holds */
+            case SAND:  /* so does sand; maketrap() makes it floor */
                 do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case SDOOR:

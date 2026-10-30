@@ -725,11 +725,14 @@ void
 digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
 {
     struct obj *oldobjs, *newobjs;
-    struct trap *ttmp;
+    struct trap *ttmp = t_at(x, y);
     const char *surface_type, *tname, *in_thru;
     char furniture[BUFSZ];
     struct rm *lev = &levl[x][y];
     struct monst *mtmp = m_at(x, y); /* may be madeby */
+    /* a pit already here keeps whoever is down in it; the hold of a web
+       or bear trap goes with the trap maketrap() replaces */
+    boolean pit_hold = (ttmp && is_pit(ttmp->ttyp));
     boolean madeby_u = (madeby == BY_YOU), madeby_obj = (madeby == BY_OBJECT),
             /* BY_OBJECT means the hero broke a wand, so blame her for it */
             heros_fault = (madeby_u || madeby_obj);
@@ -847,6 +850,11 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             if (oldobjs != newobjs) /* something unearthed */
                 (void) pickup(1);   /* detects pit */
         } else if (mtmp) {
+            /* the web or bear trap the pit replaced holds it no longer
+               (deltrap() frees a monster so): one that stays up is free,
+               any other falls into the pit below */
+            if (mtmp->mtrapped && !pit_hold && !mtmp->wormno)
+                mtmp->mtrapped = 0;
             if (is_flyer(mtmp->data) || is_floater(mtmp->data)
                 || can_levitate(mtmp) || can_fly(mtmp)) {
                 if (canseemon(mtmp))
