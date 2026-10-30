@@ -567,7 +567,7 @@ extern boolean find_drawbridge(coordxy *, coordxy *) NONNULLPTRS;
 extern boolean create_drawbridge(coordxy, coordxy, int, boolean);
 extern void open_drawbridge(coordxy, coordxy);
 extern void close_drawbridge(coordxy, coordxy);
-extern void destroy_drawbridge(coordxy, coordxy);
+extern boolean destroy_drawbridge(coordxy, coordxy);
 
 /* ### decl.c ### */
 

@@ -6152,11 +6152,11 @@ back_on_ground(boolean rescued)
                      || (Flying && !(gp.pending_lift & LIFT_FLY)));
     const char *preposit = aloft ? "over" : "on",
                *surf = surface(u.ux, u.uy), *you_are_back;
-    char icebuf[QBUFSZ];
+    char surfbuf[QBUFSZ];
 
     if (is_ice(u.ux, u.uy)) {
         /* "on ice" */
-        surf = ice_descr(u.ux, u.uy, icebuf);
+        surf = ice_descr(u.ux, u.uy, surfbuf);
     } else if (!strcmpi(surf, "floor") || !strcmpi(surf, "ground")) {
         /* "on solid ground" */
         surf = "solid ground";
@@ -6168,6 +6168,18 @@ back_on_ground(boolean rescued)
                || !strcmpi(surf, "bottom")) {
         /* "on the stairs" */
         surf = the(surf);
+    } else if (!strcmpi(surf, "grass") || !strcmpi(surf, "sand")) {
+        /* "on the grass" */
+        surf = the(surf);
+    } else if (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy)) {
+        /* "in shallow water" (the map's name for a puddle), "in raw
+           sewage"; no article for either */
+        if (is_puddle(u.ux, u.uy)) {
+            Snprintf(surfbuf, sizeof surfbuf, "shallow %s", surf);
+            surf = surfbuf;
+        }
+        if (!aloft)
+            preposit = "in";
     } else { /* "cloud", "air", "air bubble", "wall", "fountain", "doorway" */
         /* "in a cloud", "in the air" */
         surf = !strcmp(surf, "air") ? the(surf) : an(surf);
@@ -6194,7 +6206,12 @@ rescued_from_terrain(int how)
 
     switch (how) {
     case DROWNING:
-        if (is_pool(u.ux, u.uy)) {
+        if (!u.uinwater) {
+            /* drown() calls this before it takes the hero out of the
+               water, so the landing's pooleffects() has done that and
+               said where the hero came out */
+            mesggiven = TRUE;
+        } else if (is_pool(u.ux, u.uy)) {
             You("%s %s of %s.", find_yourself,
                 (Is_waterlevel(&u.uz) || IS_WATERWALL(lev->typ))
                   ? "in the midst" : "on top",
@@ -6392,9 +6409,11 @@ drown(void)
         pline("You're still drowning.");
     }
 
+    /* ahead of leaving the water, so it can tell whether the landing has
+       already done that and said so */
+    rescued_from_terrain(DROWNING);
     if (u.uinwater)
         set_uinwater(0); /* u.uinwater = 0 */
-    rescued_from_terrain(DROWNING);
     lift_msg_deferred();
     return TRUE;
 }

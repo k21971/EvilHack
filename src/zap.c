@@ -4975,8 +4975,10 @@ zap_map(
                 /* !drawbridge_up: not spot in front of raised bridge,
                    so either span of lowered bridge or portcullis */
                 if (ltyp != DRAWBRIDGE_UP) {
-                    learn_it = TRUE;
-                    destroy_drawbridge(dbx, dby);
+                    /* a protected bridge holding out of sight tells
+                       the hero nothing about the wand */
+                    if (destroy_drawbridge(dbx, dby))
+                        learn_it = TRUE;
                 }
                 break;
             }

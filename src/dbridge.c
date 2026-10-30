@@ -1114,9 +1114,11 @@ open_drawbridge(coordxy x, coordxy y)
 }
 
 /*
- * Let's destroy the drawbridge located at x,y
+ * Let's destroy the drawbridge located at x,y; returns FALSE only when
+ * there is no drawbridge there or a protected one holds out of the
+ * hero's sight, so the hero learns nothing from it
  */
-void
+boolean
 destroy_drawbridge(coordxy x, coordxy y)
 {
     struct rm *lev1, *lev2;
@@ -1129,15 +1131,21 @@ destroy_drawbridge(coordxy x, coordxy y)
 
     lev1 = &levl[x][y];
     if (!IS_DRAWBRIDGE(lev1->typ))
-        return;
-    /* the drawbridges guarding certain special levels are protected */
-    if (Is_valley(&u.uz) || Is_wiz1_level(&u.uz) || Is_wiz3_level(&u.uz)) {
-        pline("This drawbridge cannot be destroyed.");
-        return;
-    }
+        return FALSE;
     x2 = x;
     y2 = y;
     get_wall_for_db(&x2, &y2);
+    /* the drawbridges guarding certain special levels are protected;
+       a hero who sees the bridge or its portcullis, or is beside
+       either, learns that it held */
+    if (Is_valley(&u.uz) || Is_wiz1_level(&u.uz) || Is_wiz3_level(&u.uz)) {
+        if (cansee(x, y) || cansee(x2, y2) || next2u(x, y)
+            || next2u(x2, y2)) {
+            pline("This drawbridge cannot be destroyed.");
+            return TRUE;
+        }
+        return FALSE;
+    }
     lev2 = &levl[x2][y2];
     if ((lev1->drawbridgemask & DB_UNDER) == DB_MOAT
         || (lev1->drawbridgemask & DB_UNDER) == DB_LAVA) {
@@ -1265,6 +1273,7 @@ destroy_drawbridge(coordxy x, coordxy y)
     nokiller();
     if (Is_stronghold(&u.uz))
         u.uevent.uheard_tune = 3; /* bridge is gone so tune is now useless */
+    return TRUE;
 }
 
 /*dbridge.c*/
