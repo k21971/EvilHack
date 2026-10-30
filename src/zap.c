@@ -1453,7 +1453,8 @@ revive(struct obj *corpse, boolean by_hero)
             x = xy.x, y = xy.y;
     }
 
-    if (corpse->norevive
+    /* Riders always return, even from an ice box */
+    if ((corpse->norevive && !is_rider(mptr))
         || (mons[montype].mlet == S_EEL
             && !(IS_POOL(levl[x][y].typ) || IS_PUDDLE(levl[x][y].typ)))
         || (mons[montype].mlet == S_TROLL

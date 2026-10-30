@@ -93,11 +93,14 @@ boolean
 is_edible(struct obj *obj)
 {
     /* protect invocation tools but not Rider corpses (handled elsewhere)*/
-    /* if (obj->oclass != FOOD_CLASS && obj_resists(obj, 0, 0)) */
     if (objects[obj->otyp].oc_unique)
         return FALSE;
     /* above also prevents the Amulet from being eaten, so we must never
        allow fake amulets to be eaten either [which is already the case] */
+    /* nor what no force destroys (the Sword of Annihilation, a scroll of
+       consecration); a Rider's corpse is food and stays edible */
+    if (obj->oclass != FOOD_CLASS && obj_indestructible(obj))
+        return FALSE;
 
     if (gy.youmonst.data == &mons[PM_FIRE_ELEMENTAL]
         && is_flammable(obj))
