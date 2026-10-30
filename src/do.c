@@ -88,7 +88,9 @@ boulder_hits_pool(
                "dmonsfree: N removed doesn't match N+1 pending" when other
                monsters have finished their current turn */
             if ((mtmp = m_at(rx, ry)) != 0 && !DEADMONSTER(mtmp)
-                && r_data(mtmp)->msize <= MZ_LARGE && !m_in_air(mtmp))
+                && r_data(mtmp)->msize <= MZ_LARGE && !m_in_air(mtmp)
+                /* up by gear, a spell or a flying or floating steed */
+                && !mon_airborne(mtmp) && !mon_steed_airborne(mtmp))
                 mondied(mtmp);
 
             if (ttmp)
@@ -975,11 +977,13 @@ staticfn boolean
 engulfer_digests_food(struct obj *obj)
 {
     /* animal swallower (purple worn) eats any
-       corpse, glob, or meat <item> but not other types of food */
+       corpse, glob, or meat <item> but not other types of food; a
+       Rider's corpse can't be destroyed, so the engulfer just holds it */
     if (digests(u.ustuck->data)
         && (obj->otyp == CORPSE || obj->globby
             || obj->otyp == MEATBALL || obj->otyp == ENORMOUS_MEATBALL
-            || obj->otyp == MEAT_RING || obj->otyp == MEAT_STICK)) {
+            || obj->otyp == MEAT_RING || obj->otyp == MEAT_STICK)
+        && !obj_indestructible(obj)) {
         boolean could_petrify = FALSE,
                 could_poly = FALSE, could_slime = FALSE,
                 could_grow = FALSE, could_heal = FALSE;
@@ -2758,11 +2762,16 @@ revive_mon(anything *arg, long timeout UNUSED)
             action = REVIVE_MON;
             when = rider_revival_time(body, TRUE);
         } else { /* rot this corpse away */
+            int livenm = undead_to_corpse(body->corpsenm);
+
             if (!obj_has_timer(body, ROT_CORPSE))
                 You_feel("%sless hassled.", is_rider(mptr) ? "much " : "");
             /* corpsenm was changed by zombify_mon; change it back since
-               the corpse is going to stick around */
-            set_corpsenm(body, undead_to_corpse(body->corpsenm));
+               the corpse is going to stick around; set_corpsenm() restarts
+               the corpse's timers, so only a zombie's corpse goes through
+               it - a troll or Rider would be given a new revival */
+            if (livenm != body->corpsenm || body->zombie_corpse)
+                set_corpsenm(body, livenm);
             action = ROT_CORPSE;
             when = (long) d(5, 50) - (svm.moves - body->age);
             if (when < 1L)
