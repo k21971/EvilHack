@@ -4034,18 +4034,25 @@ icequeenrevive(struct monst *mtmp)
     return;
 }
 
-/* a defeated Ice Queen still on fmon awaiting her revival in dmonsfree();
-   mondead() skips m_detach() for her, so neither iter_mons() nor the
-   purge count sees her */
+/* is mtmp a defeated Ice Queen still on fmon awaiting her revival in
+   dmonsfree()? mondead() skips m_detach() for her, so neither
+   iter_mons() nor the purge count sees her */
+boolean
+icequeen_pending(struct monst *mtmp)
+{
+    return (DEADMONSTER(mtmp)
+            && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            && !(mtmp->mstate & MON_DETACH));
+}
+
+/* the first such defeated Ice Queen on fmon, if any */
 struct monst *
 pending_icequeen(void)
 {
     struct monst *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-        if (DEADMONSTER(mtmp)
-            && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-            && !(mtmp->mstate & MON_DETACH))
+        if (icequeen_pending(mtmp))
             return mtmp;
     return (struct monst *) 0;
 }
@@ -4098,14 +4105,22 @@ dmonsfree(void)
     for (mtmp = &fmon; *mtmp; ) {
         freetmp = *mtmp;
 
+        /* while a game is being restored, a defeated Ice Queen kept by
+           an idle checkpoint waits, neither revived nor freed: the
+           current level is read back in again after the level files are
+           rewritten, and dorecover() revives her once at its end */
+        if (!program_state.beyond_savefile_load
+            && icequeen_pending(freetmp)) {
+            mtmp = &(freetmp->nmon);
+            continue;
+        }
+
         /* a defeated Ice Queen transforms to the Enchantress and is
            revived. mondead() returns before m_detach() for her, so
            MON_DETACH means mongone() took her away instead (an escape,
            bones, a wizard mode removal); she stays gone and is freed
            below like any other departed monster */
-        if (DEADMONSTER(freetmp)
-            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-            && !(freetmp->mstate & MON_DETACH)) {
+        if (icequeen_pending(freetmp)) {
             icequeenrevive(freetmp);
             /* track this special case in recent_detaches with a
                negative position */

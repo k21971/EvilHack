@@ -1572,6 +1572,20 @@ currentlevel_rewrite(void)
 void
 do_idlecheckpoint(void)
 {
+    struct monst *mtmp;
+
+    /* no checkpoint while a death is in progress (an idle --More--
+       between a monster's fatal damage and m_detach()): the dying
+       monster still holds its inventory, whose timers and light sources
+       would be written without it; the next idle wait checkpoints. A
+       dead vault guard parked until its corridor is gone and a defeated
+       Ice Queen awaiting her revival are written as they are */
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+        if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH)
+            && !PARKEDMONSTER(mtmp)
+            && !(icequeen_pending(mtmp) && u.uevent.defeat_icequeen))
+            return;
+
     program_state.in_idlecheckpoint = 1;
 #ifdef INSURANCE
     save_currentstate();

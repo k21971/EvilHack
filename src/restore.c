@@ -1116,6 +1116,11 @@ dorecover(NHFILE *nhfp)
     /* Success! */
     welcome(FALSE);
     check_special_room(FALSE);
+    /* a defeated Ice Queen kept dead by an idle checkpoint waited
+       through the restore (dmonsfree()); she revives now, before the
+       hero can act on her body */
+    if (pending_icequeen())
+        dmonsfree();
     return 1;
 }
 #endif /* !SFCTOOL */

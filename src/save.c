@@ -539,8 +539,13 @@ savelev_core(NHFILE *nhfp, xint8 lev)
            count, which the next dmonsfree() then reports as a
            count mismatch; a defeated Ice Queen is not in that count
            (she awaits her revival), so check for her too, or a queen
-           who died since the last pass would be written dead */
-        if (iflags.purge_monsters || pending_icequeen())
+           who died since the last pass would be written dead; not
+           while a game is being restored, though: an idle checkpoint
+           can hold her dead, and reviving her as restore rewrites the
+           level files would run again once the current level is read
+           back in, so she stays dead until the first turn's dmonsfree() */
+        if (iflags.purge_monsters
+            || (program_state.beyond_savefile_load && pending_icequeen()))
             dmonsfree();
         /* clear objs_deleted list too */
         if (go.objs_deleted)
@@ -972,8 +977,13 @@ savemonchn(NHFILE *nhfp, struct monst *mtmp)
         mtmp2 = mtmp->nmon;
         if (update_file(nhfp)
             /* during idlecheckpoint, dmonsfree() intentionally does not run,
-               so we need to skip the writing of any dead monsters */
-            && !(program_state.in_idlecheckpoint && DEADMONSTER(mtmp))) {
+               so we need to skip the writing of any dead monsters; but
+               keep the two that dmonsfree() keeps or revives: a dead vault
+               guard parked until its corridor is gone and a defeated Ice
+               Queen awaiting her revival (do_idlecheckpoint() waits out
+               any other death still in progress) */
+            && !(program_state.in_idlecheckpoint && DEADMONSTER(mtmp)
+                 && !PARKEDMONSTER(mtmp) && !icequeen_pending(mtmp))) {
             mtmp->mnum = monsndx(mtmp->data);
             if (mtmp->ispriest)
                 forget_temple_entry(mtmp); /* EPRI() */

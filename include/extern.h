@@ -1985,6 +1985,7 @@ extern boolean mon_uses_pathfinding(struct monst *) NONNULLARG1;
 extern void ensure_escape_pathfind_map(coordxy, coordxy);
 extern long mm_aggression(struct monst *, struct monst *) NONNULLARG12;
 extern boolean monnear(struct monst *, coordxy, coordxy) NONNULLARG1;
+extern boolean icequeen_pending(struct monst *) NONNULLARG1;
 extern struct monst *pending_icequeen(void);
 extern void dmonsfree(void);
 extern void elemental_clog(struct monst *) NONNULLARG1;

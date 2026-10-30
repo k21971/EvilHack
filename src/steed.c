@@ -1804,8 +1804,11 @@ place_monster(struct monst *mon, coordxy x, coordxy y)
     if ((mon == u.usteed && !gi.in_steed_dismounting)
         /* special case is for convoluted vault guard handling: a dead
            guard may only go to <0,0>; test the target, not mon->mx,
-           which parkguard() has not cleared yet */
-        || (DEADMONSTER(mon) && !(mon->isgd && x == 0 && y == 0))) {
+           which parkguard() has not cleared yet; a defeated Ice Queen
+           saved by an idle checkpoint goes back on her square when the
+           game is restored, as she stays on it awaiting her revival */
+        || (DEADMONSTER(mon) && !(mon->isgd && x == 0 && y == 0)
+            && !(program_state.restoring && icequeen_pending(mon)))) {
         describe_level(buf, 0);
         impossible("placing %s onto map, mstate:%lx, on %s?",
                    (mon == u.usteed) ? "steed" : "defunct monster",
