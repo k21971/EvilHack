@@ -3795,13 +3795,14 @@ pooleffects(
     }
 
     /* check for entering water or lava; entangling vegetation holds the
-       hero where it caught them, above the water or lava included (the
-       release in moveloop drops a hero left without flight); a hero
-       already under the water, or walking on it, is held there and
-       still meets it */
+       hero where it caught them, and a tree's branches hold the hero up
+       above the water or lava, where water walking makes no difference
+       (grass can't lie under either: its loss lets go first); the
+       release in moveloop drops a hero left without flight onto it,
+       meeting it once. A hero already under the water is held there
+       and still meets it */
     if (!u.ustuck && !Levitation && !Flying
-        && !(u.utrap && u.utraptype == TT_ENTANGLED && !u.uinwater
-             && !Wwalking)) {
+        && !(u.utrap && u.utraptype == TT_ENTANGLED && !u.uinwater)) {
         if (is_pool_or_lava(u.ux, u.uy)
             || (shallow_water && verysmall(gy.youmonst.data))) {
             if (steed_keeps_dry()) {
