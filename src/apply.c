@@ -2134,10 +2134,14 @@ jump(int magic) /* 0=Physical, otherwise skill level */
         You_cant("jump very far.");
         return ECMD_OK;
 
-    /* if steed is immobile, can't do physical jump but can do spell one */
-    } else if (!magic && u.usteed && stucksteed(FALSE)) {
-        /* stucksteed gave "<steed> won't move" message */
-        return ECMD_OK;
+    /* if steed is immobile, can't do physical jump but can do spell one;
+       one held by vegetation is held against either, as the hero is */
+    } else if (u.usteed && (!magic || u.usteed->mentangled)
+               && stucksteed(FALSE)) {
+        /* stucksteed gave "<steed> won't move" or "<steed> is entangled
+           by ..." message; straining against vegetation takes time, as
+           for the hero's own entanglement */
+        return u.usteed->mentangled ? ECMD_TIME : ECMD_OK;
     } else if (u.uswallow) {
         if (magic) {
             You("bounce around a little.");

@@ -1639,9 +1639,17 @@ u_on_newpos(coordxy x, coordxy y)
     cliparound(u.ux, u.uy);
 #endif
     u.uundetected = 0;
-    /* ridden steed always shares hero's location */
-    if (u.usteed)
+    /* ridden steed always shares hero's location; vegetation that held
+       it lets go when the pair is taken anywhere else (a teleport, a
+       level change), as rloc_to_core() frees a monster */
+    if (u.usteed) {
+        if (u.usteed->mentangled
+            && (u.usteed->mx != u.ux || u.usteed->my != u.uy)) {
+            u.usteed->mentangled = 0;
+            u.usteed->mentangletime = 0;
+        }
         u.usteed->mx = u.ux, u.usteed->my = u.uy;
+    }
     /* when changing levels, don't leave old position set with
        stale values from previous level */
     if (!on_level(&u.uz, &u.uz0)) {

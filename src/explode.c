@@ -1260,8 +1260,18 @@ scatter(
         (void) hideunder(&gy.youmonst);
     if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mtrapped)
         mtmp->mtrapped = 0;
-    if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mentangled)
+    /* the blast tears a held monster out of the vegetation, silently */
+    if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mentangled) {
         mtmp->mentangled = 0;
+        mtmp->mentangletime = 0;
+        mon_hold_released(mtmp); /* a tree held it over a hole */
+    }
+    /* and the hero's steed, off the map where m_at() never finds it */
+    if (u.usteed && u_at(sx, sy) && u.usteed->mentangled) {
+        u.usteed->mentangled = 0;
+        u.usteed->mentangletime = 0;
+        mon_hold_released(u.usteed);
+    }
     maybe_unhide_at(sx, sy);
     if (held_gold) { /* the hero's gold that came down inside the shop */
         struct monst *ushk = shop_keeper(*u.ushops);

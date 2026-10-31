@@ -1237,6 +1237,12 @@ hurtle(int dx, int dy, int range, boolean verbose)
                     : "trap");
         nomul(0);
         return;
+    } else if (u.usteed && u.usteed->mentangled) {
+        /* vegetation holding the steed holds its rider too */
+        pline("%s is anchored by the %s.", YMonnam(u.usteed),
+              mon_tree_held(u.usteed) ? "tree" : "entangling vegetation");
+        nomul(0);
+        return;
     }
 
     /* make sure dx and dy are [-1,0,1] */
@@ -2775,6 +2781,15 @@ thitmonst(
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
         thrown_caitiff(mon, hmode);
         (void) hmon(mon, obj, hmode, dieroll);
+        /* hmon() uses these up, except one that passed harmlessly through
+           a ghost or shade, or came through the closing breakage roll
+           intact (webbing always relies on that roll); it is still free,
+           so let the caller land it like a miss. dealloc_obj() clears
+           the tracker when it is used up, so obj is read only while it
+           exists */
+        if ((hmode == HMON_KICKED ? gk.kickedobj : gt.thrownobj) == obj
+            && obj->where == OBJ_FREE)
+            return 0;
         return 1; /* hmon used it up */
 
     } else if (obj->oclass == POTION_CLASS

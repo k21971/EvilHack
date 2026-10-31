@@ -199,7 +199,10 @@ mount_up(struct monst *rider)
         if (steed->mtame)
             continue;
         if (monnear(rider, steed->mx, steed->my)
-            && mon_can_be_ridden(steed) && !steed->ridden_by)
+            && mon_can_be_ridden(steed) && !steed->ridden_by
+            /* vegetation holds it where it stands, as mount_steed()
+               tells the hero */
+            && !steed->mentangled)
             break;
     }
     /* not a steed? can't ride */
@@ -1740,13 +1743,14 @@ steed_lift_changed(struct monst *mon, boolean was_airborne)
     disp.botl = TRUE; /* status: 'Fly' */
     /* riding blocks stealth unless hero+steed fly */
     steed_vs_stealth();
-    /* the rider hovered over a floor trap (or a spear trap, whose spear
-       couldn't reach the pair up there); with the steed's lift gone and
-       nothing else keeping the hero up, the pair comes down onto it.
-       Water, lava and open air are the steed's own terrain check; traps
-       that catch flyers were met on arrival unless the pair hurtled onto
-       them, and a hold had already brought the pair down. Silent, like
-       polyman()'s riding landing: the trap tells it */
+    /* the rider hovered over a floor trap (a spear trap among them,
+       whose spear couldn't reach the pair up there); with the steed's
+       lift gone and nothing else keeping the hero up, the pair comes
+       down onto it. Water, lava and open air are the steed's own
+       terrain check; traps that catch flyers were met on arrival unless
+       the pair hurtled onto them, and a hold had already brought the
+       pair down. Silent, like polyman()'s riding landing: the trap
+       tells it */
     if (was_airborne && !Flying && !Levitation && !u_held_down()
         && (ttmp = t_at(u.ux, u.uy)) != 0
         && (landing_trigger(ttmp->ttyp) || !u_met_trap_here()))
@@ -1783,13 +1787,23 @@ poly_steed(
 }
 
 /* decide whether hero's steed is able to move;
-   doesn't check for holding traps--those affect the hero directly */
+   doesn't check for holding traps--those affect the hero directly--but
+   entangling vegetation can hold the steed itself (zap_steed()) */
 boolean
 stucksteed(boolean checkfeeding)
 {
     struct monst *steed = u.usteed;
 
     if (steed) {
+        /* held by a tree or vegetation; trapmove()'s line for a held
+           steed (every caller stops at once, so no Norep); first, since
+           a magic jump asks only about this hold */
+        if (steed->mentangled) {
+            pline("%s is %s.", YMonnam(steed),
+                  nexttotree(u.ux, u.uy) ? "entangled by a tree"
+                                         : "entangled by vegetation");
+            return TRUE;
+        }
         /* check whether steed can move */
         if (helpless(steed)) {
             pline("%s won't move!", YMonnam(steed));
