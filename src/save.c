@@ -281,7 +281,7 @@ save_gamelog(NHFILE *nhfp)
 staticfn void
 savegamestate(NHFILE *nhfp)
 {
-    int i;
+    int i, xskill, xlevel;
     unsigned long uid;
 
     program_state.saving++; /* caller should/did already set this... */
@@ -321,7 +321,21 @@ savegamestate(NHFILE *nhfp)
         u.ustuck_mid = (u.ustuck) ? u.ustuck->m_id : 0;
         u.usteed_mid = (u.usteed) ? u.usteed->m_id : 0;
     }
+    /* a checkpoint or panic save taken inside a forced cast writes the
+       school's real level, not cast_at_expert()'s Expert; the bracket
+       is off while writing, so a failed write's panic save sees the
+       real level too */
+    xskill = gs.expert_cast_skill, xlevel = 0;
+    if (xskill != P_NONE) {
+        xlevel = P_SKILL(xskill);
+        P_SKILL(xskill) = expert_cast_real_level();
+        gs.expert_cast_skill = P_NONE;
+    }
     Sfo_you(nhfp, &u, "gamestate-you");
+    if (xskill != P_NONE) {
+        P_SKILL(xskill) = xlevel;
+        gs.expert_cast_skill = xskill;
+    }
 
     /* clear the in-memory value of these, now that they have been
      * successfully written out.

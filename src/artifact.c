@@ -4435,12 +4435,8 @@ invoke_storm_spell(struct obj *obj)
 {
     const struct artifact *oart = get_artifact(obj);
     int storm = oart->inv_prop == SNOWSTORM ? SPE_CONE_OF_COLD : SPE_FIREBALL;
-    int skill = spell_skilltype(storm);
-    int expertise = P_SKILL(skill);
 
-    P_SKILL(skill) = P_EXPERT;
-    (void) spelleffects(storm, FALSE, TRUE);
-    P_SKILL(skill) = expertise;
+    (void) cast_at_expert(storm);
     return ECMD_TIME;
 }
 

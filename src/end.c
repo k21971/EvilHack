@@ -1616,6 +1616,11 @@ really_done(int how)
     /* render vision subsystem inoperative */
     iflags.vision_inited = FALSE;
 
+    /* a death during a forced cast at Expert (the Fire Brand / Frost
+       Brand invokes, #wizcast) leaves the bracket in place; put the
+       school back before disclosure and the dumplog list skills */
+    end_expert_cast();
+
     /* maybe use up active invent item(s), place thrown/kicked missile,
        deal with ball and chain possibly being temporarily off the map */
     if (!program_state.panicking)

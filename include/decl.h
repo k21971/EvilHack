@@ -971,6 +971,9 @@ struct instance_globals_s {
     /* spells.c */
     int spl_sortmode;   /* index into spl_sortchoices[] */
     int *spl_orderindx; /* array of svs.spl_book[] indices */
+    int expert_cast_skill; /* school cast_at_expert() holds at Expert;
+                              P_NONE when no forced cast is running */
+    int expert_cast_level; /* that school's level before the cast */
 
     /* steal.c */
     unsigned int stealoid; /* object to be stolen */

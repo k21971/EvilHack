@@ -766,6 +766,8 @@ static const struct instance_globals_s g_init_s = {
     /* spells.c */
     0, /* spl_sortmode */
     UNDEFINED_PTR, /* spl_orderindx */
+    P_NONE, /* expert_cast_skill */
+    0, /* expert_cast_level */
     /* steal.c */
     0U, /* stealoid */
     0U, /* stealmid */

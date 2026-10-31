@@ -890,23 +890,57 @@ dowizcast(void)
     n = select_menu(win, PICK_ONE, &selected);
     destroy_nhwindow(win);
     if (n > 0) {
-        int skill, expertise, res;
-
         i = selected[0].item.a_int;
         free((genericptr_t) selected);
         /* a wizard-mode cast runs at Expert in the spell's school for the
-           whole cast, as invoke_storm_spell() casts */
-        skill = spell_skilltype(i);
-        expertise = P_SKILL(skill);
-        P_SKILL(skill) = P_EXPERT;
-        res = spelleffects(i, FALSE, TRUE);
-        /* keep any loss the cast itself caused (drain life cast at self
-           drops the last skill advance via losexp()) */
-        P_SKILL(skill) = expertise + (P_SKILL(skill) - P_EXPERT);
-        find_ac(); /* barkskin and stoneskin set AC while at Expert */
-        return res;
+           whole cast */
+        return cast_at_expert(i);
     }
     return ECMD_OK;
+}
+
+/* cast otyp as a forced cast at Expert in its school (#wizcast and the
+   Fire Brand / Frost Brand invokes); a death during the cast
+   (really_done()) and a save taken inside it (savegamestate()) see the
+   school's real level */
+int
+cast_at_expert(int otyp)
+{
+    int skill = spell_skilltype(otyp), res;
+
+    if (gs.expert_cast_skill != P_NONE) {
+        impossible("cast_at_expert: already casting at Expert");
+        return spelleffects(otyp, FALSE, TRUE);
+    }
+    gs.expert_cast_skill = skill;
+    gs.expert_cast_level = P_SKILL(skill);
+    P_SKILL(skill) = P_EXPERT;
+    res = spelleffects(otyp, FALSE, TRUE);
+    end_expert_cast();
+    return res;
+}
+
+/* the real level of the school cast_at_expert() holds at Expert, so
+   only valid while it holds one; keeps any loss the cast itself caused
+   (drain life cast at self drops the last skill advance via losexp()) */
+int
+expert_cast_real_level(void)
+{
+    return gs.expert_cast_level
+           + (P_SKILL(gs.expert_cast_skill) - P_EXPERT);
+}
+
+/* undo cast_at_expert()'s bracket; really_done() calls it too, for a
+   hero who died during the cast */
+void
+end_expert_cast(void)
+{
+    if (gs.expert_cast_skill == P_NONE)
+        return;
+    P_SKILL(gs.expert_cast_skill) = expert_cast_real_level();
+    gs.expert_cast_skill = P_NONE;
+    if (!program_state.panicking)
+        find_ac(); /* barkskin and stoneskin set AC while at Expert */
 }
 
 /* the #cast command -- cast a spell */
