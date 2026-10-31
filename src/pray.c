@@ -32,7 +32,8 @@ staticfn void offer_real_amulet(struct obj *, aligntyp);
 staticfn void offer_negative_valued(boolean, aligntyp);
 staticfn void offer_fake_amulet(struct obj *, boolean, aligntyp);
 staticfn void offer_different_alignment_altar(struct obj *, aligntyp);
-staticfn void sacrifice_your_race(struct obj *, boolean, aligntyp);
+staticfn void sacrifice_your_race(struct obj *, struct permonst *, boolean,
+                                aligntyp);
 staticfn boolean bestow_regular_gift(aligntyp, int);
 staticfn int bestow_artifact(uchar, aligntyp, int, int);
 staticfn int sacrifice_value(struct obj *);
@@ -1098,27 +1099,50 @@ gcrownu(void)
     }
 
     if (objects[class_gift].oc_class == SPBOOK_CLASS) {
-        char bbuf[BUFSZ];
+        if (!u.uconduct.literate
+            && known_spell(class_gift) == spe_Unknown) {
+            /* an illiterate hero who never learned the spell has it put
+               straight into their mind instead of receiving the book */
+            boolean learned = (force_learn_spell(class_gift) != '\0');
 
-        obj = mksobj(class_gift, TRUE, FALSE);
-        /* get book type before dropping (don't think that could destroy
-           the book because we need to be on an altar in order to become
-           crowned, but be paranoid about it) */
-        Strcpy(bbuf, actualoname(obj)); /* for livelog; "spellbook of <foo>"
-                                         * even if hero doesn't know book */
-        bless(obj);
-        obj->bknown = 1; /* ok to skip set_bknown() */
-        observe_object(obj);
-        at_your_feet(upstart(ansimpleoname(obj)));
-        dropy(obj);
-        obj = dropped_gift(obj);
-        u.ugifts++;
-        /* not an artifact, but treat like one for this situation;
-           classify as a spoiler in case player hasn't IDed the book yet */
-        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT | LL_SPOILER,
-                       "was bestowed with %s", bbuf);
+            if (learned)
+                pline("Divine knowledge of the spell '%s' fills your mind!",
+                      OBJ_NAME(objects[class_gift]));
+            /* no book; obj may still hold uwep from above, which is
+               enhanced below only once the spell is known */
+            obj = (struct obj *) 0;
+            u.ugifts++;
+            if (learned)
+                livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                               "had divine knowledge of the spell '%s'"
+                               " bestowed upon %s by %s",
+                               OBJ_NAME(objects[class_gift]), uhim(),
+                               u_gname());
+        } else {
+            char bbuf[BUFSZ];
 
-        /* when getting a new book for known spell, enhance
+            obj = mksobj(class_gift, TRUE, FALSE);
+            /* get book type before dropping (don't think that could
+               destroy the book because we need to be on an altar in
+               order to become crowned, but be paranoid about it) */
+            Strcpy(bbuf, actualoname(obj)); /* for livelog; "spellbook of
+                                             * <foo>" even if hero doesn't
+                                             * know book */
+            bless(obj);
+            obj->bknown = 1; /* ok to skip set_bknown() */
+            observe_object(obj);
+            at_your_feet(upstart(ansimpleoname(obj)));
+            dropy(obj);
+            obj = dropped_gift(obj);
+            u.ugifts++;
+            /* not an artifact, but treat like one for this situation;
+               classify as a spoiler in case player hasn't IDed the book
+               yet */
+            livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT | LL_SPOILER,
+                           "was bestowed with %s", bbuf);
+        }
+
+        /* when the spell is known (already, or just now), enhance the
            currently wielded weapon rather than the book */
         if (known_spell(class_gift) != spe_Unknown && ok_wep(uwep))
             obj = uwep; /* to be blessed,&c */
@@ -2393,10 +2417,12 @@ offer_different_alignment_altar(
 staticfn void
 sacrifice_your_race(
     struct obj *otmp,
+    struct permonst *ptr, /* the victim's race, as offer_corpse() saw it */
     boolean highaltar,
     aligntyp altaralign)
 {
     int pm;
+    const char *kinadj;
 
     if (is_demon(raceptr(&gy.youmonst))) {
         You("find the idea very satisfying.");
@@ -2406,17 +2432,28 @@ sacrifice_your_race(
         exercise(A_WIS, FALSE);
     }
 
+    /* the blood, or the bloodless corpse, is named after the victim's
+       own race where the kin rule reaches beyond the hero's race */
+    if (Race_if(PM_DROW) && is_elf(ptr))
+        kinadj = "elven";
+    else if (Race_if(PM_ELF) && is_drow(ptr))
+        kinadj = "dark elven";
+    else if (Race_if(PM_VAMPIRE) && is_human(ptr))
+        kinadj = "human";
+    else
+        kinadj = gu.urace.adj;
+
     if (highaltar
-        && (altaralign != A_CHAOTIC || u.ualign.type != A_CHAOTIC)) {
+        && (altaralign != A_CHAOTIC || u.ualign.type != A_CHAOTIC)
+        && (altaralign != A_NONE || u.ualign.type != A_NONE)) {
         desecrate_altar(highaltar, altaralign);
         return;
     } else if (altaralign != A_CHAOTIC && altaralign != A_NONE) {
         /* curse the lawful/neutral altar */
-        pline_The("altar is stained with %s blood.",
-                  (Race_if(PM_DROW) && is_elf(&mons[otmp->corpsenm]))
-                      ? "elven"
-                      : (Race_if(PM_ELF) && is_drow(&mons[otmp->corpsenm]))
-                          ? "dark elven" : gu.urace.adj);
+        if (otmp->odrained)
+            pline_The("bloodless %s corpse is consumed in flames!", kinadj);
+        else
+            pline_The("altar is stained with %s blood.", kinadj);
         levl[u.ux][u.uy].altarmask = (u.ualign.type == A_NONE)
                                       ? AM_NONE : AM_CHAOTIC;
         newsym(u.ux, u.uy); /* in case Invisible to self */
@@ -2428,9 +2465,14 @@ sacrifice_your_race(
         /* Human sacrifice on a chaotic or unaligned altar */
         /* is equivalent to demon summoning */
         if (altaralign == A_CHAOTIC && u.ualign.type != A_CHAOTIC) {
-            pline(
-            "The blood floods the altar, which vanishes in %s cloud!",
-                    an(hcolor(NH_BLACK)));
+            if (otmp->odrained)
+                pline_The("bloodless %s corpse and the altar vanish"
+                          " in %s cloud!",
+                          kinadj, an(hcolor(NH_BLACK)));
+            else
+                pline_The("blood floods the altar,"
+                          " which vanishes in %s cloud!",
+                          an(hcolor(NH_BLACK)));
             levl[u.ux][u.uy].typ = ROOM;
             levl[u.ux][u.uy].altarmask = 0;
             /* a hidden hero can no longer hide under it */
@@ -2440,11 +2482,16 @@ sacrifice_your_race(
             demonless_msg = "cloud dissipates";
         } else {
             /* either you're chaotic or altar is Moloch's or both */
-            pline_The("blood covers the altar!");
-            change_luck(altaralign == A_NONE ? -2 : 2);
-            demonless_msg = "blood coagulates";
+            if (otmp->odrained)
+                pline_The("bloodless %s corpse is consumed in flames!",
+                          kinadj);
+            else
+                pline_The("blood covers the altar!");
+            change_luck(altaralign == u.ualign.type ? 2 : -2);
+            demonless_msg = otmp->odrained ? "ashes scatter"
+                                           : "blood coagulates";
         }
-        if ((pm = dlord(altaralign)) != NON_PM
+        if ((pm = ndemon(altaralign)) != NON_PM
             && (dmon = makemon(&mons[pm], u.ux, u.uy, MM_NOMSG))
                     != 0) {
             char dbuf[BUFSZ];
@@ -2456,9 +2503,19 @@ sacrifice_your_race(
                 dmon->mstrategy &= ~STRAT_APPEARMSG;
             You("have summoned %s!", dbuf);
             if (sgn(u.ualign.type) == sgn(mon_aligntyp(dmon))) {
-                dmon->mpeaceful = TRUE;
+                /* demons resent being summoned; one in five answers
+                   the call in anger */
+                if (rn2(5)) {
+                    dmon->mpeaceful = TRUE;
+                } else {
+                    dmon->mpeaceful = FALSE;
+                    if (!Deaf) {
+                        SetVoice(dmon, 0, 80, 0);
+                        verbalize("Who dares summon me?");
+                    }
+                }
                 set_malign(dmon);
-                newsym(dmon->mx, dmon->my); /* enable peaceful glyph */
+                newsym(dmon->mx, dmon->my); /* show the right glyph */
             }
             You("are terrified, and unable to move.");
             nomul(-3);
@@ -3156,7 +3213,7 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
         || (Race_if(PM_VAMPIRE) && is_human(ptr))
         /* draugr consider all zombies to be their kin */
         || (Race_if(PM_DRAUGR) && otmp->zombie_corpse)) {
-        sacrifice_your_race(otmp, highaltar, altaralign);
+        sacrifice_your_race(otmp, ptr, highaltar, altaralign);
         return;
     }
     if (has_omonst(otmp)

@@ -26,7 +26,7 @@ struct _readobjnam_data {
     int cnt, spe, spesgn, typ, very, rechrg;
     int blessed, uncursed, iscursed, ispoisoned, istainted, isgreased;
     int eroded, eroded2, erodeproof, locked, unlocked, broken, real, fake;
-    int halfeaten, mntmp, contents;
+    int halfeaten, isdrained, halfdrained, mntmp, contents;
     int islit, unlabeled, ishistoric, isdiluted, trapped;
     int magical;
     int isforged0, isforged1, isforged2;
@@ -4834,6 +4834,7 @@ readobjnam_init(char *bp, struct _readobjnam_data *d)
         = d->ispoisoned = d->istainted = d->isgreased = d->eroded
         = d->eroded2
         = d->erodeproof = d->halfeaten = d->islit = d->unlabeled
+        = d->isdrained = d->halfdrained /* corpses */
         = d->ishistoric = d->isdiluted /* statues, potions */
           /* box/chest and wizard mode door */
         = d->trapped = d->locked = d->unlocked = d->broken
@@ -5012,6 +5013,13 @@ readobjnam_preparse(struct _readobjnam_data *d)
                    || !strncmpi(d->bp, "deteriorated ", l = 13)) {
             d->eroded2 = 1 + d->very;
             d->very = 0;
+        } else if (!strncmpi(d->bp, "partly drained ", l = 15)
+                   || !strncmpi(d->bp, "partially drained ", l = 18)) {
+            d->isdrained = 1;
+            d->halfdrained = 1;
+        } else if (!strncmpi(d->bp, "drained ", l = 8)) {
+            d->isdrained = 1;
+            d->halfdrained = 0;
         } else if (!strncmpi(d->bp, "partly eaten ", l = 13)
                    || !strncmpi(d->bp, "partially eaten ", l = 16)) {
             d->halfeaten = 1;
@@ -5935,9 +5943,11 @@ readobjnam_postparse3(struct _readobjnam_data *d)
         char *fp;
         int l, cntf;
         int blessedf, iscursedf, uncursedf, halfeatenf;
+        int isdrainedf, halfdrainedf;
         struct fruit *f;
 
         blessedf = iscursedf = uncursedf = halfeatenf = 0;
+        isdrainedf = halfdrainedf = 0;
         cntf = 0;
 
         fp = d->fruitbuf;
@@ -5959,6 +5969,13 @@ readobjnam_postparse3(struct _readobjnam_data *d)
                 iscursedf = 1;
             } else if (!strncmpi(fp, "uncursed ", l = 9)) {
                 uncursedf = 1;
+            } else if (!strncmpi(fp, "partly drained ", l = 15)
+                       || !strncmpi(fp, "partially drained ", l = 18)) {
+                isdrainedf = 1;
+                halfdrainedf = 1;
+            } else if (!strncmpi(fp, "drained ", l = 8)) {
+                isdrainedf = 1;
+                halfdrainedf = 0;
             } else if (!strncmpi(fp, "partly eaten ", l = 13)
                        || !strncmpi(fp, "partially eaten ", l = 16)) {
                 halfeatenf = 1;
@@ -5983,6 +6000,8 @@ readobjnam_postparse3(struct _readobjnam_data *d)
                 d->iscursed = iscursedf;
                 d->uncursed = uncursedf;
                 d->halfeaten = halfeatenf;
+                d->isdrained = isdrainedf;
+                d->halfdrained = halfdrainedf;
                 /* adjust count if user explicitly asked for
                    singular amount (can't happen unless fruit
                    has been given an already pluralized name)
@@ -6917,6 +6936,23 @@ readobjnam(char *bp, struct obj *no_wish)
             d.otmp->oeaten = nut;
             consume_oeaten(d.otmp, 1);
         }
+    }
+    if (d.isdrained && d.otmp->otyp == CORPSE
+        && safe_mons(d.otmp->corpsenm).cnutrit) {
+        int amt;
+
+        /* drain the whole corpse; a drained corpse is never also shown
+           as partly eaten, so "drained" overrides "partly eaten" */
+        d.otmp->oeaten = safe_mons(d.otmp->corpsenm).cnutrit;
+        d.otmp->odrained = 1;
+        amt = safe_mons(d.otmp->corpsenm).cnutrit - drain_level(d.otmp);
+        if (d.halfdrained) {
+            amt /= 2;
+            if (amt == 0)
+                amt++;
+        }
+        /* do this adjustment before setting up object's weight */
+        consume_oeaten(d.otmp, -amt);
     }
     d.otmp->owt = weight(d.otmp);
     if (d.very && d.otmp->otyp == HEAVY_IRON_BALL)
