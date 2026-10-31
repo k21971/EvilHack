@@ -6255,6 +6255,7 @@ drown(void)
     int i;
     coordxy x, y;
     boolean is_solid = is_waterwall(u.ux, u.uy);
+    static int drown_death_attempts = 0;
 
     feel_newsym(u.ux, u.uy); /* in case Blind, map the water here */
     /* happily wading in the same contiguous pool */
@@ -6407,14 +6408,37 @@ drown(void)
             break; /* successful life-save */
         /* nowhere safe to land; repeat drowning loop... */
         pline("You're still drowning.");
+
+        /* Fuzzer protection: prevent infinite drowning loops */
+        if (iflags.debug_fuzzer) {
+            drown_death_attempts++;
+            /* after 2 failed rescues, grant breathing and escape */
+            if (drown_death_attempts >= 2) {
+                Your("lungs adapt to the water!");
+                You("develop temporary gills!");
+                /* grant enough turns to escape */
+                incr_itimeout(&HMagical_breathing, 50L);
+                drown_death_attempts = 0;
+                if (!safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                    /* no safe spot on this level, level teleport */
+                    You("feel a powerful force pulling you away!");
+                    level_tele();
+                }
+                break;
+            }
+        }
     }
 
     /* ahead of leaving the water, so it can tell whether the landing has
-       already done that and said so */
-    rescued_from_terrain(DROWNING);
+       already done that and said so; with a level change pending (the
+       fuzzer escape above) the hero is leaving and there is no line */
+    if (!u.utotype)
+        rescued_from_terrain(DROWNING);
     if (u.uinwater)
         set_uinwater(0); /* u.uinwater = 0 */
     lift_msg_deferred();
+    if (iflags.debug_fuzzer)
+        drown_death_attempts = 0; /* reset - out of the water */
     return TRUE;
 }
 
@@ -8592,6 +8616,7 @@ lava_effects(void)
     int nprotect = 0;
     int burncount = 0, burnmesgcount = 0;
     const int dmg = resist_reduce(d(6, 6), FIRE_RES); /* water walking */
+    static int lava_death_attempts = 0;
 
     if (iflags.in_lava_effects) {
         debugpline0("Skipping recursive lava_effects().");
@@ -8603,8 +8628,11 @@ lava_effects(void)
     if (Upolyd && gy.youmonst.data == &mons[PM_LAVA_GREMLIN])
         (void) split_mon(&gy.youmonst, (struct monst *) 0);
 
-    if (likes_lava(gy.youmonst.data))
+    if (likes_lava(gy.youmonst.data)) {
+        if (iflags.debug_fuzzer)
+            lava_death_attempts = 0; /* reset counter - we're fine */
         return FALSE;
+    }
 
     usurvive = how_resistant(FIRE_RES) == 100
                || (Wwalking && dmg < (Upolyd ? u.mh : u.uhp));
@@ -8730,6 +8758,42 @@ lava_effects(void)
                   plur(burncount - burnmesgcount),
                   (burncount - burnmesgcount == 1) ? "has" : "have");
 
+        /* Fuzzer protection: a second lava death in a row lets the hero
+           live, with the means to walk out */
+        if (iflags.debug_fuzzer) {
+            lava_death_attempts++;
+            if (lava_death_attempts >= 2) {
+                iflags.in_lava_effects--;
+                pline_The("intense heat suddenly feels less threatening!");
+                /* deliberately guarded, as in in_hell_effects(): a
+                   timeout write on a nonzero intrinsic word would rewrite
+                   a stored partial-resistance percentage */
+                if (!HFire_resistance) {
+                    You("develop a temporary resistance to the lava!");
+                    /* grant enough turns to escape */
+                    set_itimeout(&HFire_resistance, 50L);
+                }
+                incr_itimeout(&HWwalking, 50L);
+                lava_death_attempts = 0;
+                u.uhp = 1; /* minimal health */
+                if (Upolyd)
+                    u.mh = 1;
+                disp.botl = TRUE;
+                if (how_resistant(FIRE_RES) == 100)
+                    return FALSE; /* walk out over the lava */
+                /* a partial resistance or a vulnerability would burn the
+                   hero again standing still; take the hero off the lava */
+                if (!safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                    /* no safe spot on this level, level teleport */
+                    You("feel a powerful force pulling you away!");
+                    level_tele();
+                }
+                /* lift a hold kept down (teleds()), after the move */
+                lift_msg_deferred();
+                return TRUE;
+            }
+        }
+
         /* s/he died... */
         /* burn to death; if hero is life-saved on the first pass, try
            to teleport to safety; if that fails, burn all over again */
@@ -8799,6 +8863,8 @@ lava_effects(void)
     }
 
  burn_stuff:
+    if (iflags.debug_fuzzer)
+        lava_death_attempts = 0; /* reset counter - we survived */
     /* each item runs the fire_damage() gauntlet, as a fire_damage_chain()
        would, except one a caller still has in use: the scroll being read,
        or the items protected above */
@@ -8822,6 +8888,7 @@ void
 sink_into_lava(void)
 {
     static const char sink_deeper[] = "You sink deeper into the lava.";
+    static int sink_death_attempts = 0; /* fuzzer loop prevention */
 
     if (!u.utrap || u.utraptype != TT_LAVA) {
         ; /* do nothing; this usually won't happen but could after
@@ -8845,6 +8912,35 @@ sink_into_lava(void)
 
         u.utrap -= (1 << 8);
         if (u.utrap < (1 << 8)) {
+            /* Fuzzer protection: prevent infinite sinking loops; the
+               count is kept across deaths, so every second one is
+               skipped */
+            if (iflags.debug_fuzzer) {
+                sink_death_attempts++;
+                if (sink_death_attempts >= 2) {
+                    pline_The("lava's heat suddenly feels less intense!");
+                    /* deliberately guarded, as in in_hell_effects() */
+                    if (!HFire_resistance) {
+                        You("develop a temporary resistance!");
+                        /* grant enough turns to escape */
+                        set_itimeout(&HFire_resistance, 50L);
+                    }
+                    incr_itimeout(&HWwalking, 50L);
+                    sink_death_attempts = 0;
+                    u.uhp = 1; /* minimal health */
+                    if (Upolyd)
+                        u.mh = 1;
+                    disp.botl = TRUE;
+                    reset_utrap(TRUE);
+                    if (!safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                        /* no safe spot on this level, level teleport */
+                        You("feel a powerful force pulling you away!");
+                        level_tele();
+                    }
+                    lift_msg_deferred();
+                    return; /* skip the death */
+                }
+            }
             svk.killer.format = KILLED_BY;
             Strcpy(svk.killer.name, "molten lava");
             urgent_pline("You sink below the surface and die.");
