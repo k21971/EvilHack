@@ -3977,6 +3977,7 @@ create_particular_parse(
     d->which = gu.urole.mnum; /* an arbitrary index into mons[] */
     d->fem = -1;     /* gender not specified */
     d->genderconf = -1;  /* no confusion on which gender to assign */
+    d->race = NON_PM;    /* no race by default */
     d->randmonst = FALSE;
     d->maketame = d->makepeaceful = d->makehostile = FALSE;
     d->sleeping = d->saddled = d->barded = FALSE;
@@ -4047,6 +4048,35 @@ create_particular_parse(
     } else if (!strncmpi(bufp, "hostile ", 8)) {
         bufp += 8;
         d->makehostile = TRUE;
+    }
+    /* a race to give the new monster: a hero race's adjective ("racial
+       dwarven soldier") or a monster name ("racial dwarf soldier") */
+    if (!strncmpi(bufp, "racial ", 7)) {
+        int i, adjlen;
+
+        bufp += 7;
+        for (i = 0; races[i].adj; i++) {
+            adjlen = (int) strlen(races[i].adj);
+            if (!strncmpi(bufp, races[i].adj, adjlen)
+                && bufp[adjlen] == ' ') {
+                bufp += adjlen + 1;
+                d->race = races[i].mnum;
+                break;
+            }
+        }
+        /* no hero race matched; try a monster name, which needs another
+           word after it */
+        if (d->race == NON_PM) {
+            const char *rest;
+            char *nextword;
+            int race = name_to_monplus(bufp, &rest, (int *) 0);
+
+            if (ismnum(race) && rest
+                && (nextword = strchr(&bufp[rest - bufp], ' ')) != 0) {
+                d->race = race;
+                bufp = nextword + 1;
+            }
+        }
     }
     /* decide whether a valid monster was chosen */
     if (wizard && (!strcmp(bufp, "*") || !strcmp(bufp, "random"))) {
@@ -4155,6 +4185,11 @@ create_particular_creation(
         }
         if (d->invisible)
             mmflags |= MM_MINVIS;
+        /* the appear line waits until the race is applied below, and a
+           random fallback (no monster left in the class) forms no group,
+           whose members would get neither */
+        if (d->race != NON_PM)
+            mmflags |= (MM_NOMSG | MM_NOGRP);
 
         mtmp = makemon(whichpm, u.ux, u.uy, mmflags);
         if (!mtmp) {
@@ -4165,6 +4200,23 @@ create_particular_creation(
             continue;
         }
         mx = mtmp->mx, my = mtmp->my;
+        /* ahead of the disposition below, so taming and alignment see
+           the new race; a genocided race leaves the rolled one */
+        if (d->race != NON_PM
+            && !(svm.mvitals[d->race].mvflags & G_GONE)) {
+            /* replace any race makemon() rolled, so only the named
+               race's flags and attacks apply; a player monster's racial
+               data also holds its default weapon attacks, so it keeps
+               the rolled race underneath; gear, resistances and a holy
+               warrior's god from the first roll stay */
+            if (!is_mplayer(mtmp->data))
+                apply_race(mtmp, NON_PM);
+            apply_race(mtmp, d->race);
+            set_malign(mtmp);
+            newsym(mx, my); /* in case of a racial glyph */
+        }
+        if (d->race != NON_PM)
+            makemon_appear_msg(mtmp, mmflags);
         if (d->maketame) {
             (void) tamedog(mtmp, (struct obj *) 0, FALSE);
         } else if (d->makepeaceful || d->makehostile) {

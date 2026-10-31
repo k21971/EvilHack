@@ -3713,34 +3713,8 @@ makemon(
 
     if (!gi.in_mklev) {
         newsym(mtmp->mx, mtmp->my); /* make sure the mon shows up */
-        if (!(mmflags & MM_NOMSG)) {
-            char mbuf[BUFSZ], *what = 0;
-            /* MM_NOEXCLAM is used for #wizgenesis (^G) */
-            boolean exclaim = !(mmflags & MM_NOEXCLAM);
-
-            if ((canseemon(mtmp) && (M_AP_TYPE(mtmp) == M_AP_NOTHING
-                                     || M_AP_TYPE(mtmp) == M_AP_MONSTER))
-                || sensemon(mtmp)) {
-                what = Amonnam(mtmp);
-                if (M_AP_TYPE(mtmp) == M_AP_MONSTER)
-                    exclaim = TRUE;
-            } else if (canseemon(mtmp)) {
-                /* mimic masquerading as furniture or object and not sensed */
-                mhidden_description(mtmp, MHID_ARTICLE | MHID_ALTMON, mbuf);
-                what = upstart(mbuf);
-            }
-            if (what) {
-                set_msg_xy(mtmp->mx, mtmp->my);
-                Norep("%s%s %s%s%c", what,
-                      exclaim ? " suddenly" : "",
-                      /* 'what' might be "gold pieces" so need plural verb */
-                      vtense(what, "appear"),
-                      next2u(x, y) ? " next to you"
-                      : (distu(x, y) <= (BOLT_LIM * BOLT_LIM)) ? " close by"
-                        : "",
-                      exclaim ? '!' : '.');
-            }
-        }
+        if (!(mmflags & MM_NOMSG))
+            makemon_appear_msg(mtmp, mmflags);
         /* if discernable and a threat, stop fiddling while Rome burns */
         if (go.occupation)
             (void) dochugw(mtmp, FALSE);
@@ -3749,6 +3723,40 @@ makemon(
     }
 
     return mtmp;
+}
+
+/* the "<mon> appears" line for a monster made outside level creation;
+   ^G gives it after any race it applies, so the line names that race */
+void
+makemon_appear_msg(struct monst *mtmp, mmflags_nht mmflags)
+{
+    char mbuf[BUFSZ], *what = 0;
+    coordxy x = mtmp->mx, y = mtmp->my;
+    /* MM_NOEXCLAM is used for #wizgenesis (^G) */
+    boolean exclaim = !(mmflags & MM_NOEXCLAM);
+
+    if ((canseemon(mtmp) && (M_AP_TYPE(mtmp) == M_AP_NOTHING
+                             || M_AP_TYPE(mtmp) == M_AP_MONSTER))
+        || sensemon(mtmp)) {
+        what = Amonnam(mtmp);
+        if (M_AP_TYPE(mtmp) == M_AP_MONSTER)
+            exclaim = TRUE;
+    } else if (canseemon(mtmp)) {
+        /* mimic masquerading as furniture or object and not sensed */
+        mhidden_description(mtmp, MHID_ARTICLE | MHID_ALTMON, mbuf);
+        what = upstart(mbuf);
+    }
+    if (what) {
+        set_msg_xy(x, y);
+        Norep("%s%s %s%s%c", what,
+              exclaim ? " suddenly" : "",
+              /* 'what' might be "gold pieces" so need plural verb */
+              vtense(what, "appear"),
+              next2u(x, y) ? " next to you"
+              : (distu(x, y) <= (BOLT_LIM * BOLT_LIM)) ? " close by"
+                : "",
+              exclaim ? '!' : '.');
+    }
 }
 
 /* caller rejects makemon()'s result; always returns Null */

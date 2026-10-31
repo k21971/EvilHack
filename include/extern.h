@@ -1634,6 +1634,7 @@ extern void free_emsp(struct monst *) NONNULLARG1;
 extern void newerid(struct monst *) NONNULLARG1;
 extern void free_erid(struct monst *) NONNULLARG1;
 extern struct monst *makemon(struct permonst *, coordxy, coordxy, mmflags_nht);
+extern void makemon_appear_msg(struct monst *, mmflags_nht) NONNULLARG1;
 extern struct monst *unmakemon(struct monst *, mmflags_nht) NONNULLARG1;
 extern boolean create_critters(int, struct permonst *, boolean);
 extern struct permonst *rndmonst_adj(int, int);

@@ -890,9 +890,21 @@ dowizcast(void)
     n = select_menu(win, PICK_ONE, &selected);
     destroy_nhwindow(win);
     if (n > 0) {
+        int skill, expertise, res;
+
         i = selected[0].item.a_int;
         free((genericptr_t) selected);
-        return spelleffects(i, FALSE, TRUE);
+        /* a wizard-mode cast runs at Expert in the spell's school for the
+           whole cast, as invoke_storm_spell() casts */
+        skill = spell_skilltype(i);
+        expertise = P_SKILL(skill);
+        P_SKILL(skill) = P_EXPERT;
+        res = spelleffects(i, FALSE, TRUE);
+        /* keep any loss the cast itself caused (drain life cast at self
+           drops the last skill advance via losexp()) */
+        P_SKILL(skill) = expertise + (P_SKILL(skill) - P_EXPERT);
+        find_ac(); /* barkskin and stoneskin set AC while at Expert */
+        return res;
     }
     return ECMD_OK;
 }
