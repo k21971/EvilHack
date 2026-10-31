@@ -422,6 +422,7 @@ mquaffmsg(struct monst *mtmp, struct obj *otmp)
 #define MUSE_SPE_TELEPORT_AWAY 22      /* learned spell, no item */
 #define MUSE_EUCALYPTUS_LEAF 23
 #define MUSE_POT_VAMPIRE_BLOOD 24
+#define MUSE_ACIDIC_CORPSE 25
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -709,15 +710,28 @@ find_defensive(struct monst *mtmp, boolean tryescape)
     }
 
     if (mtmp->mconf || mtmp->mstun) {
-        struct obj *liztin = 0;
+        struct obj *liztin = 0, *acidictin = 0;
+        boolean acidproof = (resists_acid(mtmp) || defended(mtmp, AD_ACID));
 
         for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             if (obj->otyp == CORPSE && obj->corpsenm == PM_LIZARD) {
                 gm.m.defensive = obj;
                 gm.m.has_defense = MUSE_LIZARD_CORPSE;
                 return TRUE;
+            } else if (obj->otyp == CORPSE && acidproof
+                       && acidic(&safe_mons(obj->corpsenm))
+                       && obj->corpsenm != PM_GREEN_SLIME) {
+                /* an acidic corpse steadies a monster that can stomach
+                   it; one that would be hurt by the acid doesn't try */
+                gm.m.defensive = obj;
+                gm.m.has_defense = MUSE_ACIDIC_CORPSE;
+                return TRUE;
             } else if (obj->otyp == TIN && obj->corpsenm == PM_LIZARD) {
                 liztin = obj;
+            } else if (obj->otyp == TIN
+                       && acidic(&safe_mons(obj->corpsenm))
+                       && obj->corpsenm != PM_GREEN_SLIME) {
+                acidictin = obj; /* tinned acid does no harm */
             }
         }
         /* confused or stunned monster might not be able to open tin */
@@ -725,6 +739,11 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             gm.m.defensive = liztin;
             /* tin and corpse ultimately end up being handled the same */
             gm.m.has_defense = MUSE_LIZARD_CORPSE;
+            return TRUE;
+        }
+        if (acidictin && mcould_eat_tin(mtmp) && rn2(3)) {
+            gm.m.defensive = acidictin;
+            gm.m.has_defense = MUSE_ACIDIC_CORPSE;
             return TRUE;
         }
     }
@@ -1760,6 +1779,13 @@ use_defensive(struct monst *mtmp)
         /* not actually called for its unstoning effect */
         mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
         return 2;
+    case MUSE_ACIDIC_CORPSE:
+        if (!otmp)
+            panic(MissingDefensiveItem, "acidic corpse");
+        /* find_defensive() offers an untinned one only to a monster that
+           resists acid; not called for its unstoning effect either */
+        mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
+        return DEADMONSTER(mtmp) ? 1 : 2;
     case MUSE_EUCALYPTUS_LEAF:
         if (!otmp)
             panic(MissingDefensiveItem, "eucalyptus leaf");
@@ -4536,7 +4562,7 @@ mon_consume_unstone(
     boolean vis = canseemon(mon), tinned = obj->otyp == TIN,
             food = obj->otyp == CORPSE || tinned,
             acid = obj->otyp == POT_ACID
-                   || (food && acidic(&mons[obj->corpsenm])),
+                   || (food && acidic(&safe_mons(obj->corpsenm))),
             lizard = food && obj->corpsenm == PM_LIZARD,
             leaf = obj->otyp == EUCALYPTUS_LEAF;
     int nutrit = food ? dog_nutrition(mon, obj) : 0; /* also sets meating */
@@ -4586,7 +4612,9 @@ mon_consume_unstone(
         else
             pline_mon(mon, "%s seems limber!", Monnam(mon));
     }
-    if (lizard && (mon->mconf || mon->mstun)) {
+    /* lizard corpses cure confusion and stun; so do acidic ones, for a
+       monster that survives the meal */
+    if ((lizard || acid) && (mon->mconf || mon->mstun)) {
         mon->mconf = 0;
         mon->mstun = 0;
         if (vis && !is_bat(mon->data) && mon->data != &mons[PM_STALKER])

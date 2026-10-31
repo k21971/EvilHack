@@ -62,8 +62,6 @@ staticfn void hmon_hitmon_splitmon(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG12;
 staticfn void hmon_hitmon_msg_hit(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG12;
-staticfn void hmon_hitmon_msg_lightobj(struct _hitmon_data *, struct monst *,
-                             struct obj *) NONNULLARG12;
 staticfn void hmon_kill_anger(struct monst *, boolean) NONNULLARG1;
 staticfn boolean hmon_hitmon(struct monst *, struct obj *, int, int)
                              NONNULLARG1;
@@ -2525,21 +2523,26 @@ hmon_hitmon_msg_hit(
     }
 }
 
-staticfn void
-hmon_hitmon_msg_lightobj(
-    struct _hitmon_data *hmd,
+/* a lit light-emitting artifact sears a light-hating monster; oname is
+   the artifact's bare name (empty for a light that has none), mdat the
+   target's form when it was struck; shared by the hero's and monsters'
+   hits */
+void
+lightobj_searmsg(
     struct monst *mon,
-    struct obj *obj UNUSED)
+    struct permonst *mdat,
+    const char *oname)
 {
     const char *fmt;
     char *whom = mon_nam(mon);
     char emitlightobjbuf[BUFSZ];
 
     if (canspotmon(mon)) {
-        if (hmd->saved_oname[0]) {
+        if (*oname) {
             Sprintf(emitlightobjbuf,
-                    "%s radiance penetrates deep into",
-                    s_suffix(hmd->saved_oname));
+                    "%s radiance penetrates deep into", s_suffix(oname));
+            /* "the Staff of the Archmagi" -> "The Staff ..." */
+            emitlightobjbuf[0] = highc(emitlightobjbuf[0]);
             Strcat(emitlightobjbuf, " %s!");
             fmt = emitlightobjbuf;
         } else
@@ -2549,7 +2552,7 @@ hmon_hitmon_msg_lightobj(
         fmt = "%s is seared!";
     }
     /* note: s_suffix returns a modifiable buffer */
-    if (!noncorporeal(hmd->mdat) && !amorphous(hmd->mdat))
+    if (!noncorporeal(mdat) && !amorphous(mdat))
         whom = strcat(s_suffix(whom), " flesh");
     DISABLE_WARNING_FORMAT_NONLITERAL
     pline(fmt, whom);
@@ -2570,7 +2573,6 @@ hmon_hitmon_msg_lightobj(
  * These are equipped to handle a NULL obj pointer:
  *       hmon_hitmon_stagger,       - obj arg is unused
  *       hmon_hitmon_pet,           - obj arg is unused
- *       hmon_hitmon_msg_lightobj,  - obj arg is unused
  *       hmon_hitmon_do_hit,        - has obj and !obj code paths
  *       hmon_hitmon_splitmon,      - has !obj guards
  *       hmon_hitmon_msg_hit,       - has !obj guards exc. thrown which is ok
@@ -2896,7 +2898,7 @@ hmon_hitmon(
     }
 
     if (hmd.lightobj)
-        hmon_hitmon_msg_lightobj(&hmd, mon, obj);
+        lightobj_searmsg(mon, hmd.mdat, hmd.saved_oname);
 
     /* if a "no longer poisoned/tainted" message is coming, it will be
        last; obj->opoisoned/otainted was cleared above and any message

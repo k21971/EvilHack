@@ -1563,6 +1563,12 @@ mdamagem(
             searmsg(magr, mdef, hated_obj, FALSE);
     }
 
+    /* a lit light-emitting artifact sears a light hater; the extra
+       damage comes from dmgval() in the damage handler below */
+    if (gv.vis && artifact_light(mwep) && mwep->lamplit
+        && mon_hates_light(mdef))
+        lightobj_searmsg(mdef, pd, bare_artifactname(mwep));
+
     wep_id = mwep ? mwep->o_id : 0;
     ax = magr->mx, ay = magr->my, dx = mdef->mx, dy = mdef->my;
     mhitm_adtyping(magr, mattk, mdef, &mhm);

@@ -1367,6 +1367,8 @@ extern boolean slowed_by_sewage(void);
 extern void leave_vanished_water(void);
 extern boolean pooleffects(boolean);
 extern void spoteffects(boolean);
+extern void spoteffects_in_place(boolean);
+extern boolean u_met_pool_here(void);
 extern char *in_rooms(coordxy, coordxy, int);
 extern boolean in_town(coordxy, coordxy);
 extern void check_special_room(boolean);
@@ -2723,6 +2725,7 @@ extern boolean allow_category(struct obj *) NONNULLARG1;
 extern boolean is_worn_by_type(struct obj *) NONNULLARG1;
 extern int ck_bag(struct obj *) NONNULLARG1;
 extern void boh_hero_goods(struct obj *) NONNULLARG1;
+extern void put_in_icebox(struct obj *) NONNULLARG1;
 extern void removed_from_icebox(struct obj *) NONNULLARG1;
 /* reset_justpicked() is sometimes passed gi.invent
  * which can be null */
@@ -3690,6 +3693,9 @@ extern void reset_utrap(boolean);
 extern void reset_utrap_deferred(void);
 extern void flight_resumed_msg(void);
 extern boolean floor_trigger(int);
+extern boolean landing_trigger(int);
+extern boolean u_met_trap_here(void);
+extern void release_over_drop(boolean);
 extern boolean wearing_iron_shoes(struct monst *);
 extern boolean m_harmless_trap(struct monst *, struct trap *) NONNULLPTRS;
 extern void dotrap(struct trap *, unsigned) NONNULLARG1;
@@ -3703,6 +3709,7 @@ extern void mselftouch(struct monst *, const char *, boolean) NONNULLARG1;
 extern void float_up(void);
 extern void fill_pit(coordxy, coordxy);
 extern int float_down(long, long);
+extern int float_down_core(long, long, boolean);
 extern void defer_landing(int);
 extern void land_deferred(void);
 extern void defer_lift_msg(boolean, boolean);
@@ -3792,6 +3799,8 @@ extern void nohandshock(void);
 extern int shield_dmg(struct obj *, struct monst *) NONNULLPTRS;
 extern boolean shade_miss(struct monst *, struct monst *, struct obj *,
                           boolean, boolean) NONNULLARG12;
+extern void lightobj_searmsg(struct monst *, struct permonst *,
+                             const char *) NONNULLPTRS;
 extern void mhitm_ad_rust(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_ad_corr(struct monst *, struct attack *, struct monst *,
