@@ -3118,8 +3118,15 @@ paniclog(
         lfile = fopen_datafile(PANICLOG, "a", TROUBLEPREFIX);
         if (lfile) {
 #ifdef PANICLOG_FMT2
-            (void) fprintf(lfile, "%ld %s: %s %s\n",
-                           ubirthday, (svp.plname[0] ? svp.plname : "(none)"),
+            /* the local time of the event, as YYYY-MM-DD HH:MM:SS */
+            time_t now = getnow();
+            long ymd = yyyymmdd(now), hms = hhmmss(now);
+
+            (void) fprintf(lfile,
+                           "%04ld-%02ld-%02ld %02ld:%02ld:%02ld %s: %s %s\n",
+                           ymd / 10000L, (ymd / 100L) % 100L, ymd % 100L,
+                           hms / 10000L, (hms / 100L) % 100L, hms % 100L,
+                           (svp.plname[0] ? svp.plname : "(none)"),
                            type, reason);
 #else
             char buf[BUFSZ];
