@@ -899,20 +899,26 @@ feel_location(coordxy x, coordxy y)
              * destroying uchain while uball hasn't been cleared yet (so
              * Punished will still yield True but uchain might not be part
              * of the floor list anymore).
+             *
+             * Only the ball's or chain's own spot decides its bit; feeling
+             * some other spot (the hero's, after stepping off the chain)
+             * must leave it alone, or a later move of the ball or chain
+             * won't restore the glyph that was under it.
              */
             if (uchain && uchain->where == OBJ_FLOOR
-                && uchain->ox == x && uchain->oy == y
-                && svl.level.objects[x][y] == uchain)
-                u.bc_felt |= BC_CHAIN;
-            else
-                u.bc_felt &= ~BC_CHAIN; /* do not feel the chain */
-
+                && uchain->ox == x && uchain->oy == y) {
+                if (svl.level.objects[x][y] == uchain)
+                    u.bc_felt |= BC_CHAIN;
+                else
+                    u.bc_felt &= ~BC_CHAIN; /* do not feel the chain */
+            }
             if (uball && uball->where == OBJ_FLOOR
-                && uball->ox == x && uball->oy == y
-                && svl.level.objects[x][y] == uball)
-                u.bc_felt |= BC_BALL;
-            else
-                u.bc_felt &= ~BC_BALL; /* do not feel the ball */
+                && uball->ox == x && uball->oy == y) {
+                if (svl.level.objects[x][y] == uball)
+                    u.bc_felt |= BC_BALL;
+                else
+                    u.bc_felt &= ~BC_BALL; /* do not feel the ball */
+            }
         }
 
         /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */

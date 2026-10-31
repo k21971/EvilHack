@@ -1049,6 +1049,21 @@ mon_catchup_elapsed_time(
         else
             mtmp->mentangletime -= imv;
     }
+    /* so do its levitation and jumping spells; these stop at 2, not 1:
+       mon_regen() counts them down before m_calcdistress() looks for a
+       timer at 1, so one left at 1 would never run out */
+    if (mtmp->mlevitatetime) {
+        if (imv >= mtmp->mlevitatetime - 1)
+            mtmp->mlevitatetime = 2;
+        else
+            mtmp->mlevitatetime -= imv;
+    }
+    if (mtmp->mjumptime) {
+        if (imv >= mtmp->mjumptime - 1)
+            mtmp->mjumptime = 2;
+        else
+            mtmp->mjumptime -= imv;
+    }
 
     /* withering monsters by rights ought to keep withering while
        off-level, but it brings up a host of problems to have a monster

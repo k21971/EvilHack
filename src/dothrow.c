@@ -25,6 +25,7 @@ staticfn int throw_gold(struct obj *);
 staticfn void check_shop_obj(struct obj *, coordxy, coordxy, boolean);
 staticfn void breakmsg(struct obj *, boolean);
 staticfn boolean mhurtle_step(genericptr_t, coordxy, coordxy);
+staticfn boolean steed_held_in_place(struct monst *) NONNULLARG1;
 
 /* uwep might already be removed from inventory so test for W_WEP instead;
    for Valk + Mjollnir, caller needs to validate the strength requirement,
@@ -1066,6 +1067,16 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
     return TRUE;
 }
 
+/* is mon the hero's steed, held in place along with its rider the way
+   hurtle() refuses to move the hero: trapped or tethered (u.utrap), held
+   by u.ustuck, or chained to a ball lying on the floor */
+staticfn boolean
+steed_held_in_place(struct monst *mon)
+{
+    return (mon == u.usteed
+            && (u.utrap || u.ustuck || (Punished && !carried(uball))));
+}
+
 /* used by mhurtle_step() for actual hurtling and also to vary message
    if target will/won't change location when knocked back */
 boolean
@@ -1075,7 +1086,7 @@ will_hurtle(struct monst *mon, coordxy x, coordxy y)
         return FALSE;
     /* redundant when called by mhurtle() but needed for mhitm_knockback() */
     if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped
-        || mon->mentangled)
+        || mon->mentangled || steed_held_in_place(mon))
         return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
@@ -1107,7 +1118,17 @@ mhurtle_step(genericptr_t arg, coordxy x, coordxy y)
             place_monster(mon, x, y);
             newsym(mon->mx, mon->my);
         } else {
-            /* steed is hurtling, move hero which will also move steed */
+            /* steed is hurtling, move hero which will also move steed;
+               a carried ball's chain comes along, as in hurtle_step() */
+            if (Punished) {
+                int bc_control;
+                coordxy ballx, bally, chainx, chainy;
+                boolean cause_delay;
+
+                if (drag_ball(x, y, &bc_control, &ballx, &bally, &chainx,
+                              &chainy, &cause_delay, TRUE))
+                    move_bc(0, bc_control, ballx, bally, chainx, chainy);
+            }
             u.ux0 = u.ux, u.uy0 = u.uy;
             u_on_newpos(x, y);
             newsym(u.ux0, u.uy0); /* update old position */
@@ -1276,7 +1297,7 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
      * (very large monsters have too much inertia, even floaters and flyers)
      */
     if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped
-        || mon->mentangled) {
+        || mon->mentangled || steed_held_in_place(mon)) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;

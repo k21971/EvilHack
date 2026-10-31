@@ -3959,6 +3959,10 @@ rhack(int key)
                need to change it [back] to True */
             if ((res & ECMD_TIME) != 0) {
                 svc.context.move = TRUE;
+                /* the 'm' prefix applied to this command only; monsters
+                   moving before the next one mustn't see it (a forced pit
+                   would read as the hero climbing in carefully) */
+                iflags.menu_requested = FALSE;
                 if (func != dokick) {
                     /* hero did something else than kicking a location;
                        reset the location, so pets don't avoid it */
