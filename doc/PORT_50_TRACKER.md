@@ -344,9 +344,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   - 81 LOW: small parity rows, quirks and watch/record-only items.
     Session 277 closed four (BUG-2676..2681): #wizcast casts the
     whole spell at Expert in its school, keeping any skill the
-    cast drains (ruled); ^G takes "racial <race>" again, replacing
-    the race a monster rolled, and its "appears" line names that
-    race (ruled); paniclog lines carry the local time they were
+    cast drains (ruled); ^G takes "racial <race>" again, building
+    the monster as the game would for that race - player monsters,
+    names, resistances, a holy warrior's god and a knight's steed
+    included, with a note for a combination the game never makes
+    (BUG-2682 follow-up, ruled) - and its "appears" line names
+    that race (ruled); paniclog lines carry the local time they were
     written; master's fuzzer death counters are back in lava,
     sinking and drowning (ruled: all three). Minted one: Fire
     Brand and Frost Brand adopt 5.0's storm invokes (ruled).
@@ -17829,7 +17832,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       protection. Port master's counter shape into the branch
       lava_effects when fuzzer lava loops surface, or with the
       fuzzer-support owner slice.
-      CLOSED 2026-10-30 (session 277, HASH277C; BUG-2679, 2680,
+      CLOSED 2026-10-30 (session 277, 6001c70b3; BUG-2679, 2680,
       2681). The census found master's sink_into_lava() (BUG-284 /
       285) and drown() counters missing too. 5.0 already bounds all
       three loops (lava's two-pass burn loop and its 5-turn grant,
@@ -24388,7 +24391,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       branch's parser stops at the peaceful / hostile prefix, so
       "racial elven soldier" fails and battery staging needs gdb
       apply_race(). Wizard mode only. LOW (debug tooling).
-      CLOSED 2026-10-30 (session 277, HASH277A; BUG-2677, master's
+      CLOSED 2026-10-30 (session 277, 754f3ec4e; BUG-2677, master's
       layering frozen-unfixed). Master LAYERED the race: soldiers
       and other mercenaries roll one in makemon(), and apply_race()
       ORs the new race's flags onto it. Ruled REPLACE: the race
@@ -24423,6 +24426,44 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "soldier", "giant mimic", "*" and a gdb makemon() jackal read
       as on PRE. A count prefix collapses identical lines through
       Norep, as makemon() always did.
+      FOLLOW-UP 2026-10-31 (session 277, 6bf0efa8e; BUG-2682). The
+      player-monster layering left the rolled race's flags, its slot-2
+      attack (centaur kick, vampire / draugr bite, illithid tentacle),
+      race-keyed role traits (vampire flight, the Infidel's fire
+      resistance), a name from its list, and the wrong order ("racial
+      giant valkyrie" 2d8 where a natural one has 1d8). Ruled (decisions
+      log 2026-10-31): REBUILD like a natural one, a new name from the
+      new race's list, an unrollable combination ALLOWED WITH A NOTE
+      for race-rolling monsters only ("Note: the game never makes an
+      elven valkyrie."), and the first race's resistances and a holy
+      warrior's god cleaned up; the Plan stress test added the knight
+      steed (ruled: mount the natural one) and the shapechanger gate.
+      ^G now resets mintrinsics for a monster with a race record (at
+      creation only the race and a player monster's role write them),
+      frees the record, and rebuilds a player monster through
+      init_mplayer_erac(mtmp, noname, race) (a new forced-race
+      argument; NON_PM rolls as before, its BUG-627 guard kept) or
+      anything else through apply_race(); a shapechanger takes the
+      plain path. is_holy_warrior() (mondata.h, also makemon()'s EMIN
+      test) re-derives EMIN min_align from ERAC ralign. makemon()'s
+      rider / steed switch moved verbatim into m_mount_steed(); ^G
+      passes MM_NOSTEED and mounts after the race, before the appear
+      line. m_racemask() / m_canroll_race() (mon.c) share m_randrace()'s
+      lists; the note prints once after the loop. Gear and peacefulness
+      stay as rolled (ruled). Reviewer PASS (two comment nits, fixed).
+      Battery E: three "racial elven valkyrie" all rmnum PM_ELF, no
+      tunnel bits, slot 2 empty, mintrinsics 0x6 (cold + sleep), elven
+      names, one note each (PRE: an aasimar's 0x36 and name, a
+      centaur's kick and name underneath); "racial giant valkyrie"
+      AD_CLOB 1d8 (PRE 2d8, a natural one 1d8); a vampiric knight
+      flies, bites and rides a nightmare; a centaur knight rides
+      nothing; a chaotic dark elven knight rides a cave lizard; a
+      vampiric Infidel has no fire resistance; "racial tortle soldier"
+      gets the note, elven soldiers none and only the elf's
+      resistance; an orcish templar's god is chaotic; a doppelganger
+      takes the plain path; a skeletal dragon keeps its breath
+      resistance; "3 racial elven valkyrie" one note; plain valkyrie,
+      soldier, knight and a gdb makemon() read as on PRE.
 - [x] LOW: polyself.c mbodypart() residue
       PORTED 2026-09-20 (session 133, commit `Fix: smells and body
       parts lost master's arms.` = be91dd797, tracker 94af1f758,
@@ -25471,7 +25512,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       test would hard-code a debug promise into a flag that is not
       debug-only; bracketing P_SKILL inside dowizcast() is the other
       shape. Wizard mode only. LOW (debug parity).
-      CLOSED 2026-10-30 (session 277, HASH277A; BUG-2676, master's
+      CLOSED 2026-10-30 (session 277, 754f3ec4e; BUG-2676, master's
       narrower form frozen-unfixed). Ruled WHOLE CAST AT EXPERT:
       master's role_skill reached only spelleffects()' own gates,
       while healing / sickness / clerical dice, dispel evil's kill
@@ -28409,7 +28450,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       paniclog triage on the branch cannot order or date events.
       Port master's arm (files.c paniclog()); check whether any
       server-side tooling parses the epoch form first. LOW.
-      CLOSED 2026-10-30 (session 277, HASH277B; BUG-2678). The
+      CLOSED 2026-10-30 (session 277, b228d8899; BUG-2678). The
       FMT2 line prints the event's local time as `YYYY-MM-DD
       HH:MM:SS`, built from calendar.c's yyyymmdd() / hhmmss() so
       localtime() stays behind calendar.c's LOCALTIME_type shim
@@ -34893,6 +34934,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-31 | ^G racial rebuild rulings (Phase 2 session 277 follow-up; (1) in conversation, then AskUserQuestion x3, six questions). (1) PLAYER MONSTERS: rebuild a racial ^G one as the game would build it (init_mplayer_erac() with the named race), over minting a row or leaving the layering (as recommended). (2) NAME: re-pick from the new race's list (as recommended). (3) ROLE / RACE COMBINATIONS the game never makes: allowed, with a note. (4) LEFTOVERS: also reset the first race's resistances and re-derive a holy warrior's god; peacefulness and gear stay (as recommended). (5) NOTE SCOPE: race-rolling monsters only - player monsters and mercenaries (as recommended). (6) NOTE TEXT: "Note: the game never makes an elven valkyrie.". (7) KNIGHT STEED (a Plan stress-test find): mount the natural steed after the race (as recommended). | maintainer |
 | 2026-10-30 | Debug + infra ports slice rulings (Phase 2 session 277, AskUserQuestion x5, eight questions). (1) SLICE: the debug + infra ports group (as recommended). (2) #WIZCAST: the whole cast runs at Expert in the spell's school - a P_SKILL bracket in dowizcast(), over master's role_skill-only form (as recommended). (3) ^G RACIAL: replace the race makemon() rolled; player monsters keep master's layering (as recommended). (4) LAVA COUNTER: port master's lava, sink and drown fuzzer counters, over my recommended close-as-superseded. (5) WIZCAST SLOT REFUND: keep the bracket and record the extra slot a drain-life-at-self cast refunds (as recommended). (6) /tmp FULL: delete the pre-2026-10-30 session scratchpads. (7) ^G APPEAR LINE: fold in, so the line names the applied race (as recommended). (8) STORM INVOKES: Fire Brand and Frost Brand adopt 5.0's FIRESTORM / SNOWSTORM invokes, over my recommended keep-master's-shape; row minted for its own slice. | maintainer |
 | 2026-10-30 | Text one-liners slice rulings (Phase 2 session 276, AskUserQuestion x4, eight questions, all as recommended). (1) SLICE: the text one-liners group (eight rows). (2) "2 PAIR OF": keep vanilla's Webster usage, row closed by design. (3) SHADE HUG: follow hmonas()'s comment - a hug on a noncorporeal target deals its blessed or silver damage and never grabs. (4) DRAWBRIDGE REFUSAL: printed when the hero sees the span or portcullis or is next to either; an untold refusal identifies no wand. (5) MONSTER CLOAK SIZE: mirror the hero's canwearobj() rule (centaurs and driders wear any cloak, as on master; giant race only a wrapping). (6) Fold in the druid / vampire form exemption bug in sliparm() / breakarm() (hero only). (7) Fold in back_on_ground()'s terrain wording: "on the grass", "on the sand", "in shallow water", "in raw sewage". (8) Delta battery on the reviewer fold (m_dowear()'s MZ_SMALL gate arm): launch now. | maintainer |
 | 2026-10-30 | Ruled-trio / traces / corpse-timer / investigations slice rulings (Phase 2 session 275, AskUserQuestion x3, seven questions, all as recommended). (1) SLICE (multiSelect): all four offered groups (the ruled trio, session 274's two traces, the corpse-timer traces, the curses and #wizloaddes investigations). (2) RIDER SCOPE: drops + new liquid - a carried monster rider is spared by pits, holes, chasms, floor traps, and water, lava, sewage or open air opening under it; pathing unchanged (riders still route around water and known traps). (3) TEMPLE: the priest also leaves a trap alone while a monster is caught in it (the branch shopkeeper's shape). (4) RIDER TEXT: the rider is the subject with the steed's verb ("The Nazgul flies over the pit." / "flies back up."). (5) CORPSE SEX: fix 5.0's hint (pile or pack only, no giant ant or neuter misnaming); corpses of different sex still don't stack. (6) TROLL RETRY: a troll whose revival fails rots (the rot arm's intent and vanilla; 0.9.3's retry was a side effect). (7) #wizloaddes: no Mines rivers on a level loaded for testing. | maintainer |
