@@ -30,6 +30,7 @@ staticfn void chain_set_down(coordxy, coordxy, boolean);
 staticfn boolean chain_catches_hero(boolean);
 staticfn boolean chain_pulls_rider_off(boolean);
 staticfn schar u_simple_floortyp(coordxy, coordxy);
+staticfn void spoteffects_core(boolean, boolean);
 staticfn boolean swim_declined(coordxy, coordxy);
 staticfn boolean swim_move_danger(coordxy, coordxy, boolean);
 staticfn boolean domove_bump_mon(struct monst *, int, boolean) NONNULLARG1;
@@ -1367,7 +1368,9 @@ findtravelpath(int mode)
         && next2u(u.tx, u.ty) /* one step away */
         /* handle restricted diagonals */
         && crawl_destination(u.tx, u.ty)) {
-        end_running(FALSE);
+        /* test this step by the normal movement rules; a refused one
+           falls back on the path search below with the trip intact */
+        svc.context.run = 0;
         if (test_move(u.ux, u.uy, u.tx - u.ux, u.ty - u.uy, TEST_MOVE)) {
             if (mode == TRAVP_TRAVEL) {
                 u.dx = u.tx - u.ux;
@@ -2072,10 +2075,11 @@ chain_catches_hero(boolean pick)
     return TRUE;
 }
 
-/* the same chain holds a rider whose walking steed steps onto open air:
-   it pulls the hero off onto solid ground within its reach, still
-   chained, and the steed goes over the drop alone; FALSE when there is
-   no such spot (or no ball) and the pair falls */
+/* the same chain holds a rider whose steed is over open air: it pulls
+   the hero off onto solid ground within its reach, still chained, and a
+   walking steed goes over the drop alone while one that flies or floats
+   stays up there; FALSE when there is no such spot (or no ball) and the
+   caller goes on with the fall or the plain dismount */
 staticfn boolean
 chain_pulls_rider_off(boolean pick)
 {
@@ -3730,6 +3734,16 @@ leave_vanished_water(void)
     gv.vision_full_recalc = 1;
 }
 
+/* did the hero meet the water or lava here during this move
+   (pooleffects())? */
+boolean
+u_met_pool_here(void)
+{
+    return (gp.pool_met_seq == gh.hero_seq
+            && u_at(gp.pool_met_at.x, gp.pool_met_at.y)
+            && is_pool_or_lava(u.ux, u.uy));
+}
+
 /* extracted from spoteffects; called by spoteffects to check for entering or
    leaving a pool of water/lava, and by moveloop to check for staying on one;
    returns true to skip rest of spoteffects */
@@ -3817,6 +3831,17 @@ pooleffects(
             if (Upolyd && ceiling_hider(&mons[u.umonnum]) && u.uundetected)
                 return FALSE;
 
+            /* a water walker the lava here already burned this move
+               isn't burned again (a deferred landing, or the per-move
+               check in moveloop, after the meeting that did it) */
+            if (Wwalking && is_lava(u.ux, u.uy) && u_met_pool_here())
+                return FALSE;
+            /* the hero meets the water or lava here now; a hold that
+               lets go of a hero walking on it later this move leaves no
+               landing to make there (release_over_drop()) */
+            gp.pool_met_seq = gh.hero_seq;
+            gp.pool_met_at.x = u.ux, gp.pool_met_at.y = u.uy;
+
             /* drown(),lava_effects() return true if hero changes
                location while surviving the problem */
             if (is_lava(u.ux, u.uy)) {
@@ -3896,8 +3921,11 @@ pooleffects(
     return FALSE;
 }
 
-void
-spoteffects(boolean pick)
+/* the hero arrives at, or is otherwise newly at, the current spot; with
+   in_place, the hero comes down (or goes up) where they already were
+   (spoteffects_in_place()) */
+staticfn void
+spoteffects_core(boolean pick, boolean in_place)
 {
     static int inspoteffects = 0;
     static coord spotloc;
@@ -3966,7 +3994,7 @@ spoteffects(boolean pick)
             if (rn2(2) || u.uinvulnerable) { /* defer timeout */
                 incr_itimeout(&HLevitation, 1L);
             } else { /* timeout early */
-                if (float_down(I_SPECIAL | TIMEOUT, 0L)) {
+                if (float_down_core(I_SPECIAL | TIMEOUT, 0L, in_place)) {
                     /* levitation has ended; we've already triggered
                        any trap and [usually] performed autopickup */
                     trap = 0;
@@ -3990,7 +4018,10 @@ spoteffects(boolean pick)
              * We track spottraptyp because some traps morph (landmine
              * to pit) and any new trap type should get triggered.
              */
-            if (!spottrap || spottraptyp != trap->ttyp) {
+            if (in_place && u_at(spot_x, spot_y)
+                && !landing_trigger(trap->ttyp) && u_met_trap_here()) {
+                ; /* the hero met it on arrival, up in the air */
+            } else if (!spottrap || spottraptyp != trap->ttyp) {
                 spottrap = trap;
                 spottraptyp = trap->ttyp;
                 dotrap(trap, trapflag); /* fall into arrow trap, etc. */
@@ -4095,9 +4126,13 @@ spoteffects(boolean pick)
         /* entangling branches hold the hero over the drop */
         && !(u.utrap && u.utraptype == TT_ENTANGLED)) {
         /* a hold keeps a rider down over the drop, but a steed that flies
-           or floats stays up: the hero comes off it onto a spot nearby
-           when there is one */
+           or floats stays up: a buried ball's chain pulls the hero off it
+           onto solid ground within its reach, still chained, when there
+           is such a spot; otherwise the hero comes off it onto a spot
+           nearby when there is one */
         if (u.usteed && mon_airborne(u.usteed) && u_held_down()) {
+            if (u_tethered() && chain_pulls_rider_off(pick))
+                goto spotdone;
             chain_pulls_off_steed();
             dismount_steed(DISMOUNT_GENERIC);
             /* a hero left here met the drop in dismount_steed()'s
@@ -4144,6 +4179,21 @@ spoteffects(boolean pick)
         spotloc.x = spotloc.y = 0;
     }
     return;
+}
+
+void
+spoteffects(boolean pick)
+{
+    spoteffects_core(pick, FALSE);
+}
+
+/* spoteffects() for a hero who comes down, or goes up, where they
+   already were: a trap here met the hero on arrival and isn't met again
+   unless only coming down onto it sets it off (landing_trigger()) */
+void
+spoteffects_in_place(boolean pick)
+{
+    spoteffects_core(pick, TRUE);
 }
 
 /* returns first matching monster */

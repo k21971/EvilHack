@@ -301,6 +301,9 @@ separate_steed_and_rider(struct monst *rider)
         newsym(rider->mx, rider->my);
     }
     if (!DEADMONSTER(steed)) {
+        /* a walking steed its rider's lift kept over a hole drops
+           through on its own next move */
+        mon_lost_support(steed);
         update_monster_region(steed);
         newsym(steed->mx, steed->my);
     }
@@ -1584,9 +1587,9 @@ dismount_steed(
             /* [ALI] No need to move the player if the steed died. */
             if (reason == DISMOUNT_CHAIN) {
                 /* the caller sets the hero down; cc is the drop the
-                   steed was let go over, and one still standing there
-                   is moved off it */
-                if (!DEADMONSTER(mtmp)) {
+                   steed was let go over. One that flies or floats stays
+                   up over it; one still standing there is moved off */
+                if (!DEADMONSTER(mtmp) && !mon_airborne(mtmp)) {
                     impossible("dismount_steed: chained steed survived?");
                     if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS))
                         rloc_to(mtmp, cc.x, cc.y);
@@ -1737,14 +1740,16 @@ steed_lift_changed(struct monst *mon, boolean was_airborne)
     disp.botl = TRUE; /* status: 'Fly' */
     /* riding blocks stealth unless hero+steed fly */
     steed_vs_stealth();
-    /* the rider hovered over a floor trap; with the steed's lift gone
-       and nothing else keeping the hero up, the pair comes down onto it.
+    /* the rider hovered over a floor trap (or a spear trap, whose spear
+       couldn't reach the pair up there); with the steed's lift gone and
+       nothing else keeping the hero up, the pair comes down onto it.
        Water, lava and open air are the steed's own terrain check; traps
-       that catch flyers were met on arrival, and a hold had already
-       brought the pair down. Silent, like polyman()'s riding landing:
-       the trap tells it */
+       that catch flyers were met on arrival unless the pair hurtled onto
+       them, and a hold had already brought the pair down. Silent, like
+       polyman()'s riding landing: the trap tells it */
     if (was_airborne && !Flying && !Levitation && !u_held_down()
-        && (ttmp = t_at(u.ux, u.uy)) != 0 && floor_trigger(ttmp->ttyp))
+        && (ttmp = t_at(u.ux, u.uy)) != 0
+        && (landing_trigger(ttmp->ttyp) || !u_met_trap_here()))
         defer_landing(LANDING_SPOT);
 }
 

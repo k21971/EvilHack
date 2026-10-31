@@ -846,7 +846,7 @@ vampire_shapechange(void)
             HFlying &= ~FROMRACE;
             disp.botl = TRUE;
             You_feel("gravity's pull!");
-            spoteffects(TRUE);
+            spoteffects_in_place(TRUE);
         }
     }
     return;
@@ -1178,7 +1178,7 @@ polyself(int psflags)
         HFlying &= ~FROMRACE;
         disp.botl = TRUE;
         You_feel("gravity's pull!");
-        spoteffects(TRUE);
+        spoteffects_in_place(TRUE);
     }
 }
 
@@ -1545,8 +1545,7 @@ polymon(int mntmp)
             nexttotree(u.ux, u.uy) ? "tree's grip" : "vegetation");
         reset_utrap(TRUE);
         /* a new form with no lift falls once polymon() is done */
-        if (held_over_drop && !Levitation && !Flying && !u.uinwater)
-            defer_landing(LANDING_SPOT);
+        release_over_drop(held_over_drop);
     }
     if ((webmaker(gy.youmonst.data)
          || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW)))

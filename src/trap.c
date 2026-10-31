@@ -1391,6 +1391,28 @@ floor_trigger(int ttyp)
     }
 }
 
+/* does a trap under a hero who flies or floats wait for the hero to come
+   down? One only the floor sets off does, and so does a spear trap,
+   whose spear can't reach that high; any other met the hero up there on
+   arrival (dotrap()), so a hero coming down in place doesn't meet it
+   again (spoteffects_in_place(), float_down()) unless the hero got there
+   without meeting it (u_met_trap_here()) */
+boolean
+landing_trigger(int ttyp)
+{
+    return (floor_trigger(ttyp) || ttyp == SPEAR_TRAP_SET);
+}
+
+/* has the hero met the trap on this spot since arriving here? One who
+   hurtled onto it passed over it instead, and one wished up under the
+   hero was never met */
+boolean
+u_met_trap_here(void)
+{
+    return (gt.trap_met_at.x == u.ux && gt.trap_met_at.y == u.uy
+            && gt.trap_met_lev == ledger_no(&u.uz));
+}
+
 /* return TRUE if monster mtmp is up in the air, considering trap flags */
 staticfn boolean
 check_in_air(struct monst *mtmp, unsigned trflags)
@@ -1398,6 +1420,9 @@ check_in_air(struct monst *mtmp, unsigned trflags)
     boolean is_you = mtmp == &gy.youmonst,
             plunged = (trflags & (TOOKPLUNGE | VIASITTING)) != 0;
 
+    /* a monster whose steed walks is down on the ground with it */
+    if (!is_you && mon_steed_walks(mtmp))
+        return ((trflags & HURTLING) != 0);
     return ((trflags & HURTLING) != 0
             || (is_you ? Levitation
                        : (is_floater(mtmp->data) || can_levitate(mtmp)))
@@ -1766,7 +1791,8 @@ trapeffect_sqky_board(
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
 
-        if (m_in_air(mtmp))
+        /* a rider whose steed walks is down on the ground with it */
+        if (m_in_air(mtmp) && !mon_steed_walks(mtmp))
             return Trap_Effect_Finished;
         /* stepped on a squeaky board */
         if (in_sight) {
@@ -1856,7 +1882,8 @@ trapeffect_bear_trap(
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         boolean trapkilled = FALSE;
 
-        if (mptr->msize > MZ_SMALL && !amorphous(mptr) && !m_in_air(mtmp)
+        if (mptr->msize > MZ_SMALL && !amorphous(mptr)
+            && (!m_in_air(mtmp) || mon_steed_walks(mtmp))
             && !is_whirly(mptr) && !unsolid(mptr)) {
             mtmp->mtrapped = 1;
             if (in_sight) {
@@ -2621,7 +2648,10 @@ trapeffect_pit(
         const char *fallverb;
 
         fallverb = "falls";
-        if (!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp)
+        /* a rider whose steed walks is down on the ground with it,
+           whatever lift of its own it has */
+        if (((!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp))
+             && !mon_steed_walks(mtmp))
             || mon_steed_airborne(mtmp)
             || (mtmp->wormno && count_wsegs(mtmp) > 5)) {
             if (forcetrap && !Sokoban) {
@@ -2687,7 +2717,9 @@ trapeffect_hole(
                        trapname(tt, TRUE));
             return Trap_Effect_Finished; /* don't activate it after all */
         }
-        if (!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp)
+        /* as for a pit, a rider whose steed walks goes down with it */
+        if (((!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp))
+             && !mon_steed_walks(mtmp))
             || mon_steed_airborne(mtmp)
             || (mtmp->wormno && count_wsegs(mtmp) > 5)
             || mptr->msize >= MZ_HUGE) {
@@ -3377,7 +3409,7 @@ trapeffect_landmine(
 #define MINE_TRIGGER_WT (WT_ELF / 2U)
         if (rn2(mtmp->data->cwt + 1) < (int) MINE_TRIGGER_WT)
             return Trap_Effect_Finished;
-        if (m_in_air(mtmp)) {
+        if (m_in_air(mtmp) && !mon_steed_walks(mtmp)) {
             boolean already_seen = trap->tseen;
 
             if (in_sight && !already_seen) {
@@ -3458,7 +3490,7 @@ trapeffect_rolling_boulder_trap(
                 pline("Fortunately for you, no boulder was released.");
         }
     } else {
-        if (!m_in_air(mtmp)) {
+        if (!m_in_air(mtmp) || mon_steed_walks(mtmp)) {
             boolean in_sight = (mtmp == u.usteed
                                 || (cansee(mtmp->mx, mtmp->my)
                                     && canspotmon(mtmp)));
@@ -3622,6 +3654,10 @@ dotrap(struct trap *trap, unsigned trflags)
             adj_pit = adj_nonconjoined_pit(trap);
 
     nomul(0);
+    /* the hero meets this trap here, airborne or not; coming down where
+       they are won't meet it again (u_met_trap_here()) */
+    gt.trap_met_at.x = trap->tx, gt.trap_met_at.y = trap->ty;
+    gt.trap_met_lev = ledger_no(&u.uz);
 
     if (fixed_tele_trap(trap)) {
         trflags |= FORCETRAP;
@@ -4730,13 +4766,27 @@ fill_pit(coordxy x, coordxy y)
     }
 }
 
-/* stop levitating */
+/* stop levitating, where the hero is */
 int
 float_down(
     long hmask,
     long emask) /* might cancel timeout */
 {
-    struct trap *trap = (struct trap *) 0;
+    return float_down_core(hmask, emask, TRUE);
+}
+
+/* stop levitating; in_place is FALSE when the hero comes down while
+   arriving at this spot (spoteffects()' early levitation timeout), where
+   every trap here is met. A hero who comes down where they were met a
+   trap here on arrival, so only one that waits for a landing
+   (landing_trigger()) is met again */
+int
+float_down_core(
+    long hmask,
+    long emask, /* might cancel timeout */
+    boolean in_place)
+{
+    struct trap *trap = (struct trap *) 0, *btrap = (struct trap *) 0;
     d_level current_dungeon_level;
     boolean no_msg = FALSE;
     coordxy land_x, land_y;
@@ -4790,11 +4840,13 @@ float_down(
         return 1;
     }
 
+    /* the ball's own trap is the hero's only once the ball has pulled
+       the hero onto its spot; any other one under it stays there */
     if (Punished && !carried(uball) && !m_at(uball->ox, uball->oy)
         && (is_damp_terrain(uball->ox, uball->oy)
             || is_open_air(uball->ox, uball->oy)
-            || ((trap = t_at(uball->ox, uball->oy))
-                && (is_pit(trap->ttyp) || is_hole(trap->ttyp))))) {
+            || ((btrap = t_at(uball->ox, uball->oy)) != 0
+                && (is_pit(btrap->ttyp) || is_hole(btrap->ttyp))))) {
         u.ux0 = u.ux;
         u.uy0 = u.uy;
         u.ux = uball->ox;
@@ -4802,7 +4854,13 @@ float_down(
         movobj(uchain, uball->ox, uball->oy);
         newsym(u.ux0, u.uy0);
         gv.vision_full_recalc = 1; /* in case the hero moved. */
+        in_place = FALSE; /* dragged onto the ball's spot */
+        trap = btrap; /* the pit or hole the ball pulled the hero into */
     }
+    /* a dismount set the hero down on a new spot (teleds()), whose trap
+       spoteffects() left for this pass */
+    if (gi.in_steed_dismounting)
+        in_place = FALSE;
     land_x = u.ux, land_y = u.uy;
     /* check for falling into pool - added by GAN 10/20/86 */
     if (!Flying) {
@@ -4908,6 +4966,10 @@ float_down(
         default:
             if (u.utrap) /* already in the trap */
                 break;
+            /* met on arrival, up in the air or not */
+            if (in_place && !landing_trigger(trap->ttyp)
+                && u_met_trap_here())
+                break;
             /* praying: the trap waits for the god's answer, and the look
                at what lies here waits with it (land_deferred()) */
             if (u.uinvulnerable) {
@@ -4972,8 +5034,8 @@ land_deferred(void)
         (void) float_down(0L, 0L);
     else if (how == LANDING_FLY)
         check_flight_landing(TRUE);
-    else
-        spoteffects(TRUE);
+    else /* coming down where the hero was */
+        spoteffects_in_place(TRUE);
 }
 
 /* A hold that kept the hero's levitation or flight down has ended ahead
@@ -5021,6 +5083,21 @@ u_over_drop(void)
             || (ttmp && is_hole(ttmp->ttyp)));
 }
 
+/* a hold that kept the hero over water, lava, open air or a hole has let
+   go (reset_utrap() done); a hero with no lift left falls once that is
+   safe (land_deferred()). Not one already under the water, nor one the
+   hold let walk on the water or lava and whom pooleffects() met with it
+   this move: landing there would meet it a second time */
+void
+release_over_drop(boolean over_drop)
+{
+    if (!over_drop || Levitation || Flying || u.uinwater)
+        return;
+    if (Wwalking && u_met_pool_here())
+        return;
+    defer_landing(LANDING_SPOT);
+}
+
 /* is the hero held by a live tree's branches or roots (cast_entangle())?
    That hold is the tree's, not the square's: terrain changes under the
    hero leave it alone */
@@ -5060,14 +5137,12 @@ entangle_release(boolean by_tree)
         else
             You("are still chained to the buried ball.");
     }
-    if (!Levitation && !Flying && !u.uinwater) {
-        /* that chain pulls down a flyer or floater the branches held;
-           grass had already brought the hero to the ground */
-        if (by_tree && lift)
-            defer_landing(LANDING_FLY);
-        else if (over_drop)
-            defer_landing(LANDING_SPOT);
-    }
+    /* that chain pulls down a flyer or floater the branches held;
+       grass had already brought the hero to the ground */
+    if (by_tree && lift && !Levitation && !Flying && !u.uinwater)
+        defer_landing(LANDING_FLY);
+    else
+        release_over_drop(over_drop);
 }
 
 /* is a monster held by a live tree's branches or roots? As for the hero
@@ -5131,6 +5206,10 @@ tree_gone_release(coordxy x, coordxy y)
             if (mtmp->mentangled && !nexttotree(mx, my))
                 mon_entangle_release(mtmp, TRUE);
         }
+    /* a ridden steed is off the map, so m_at() never finds it */
+    if (u.usteed && u.usteed->mentangled && distu(x, y) <= 2
+        && !nexttotree(u.ux, u.uy))
+        mon_entangle_release(u.usteed, TRUE);
 }
 
 /* the grass at x,y has just gone (burned, eaten, flooded, dug into or
@@ -5149,6 +5228,10 @@ grass_gone_release(coordxy x, coordxy y)
         && !DEADMONSTER(mtmp) && mtmp->mentangled
         && !IS_GRASS(levl[x][y].typ) && !nexttotree(x, y))
         mon_entangle_release(mtmp, FALSE);
+    /* a ridden steed is off the map, so m_at() never finds it */
+    if (u.usteed && u.usteed->mentangled && u_at(x, y)
+        && !IS_GRASS(levl[x][y].typ) && !nexttotree(x, y))
+        mon_entangle_release(u.usteed, FALSE);
 }
 
 /* shared code for climbing out of a pit */
@@ -7479,8 +7562,7 @@ openholdingtrap(
             vision_recalc(0);
         /* the branches let go of a hero with no lift over the drop; the
            hero falls once the zap or the bell is done */
-        if (held_over_drop && !Levitation && !Flying && !u.uinwater)
-            defer_landing(LANDING_SPOT);
+        release_over_drop(held_over_drop);
     } else {
         if (!mon->mtrapped)
             return FALSE;

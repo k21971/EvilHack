@@ -1508,7 +1508,7 @@ peffect_levitation(struct obj *otmp)
         incr_itimeout(&HLevitation, rn1(otmp->odiluted ? 70 : 140, 10));
 
     if (Levitation && IS_SINK(levl[u.ux][u.uy].typ))
-        spoteffects(FALSE);
+        spoteffects_in_place(FALSE);
     /* levitating blocks flying */
     float_vs_flight();
 }

@@ -835,6 +835,10 @@ struct instance_globals_p {
     /* trap.c */
     enum hero_landing pending_landing; /* see defer_landing() */
     unsigned pending_lift; /* LIFT_* bits; see defer_lift_msg() */
+    /* hack.c */
+    long pool_met_seq; /* gh.hero_seq when the hero last met water or
+                        * lava (pooleffects()); see release_over_drop() */
+    coord pool_met_at; /* where that was */
 
     /* potion.c */
     int potion_nothing;
@@ -1033,6 +1037,11 @@ struct instance_globals_t {
     /* topten.c */
     winid toptenwin;
 
+    /* trap.c */
+    coord trap_met_at; /* where the hero last met a trap (dotrap()); x 0
+                        * once the hero moves; see u_met_trap_here() */
+    xint16 trap_met_lev; /* ledger_no() of that level */
+
     /* uhitm.c */
     int twohits; /* 0: single hit; 1: first of 2; 2: second of 2 */
 
@@ -1125,6 +1134,11 @@ struct instance_globals_w {
                                    * invent while its worn slot still
                                    * points at it; worn_slot_sanity()
                                    * skips this one slot meanwhile */
+    boolean worn_swap_quiet; /* poly_obj swap: the old form comes off
+                              * with no "You were wearing" line, and the
+                              * new one goes on in its slot */
+    boolean worn_swap_blind; /* ... Blind with the old eyewear on */
+    boolean worn_swap_uwvis; /* ... and its underwater sight */
 
     /* new */
     struct win_settings wsettings;      /* wintype.h */

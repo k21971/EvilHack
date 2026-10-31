@@ -2094,6 +2094,10 @@ goto_level(
         } else {
             seetrap(ttrap);
             u_on_newpos(ttrap->tx, ttrap->ty);
+            /* the hero came through this portal, so coming down here
+               later doesn't send them back (u_met_trap_here()) */
+            gt.trap_met_at.x = ttrap->tx, gt.trap_met_at.y = ttrap->ty;
+            gt.trap_met_lev = ledger_no(&u.uz);
         }
     } else if (at_stairs && !In_endgame(&u.uz)) {
         if (up) {

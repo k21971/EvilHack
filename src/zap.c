@@ -2528,6 +2528,10 @@ poly_obj(struct obj *obj, int id)
                its worn slot still points at it until remove_worn_item()
                clears the slot; exempt it from worn_slot_sanity() meanwhile */
             gw.worn_slot_exempt = obj;
+            /* when the new form goes on in the old one's slot, the caller
+               shows it: the old one comes off with no line, and a change
+               in sight waits for the new one (Blindf_on()) */
+            gw.worn_swap_quiet = (new_wornmask & ~W_WEAPONS) != 0L;
             remove_worn_item(obj, TRUE);
             /* if the new form can be worn in the same slot, make it so */
             if ((new_wornmask & W_WEP) != 0L) {
@@ -2567,6 +2571,7 @@ poly_obj(struct obj *obj, int id)
                 set_wear(otmp);
                 otmp = wearmask_to_obj(new_wornmask); /* might be Null */
             }
+            gw.worn_swap_quiet = FALSE;
             gw.worn_slot_exempt = save_exempt;
         } /* old_wornmask */
     } else if (obj_location == OBJ_FLOOR) {
@@ -7371,6 +7376,16 @@ zap_over_floor(
             new_doormask = D_BROKEN;
             see_txt = "The door splinters!";
             hear_txt = "crackling.";
+            break;
+        case ZT_POISON_GAS:
+            new_doormask = D_BROKEN;
+            see_txt = "The door rots away!";
+            hear_txt = "a hollow thud.";
+            break;
+        case ZT_ACID:
+            new_doormask = D_NODOOR;
+            see_txt = "The door dissolves!";
+            hear_txt = "hissing.";
             break;
         default:
  def_case:

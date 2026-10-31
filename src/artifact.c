@@ -1636,6 +1636,12 @@ bane_applies(const struct artifact *oart, struct monst *mon)
                 || oart == &artilist[ART_HAMMER_OF_THE_GODS]
                 || oart == &artilist[ART_MITRE_OF_HOLINESS])) {
             return TRUE;
+        } else if (is_demon(mon->data)
+                   && (oart == &artilist[ART_DEMONBANE]
+                       || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
+            /* the SPFX_DBONUS test above already refuses every demon
+               form; this mirrors the hero's demon arm */
+            return TRUE;
         }
     }
 
@@ -4931,7 +4937,8 @@ arti_invoke(struct obj *obj)
         case LEVITATION:
             if (on) {
                 float_up();
-                spoteffects(FALSE);
+                /* going up where the hero was */
+                spoteffects_in_place(FALSE);
             } else if (iflags.in_lava_effects) {
                 /* erode_obj() is destroying the artifact (or lava_effects()
                    burning it off a hero already down in the lava, whose

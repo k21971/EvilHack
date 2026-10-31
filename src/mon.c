@@ -3064,8 +3064,10 @@ mfndpos(
     int cnt = 0;
     uchar ntyp;
     uchar nowtyp;
-    boolean wantpool, wantpuddle, wantsewage, poolok, lavaok, nodiag;
+    boolean wantpool, wantpuddle, wantsewage, poolok, lavaok, airok, nodiag;
     boolean rockok = FALSE, treeok = FALSE, thrudoor;
+    struct monst *msteed = mon_steed_walks(mon) ? ERID(mon)->mon_steed
+                                                : (struct monst *) 0;
     int maxx, maxy;
     boolean poisongas_ok, in_poisongas;
     NhRegion *gas_reg;
@@ -3089,6 +3091,18 @@ mfndpos(
               || likes_lava(mdat));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
+    airok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
+             || can_levitate(mon) || can_fly(mon));
+    /* a rider whose steed walks goes only where the steed could go on
+       its own; the rider's own lift doesn't carry the steed */
+    if (msteed) {
+        if (!is_swimmer(msteed->data) && !can_wwalk(msteed))
+            poolok = FALSE;
+        if (!likes_lava(msteed->data))
+            lavaok = FALSE;
+        if (!is_clinger(msteed->data))
+            airok = FALSE;
+    }
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
     poisongas_ok = (m_poisongas_ok(mon) == M_POISONGAS_OK);
     in_poisongas = ((gas_reg = visible_region_at(x,y)) != 0
@@ -3144,7 +3158,9 @@ mfndpos(
                 && (*in_rooms(nx, ny, TEMPLE) || *in_rooms(nx, ny, SHOPBASE))
                 && !(*in_rooms(x, y, TEMPLE) || *in_rooms(x, y, SHOPBASE)))
                 continue;
-            if (IS_WATERWALL(ntyp) && !is_swimmer(mdat))
+            if (IS_WATERWALL(ntyp)
+                && (!is_swimmer(mdat)
+                    || (msteed && !is_swimmer(msteed->data))))
                 continue;
             /* KMH -- Added iron bars */
             if (ntyp == IRONBARS
@@ -3194,10 +3210,7 @@ mfndpos(
             if ((!lavaok || !(flag & ALLOW_WALL)) && ntyp == LAVAWALL)
                 continue;
             /* avoid open air if gravity is in effect */
-            if (is_open_air(nx, ny)
-                && !(is_flyer(mdat) || is_floater(mdat)
-                     || is_clinger(mdat) || can_levitate(mon)
-                     || can_fly(mon)))
+            if (is_open_air(nx, ny) && !airok)
                 continue;
             if ((poolok || is_pool(nx, ny) == wantpool)
                 && (is_puddle(nx, ny) == wantpuddle || !wantpuddle)
@@ -8874,6 +8887,9 @@ maybe_set_terrain_effects(struct monst *mtmp, struct permonst *oldmdat)
             mtmp->mstate |= (long) candrown_vs_liquid;
         }
     }
+    /* a form that can't stay up over a hole or trap door drops through
+       on its next move (mon_falls_unsupported() decides) */
+    mon_lost_support(mtmp);
     /* TODO: handle other terrains that could be harmful to a
        revived mon or polymorphed mon */
 
@@ -8920,7 +8936,9 @@ mon_falls_unsupported(struct monst *mtmp)
             && mtmp != u.usteed && !mtmp->ridden_by
             && !ustuck_self_or_steed(mtmp)
             && !mtmp->mtrapped && !mtmp->mentangled
-            && grounded(mtmp->data) && !mon_airborne(mtmp)
+            /* a rider whose steed walks goes down with it */
+            && (mon_steed_walks(mtmp)
+                || (grounded(mtmp->data) && !mon_airborne(mtmp)))
             && !mon_steed_airborne(mtmp)
             && !(mtmp->wormno && count_wsegs(mtmp) > 5)
             && mtmp->data->msize < MZ_HUGE);

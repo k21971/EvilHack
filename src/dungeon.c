@@ -1629,6 +1629,10 @@ u_on_newpos(coordxy x, coordxy y)
                : impossible;
         (*func)("u_on_newpos: trying to place hero off map <%d,%d>", x, y);
     }
+    /* a trap met where the hero was isn't one met here; arriving by way
+       of dotrap() records it again (u_met_trap_here()) */
+    if (x != gt.trap_met_at.x || y != gt.trap_met_at.y)
+        gt.trap_met_at.x = 0;
     u.ux = x;
     u.uy = y;
 #ifdef CLIPPING

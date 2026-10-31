@@ -508,7 +508,11 @@ set_bc(int already_blind)
     u.bc_felt = ball_on_floor ? BC_BALL | BC_CHAIN : BC_CHAIN; /* felt */
 
     if (already_blind || u.uswallow) {
-        u.cglyph = u.bglyph = levl[u.ux][u.uy].glyph;
+        /* a blind hero just punished: placebc() picked up the glyph under
+           the ball and chain before the hero felt them, and the map now
+           shows the chain itself, so keep that one */
+        if (!already_blind)
+            u.cglyph = u.bglyph = levl[u.ux][u.uy].glyph;
         return;
     }
 
@@ -1107,11 +1111,10 @@ drop_ball(coordxy x, coordxy y)
         if (u.ux0 != u.ux || u.uy0 != u.uy) {
             spoteffects(TRUE);
             sokoban_guilt();
-        } else if (held_over_drop && !Levitation && !Flying
-                   && !u.uinwater) {
+        } else {
             /* the branches let go of a hero with no lift over the drop;
                the hero falls once the throw is done */
-            defer_landing(LANDING_SPOT);
+            release_over_drop(held_over_drop);
         }
     }
 }

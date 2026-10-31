@@ -241,6 +241,13 @@
     (has_erid(mon) && ERID(mon)->mon_steed                          \
      && !DEADMONSTER(ERID(mon)->mon_steed)                          \
      && mon_airborne(ERID(mon)->mon_steed))
+/* a monster on a live steed that neither flies nor floats: the steed
+   carries it, so it is no further off the ground than the steed is,
+   whatever lift of its own it has */
+#define mon_steed_walks(mon) \
+    (has_erid(mon) && ERID(mon)->mon_steed                          \
+     && !DEADMONSTER(ERID(mon)->mon_steed)                          \
+     && !mon_airborne(ERID(mon)->mon_steed))
 #define can_wwalk(mon) \
     ((mon_resistancebits(mon) & MR2_WATERWALK) != 0)
 #define has_claws(ptr) \

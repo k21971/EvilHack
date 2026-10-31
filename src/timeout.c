@@ -973,7 +973,8 @@ nh_timeout(void)
                 if (was_flying && !Flying) {
                     disp.botl = TRUE;
                     You("land.");
-                    spoteffects(TRUE);
+                    /* a trap here met the hero on arrival */
+                    spoteffects_in_place(TRUE);
                 }
                 break;
             case ACID_RES:

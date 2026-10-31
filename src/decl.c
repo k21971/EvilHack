@@ -668,6 +668,9 @@ static const struct instance_globals_p g_init_p = {
     /* trap.c */
     LANDING_NONE, /* pending_landing */
     0U, /* pending_lift */
+    /* hack.c */
+    0L, /* pool_met_seq */
+    { 0, 0 }, /* pool_met_at */
     /* potion.c */
     UNDEFINED_VALUE, /* potion_nothing */
     UNDEFINED_VALUE, /* potion_unkn */
@@ -806,6 +809,9 @@ static const struct instance_globals_t g_init_t = {
     UNDEFINED_PTR, /* timer_base */
     /* topten.c */
     WIN_ERR, /* toptenwin */
+    /* trap.c */
+    { 0, 0 }, /* trap_met_at */
+    0, /* trap_met_lev */
     /* uhitm.c */
     0, /* twohits */
     /**/
@@ -869,6 +875,9 @@ static const struct instance_globals_w g_init_w = {
     UNDEFINED_PTR, /* wportal */
     /* zap.c */
     NULL, /* worn_slot_exempt */
+    FALSE, /* worn_swap_quiet */
+    FALSE, /* worn_swap_blind */
+    FALSE, /* worn_swap_uwvis */
     /* new */
     { wdmode_traditional, NO_COLOR },       /* wsettings */
     /* were.c, allmain.c */

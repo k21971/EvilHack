@@ -392,7 +392,7 @@ Boots_on(void)
             makeknown(uarmf->otyp);
             float_up();
             if (Levitation)
-                spoteffects(FALSE); /* for sink effect */
+                spoteffects_in_place(FALSE); /* for sink effect */
         } else {
             float_vs_flight(); /* maybe toggle BFlying's I_SPECIAL */
         }
@@ -1469,7 +1469,9 @@ check_flight_landing(boolean was_flying)
                       ? ((HLevitation || ELevitation) ? "stop levitating"
                                                       : "stop flying")
                       : "land");
-        spoteffects(TRUE);
+        /* coming down where the hero was: a trap here met them on
+           arrival, up in the air */
+        spoteffects_in_place(TRUE);
     }
 }
 
@@ -1654,11 +1656,18 @@ Armor_gone(void)
 staticfn void
 Amulet_on(struct obj *amul)
 {
-    boolean on_msg_done = FALSE;
+    /* already in the amulet slot when starting gear takes effect or a
+       worn amulet was polymorphed in place: it isn't put on again and
+       gets no inventory line here */
+    boolean already_worn = (amul->owornmask & W_AMUL) != 0L,
+            on_msg_done = already_worn;
 
-    /* make sure amulet isn't wielded/alt-wielded/quivered, before wearing */
-    remove_worn_item(amul, FALSE);
-    setworn(amul, W_AMUL);
+    if (!already_worn) {
+        /* make sure amulet isn't wielded/alt-wielded/quivered, before
+           wearing */
+        remove_worn_item(amul, FALSE);
+        setworn(amul, W_AMUL);
+    }
 
     switch (uamul->otyp) {
     case AMULET_OF_ESP:
@@ -1678,7 +1687,8 @@ Amulet_on(struct obj *amul)
         EMagical_breathing |= W_AMUL;
         if (was_in_poison_gas) {
             makeknown(AMULET_OF_MAGICAL_BREATHING);
-            on_msg(uamul);
+            if (!on_msg_done)
+                on_msg(uamul);
             on_msg_done = TRUE;
             You("are no longer bothered by the poison gas.");
         }
@@ -1732,9 +1742,13 @@ Amulet_on(struct obj *amul)
             makeknown(AMULET_OF_STRANGULATION);
             Strangled = 6L;
             disp.botl = TRUE;
-            on_msg(uamul);
+            if (!on_msg_done)
+                on_msg(uamul);
             on_msg_done = TRUE;
-            pline("It constricts your throat!");
+            /* an amulet polymorphed in place hasn't been shown yet, so
+               "It" would name nothing */
+            pline("%s constricts your throat!",
+                  already_worn ? "Your amulet" : "It");
         }
         break;
     case AMULET_OF_RESTFUL_SLEEP: {
@@ -1761,7 +1775,8 @@ Amulet_on(struct obj *amul)
 
             if (!already_flying) {
                 makeknown(AMULET_OF_FLYING);
-                on_msg(uamul);
+                if (!on_msg_done)
+                    on_msg(uamul);
                 on_msg_done = TRUE;
                 disp.botl = TRUE; /* status: 'Fly' On */
                 You("are now in flight.");
@@ -1803,7 +1818,10 @@ void
 Amulet_off(void)
 {
     struct obj *amul = uamul; /* for off_msg() after setworn(NULL,W_AMUL) */
-    boolean mkn = FALSE, early_off_msg = FALSE;
+    boolean mkn = FALSE, early_off_msg = FALSE,
+            /* poly_obj() swapping a worn amulet's form shows the new
+               form itself; no "You were wearing" for the old one */
+            quiet = (gw.worn_swap_quiet && amul == gw.worn_slot_exempt);
 
     svc.context.takeoff.mask &= ~W_AMUL;
 
@@ -1811,7 +1829,8 @@ Amulet_off(void)
     case AMULET_OF_ESP:
         /* need to update ability before calling see_monsters() */
         setworn((struct obj *) 0, W_AMUL);
-        off_msg(amul);
+        if (!quiet)
+            off_msg(amul);
         early_off_msg = TRUE;
 
         see_monsters();
@@ -1828,7 +1847,8 @@ Amulet_off(void)
         /* amulet is currently still on; take it off before calling drown()
            and region_danger(); call off_msg() before specific messages */
         setworn((struct obj *) 0, W_AMUL);
-        off_msg(amul); /* 'uamul' has been set to Null */
+        if (!quiet)
+            off_msg(amul); /* 'uamul' has been set to Null */
         early_off_msg = TRUE;
 
         if (Underwater) {
@@ -1853,7 +1873,8 @@ Amulet_off(void)
         break;
     case AMULET_OF_STRANGULATION:
         setworn((struct obj *) 0, W_AMUL);
-        off_msg(amul);
+        if (!quiet)
+            off_msg(amul);
         early_off_msg = TRUE;
 
         if (Strangled) {
@@ -1878,7 +1899,8 @@ Amulet_off(void)
         /* remove amulet 'early' to determine whether Flying changes;
            also in case spoteffects() does something with the amulet */
         setworn((struct obj *) 0, W_AMUL);
-        off_msg(amul);
+        if (!quiet)
+            off_msg(amul);
         early_off_msg = TRUE;
 
         float_vs_flight(); /* probably not needed here */
@@ -1896,7 +1918,7 @@ Amulet_off(void)
     }
 
     setworn((struct obj *) 0, W_AMUL);
-    if (!early_off_msg)
+    if (!early_off_msg && !quiet)
         off_msg(amul); /* (not 'uamul'; it's Null now) */
     if (mkn)
         makeknown(amul->otyp);
@@ -2046,7 +2068,7 @@ Ring_on(struct obj *obj)
             float_up();
             learnring(obj, TRUE);
             if (Levitation)
-                spoteffects(FALSE); /* for sinks */
+                spoteffects_in_place(FALSE); /* for sinks */
         } else {
             float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
         }
@@ -2232,14 +2254,26 @@ Ring_gone(struct obj *obj)
 void
 Blindf_on(struct obj *otmp)
 {
-    boolean already_blind = Blind, changed = FALSE,
+    /* already in the eyewear slot when starting gear takes effect or a
+       worn item was polymorphed in place: it isn't put on again and gets
+       no inventory line here; after a swap (poly_obj()), sight is judged
+       from before the old form came off (Blindf_off()) */
+    boolean already_worn = (otmp->owornmask & W_TOOL) != 0L,
+            swapped = (already_worn && gw.worn_swap_quiet
+                       && gw.worn_slot_exempt
+                       && gw.worn_slot_exempt != otmp),
+            already_blind = swapped ? gw.worn_swap_blind : Blind,
+            changed = FALSE,
             /* goggles and the Eyes let the hero see while submerged */
-            old_uwvis = (Underwater && See_underwater);
+            old_uwvis = swapped ? gw.worn_swap_uwvis
+                                : (Underwater && See_underwater);
 
-    /* blindfold might be wielded; release it for wearing */
-    remove_worn_item(otmp, FALSE);
-    setworn(otmp, W_TOOL);
-    on_msg(otmp);
+    if (!already_worn) {
+        /* blindfold might be wielded; release it for wearing */
+        remove_worn_item(otmp, FALSE);
+        setworn(otmp, W_TOOL);
+        on_msg(otmp);
+    }
 
     if (Blind && !already_blind) {
         changed = TRUE;
@@ -2288,6 +2322,13 @@ Blindf_off(struct obj *otmp)
     }
     svc.context.takeoff.mask &= ~W_TOOL;
     setworn((struct obj *) 0, otmp->owornmask);
+    if (gw.worn_swap_quiet && otmp == gw.worn_slot_exempt) {
+        /* poly_obj() puts the new form on next; Blindf_on() tells of any
+           change in sight from here, so nothing is said or redrawn yet */
+        gw.worn_swap_blind = was_blind;
+        gw.worn_swap_uwvis = old_uwvis;
+        return;
+    }
     if (!nooffmsg)
         off_msg(otmp);
 

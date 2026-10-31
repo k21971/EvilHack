@@ -868,7 +868,9 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                any other falls into the pit below */
             if (mtmp->mtrapped && !pit_hold && !mtmp->wormno)
                 mtmp->mtrapped = 0;
-            if (mon_airborne(mtmp) || mon_steed_airborne(mtmp)) {
+            /* a rider whose steed walks goes down with it */
+            if ((mon_airborne(mtmp) && !mon_steed_walks(mtmp))
+                || mon_steed_airborne(mtmp)) {
                 if (canseemon(mtmp))
                     pline("%s %s over the pit.", Monnam(mtmp),
                           mon_lift_verb(mtmp));
@@ -930,8 +932,9 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                 impact_drop((struct obj *) 0, x, y, 0);
             if (mtmp) {
                 /*[don't we need special sokoban handling here?]*/
-                if (!grounded(mtmp->data)
-                    || can_levitate(mtmp) || can_fly(mtmp)
+                if (((!grounded(mtmp->data)
+                      || can_levitate(mtmp) || can_fly(mtmp))
+                     && !mon_steed_walks(mtmp))
                     || mon_steed_airborne(mtmp)
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
                     || mtmp->data->msize >= MZ_HUGE
@@ -2838,7 +2841,8 @@ create_pit_under(struct monst *mdef, struct monst *magr)
         if (mintrap(mdef, NO_TRAP_FLAGS) == Trap_Moved_Mon) {
             sent_down_hole = TRUE; /* went off level */
         } else if (!DEADMONSTER(mdef)
-                   && (mon_airborne(mdef) || mon_steed_airborne(mdef))) {
+                   && ((mon_airborne(mdef) && !mon_steed_walks(mdef))
+                       || mon_steed_airborne(mdef))) {
             if (canseemon(mdef))
                 pline_mon(mdef, "%s %s back up.", Monnam(mdef),
                           mon_lift_verb(mdef));
