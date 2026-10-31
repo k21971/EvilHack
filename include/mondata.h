@@ -524,6 +524,11 @@
     ((ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN]                  \
      || (ptr) == &mons[PM_BOURBON] || (ptr) == &mons[PM_OZZY])
 #define is_racialmon(ptr) (is_mplayer(ptr) || is_mercenary(ptr))
+/* monsters makemon() affiliates with a deity, which follows their race
+   when they have one (only a racial ^G gives them one) */
+#define is_holy_warrior(ptr) \
+    ((ptr) == &mons[PM_PALADIN] || (ptr) == &mons[PM_TEMPLAR]          \
+     || (ptr) == &mons[PM_CHAMPION] || (ptr) == &mons[PM_AGENT])
 /* NON_PM-safe lookup into mons[] for corpsenm/rmnum-derived indices.
    Falls back to PM_HUMAN on corruption so a corrupt index degrades to
    human semantics rather than crashing on &mons[-1] pointer-formation

@@ -256,8 +256,11 @@ get_mplname(struct monst *mtmp, char *nam)
                                     (boolean) mtmp->female));
 }
 
+/* build a player monster's race record: its default attacks, a race
+   (forcerace, or a random one the role allows when that is NON_PM), the
+   role's traits and, unless noname, a name from that race's list */
 void
-init_mplayer_erac(struct monst *mtmp, boolean noname)
+init_mplayer_erac(struct monst *mtmp, boolean noname, short forcerace)
 {
     char nam[PL_PSIZ];
     int race;
@@ -268,7 +271,7 @@ init_mplayer_erac(struct monst *mtmp, boolean noname)
     newerac(mtmp);
     rptr = ERAC(mtmp);
     /* note: mrace holds the full mhflags word (which can carry more
-       than one MH_ bit, e.g. vampires are MH_UNDEAD | MH_VAMPIRE), so
+       than one MH_ bit, e.g. vampires are MH_UNZOMBIE | MH_VAMPIRE), so
        race tests below must be bitwise, never equality */
     rptr->mrace = ptr->mhflags;
     rptr->ralign = ptr->maligntyp;
@@ -286,7 +289,9 @@ init_mplayer_erac(struct monst *mtmp, boolean noname)
     rptr->mattk[1].damn = 1;
     rptr->mattk[1].damd = 6;
 
-    race = m_randrace(mndx);
+    race = (forcerace != NON_PM) ? forcerace : m_randrace(mndx);
+    /* m_randrace() gives NON_PM when every allowed race is gone, and
+       apply_race(NON_PM) would free the record rptr points to */
     if (race != NON_PM)
         apply_race(mtmp, race);
 

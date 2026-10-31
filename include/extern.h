@@ -1635,6 +1635,7 @@ extern void newerid(struct monst *) NONNULLARG1;
 extern void free_erid(struct monst *) NONNULLARG1;
 extern struct monst *makemon(struct permonst *, coordxy, coordxy, mmflags_nht);
 extern void makemon_appear_msg(struct monst *, mmflags_nht) NONNULLARG1;
+extern void m_mount_steed(struct monst *, int) NONNULLARG1;
 extern struct monst *unmakemon(struct monst *, mmflags_nht) NONNULLARG1;
 extern boolean create_critters(int, struct permonst *, boolean);
 extern struct permonst *rndmonst_adj(int, int);
@@ -1948,6 +1949,7 @@ extern void copy_mextra(struct monst *, struct monst *);
 extern int pm_to_race(short);
 extern short align_randrace(aligntyp);
 extern short m_randrace(short);
+extern boolean m_canroll_race(short, short);
 extern void apply_race(struct monst *, short);
 extern void dealloc_mextra(struct monst *) NONNULLARG1;
 extern void mon_sanity_check(void);
@@ -2212,7 +2214,7 @@ extern void monst_globals_init(void);
 
 /* ### mplayer.c ### */
 
-extern void init_mplayer_erac(struct monst *, boolean) NONNULLARG1;
+extern void init_mplayer_erac(struct monst *, boolean, short) NONNULLARG1;
 extern struct monst *mk_mplayer(struct permonst *,
                                 coordxy, coordxy, boolean) NONNULLARG1;
 extern void create_mplayers(int, boolean);

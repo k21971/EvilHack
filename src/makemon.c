@@ -3351,7 +3351,8 @@ makemon(
     /* set player monsters rank/title, race flags, and any
        appropriate flags that go along with their race */
     if (is_mplayer(ptr))
-        init_mplayer_erac(mtmp, (mmflags & MM_NONAME) ? TRUE : FALSE);
+        init_mplayer_erac(mtmp, (mmflags & MM_NONAME) ? TRUE : FALSE,
+                          NON_PM);
     else if (is_mercenary(ptr) && ptr != &mons[PM_GUARD])
         apply_race(mtmp, m_randrace(mndx));
 
@@ -3388,67 +3389,8 @@ makemon(
         mtmp->mhp = mtmp->mhpmax = 9999;
 
     /* here is where we match riding monsters with their mounts */
-    if (!(mmflags & MM_NOSTEED)) {
-        switch (mndx) {
-        case PM_DEATH:
-            mount_monster(mtmp, PM_PALE_HORSE);
-            break;
-        case PM_FAMINE:
-            mount_monster(mtmp, PM_BLACK_HORSE);
-            break;
-        case PM_PESTILENCE:
-            mount_monster(mtmp, PM_WHITE_HORSE);
-            break;
-        case PM_NAZGUL:
-            mount_monster(mtmp, PM_FELL_BEAST);
-            break;
-        case PM_GOBLIN_OUTRIDER:
-            mount_monster(mtmp, PM_WOLF);
-            break;
-        case PM_GOBLIN_CAPTAIN:
-            mount_monster(mtmp, PM_WARG);
-            break;
-        case PM_URUK_HAI:
-            if (!rn2(7))
-                mount_monster(mtmp, PM_WARG);
-            break;
-        case PM_ORC_CAPTAIN:
-            if (!rn2(4))
-                mount_monster(mtmp, PM_WARG);
-            break;
-        case PM_KNIGHT:
-            if (racial_centaur(mtmp))
-                break;
-            if (mon_aligntyp(mtmp) == A_CHAOTIC) {
-                if (racial_drow(mtmp))
-                    rn2(3) ? mount_monster(mtmp, PM_CAVE_LIZARD)
-                           : mount_monster(mtmp, PM_LARGE_CAVE_LIZARD);
-                else if (racial_zombie(mtmp))
-                    rn2(3) ? mount_monster(mtmp, PM_SKELETAL_HORSE)
-                           : mount_monster(mtmp, PM_SKELETAL_WARHORSE);
-                else
-                    rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
-                           : mount_monster(mtmp, PM_CAUCHEMAR);
-            } else {
-                rn2(3) ? mount_monster(mtmp, PM_HORSE)
-                       : mount_monster(mtmp, PM_WARHORSE);
-            }
-            break;
-        case PM_FROST_GIANT:
-            if (Iniceq && !rn2(5))
-                mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
-            break;
-        case PM_DROW_RAIDER:
-            if (!rn2(7))
-                mount_monster(mtmp, PM_GIANT_SPIDER);
-            break;
-        case PM_DROW_CLERIC:
-            if (!rn2(7))
-                rn2(3) ? mount_monster(mtmp, PM_GIANT_SPIDER)
-                       : mount_monster(mtmp, PM_GARGANTUAN_SPIDER);
-            break;
-        }
-    }
+    if (!(mmflags & MM_NOSTEED))
+        m_mount_steed(mtmp, mndx);
 
     switch (ptr->mlet) {
     case S_MIMIC:
@@ -3647,8 +3589,7 @@ makemon(
             apply_race(mtmp, align_randrace(mon_aligntyp(mtmp)));
     }
     /* these monsters are normally affiliated with a deity */
-    if ((mndx == PM_PALADIN || mndx == PM_TEMPLAR || mndx == PM_CHAMPION
-         || mndx == PM_AGENT) && !(mmflags & MM_EMIN)) {
+    if (is_holy_warrior(ptr) && !(mmflags & MM_EMIN)) {
         aligntyp mal = has_erac(mtmp) ? ERAC(mtmp)->ralign : ptr->maligntyp;
 
         newemin(mtmp);
@@ -3756,6 +3697,72 @@ makemon_appear_msg(struct monst *mtmp, mmflags_nht mmflags)
               : (distu(x, y) <= (BOLT_LIM * BOLT_LIM)) ? " close by"
                 : "",
               exclaim ? '!' : '.');
+    }
+}
+
+/* match a riding monster of type mndx with its mount; ^G calls this
+   itself once it has given the rider a race */
+void
+m_mount_steed(struct monst *mtmp, int mndx)
+{
+    switch (mndx) {
+    case PM_DEATH:
+        mount_monster(mtmp, PM_PALE_HORSE);
+        break;
+    case PM_FAMINE:
+        mount_monster(mtmp, PM_BLACK_HORSE);
+        break;
+    case PM_PESTILENCE:
+        mount_monster(mtmp, PM_WHITE_HORSE);
+        break;
+    case PM_NAZGUL:
+        mount_monster(mtmp, PM_FELL_BEAST);
+        break;
+    case PM_GOBLIN_OUTRIDER:
+        mount_monster(mtmp, PM_WOLF);
+        break;
+    case PM_GOBLIN_CAPTAIN:
+        mount_monster(mtmp, PM_WARG);
+        break;
+    case PM_URUK_HAI:
+        if (!rn2(7))
+            mount_monster(mtmp, PM_WARG);
+        break;
+    case PM_ORC_CAPTAIN:
+        if (!rn2(4))
+            mount_monster(mtmp, PM_WARG);
+        break;
+    case PM_KNIGHT:
+        if (racial_centaur(mtmp))
+            break;
+        if (mon_aligntyp(mtmp) == A_CHAOTIC) {
+            if (racial_drow(mtmp))
+                rn2(3) ? mount_monster(mtmp, PM_CAVE_LIZARD)
+                       : mount_monster(mtmp, PM_LARGE_CAVE_LIZARD);
+            else if (racial_zombie(mtmp))
+                rn2(3) ? mount_monster(mtmp, PM_SKELETAL_HORSE)
+                       : mount_monster(mtmp, PM_SKELETAL_WARHORSE);
+            else
+                rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
+                       : mount_monster(mtmp, PM_CAUCHEMAR);
+        } else {
+            rn2(3) ? mount_monster(mtmp, PM_HORSE)
+                   : mount_monster(mtmp, PM_WARHORSE);
+        }
+        break;
+    case PM_FROST_GIANT:
+        if (Iniceq && !rn2(5))
+            mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
+        break;
+    case PM_DROW_RAIDER:
+        if (!rn2(7))
+            mount_monster(mtmp, PM_GIANT_SPIDER);
+        break;
+    case PM_DROW_CLERIC:
+        if (!rn2(7))
+            rn2(3) ? mount_monster(mtmp, PM_GIANT_SPIDER)
+                   : mount_monster(mtmp, PM_GARGANTUAN_SPIDER);
+        break;
     }
 }
 

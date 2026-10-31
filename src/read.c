@@ -4130,7 +4130,9 @@ create_particular_creation(
     int i, mx, my, firstchoice = NON_PM;
     struct monst *mtmp;
     boolean madeany = FALSE;
+    char unnatural[BUFSZ]; /* a racial request the game never makes */
 
+    unnatural[0] = '\0';
     if (!d->randmonst) {
         firstchoice = d->which;
         if (cant_revive(&d->which, FALSE, (struct obj *) 0)
@@ -4185,11 +4187,11 @@ create_particular_creation(
         }
         if (d->invisible)
             mmflags |= MM_MINVIS;
-        /* the appear line waits until the race is applied below, and a
-           random fallback (no monster left in the class) forms no group,
-           whose members would get neither */
+        /* the steed and the appear line wait until the race is applied
+           below, and a random fallback (no monster left in the class)
+           forms no group, whose members would get neither */
         if (d->race != NON_PM)
-            mmflags |= (MM_NOMSG | MM_NOGRP);
+            mmflags |= (MM_NOMSG | MM_NOGRP | MM_NOSTEED);
 
         mtmp = makemon(whichpm, u.ux, u.uy, mmflags);
         if (!mtmp) {
@@ -4204,19 +4206,45 @@ create_particular_creation(
            the new race; a genocided race leaves the rolled one */
         if (d->race != NON_PM
             && !(svm.mvitals[d->race].mvflags & G_GONE)) {
-            /* replace any race makemon() rolled, so only the named
-               race's flags and attacks apply; a player monster's racial
-               data also holds its default weapon attacks, so it keeps
-               the rolled race underneath; gear, resistances and a holy
-               warrior's god from the first roll stay */
-            if (!is_mplayer(mtmp->data))
-                apply_race(mtmp, NON_PM);
-            apply_race(mtmp, d->race);
+            boolean shifter = (mtmp->cham != NON_PM);
+
+            /* rebuild the race as if makemon() had rolled the named one:
+               the rolled race's resistances go too (at creation only the
+               race and a player monster's role give them), and a player
+               monster's record is made again in full - attacks, race,
+               role traits and a name from that race's list; a
+               shapechanger's form took a plain race, so it gets one;
+               gear and peacefulness from the first roll stay */
+            if (has_erac(mtmp))
+                mtmp->mintrinsics = 0;
+            apply_race(mtmp, NON_PM);
+            if (is_mplayer(mtmp->data) && !shifter)
+                init_mplayer_erac(mtmp, !has_mgivenname(mtmp), d->race);
+            else
+                apply_race(mtmp, d->race);
+            /* a holy warrior takes its god from its race */
+            if (is_holy_warrior(mtmp->data) && has_emin(mtmp))
+                EMIN(mtmp)->min_align = sgn(ERAC(mtmp)->ralign);
             set_malign(mtmp);
             newsym(mx, my); /* in case of a racial glyph */
+            /* allowed, but noted below, when a monster that rolls races
+               (makemon()'s rule) could never roll this one */
+            if (!*unnatural && !shifter
+                && (is_mplayer(mtmp->data)
+                    || (is_mercenary(mtmp->data)
+                        && mtmp->data != &mons[PM_GUARD]))
+                && !m_canroll_race(mtmp->mnum, d->race)) {
+                (void) racial_adj(unnatural, mtmp);
+                Strcat(unnatural, mon_pmname(mtmp));
+            }
         }
-        if (d->race != NON_PM)
+        if (d->race != NON_PM) {
+            /* the steed and the appear line, as makemon() would have
+               given them for the final race */
+            m_mount_steed(mtmp, (mtmp->cham != NON_PM) ? mtmp->cham
+                                                       : mtmp->mnum);
             makemon_appear_msg(mtmp, mmflags);
+        }
         if (d->maketame) {
             (void) tamedog(mtmp, (struct obj *) 0, FALSE);
         } else if (d->makepeaceful || d->makehostile) {
@@ -4280,6 +4308,8 @@ create_particular_creation(
             && mtmp->cham != firstchoice)
             (void) newcham(mtmp, &mons[firstchoice], NO_NC_FLAGS);
     }
+    if (*unnatural)
+        pline("Note: the game never makes %s.", an(unnatural));
     return madeany;
 }
 

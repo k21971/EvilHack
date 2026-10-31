@@ -51,6 +51,7 @@ staticfn struct permonst *accept_newcham_form(struct monst *, int);
 staticfn void kill_eggs(struct obj *) NO_NNARGS;
 staticfn void pacify_guard(struct monst *);
 staticfn short m_chooserace(unsigned long);
+staticfn unsigned long m_racemask(short);
 staticfn int scale_mon_damage(struct monst *, int, int) NONNULLARG1;
 staticfn boolean damage_mon_core(struct monst *, int, boolean) NONNULLARG1;
 staticfn boolean mon_falls_unsupported(struct monst *) NONNULLARG1;
@@ -9664,17 +9665,19 @@ pm_to_race(short mndx)
     return NON_PM;
 }
 
+/* the races a monster can be given at random */
+static const short mraces[] = {
+    PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME,
+    PM_ORC, PM_GIANT, PM_HOBBIT, PM_CENTAUR,
+    PM_ILLITHID, PM_TORTLE, PM_DROW, PM_DRAUGR,
+    PM_VAMPIRE, PM_AASIMAR, 0
+};
+
 staticfn short
 m_chooserace(unsigned long permitted)
 {
     int i, count = 0;
     short race = NON_PM;
-    static const short mraces[] = {
-        PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME,
-        PM_ORC, PM_GIANT, PM_HOBBIT, PM_CENTAUR,
-        PM_ILLITHID, PM_TORTLE, PM_DROW, PM_DRAUGR,
-        PM_VAMPIRE, PM_AASIMAR, 0
-    };
 
     for (i = 0; mraces[i]; i++) {
         if ((permitted & mons[mraces[i]].mhflags) != 0L
@@ -9716,8 +9719,9 @@ align_randrace(aligntyp algn)
     return m_chooserace(permitted);
 }
 
-short
-m_randrace(short mndx)
+/* the races monster type mndx can be given at random, as MH_ flags */
+staticfn unsigned long
+m_racemask(short mndx)
 {
     unsigned long permitted = MH_HUMAN;
 
@@ -9808,7 +9812,26 @@ m_randrace(short mndx)
     default:
         break;
     }
-    return m_chooserace(permitted);
+    return permitted;
+}
+
+short
+m_randrace(short mndx)
+{
+    return m_chooserace(m_racemask(mndx));
+}
+
+/* can a monster of type mndx be given race raceidx (a PM_ index) at
+   random? this is the test m_chooserace() makes */
+boolean
+m_canroll_race(short mndx, short raceidx)
+{
+    int i;
+
+    for (i = 0; mraces[i]; i++)
+        if (mraces[i] == raceidx)
+            return (m_racemask(mndx) & mons[raceidx].mhflags) != 0L;
+    return FALSE;
 }
 
 /* overlay a race onto a monster via the erac mextra component; raceidx
