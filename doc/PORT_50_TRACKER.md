@@ -8579,20 +8579,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       drow/aasimar near the west edge to fire. Column-0 family,
       minted by the Convict-slice newsym-caller audit (BUG-1530);
       fix shape = clamp or guard the vis_func like the vision arm.
-      CLOSED 2026-10-31 (session 280, S280-C4; BUG-2732, 2733).
-      set_lit() returns for !isok(); litroom()'s Rogue-level arm and
-      corridor test use the aura's centre (ruled fold). Battery T5:
-      levl[0][y].lit PRE 1, POST 0; a Rogue-level darkness centred in
-      another room PRE darkened the hero's room, POST that room.
+      CLOSED 2026-10-31 (session 280, acbdd85de, tracker f1a760dbc;
+      BUG-2732, 2733). set_lit() returns for !isok(); litroom()'s
+      Rogue-level arm and corridor test use the aura's centre (ruled
+      fold). Battery T5: levl[0][y].lit PRE 1, POST 0; a Rogue-level
+      darkness centred in another room PRE darkened the hero's room,
+      POST that room.
 - [x] LOW hygiene: allmain.c per-turn fmon walk (the
       Knight/Aasimar/Infidel dragon/demon/angel reaction loop)
       calls newsym(mtmp->mx, mtmp->my) with no DEADMONSTER/!mx
       skip - add the standard `DEADMONSTER(mtmp) || !mtmp->mx`
       skip the branch gave see_monsters(). Unreachable for the
       states seen so far; minted by the same audit.
-      CLOSED 2026-10-31 (session 280, S280-C4; BUG-2734). The loop skips
-      `!mtmp->mx` (not mon_offmap(): monster-ridden steeds are
-      MON_OFFMAP with real coordinates). Not battery-reachable.
+      CLOSED 2026-10-31 (session 280, acbdd85de, tracker f1a760dbc;
+      BUG-2734). The loop skips `!mtmp->mx` (not mon_offmap():
+      monster-ridden steeds are MON_OFFMAP with real coordinates). Not
+      battery-reachable.
 - [x] Steed/saddle/barding architecture - COMPLETE 2026-07-26/27 in
       THREE commits, maintainer-ratified split: f6a787e0d barding +
       the saddle/riding racial gates (31 files +926/-82), 96d900884
@@ -11754,24 +11756,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       which would reach relmon()'s "mon not in list" panic. Also
       setmangry()'s Kathryn loop newsym()s every fmon monster,
       parked ones included.
-      CLOSED 2026-10-31 (session 280, S280-C5; BUG-2735..2737; BUG-2735
-      and 2736 upstream rows). (a) bhitm()'s tail runs m_respond() and
-      the reveal_invis arm only with mtmp->mx, and force bolt's resist()
-      is NOTELL off the map (the damage stays and can't kill);
-      hot_pursuit() kept; mhurtle() already wakes and angers its target
-      on the map. (b) The teleport arm wakes and angers a peaceful
-      engulfer on a no-teleport level before u_teleport_mon()
-      (code-verified only). (c) Not reachable: find_defensive(),
-      find_misc() and the amulet escape refuse while the monster engulfs
-      the hero, so release_hero() never expels there. setmangry()'s
-      Kathryn loop only newsym()s Bourbon and Ozzy, never parked (no
-      change). Folded: dispel_evil_banish() wakes its target before it
-      leaves (a sleeper growled from <0,0>; ruled), and a priest killed
-      by its god's bolt there isn't banished (reviewer LOW). Battery T6:
-      an invisible gnome zombie knocked onto a trap door PRE m_respond()
-      at 0,0 and a stray 'I', POST neither; a sleeping pit fiend
-      banished PRE "You banish the pit fiend!  It growls!", POST woken
-      first.
+      CLOSED 2026-10-31 (session 280, 50cc2c27b, tracker f1a760dbc;
+      BUG-2735..2737; BUG-2735 and 2736 upstream rows). (a) bhitm()'s
+      tail runs m_respond() and the reveal_invis arm only with mtmp->mx,
+      and force bolt's resist() is NOTELL off the map (the damage stays
+      and can't kill); hot_pursuit() kept; mhurtle() already wakes and
+      angers its target on the map. (b) The teleport arm wakes and
+      angers a peaceful engulfer on a no-teleport level before
+      u_teleport_mon() (code-verified only). (c) Not reachable:
+      find_defensive(), find_misc() and the amulet escape refuse while
+      the monster engulfs the hero, so release_hero() never expels
+      there. setmangry()'s Kathryn loop only newsym()s Bourbon and Ozzy,
+      never parked (no change). Folded: dispel_evil_banish() wakes its
+      target before it leaves (a sleeper growled from <0,0>; ruled), and
+      a priest killed by its god's bolt there isn't banished (reviewer
+      LOW). Battery T6: an invisible gnome zombie knocked onto a trap
+      door PRE m_respond() at 0,0 and a stray 'I', POST neither; a
+      sleeping pit fiend banished PRE "You banish the pit fiend!  It
+      growls!", POST woken first.
 - [x] LOW: power word kill on a life-saved target (BUG-2270; with
       BUG-2271 its friendly survivor, BUG-2272 the Vecna invoke) -
       FIXED 2026-10-11 (session 211, commit 222276412, tracker c5b523635; closure notes in
@@ -19899,11 +19901,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hot_pursuit() on it (5.0's newsym() rejects <0,0>;
       m_respond_support() now returns early off the map). Needs a
       trace: reproduce, then guard the tail. LOW.
-      CLOSED 2026-10-31 (session 280, S280-C5; BUG-2735), with the
-      bhitm() tail row above (minted 2026-10-09): mhurtle() wakes and
-      angers the target while it is still on the map, so only
-      m_respond() and the reveal_invis arm needed the mtmp->mx guard.
-      Battery T6 (that row).
+      CLOSED 2026-10-31 (session 280, 50cc2c27b, tracker f1a760dbc;
+      BUG-2735), with the bhitm() tail row above (minted 2026-10-09):
+      mhurtle() wakes and angers the target while it is still on the
+      map, so only m_respond() and the reveal_invis arm needed the
+      mtmp->mx guard. Battery T6 (that row).
 - [x] LOW: makemon() lacks master's Knight dragon grudge (minted
       2026-10-14, session 225, by the 67524c0bd census; master
       feature never ported). Master's `case S_DRAGON` (0085e9669,
@@ -20396,12 +20398,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       returns "gone" (BUG-2362), so `if (dropy(obj)) obj = NULL;` is
       the likely fix. Needs a trace in play first (levitating over a
       trap door with a full inventory, eating from a stack). LOW.
-      CLOSED 2026-10-31 (session 280, S280-C4; BUG-2729; upstream row).
-      Master's `if (dropy(otmp)) return NULL;` in touchfood() and
-      dog_eat(); eatcorpse() returns 2 for a gone piece and the resume
-      arm stops. Battery T5: PRE the fortune cookie that fell through
-      the trap door was eaten (done_eating() with piece->where 5,
-      OBJ_MIGRATING), POST nothing eaten.
+      CLOSED 2026-10-31 (session 280, acbdd85de, tracker f1a760dbc;
+      BUG-2729; upstream row). Master's `if (dropy(otmp)) return NULL;`
+      in touchfood() and dog_eat(); eatcorpse() returns 2 for a gone
+      piece and the resume arm stops. Battery T5: PRE the fortune cookie
+      that fell through the trap door was eaten (done_eating() with
+      piece->where 5, OBJ_MIGRATING), POST nothing eaten.
 - [x] LOW: sacrifice_your_race()'s summoned demon is vanilla 5.0
       (minted 2026-10-14, session 225, by the 67524c0bd census).
       The branch summons dlord() and makes a coaligned one peaceful
@@ -21628,12 +21630,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       square, a lethal 1-in-8 direction and a near-dead fiend.
       Candidate: re-check DEADMONSTER(magr) after blow_up_landmine() and
       return FALSE with the hitflags carrying AGR_DIED. LOW.
-      CLOSED 2026-10-31 (session 280, S280-C1; BUG-2730). The land-mine
-      leg returns FALSE when the blast killed the attacker (or knocked a
-      polymorphed hero out of form) or the target; the m-v-m arm flags
-      AGR_DIED. Battery T6: PRE the dead fiend "hurls you down to the
-      bottom!", and the m-v-m leg reached passivemm() on the dead fiend,
-      a double m_detach() and "Program in disorder!"; POST clean.
+      CLOSED 2026-10-31 (session 280, 751181773, tracker f1a760dbc;
+      BUG-2730). The land-mine leg returns FALSE when the blast killed
+      the attacker (or knocked a polymorphed hero out of form) or the
+      target; the m-v-m arm flags AGR_DIED. Battery T6: PRE the dead
+      fiend "hurls you down to the bottom!", and the m-v-m leg reached
+      passivemm() on the dead fiend, a double m_detach() and "Program in
+      disorder!"; POST clean.
 - [x] Melee combat noise PORTED 2026-09-11 (session 112; the row
       minted 2026-09-09 by the bane-aura census; one code commit =
       include/mondata.h + src/uhitm.c + src/mhitm.c + src/mhitu.c; no
@@ -27597,11 +27600,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       entangled steed, so the hero rides away held; explode.c's scatter
       misses the ridden steed the same way the grass and tree releases
       did. LOW.
-      CLOSED 2026-10-31 (session 280, S280-C3 and S280-C1;
-      BUG-2723..2726). stucksteed() refuses an entangled steed first
-      ("Your pony is entangled by vegetation." / "...by a tree.",
-      trapmove()'s line, ruled; pline, since every caller stops at
-      once); jump() refuses a magic jump too and takes the turn;
+      CLOSED 2026-10-31 (session 280, 2c10d0f78 and 751181773, tracker
+      f1a760dbc; BUG-2723..2726). stucksteed() refuses an entangled
+      steed first ("Your pony is entangled by vegetation." / "...by a
+      tree.", trapmove()'s line, ruled; pline, since every caller stops
+      at once); jump() refuses a magic jump too and takes the turn;
       hurtle() anchors the pair ("Your pony is anchored by the
       entangling vegetation." / "...by the tree.", ruled); u_on_newpos()
       frees the hold when the pair is put elsewhere (teleport, level
@@ -27775,12 +27778,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       drops a steed left on a hole. Battery T5: PRE the wolf drowned in
       a moat; POST the pair goes around, falls into pits together, and a
       separated wolf on a hole falls.
-      REVISED 2026-10-31 (session 280, S280-C1; BUG-2717): re-ruled
-      MONSTERS MATCH THE HERO, so the rider's own lift carries a walking
-      steed again; mon_steed_walks() and its sites are reverted, and the
-      drowning and plummeting this row describes are fixed instead by
-      mon_rider_airborne() (the carried steed's own turn spares it).
-      separate_steed_and_rider()'s drop of a steed left on a hole stays.
+      REVISED 2026-10-31 (session 280, 751181773, tracker f1a760dbc;
+      BUG-2717): re-ruled MONSTERS MATCH THE HERO, so the rider's own
+      lift carries a walking steed again; mon_steed_walks() and its
+      sites are reverted, and the drowning and plummeting this row
+      describes are fixed instead by mon_rider_airborne() (the carried
+      steed's own turn spares it). separate_steed_and_rider()'s drop of
+      a steed left on a hole stays.
 - [x] LOW: rider / steed lift residue (minted 2026-10-31, session 279,
       by the rider-lift fixes; RULED 2026-10-31 THE STEED DECIDES,
       decisions log; plannable). goodpos(), minliquid_core() and
@@ -27799,25 +27803,26 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       levitation carries a walking steed), and a ridden monster pair
       gets whichever lift is better, the rider's or the steed's, both
       ways; supersedes the steed-decides ruling above and BUG-2716's
-      rule. CLOSED 2026-10-31 (session 280, S280-C1; BUG-2717..2721).
-      Every mon_steed_walks() site is back to its pre-f9c1daaab form
-      (mfndpos() by the rider's own lift, session 275's pathing ruling)
-      and the macro is gone; mon_rider_airborne() keeps a carried steed
-      out of water, lava, open air and sewage (minliquid_core(),
-      mon_slowed_by_sewage(), dochug()); goodpos() counts a flying
-      steed; newcham() tells a monster's rider of its steed's lost
-      wings; the hero clause closes as vanilla, with dochug()'s plummet
-      and the sewage slow now sparing a levitating hero's steed too
-      (ruled); spear traps joined floor_trigger() (ruled "a spear trap
-      IS a floor trap"). Battery T1: a levitating outrider's wolf PRE
-      drowns / burns / plummets / slows, POST carried; the pair crosses
-      a moat column on POST only; a pit and a squeaky board spare the
-      levitating pair on POST; goodpos() for a rider on a pegasus PRE
-      0/0/0, POST 1/1/1. T2: the polymorphed steed drops its rider
-      through a hole on POST; a levitating hero's pony PRE plummets /
-      slows, POST carried. T3: spear traps as floor traps. The proposed
-      m_detach() fold was dropped: battery T2 showed mondead() and
-      mongone() already drop a rider whose flying steed dies over a hole
+      rule. CLOSED 2026-10-31 (session 280, 751181773, tracker
+      f1a760dbc; BUG-2717..2721). Every mon_steed_walks() site is back
+      to its pre-f9c1daaab form (mfndpos() by the rider's own lift,
+      session 275's pathing ruling) and the macro is gone;
+      mon_rider_airborne() keeps a carried steed out of water, lava,
+      open air and sewage (minliquid_core(), mon_slowed_by_sewage(),
+      dochug()); goodpos() counts a flying steed; newcham() tells a
+      monster's rider of its steed's lost wings; the hero clause closes
+      as vanilla, with dochug()'s plummet and the sewage slow now
+      sparing a levitating hero's steed too (ruled); spear traps joined
+      floor_trigger() (ruled "a spear trap IS a floor trap"). Battery
+      T1: a levitating outrider's wolf PRE drowns / burns / plummets /
+      slows, POST carried; the pair crosses a moat column on POST only;
+      a pit and a squeaky board spare the levitating pair on POST;
+      goodpos() for a rider on a pegasus PRE 0/0/0, POST 1/1/1. T2: the
+      polymorphed steed drops its rider through a hole on POST; a
+      levitating hero's pony PRE plummets / slows, POST carried. T3:
+      spear traps as floor traps. The proposed m_detach() fold was
+      dropped: battery T2 showed mondead() and mongone() already drop a
+      rider whose flying steed dies over a hole
       (separate_steed_and_rider()).
 - [x] LOW: the earthquake never cracks sand (minted 2026-10-27, session
       265 reviewer; master-shared; needs a ruling). SAND (rm.h 38) is
@@ -27929,12 +27934,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       over water or lava is in the branches, not on the surface, so
       water walking makes no difference - no burn or drowning while
       held; the landing on release meets the liquid once. LOW.
-      CLOSED 2026-10-31 (session 280, S280-C2; BUG-2722, plus BUG-2727
-      for a tree-held steed). pooleffects() keeps any vine-held hero
-      above water or lava (the !Wwalking term is gone); the release
-      meets it once. Battery T3: PRE three burns while held and one at
-      release, POST none while held and exactly one; controls alike on
-      both builds.
+      CLOSED 2026-10-31 (session 280, 033ade5e1, tracker f1a760dbc;
+      BUG-2722, plus BUG-2727 for a tree-held steed). pooleffects()
+      keeps any vine-held hero above water or lava (the !Wwalking term
+      is gone); the release meets it once. Battery T3: PRE three burns
+      while held and one at release, POST none while held and exactly
+      one; controls alike on both builds.
 - [ ] LOW: an entanglement announced as roots lets go as branches
       (minted 2026-10-31, session 280, battery T3; both builds, record).
       cast_entangle() names "roots" half the time for a grounded hero
@@ -29469,11 +29474,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       reviewer; upstream-shared; master has no such function.
       Suggested: `mon_would_take_item && !mon_refuses_corpse` there.
       LOW.
-      CLOSED 2026-10-31 (session 280, S280-C4; BUG-2731; upstream row).
-      mon_would_take_item() && !mon_refuses_corpse() (no cube arm:
-      find_offensive() refuses mindless, handless monsters); the vanilla
-      `i >= 3` pile-size test is left alone. Battery T5: a newt corpse
-      PRE 1, POST 0; a lizard corpse 1 on both.
+      CLOSED 2026-10-31 (session 280, acbdd85de, tracker f1a760dbc;
+      BUG-2731; upstream row). mon_would_take_item() &&
+      !mon_refuses_corpse() (no cube arm: find_offensive() refuses
+      mindless, handless monsters); the vanilla `i >= 3` pile-size test
+      is left alone. Battery T5: a newt corpse PRE 1, POST 0; a lizard
+      corpse 1 on both.
 - [x] LOW: goal-rooted pathing for item goals and the hero image; the
       flee flip needs a real item; a fleeing honey badger runs from the
       hero (BUG-2113..2116) - FIXED 2026-10-03 (session 175, commit
@@ -32167,17 +32173,17 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Fix shape: free those classes unconditionally in the noncorporeal
       arm, or have the thitmonst() arm drop the survivor. LOW
       (leak).
-      CLOSED 2026-10-31 (session 280, S280-C3; BUG-2728). The
-      noncorporeal premise is unreachable: bhit() lets a non-shade-aware
-      missile pass through a ghost or shade (shade_miss(), vanilla
-      alike; battery T5 saw "The cream pie passes harmlessly through
-      Tom." on both builds, then it landed). The real leak was the ball
-      of webbing, which hmon_hitmon_misc_obj() never uses up, after its
-      1-in-100 survival of hero_breaks() (or with the target off the
-      map): thitmonst() now returns 0 for a missile still tracked and
-      OBJ_FREE, and the caller lands it. Battery F1: PRE the webbing was
-      never freed, POST it went back to throwit() and broke there
-      ("Splat!").
+      CLOSED 2026-10-31 (session 280, 2c10d0f78, tracker f1a760dbc;
+      BUG-2728). The noncorporeal premise is unreachable: bhit() lets a
+      non-shade-aware missile pass through a ghost or shade
+      (shade_miss(), vanilla alike; battery T5 saw "The cream pie passes
+      harmlessly through Tom." on both builds, then it landed). The real
+      leak was the ball of webbing, which hmon_hitmon_misc_obj() never
+      uses up, after its 1-in-100 survival of hero_breaks() (or with the
+      target off the map): thitmonst() now returns 0 for a missile still
+      tracked and OBJ_FREE, and the caller lands it. Battery F1: PRE the
+      webbing was never freed, POST it went back to throwit() and broke
+      there ("Splat!").
 - [ ] LOW: master's "Phasing" status condition is absent (minted
       2026-10-02, session 171, found beside the census of master
       91977c174). Master a8d9fa0fb (2023-05-13, "Add phasing status to
@@ -35010,10 +35016,10 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-31 | mhurtle() and will_hurtle() refuse a stuck or trapped monster, but the hero's steed is never mtrapped (the hold is u.utrap), so a cursed saddle or a knockback moves the pair with u_on_newpos() out of a bear trap, web or pit, out of u.ustuck's grip, or away from a ball on the floor (hurtle() refuses all of these for the hero), leaving u.utrap set. Official_nh50 b0c09c878; BUG-2699, src/dothrow.c | found (branch-fixed 5181e8adf: steed_held_in_place() in both refusals; the steed arm drags a carried ball's chain); not sent; triage pending |
 | 2026-10-31 | rhack() leaves iflags.menu_requested set after an 'm'-prefixed command that took time, so the monsters' turns see it: trapeffect_pit()'s "You carefully lower yourself into the pit." for a forced pit, pickup.c's forced-pickup menu. Official_nh50 b0c09c878; BUG-2700, src/cmd.c | found (branch-fixed 5181e8adf: cleared in rhack()'s ECMD_TIME branch); not sent; triage pending |
 | 2026-10-31 | float_down()'s Punished test assigns trap = t_at(uball->ox, uball->oy); a non-pit trap under the ball survives the failed test, the come-down messages are skipped, and the trap pass runs dotrap() on the hero for a trap on another square. Official_nh50 b0c09c878; BUG-2713, src/trap.c | found (branch-fixed f9c1daaab: a local for the ball's trap); not sent; triage pending |
-| 2026-10-31 | touchfood() tests only `where == OBJ_DELETED` after dropy(), so a piece dropped from a full pack down a seen trap door or hole (ship_object(), OBJ_MIGRATING) stays victual.piece: the hero finishes eating food that is on another level (done_eating() -> useupf() reads its ox/oy as dnum/dlevel). Official_nh50 b0c09c878; BUG-2729, src/eat.c | found (branch-fixed S280-C4: `if (dropy(otmp)) return NULL;` plus the resume and eatcorpse() NULL paths); not sent; triage pending |
-| 2026-10-31 | mon_likes_objpile_at() (find_offensive()'s MUSE_WAN_TELEPORTATION gate) counts an ordinary corpse under the hero through mon_would_take_item()'s likes_objs FOOD_CLASS arm, though mpickstuff() refuses it (mon_refuses_corpse()), so a collector spends a teleportation charge for nothing. Official_nh50 b0c09c878; BUG-2731, src/muse.c | found (branch-fixed S280-C4: the mon_refuses_corpse() filter); not sent; triage pending |
-| 2026-10-31 | knock's knockback (bhitm(), mhurtle()) can carry the target onto a trap door, hole or level teleporter, after which bhitm()'s tail runs m_respond() at <0,0> (a gaze, shriek or moan from nowhere). Official_nh50 b0c09c878; BUG-2735, src/zap.c | found (branch-fixed S280-C5: m_respond() and map_invisible() only with mtmp->mx); not sent; triage pending |
-| 2026-10-31 | u_teleport_mon() puts an engulfer on a no-teleport level that rloc() can't place into limbo (m_into_limbo()); bhitm()'s closing wakeup() then angers a peaceful one with newsym(<0,0>) (an impossible). Official_nh50 b0c09c878; BUG-2736, src/zap.c | found (branch-fixed S280-C5: wake and anger it before u_teleport_mon(), as dispel evil does); not sent; triage pending |
+| 2026-10-31 | touchfood() tests only `where == OBJ_DELETED` after dropy(), so a piece dropped from a full pack down a seen trap door or hole (ship_object(), OBJ_MIGRATING) stays victual.piece: the hero finishes eating food that is on another level (done_eating() -> useupf() reads its ox/oy as dnum/dlevel). Official_nh50 b0c09c878; BUG-2729, src/eat.c | found (branch-fixed acbdd85de: `if (dropy(otmp)) return NULL;` plus the resume and eatcorpse() NULL paths); not sent; triage pending |
+| 2026-10-31 | mon_likes_objpile_at() (find_offensive()'s MUSE_WAN_TELEPORTATION gate) counts an ordinary corpse under the hero through mon_would_take_item()'s likes_objs FOOD_CLASS arm, though mpickstuff() refuses it (mon_refuses_corpse()), so a collector spends a teleportation charge for nothing. Official_nh50 b0c09c878; BUG-2731, src/muse.c | found (branch-fixed acbdd85de: the mon_refuses_corpse() filter); not sent; triage pending |
+| 2026-10-31 | knock's knockback (bhitm(), mhurtle()) can carry the target onto a trap door, hole or level teleporter, after which bhitm()'s tail runs m_respond() at <0,0> (a gaze, shriek or moan from nowhere). Official_nh50 b0c09c878; BUG-2735, src/zap.c | found (branch-fixed 50cc2c27b: m_respond() and map_invisible() only with mtmp->mx); not sent; triage pending |
+| 2026-10-31 | u_teleport_mon() puts an engulfer on a no-teleport level that rloc() can't place into limbo (m_into_limbo()); bhitm()'s closing wakeup() then angers a peaceful one with newsym(<0,0>) (an impossible). Official_nh50 b0c09c878; BUG-2736, src/zap.c | found (branch-fixed 50cc2c27b: wake and anger it before u_teleport_mon(), as dispel evil does); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
