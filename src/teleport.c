@@ -167,7 +167,10 @@ goodpos(
                         || (!Is_waterlevel(&u.uz)
                             && !is_waterwall(x, y)
                             && (m_in_air(mtmp) || can_levitate(mtmp)
-                                || can_fly(mtmp))));
+                                || can_fly(mtmp)
+                                /* a flying or floating steed carries
+                                   its rider over it */
+                                || mon_steed_airborne(mtmp))));
         } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
                    && !is_puddle(x, y)) {
             return FALSE;
@@ -183,13 +186,15 @@ goodpos(
                         || (Upolyd && likes_lava(gy.youmonst.data)));
             else
                 return (m_in_air(mtmp) || can_levitate(mtmp)
-                        || can_fly(mtmp) || likes_lava(mdat));
+                        || can_fly(mtmp) || likes_lava(mdat)
+                        || mon_steed_airborne(mtmp));
         } else if (is_open_air(x, y) && !ignoreair) {
             if (mtmp == &gy.youmonst)
                 return (Levitation || Flying);
             else
                 return (m_in_air(mtmp) || is_clinger(mdat)
-                        || can_levitate(mtmp) || can_fly(mtmp));
+                        || can_levitate(mtmp) || can_fly(mtmp)
+                        || mon_steed_airborne(mtmp));
         }
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;

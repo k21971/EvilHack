@@ -751,8 +751,9 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             heros_fault = (madeby_u || madeby_obj);
     boolean shopdoor, at_u = u_at(x, y), wont_fall = Levitation || Flying;
     /* a live tree's branches or roots hold the hero where they are, over
-       the new pit or hole included; the hold is the tree's */
-    boolean tree_held = (at_u && u_tree_held());
+       the new pit or hole included; the hold is the tree's, and one that
+       holds the hero's steed holds the pair */
+    boolean tree_held = (at_u && u_pair_tree_held());
     int old_typ, old_aligntyp = A_NONE;
 
     /* a chain waiting behind the floor's hold goes first, so that the
@@ -868,9 +869,7 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                any other falls into the pit below */
             if (mtmp->mtrapped && !pit_hold && !mtmp->wormno)
                 mtmp->mtrapped = 0;
-            /* a rider whose steed walks goes down with it */
-            if ((mon_airborne(mtmp) && !mon_steed_walks(mtmp))
-                || mon_steed_airborne(mtmp)) {
+            if (mon_airborne(mtmp) || mon_steed_airborne(mtmp)) {
                 if (canseemon(mtmp))
                     pline("%s %s over the pit.", Monnam(mtmp),
                           mon_lift_verb(mtmp));
@@ -932,9 +931,8 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                 impact_drop((struct obj *) 0, x, y, 0);
             if (mtmp) {
                 /*[don't we need special sokoban handling here?]*/
-                if (((!grounded(mtmp->data)
-                      || can_levitate(mtmp) || can_fly(mtmp))
-                     && !mon_steed_walks(mtmp))
+                if (!grounded(mtmp->data)
+                    || can_levitate(mtmp) || can_fly(mtmp)
                     || mon_steed_airborne(mtmp)
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
                     || mtmp->data->msize >= MZ_HUGE
@@ -2765,6 +2763,12 @@ create_pit_under(struct monst *mdef, struct monst *magr)
         trap = t_at(x, y);
         if (!trap)
             return FALSE;
+        /* the scatter can kill the attacker beside the mine (a flung
+           object, a burst of oil) or the target on it, or hurt a
+           polymorphed hero back out of the stomping form */
+        if ((youattack ? !Upolyd : DEADMONSTER(magr))
+            || (!youdefend && DEADMONSTER(mdef)))
+            return FALSE;
     } else { /* also includes case of no trap there in the first place */
         if (trap) {
             /* Silently delete whatever other sort of trap this is */
@@ -2790,6 +2794,13 @@ create_pit_under(struct monst *mdef, struct monst *magr)
             You("are torn from the %s!", nexttotree(u.ux, u.uy)
                                              ? "tree's grip"
                                              : "vegetation");
+        /* and the steed carrying the hero, off the map with the hero */
+        if (u.usteed && u.usteed->mentangled) {
+            pline("%s is torn from the %s!", YMonnam(u.usteed),
+                  nexttotree(u.ux, u.uy) ? "tree's grip" : "vegetation");
+            u.usteed->mentangled = 0;
+            u.usteed->mentangletime = 0;
+        }
         /* a buried iron ball's chain stays, even one that has just taken
            over from a trap deleted above: the pit makes it wait again
            (set_utrap()) and a hole takes the ball along (goto_level()) */
@@ -2841,8 +2852,7 @@ create_pit_under(struct monst *mdef, struct monst *magr)
         if (mintrap(mdef, NO_TRAP_FLAGS) == Trap_Moved_Mon) {
             sent_down_hole = TRUE; /* went off level */
         } else if (!DEADMONSTER(mdef)
-                   && ((mon_airborne(mdef) && !mon_steed_walks(mdef))
-                       || mon_steed_airborne(mdef))) {
+                   && (mon_airborne(mdef) || mon_steed_airborne(mdef))) {
             if (canseemon(mdef))
                 pline_mon(mdef, "%s %s back up.", Monnam(mdef),
                           mon_lift_verb(mdef));

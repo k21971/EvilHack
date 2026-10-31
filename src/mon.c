@@ -1290,6 +1290,11 @@ minliquid_core(struct monst *mtmp)
        and steed will be subject to water effects, as intended) */
     if (mtmp == u.usteed && (Flying || Levitation) && !waterwall)
         return 0;
+    /* likewise a monster's steed is kept out of it by its rider's own
+       flight or levitation; not in a wall of water, which has no
+       surface to be above */
+    if (!waterwall && mon_rider_airborne(mtmp))
+        return 0;
 
     /* Gremlin multiplying won't go on forever since the hit points
      * keep going down, and when it gets to 1 hit point the clone
@@ -1788,7 +1793,7 @@ m_calcdistress(struct monst *mtmp)
         mtmp->mentangled = 0;
         if (canseemon(mtmp))
             pline("%s is no longer entangled.", Monnam(mtmp));
-        mon_lost_support(mtmp); /* a tree held it over a hole */
+        mon_hold_released(mtmp); /* a tree held it over a hole */
     }
     if (can_levitate(mtmp) && mtmp->mlevitatetime
         && mtmp->mlevitatetime <= 1) {
@@ -3051,6 +3056,23 @@ m_in_air(struct monst *mtmp)
                 && has_ceiling(&u.uz) && mtmp->mundetected));
 }
 
+/* is mtmp a monster's steed whose rider flies or floats? The rider's own
+   lift carries a walking steed over water, lava, open air and sewage, as
+   the hero's flight or levitation carries u.usteed (minliquid_core()); a
+   ridden pair gets whichever lift is better, the rider's or the steed's
+   (mon_steed_airborne()) */
+boolean
+mon_rider_airborne(struct monst *mtmp)
+{
+    struct monst *rider;
+
+    if (!mtmp->ridden_by || mtmp == u.usteed)
+        return FALSE;
+    rider = get_mon_rider(mtmp);
+    return (rider && !DEADMONSTER(rider) && has_erid(rider)
+            && ERID(rider)->mon_steed == mtmp && mon_airborne(rider));
+}
+
 /* return number of acceptable neighbour positions */
 int
 mfndpos(
@@ -3064,10 +3086,8 @@ mfndpos(
     int cnt = 0;
     uchar ntyp;
     uchar nowtyp;
-    boolean wantpool, wantpuddle, wantsewage, poolok, lavaok, airok, nodiag;
+    boolean wantpool, wantpuddle, wantsewage, poolok, lavaok, nodiag;
     boolean rockok = FALSE, treeok = FALSE, thrudoor;
-    struct monst *msteed = mon_steed_walks(mon) ? ERID(mon)->mon_steed
-                                                : (struct monst *) 0;
     int maxx, maxy;
     boolean poisongas_ok, in_poisongas;
     NhRegion *gas_reg;
@@ -3091,18 +3111,6 @@ mfndpos(
               || likes_lava(mdat));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
-    airok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
-             || can_levitate(mon) || can_fly(mon));
-    /* a rider whose steed walks goes only where the steed could go on
-       its own; the rider's own lift doesn't carry the steed */
-    if (msteed) {
-        if (!is_swimmer(msteed->data) && !can_wwalk(msteed))
-            poolok = FALSE;
-        if (!likes_lava(msteed->data))
-            lavaok = FALSE;
-        if (!is_clinger(msteed->data))
-            airok = FALSE;
-    }
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
     poisongas_ok = (m_poisongas_ok(mon) == M_POISONGAS_OK);
     in_poisongas = ((gas_reg = visible_region_at(x,y)) != 0
@@ -3158,9 +3166,7 @@ mfndpos(
                 && (*in_rooms(nx, ny, TEMPLE) || *in_rooms(nx, ny, SHOPBASE))
                 && !(*in_rooms(x, y, TEMPLE) || *in_rooms(x, y, SHOPBASE)))
                 continue;
-            if (IS_WATERWALL(ntyp)
-                && (!is_swimmer(mdat)
-                    || (msteed && !is_swimmer(msteed->data))))
+            if (IS_WATERWALL(ntyp) && !is_swimmer(mdat))
                 continue;
             /* KMH -- Added iron bars */
             if (ntyp == IRONBARS
@@ -3210,7 +3216,10 @@ mfndpos(
             if ((!lavaok || !(flag & ALLOW_WALL)) && ntyp == LAVAWALL)
                 continue;
             /* avoid open air if gravity is in effect */
-            if (is_open_air(nx, ny) && !airok)
+            if (is_open_air(nx, ny)
+                && !(is_flyer(mdat) || is_floater(mdat)
+                     || is_clinger(mdat) || can_levitate(mon)
+                     || can_fly(mon)))
                 continue;
             if ((poolok || is_pool(nx, ny) == wantpool)
                 && (is_puddle(nx, ny) == wantpuddle || !wantpuddle)
@@ -8800,7 +8809,7 @@ newcham(
                                                      : "vegetation");
         mtmp->mentangled = 0;
         mtmp->mentangletime = 0;
-        mon_lost_support(mtmp); /* a tree held it over a hole */
+        mon_hold_released(mtmp); /* a tree held it over a hole */
     }
 
     /* This ought to re-test can_carry() on each item in the inventory
@@ -8829,8 +8838,16 @@ newcham(
             }
         }
     }
-    if (mtmp == u.usteed)
+    if (mtmp == u.usteed) {
         poly_steed(mtmp, olddata);
+    } else if (mtmp->ridden_by && !DEADMONSTER(mtmp)) {
+        /* a monster's steed whose new form lost the wings or float that
+           held its rider up tells it, as poly_steed() tells the hero;
+           worn lift the new form shed was told of by
+           update_mon_extrinsics() */
+        steed_lift_changed(mtmp, (is_flyer(olddata) || is_floater(olddata)
+                                  || can_fly(mtmp) || can_levitate(mtmp)));
+    }
 
     /* old form might not have been affected by Elbereth but perhaps the
        new form is */
@@ -8936,9 +8953,7 @@ mon_falls_unsupported(struct monst *mtmp)
             && mtmp != u.usteed && !mtmp->ridden_by
             && !ustuck_self_or_steed(mtmp)
             && !mtmp->mtrapped && !mtmp->mentangled
-            /* a rider whose steed walks goes down with it */
-            && (mon_steed_walks(mtmp)
-                || (grounded(mtmp->data) && !mon_airborne(mtmp)))
+            && grounded(mtmp->data) && !mon_airborne(mtmp)
             && !mon_steed_airborne(mtmp)
             && !(mtmp->wormno && count_wsegs(mtmp) > 5)
             && mtmp->data->msize < MZ_HUGE);
@@ -8954,6 +8969,19 @@ mon_lost_support(struct monst *mtmp)
 {
     if (mon_falls_unsupported(mtmp))
         mtmp->mstate |= (long) nonflyer_vs_hole;
+}
+
+/* entangling vegetation has let go of mtmp; one it held over a hole with
+   nothing else keeping it up drops through. The hero's steed carries the
+   hero, so that pair falls as the hero does when the hero's own hold lets
+   go (entangle_release()) */
+void
+mon_hold_released(struct monst *mtmp)
+{
+    if (mtmp == u.usteed)
+        release_over_drop(u_over_drop());
+    else
+        mon_lost_support(mtmp);
 }
 
 /* movemon_singlemon(): the fall mon_lost_support() set up; returns TRUE

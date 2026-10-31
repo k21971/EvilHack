@@ -4842,12 +4842,16 @@ mhitm_ad_pits(
             if (!magr->mcan) {
                 if (!create_pit_under(mdef, magr)) {
                     mhm->damage = 0;
-                    /* the pit killed it; mdamagem()'s zero-damage exit
-                       returns the flags as they stand, so report the
-                       death here rather than let the attack chain and
-                       passivemm() run on the corpse */
-                    if (DEADMONSTER(mdef)) {
-                        mhm->hitflags = M_ATTK_DEF_DIED;
+                    /* the pit or a land mine's blast killed one of them;
+                       mdamagem()'s zero-damage exit returns the flags as
+                       they stand, so report the deaths here rather than
+                       let the attack chain and passivemm() run on a
+                       corpse */
+                    if (DEADMONSTER(mdef) || DEADMONSTER(magr)) {
+                        mhm->hitflags = DEADMONSTER(mdef) ? M_ATTK_DEF_DIED
+                                                          : M_ATTK_MISS;
+                        if (DEADMONSTER(magr))
+                            mhm->hitflags |= M_ATTK_AGR_DIED;
                         mhm->done = TRUE;
                     }
                 }

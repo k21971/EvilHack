@@ -844,9 +844,11 @@ fall_through(
     if (Sokoban && Can_fall_thru(&u.uz)) {
         ; /* KMH -- You can't escape the Sokoban level traps */
     } else if (Levitation || u.ustuck
-             /* entangling branches hold the hero over the hole, a
-                deliberate plunge included ('>' refuses it, dodown()) */
+             /* entangling branches hold the hero (or the steed carrying
+                the hero) over the hole, a deliberate plunge included
+                ('>' refuses it, dodown()) */
              || (u.utrap && u.utraptype == TT_ENTANGLED)
+             || (u.usteed && mon_tree_held(u.usteed))
              || (!Can_fall_thru(&u.uz) && !levl[u.ux][u.uy].candig)
              || ((Flying || is_clinger(gy.youmonst.data)
                   || maybe_polyd(is_giant(gy.youmonst.data),
@@ -1381,6 +1383,7 @@ floor_trigger(int ttyp)
     case RUST_TRAP_SET:
     case FIRE_TRAP_SET:
     case ICE_TRAP_SET:
+    case SPEAR_TRAP_SET:
     case PIT:
     case SPIKED_PIT:
     case HOLE:
@@ -1392,15 +1395,15 @@ floor_trigger(int ttyp)
 }
 
 /* does a trap under a hero who flies or floats wait for the hero to come
-   down? One only the floor sets off does, and so does a spear trap,
-   whose spear can't reach that high; any other met the hero up there on
-   arrival (dotrap()), so a hero coming down in place doesn't meet it
-   again (spoteffects_in_place(), float_down()) unless the hero got there
-   without meeting it (u_met_trap_here()) */
+   down? One only the floor sets off does (a spear trap among them); any
+   other met the hero up there on arrival (dotrap()), so a hero coming
+   down in place doesn't meet it again (spoteffects_in_place(),
+   float_down()) unless the hero got there without meeting it
+   (u_met_trap_here()) */
 boolean
 landing_trigger(int ttyp)
 {
-    return (floor_trigger(ttyp) || ttyp == SPEAR_TRAP_SET);
+    return floor_trigger(ttyp);
 }
 
 /* has the hero met the trap on this spot since arriving here? One who
@@ -1420,9 +1423,6 @@ check_in_air(struct monst *mtmp, unsigned trflags)
     boolean is_you = mtmp == &gy.youmonst,
             plunged = (trflags & (TOOKPLUNGE | VIASITTING)) != 0;
 
-    /* a monster whose steed walks is down on the ground with it */
-    if (!is_you && mon_steed_walks(mtmp))
-        return ((trflags & HURTLING) != 0);
     return ((trflags & HURTLING) != 0
             || (is_you ? Levitation
                        : (is_floater(mtmp->data) || can_levitate(mtmp)))
@@ -1791,8 +1791,7 @@ trapeffect_sqky_board(
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
 
-        /* a rider whose steed walks is down on the ground with it */
-        if (m_in_air(mtmp) && !mon_steed_walks(mtmp))
+        if (m_in_air(mtmp))
             return Trap_Effect_Finished;
         /* stepped on a squeaky board */
         if (in_sight) {
@@ -1882,8 +1881,7 @@ trapeffect_bear_trap(
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         boolean trapkilled = FALSE;
 
-        if (mptr->msize > MZ_SMALL && !amorphous(mptr)
-            && (!m_in_air(mtmp) || mon_steed_walks(mtmp))
+        if (mptr->msize > MZ_SMALL && !amorphous(mptr) && !m_in_air(mtmp)
             && !is_whirly(mptr) && !unsolid(mptr)) {
             mtmp->mtrapped = 1;
             if (in_sight) {
@@ -2519,9 +2517,9 @@ trapeffect_pit(
         if (!Sokoban && (Levitation || (Flying && !plunged && !viasitting)))
             return Trap_Effect_Finished;
         feeltrap(trap);
-        /* a live tree's branches or roots hold the hero above it, as
-           they do over a hole */
-        if (!Sokoban && (is_clinger(gy.youmonst.data) || u_tree_held())
+        /* a live tree's branches or roots hold the hero (or the steed
+           carrying the hero) above it, as they do over a hole */
+        if (!Sokoban && (is_clinger(gy.youmonst.data) || u_pair_tree_held())
             && !plunged) {
             if (already_known) {
                 You_see("%s %spit below you.", a_your[trap->madeby_u],
@@ -2648,10 +2646,7 @@ trapeffect_pit(
         const char *fallverb;
 
         fallverb = "falls";
-        /* a rider whose steed walks is down on the ground with it,
-           whatever lift of its own it has */
-        if (((!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp))
-             && !mon_steed_walks(mtmp))
+        if (!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp)
             || mon_steed_airborne(mtmp)
             || (mtmp->wormno && count_wsegs(mtmp) > 5)) {
             if (forcetrap && !Sokoban) {
@@ -2717,9 +2712,7 @@ trapeffect_hole(
                        trapname(tt, TRUE));
             return Trap_Effect_Finished; /* don't activate it after all */
         }
-        /* as for a pit, a rider whose steed walks goes down with it */
-        if (((!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp))
-             && !mon_steed_walks(mtmp))
+        if (!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp)
             || mon_steed_airborne(mtmp)
             || (mtmp->wormno && count_wsegs(mtmp) > 5)
             || mptr->msize >= MZ_HUGE) {
@@ -3409,7 +3402,7 @@ trapeffect_landmine(
 #define MINE_TRIGGER_WT (WT_ELF / 2U)
         if (rn2(mtmp->data->cwt + 1) < (int) MINE_TRIGGER_WT)
             return Trap_Effect_Finished;
-        if (m_in_air(mtmp) && !mon_steed_walks(mtmp)) {
+        if (m_in_air(mtmp)) {
             boolean already_seen = trap->tseen;
 
             if (in_sight && !already_seen) {
@@ -3490,7 +3483,7 @@ trapeffect_rolling_boulder_trap(
                 pline("Fortunately for you, no boulder was released.");
         }
     } else {
-        if (!m_in_air(mtmp) || mon_steed_walks(mtmp)) {
+        if (!m_in_air(mtmp)) {
             boolean in_sight = (mtmp == u.usteed
                                 || (cansee(mtmp->mx, mtmp->my)
                                     && canspotmon(mtmp)));
@@ -5108,6 +5101,14 @@ u_tree_held(void)
             && nexttotree(u.ux, u.uy));
 }
 
+/* is the hero, or the steed carrying the hero, held by a live tree? A
+   tree that holds the steed holds the pair */
+boolean
+u_pair_tree_held(void)
+{
+    return (u_tree_held() || (u.usteed && mon_tree_held(u.usteed)));
+}
+
 /* entangling vegetation lets go of the hero: the hold ran out (moveloop)
    or the tree that held the hero died; branches that held the hero over
    a drop with no lift left let the hero fall once that is safe */
@@ -5168,7 +5169,7 @@ mon_entangle_release(struct monst *mtmp, boolean by_tree)
             pline_mon(mtmp, "The vegetation releases %s.", mon_nam(mtmp));
     }
     /* a tree that held it over a hole (mon_tree_held()) no longer does */
-    mon_lost_support(mtmp);
+    mon_hold_released(mtmp);
 }
 
 /* the terrain around an entangled monster has been rebuilt wholesale
@@ -6700,6 +6701,8 @@ move_into_trap(struct trap *ttmp)
        need to make sure the move is not diagonally into or out of a
        doorway; the sgn() calls are redundant since ttmp is adjacent */
     if (test_move(u.ux, u.uy, sgn(x - u.ux), sgn(y - u.uy), TEST_MOVE)
+        /* nor is a steed held by vegetation going anywhere */
+        && !(u.usteed && u.usteed->mentangled)
         && (!Punished
             || drag_ball(x, y, &bc, &bx, &by, &cx, &cy, &unused, TRUE))) {
         /* move hero and update map */

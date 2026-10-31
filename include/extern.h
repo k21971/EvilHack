@@ -1984,6 +1984,7 @@ extern boolean can_touch_safely(struct monst *, struct obj *) NONNULLARG12;
 extern int can_carry(struct monst *, struct obj *) NONNULLARG12;
 extern long mon_allowflags(struct monst *) NONNULLARG1;
 extern boolean m_in_air(struct monst *) NONNULLARG1;
+extern boolean mon_rider_airborne(struct monst *) NONNULLARG1;
 extern int mfndpos(struct monst *, struct mfndposdata *, long) NONNULLPTRS;
 extern void ensure_pathfind_map(void);
 extern boolean mon_uses_pathfinding(struct monst *) NONNULLARG1;
@@ -2094,6 +2095,7 @@ extern boolean maybe_set_terrain_effects(struct monst *,
                                          struct permonst *) NONNULLARG1;
 extern void terrain_effects(void);
 extern void mon_lost_support(struct monst *) NONNULLARG1;
+extern void mon_hold_released(struct monst *) NONNULLARG1;
 
 /* ### mondata.c ### */
 
@@ -3716,6 +3718,7 @@ extern void defer_lift_msg(boolean, boolean);
 extern void lift_msg_deferred(void);
 extern boolean u_over_drop(void);
 extern boolean u_tree_held(void);
+extern boolean u_pair_tree_held(void);
 extern boolean mon_tree_held(struct monst *) NONNULLARG1;
 extern void mon_entangle_recheck(struct monst *) NONNULLARG1;
 extern void entangle_release(boolean);

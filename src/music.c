@@ -284,12 +284,10 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
        new pit....  Note: if we get here, chasm is non-Null. */
     if (mtmp) {
         /* a monster that flies or floats, or rides a steed that does,
-           stays up over the chasm, quietly (not one whose steed walks:
-           that steed carries it down); a live tree's branches or roots
-           hold it above the chasm, as they do the hero */
-        if (!((mon_airborne(mtmp) || is_clinger(mtmp->data))
-              && !mon_steed_walks(mtmp))
-            && !mon_steed_airborne(mtmp)
+           stays up over the chasm, quietly; a live tree's branches or
+           roots hold it above the chasm, as they do the hero */
+        if (!mon_airborne(mtmp) && !mon_steed_airborne(mtmp)
+            && !is_clinger(mtmp->data)
             && !mon_tree_held(mtmp)
             && !(mtmp->wormno && worm_hit[mtmp->wormno])) {
             /* one held by a web or bear trap falls like any other; a long
@@ -357,10 +355,11 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
             Your("chain breaks!");
             end_buried_tether(TRUE);
         }
-        /* a live tree's branches or roots hold the hero above the chasm
-           (the hold is the tree's, not the floor's) */
+        /* a live tree's branches or roots hold the hero, or the steed
+           carrying the hero, above the chasm (the hold is the tree's,
+           not the floor's) */
         if (Levitation || Flying || is_clinger(gy.youmonst.data)
-            || u_tree_held()) {
+            || u_pair_tree_held()) {
             if (!tu_pit) { /* no pit here previously */
                 pline("A chasm opens up under you!");
                 You("don't fall in!");
