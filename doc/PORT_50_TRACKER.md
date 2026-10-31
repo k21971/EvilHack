@@ -17,9 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-30, after session 276's
-  text one-liners slice: eight rows closed, one LOW minted open):
-  574 rows closed, 94 open
+- Phase 2 status (refreshed 2026-10-30, after session 277's
+  debug + infra ports slice: four rows closed, one LOW minted open):
+  578 rows closed, 91 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -341,7 +341,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 84 LOW: small parity rows, quirks and watch/record-only items.
+  - 81 LOW: small parity rows, quirks and watch/record-only items.
+    Session 277 closed four (BUG-2676..2681): #wizcast casts the
+    whole spell at Expert in its school, keeping any skill the
+    cast drains (ruled); ^G takes "racial <race>" again, replacing
+    the race a monster rolled, and its "appears" line names that
+    race (ruled); paniclog lines carry the local time they were
+    written; master's fuzzer death counters are back in lava,
+    sinking and drowning (ruled: all three). Minted one: Fire
+    Brand and Frost Brand adopt 5.0's storm invokes (ruled).
     Session 276 closed seven (BUG-2665..2675) and the untagged
     "pairs of" row (ruled: keep vanilla's Webster "2 pair of"):
     dragon scales are a "set of dragon scales" again; one crush
@@ -17809,7 +17817,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       staging must guard magr->mcan); attrcurse cannot strip
       FROMOUTSIDE grants (BUG-1357 pin) - stage stealable
       slots as HAVEPARTIAL|100 (0x10000064).
-- [ ] lava_death_attempts fuzzer counter NOT PORTED (minted
+- [x] lava_death_attempts fuzzer counter NOT PORTED (minted
       2026-08-30 by the likes_lava slice's reviewer; LOW - trio
       asymmetry). Master lava_effects carries a static
       death-loop counter (master trap.c:7006; reset in the
@@ -17821,6 +17829,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       protection. Port master's counter shape into the branch
       lava_effects when fuzzer lava loops surface, or with the
       fuzzer-support owner slice.
+      CLOSED 2026-10-30 (session 277, HASH277C; BUG-2679, 2680,
+      2681). The census found master's sink_into_lava() (BUG-284 /
+      285) and drown() counters missing too. 5.0 already bounds all
+      three loops (lava's two-pass burn loop and its 5-turn grant,
+      drown()'s two passes, the sink reset_utrap()), so I
+      recommended closing as superseded; RULED PORT ALL THREE.
+      lava_effects(): reset at the likes_lava() exemption and at
+      burn_stuff (every survival passes it); on the second death in
+      a row, before the death loop, it drops in_lava_effects, gives
+      master's lines, a 50-turn fire grant only when the intrinsic
+      word is empty (the in_hell_effects() guard for a stored
+      partial percentage), 50 turns of water walking and HP 1, and
+      stays on the lava only if how_resistant(FIRE_RES) is then 100
+      - a partial holder or a fire-vulnerable hero (reviewer LOW)
+      is teleported off, lift_msg_deferred() runs, and it returns
+      TRUE. sink_into_lava(): every second sink death is skipped
+      (master's never-reset count) with the same grants,
+      reset_utrap(TRUE), teleport or level_tele() and
+      lift_msg_deferred(). drown(): on the second failed rescue in
+      one call, 50 turns of magical breathing and a teleport or
+      level_tele(); rescued_from_terrain(DROWNING) now runs only
+      with no level change pending (stress-test find: the scheduled
+      goto left the hero on the pool and printed "You find yourself
+      on top of water."). Master's dead resets (drown's wading and
+      Amphibious arms) not carried. Battery C (gdb calls with
+      debug_fuzzer 2): lava PRE dies twice, POST the second call
+      gives both lines, HP 1, fire and Wwalking 0x32, stays on lava
+      and survives 4 turns; a 30% partial keeps its word 0x1000001e
+      and is teleported; a fire-vulnerable hero gets the grant and
+      is teleported; sink PRE dies twice, POST the second skips
+      the death and teleports; drown PRE "You find yourself on top
+      of water." with no gills, POST gills and Magical_breathing
+      0x32, then a level change with no rescue line (or an on-level
+      teleport and "You are back on solid ground."); a worn amulet's
+      life-saving drowning is identical on both builds.
 - [x] defended() engulf/liquid coverage sweep PORTED 2026-09-06 (minted
       2026-08-30 by the flaming/on_fire slice's pre-port
       exploration; LOW; BUG-1607 decision-vs-combat class).
@@ -24335,7 +24378,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (M2_MERC, MS_BRIBE, may be orc / elf / drow) sit outside the
       soldier truce on both trees. MINTED: the ^G "racial" prefix LOW
       row below.
-- [ ] LOW: ^G create-monster has no "racial <race>" prefix (minted
+- [x] LOW: ^G create-monster has no "racial <race>" prefix (minted
       2026-10-01, session 166, found by the grudge slice's Plan agent;
       verified on both bodies; "create_particular" rows never named
       it). Master read.c create_particular_parse() accepts `racial
@@ -24345,6 +24388,41 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       branch's parser stops at the peaceful / hostile prefix, so
       "racial elven soldier" fails and battery staging needs gdb
       apply_race(). Wizard mode only. LOW (debug tooling).
+      CLOSED 2026-10-30 (session 277, HASH277A; BUG-2677, master's
+      layering frozen-unfixed). Master LAYERED the race: soldiers
+      and other mercenaries roll one in makemon(), and apply_race()
+      ORs the new race's flags onto it. Ruled REPLACE: the race
+      makemon() rolled is cleared first (player monsters keep the
+      layering - their erac holds init_mplayer_erac()'s attacks), a
+      genocided race is skipped, and the race goes on right after
+      makemon(), before tame / peaceful / hostile, so tamedog() and
+      set_malign() see it. The parse takes a races[] adjective
+      ("dark elven" too) or, through name_to_monplus(), a monster
+      name with another word after it (master's `++bufp` on a NULL
+      index() for "racial dwarfs" is gone). Folded after battery B
+      (ruled): makemon()'s appear line moved into
+      makemon_appear_msg(); ^G passes MM_NOMSG with a race and gives
+      the line once the race is on (B saw "A dwarven soldier appears"
+      for a soldier made elven). Delta reviewer LOW folded: MM_NOGRP
+      too, so a random fallback (an emptied class) forms no silent,
+      raceless group. Residue as on master: gear, the first race's
+      resistances, a holy warrior's EMIN god and the rolled
+      peacefulness stay. Battery B: PRE "I've never heard of such
+      monsters."; POST 20 hostile racial elven soldiers all
+      rmnum PM_ELF, mflags1 & 0x60 == 0 (PRE apply_race() on a
+      dwarf-rolled one kept 0x60); dwarf / dwarven -> PM_DWARF, dark
+      elven -> PM_DROW; a player monster kept AT_WEAP / AD_SAMU;
+      "racial dwarfs" a plain dwarf, "racial newt soldier" a "newt
+      soldier", no crash; a genocided race left the rolled one.
+      ^G "tame" never tames a soldier (tamedog() refuses a human
+      base, racial or not). Battery D (the appear line): five
+      "racial elven soldier" each "An elven soldier appears next to
+      you."; dark elven, newt and dwarven lines name the applied
+      race; an invisible one shows only with see invisible; a
+      genocided race names the rolled one ("A giant soldier"); plain
+      "soldier", "giant mimic", "*" and a gdb makemon() jackal read
+      as on PRE. A count prefix collapses identical lines through
+      Norep, as makemon() always did.
 - [x] LOW: polyself.c mbodypart() residue
       PORTED 2026-09-20 (session 133, commit `Fix: smells and body
       parts lost master's arms.` = be91dd797, tracker 94af1f758,
@@ -25382,7 +25460,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       branch playground (end.c clears something_worth_saving before
       clearlocks(), so a clean end unlinks it - most likely a game
       killed at teardown, as in session 162).
-- [ ] LOW: #wizcast casts at the hero's skill (minted 2026-10-01,
+- [x] LOW: #wizcast casts at the hero's skill (minted 2026-10-01,
       session 165, spellcasting slice; "role_skill" had no tracker
       mention). Master BUG-704: `role_skill = wiz_cast ? P_EXPERT :
       P_SKILL(skill)`, the documented #wizspell contract that a
@@ -25393,6 +25471,43 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       test would hard-code a debug promise into a flag that is not
       debug-only; bracketing P_SKILL inside dowizcast() is the other
       shape. Wizard mode only. LOW (debug parity).
+      CLOSED 2026-10-30 (session 277, HASH277A; BUG-2676, master's
+      narrower form frozen-unfixed). Ruled WHOLE CAST AT EXPERT:
+      master's role_skill reached only spelleffects()' own gates,
+      while healing / sickness / clerical dice, dispel evil's kill
+      chance, spell_hit_bonus(), power word kill and the summon
+      tiers read P_SKILL directly. dowizcast() brackets the spell's
+      school at P_EXPERT, restores by the change (`expertise +
+      (P_SKILL - P_EXPERT)`, a Plan stress-test MED: drain life at
+      self -> losexp() -> lose_weapon_skill() drops the last
+      advance mid-cast) and runs find_ac() (barkskin / stoneskin
+      AC). Residue, ruled keep-and-record: lose_weapon_skill()'s
+      slot refund reads the bracketed level, so that drain refunds
+      one slot too many (wizard mode's #enhance already offers
+      "Advance skills without practice?"); a level gained mid-cast
+      can miss "You feel more confident" for the school; a death
+      or panic mid-cast shows Expert in that dumplog / error save.
+      Battery A (Valkyrie, all four schools restricted): healing
+      dice PRE 4 / POST 10, clerical 4 / 12, spell_hit_bonus -4 /
+      6, create grass skill 0 / 4; skills and #enhance unchanged
+      after every cast; drain life at self level 10 -> 9 and attack
+      2 -> 1 on both, slots PRE 0 / POST 1 (the residue); barkskin
+      AC change 1 on both (POST -5 inside the bracket, 4 after); a
+      Z cast reads the real skill. Battery A also found that no
+      artifact has FIRESTORM / SNOWSTORM (invoke_storm_spell() is
+      unreachable; master's Fire / Frost Brand have no invoke) -
+      ruled ADOPT 5.0's storm invokes, row minted below.
+- [ ] LOW: Fire Brand and Frost Brand lack 5.0's storm invokes
+      (minted 2026-10-30, session 277, by battery A; RULED ADOPT
+      the same day, decisions log). Vanilla 5.0's artilist gives
+      Frost Brand SNOWSTORM (cone of cold) and Fire Brand FIRESTORM
+      (fireball), cast at Expert through invoke_storm_spell(); the
+      branch's include/artilist.h kept master's invoke 0 (Phase 1,
+      4f3d4bc7c), so that code, the FIRESTORM / SNOWSTORM values
+      and pager.c's two lines never run. Ruled: give both artifacts
+      the 5.0 invokes (a gameplay change from 0.9.3). Check the
+      invoke timeout, the #invoke menu text, the dumplog / pager
+      lines and data.base when taken. Plannable.
 - [x] LOW: exerchk() lets Int exercise land while polymorphed
       (BUG-2109) - FIXED 2026-10-03 (session 173, commit `Rider hold
       text, death-reason race and polymorphed Int exercise.` =
@@ -28283,7 +28398,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ce1aa46862284c4f892efcc2646881e1; the battery's build kept as
       scratchpad evilhack_post1); the expected lycanthrope ^X line is
       PRE's "You are level-drain resistant due to your lycanthropy."
-- [ ] LOW (infra): paniclog PANICLOG_FMT2 timestamp (minted 2026-09-23,
+- [x] LOW (infra): paniclog PANICLOG_FMT2 timestamp (minted 2026-09-23,
       session 135; the battery saw eleven impossibles written over a
       minute all carry one stamp). Master c54cd563c (2026-01-25,
       "Improve paniclog timestamp format") prints the CURRENT local
@@ -28294,6 +28409,21 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       paniclog triage on the branch cannot order or date events.
       Port master's arm (files.c paniclog()); check whether any
       server-side tooling parses the epoch form first. LOW.
+      CLOSED 2026-10-30 (session 277, HASH277B; BUG-2678). The
+      FMT2 line prints the event's local time as `YYYY-MM-DD
+      HH:MM:SS`, built from calendar.c's yyyymmdd() / hhmmss() so
+      localtime() stays behind calendar.c's LOCALTIME_type shim
+      (platform parity) instead of master's direct localtime() +
+      strftime(); byte-identical to master's for real dates. 5.0's
+      "(none)" plname fallback kept. Tooling check: nothing in the
+      tree, skills or agents parses paniclog, and master production
+      has written this form since 2026-01-25. Master's
+      localtime() == NULL fallback ("0000-00-00 00:00:00") is not
+      carried (the calendar.c helpers, like the !FMT2 arm, never
+      check; unreachable with a 64-bit time_t). Battery B: PRE both
+      lines `1793391724 wizard: impossible paniclog test N` (the
+      game's start), POST `2026-10-30 20:28:04 ...` and `2026-10-30
+      20:40:49 ...`, each matching `date`.
 - [x] MED: monster jumping AI absent - PORTED 2026-09-24 (session
       138, monster jumping slice, commits `Fix: a jump at iron bars
       crashed instead of being refused.` = a8f62f78c (BUG-1918),
@@ -34763,6 +34893,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-30 | Debug + infra ports slice rulings (Phase 2 session 277, AskUserQuestion x5, eight questions). (1) SLICE: the debug + infra ports group (as recommended). (2) #WIZCAST: the whole cast runs at Expert in the spell's school - a P_SKILL bracket in dowizcast(), over master's role_skill-only form (as recommended). (3) ^G RACIAL: replace the race makemon() rolled; player monsters keep master's layering (as recommended). (4) LAVA COUNTER: port master's lava, sink and drown fuzzer counters, over my recommended close-as-superseded. (5) WIZCAST SLOT REFUND: keep the bracket and record the extra slot a drain-life-at-self cast refunds (as recommended). (6) /tmp FULL: delete the pre-2026-10-30 session scratchpads. (7) ^G APPEAR LINE: fold in, so the line names the applied race (as recommended). (8) STORM INVOKES: Fire Brand and Frost Brand adopt 5.0's FIRESTORM / SNOWSTORM invokes, over my recommended keep-master's-shape; row minted for its own slice. | maintainer |
 | 2026-10-30 | Text one-liners slice rulings (Phase 2 session 276, AskUserQuestion x4, eight questions, all as recommended). (1) SLICE: the text one-liners group (eight rows). (2) "2 PAIR OF": keep vanilla's Webster usage, row closed by design. (3) SHADE HUG: follow hmonas()'s comment - a hug on a noncorporeal target deals its blessed or silver damage and never grabs. (4) DRAWBRIDGE REFUSAL: printed when the hero sees the span or portcullis or is next to either; an untold refusal identifies no wand. (5) MONSTER CLOAK SIZE: mirror the hero's canwearobj() rule (centaurs and driders wear any cloak, as on master; giant race only a wrapping). (6) Fold in the druid / vampire form exemption bug in sliparm() / breakarm() (hero only). (7) Fold in back_on_ground()'s terrain wording: "on the grass", "on the sand", "in shallow water", "in raw sewage". (8) Delta battery on the reviewer fold (m_dowear()'s MZ_SMALL gate arm): launch now. | maintainer |
 | 2026-10-30 | Ruled-trio / traces / corpse-timer / investigations slice rulings (Phase 2 session 275, AskUserQuestion x3, seven questions, all as recommended). (1) SLICE (multiSelect): all four offered groups (the ruled trio, session 274's two traces, the corpse-timer traces, the curses and #wizloaddes investigations). (2) RIDER SCOPE: drops + new liquid - a carried monster rider is spared by pits, holes, chasms, floor traps, and water, lava, sewage or open air opening under it; pathing unchanged (riders still route around water and known traps). (3) TEMPLE: the priest also leaves a trap alone while a monster is caught in it (the branch shopkeeper's shape). (4) RIDER TEXT: the rider is the subject with the steed's verb ("The Nazgul flies over the pit." / "flies back up."). (5) CORPSE SEX: fix 5.0's hint (pile or pack only, no giant ant or neuter misnaming); corpses of different sex still don't stack. (6) TROLL RETRY: a troll whose revival fails rots (the rot arm's intent and vanilla; 0.9.3's retry was a side effect). (7) #wizloaddes: no Mines rivers on a level loaded for testing. | maintainer |
 | 2026-10-30 | Quake / tell-after / trace-trio / idle-checkpoint slice rulings (Phase 2 session 274, AskUserQuestion x5, eleven questions, all as recommended). (1) SLICE (multiSelect): all four offered groups. (2) RIDER ICE BOX: Riders always revive (master's revive() never read norevive). (3) PRAYER: hold in place - nothing hurtles the hero or the steed, no knockback, a mind flayer's telekinesis skips a praying hero; stray rays, missiles, sleep and webbing still hit (master and vanilla). (4) EATING: non-food indestructible items can't be eaten. (5) QUAKE, HELD GROUNDED MONSTER: falls like the hero ("falls into a chasm!", 1d6). (6) MONSTER RIDERS: a flying or floating steed carries its monster rider - a ruled row. (7) AMMO TRAPS on a drawbridge / vault corridor: fold in, destroyed at the bridge, embedded in the vault rock. (8) DELETED TRAPS: release only their own hold - a ruled row. (9) TEMPLE PRIEST: skips the hero's square like shopkeepers - a ruled row. (10) ICE QUEEN AFTER RECOVERY: revives right after the restore, before the hero can act. (11) DUG PIT: matches the quake (a held grounded monster falls in). Decided without asking: the melting-ice web release is silent; the dead TT_BEARTRAP re-checks after deltrap_with_ammo() in floorfood() / dig() stay. | maintainer |
