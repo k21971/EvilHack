@@ -256,16 +256,21 @@ dispel_evil_banish(struct monst *mtmp)
         }
         return FALSE;
     }
-    if (canseemon(mtmp))
-        You("banish %s!", mon_nam(mtmp));
-    /* bhitm() still wakes mtmp after it has left the level, which is
-       how a banished shopkeeper comes to give chase; but its spot is
-       then <0,0>, which newsym() refuses, so drop a disguise and anger
-       a peaceful target now, while mtmp is still on the map */
+    /* bhitm() still runs its wake tail after mtmp has left the level,
+       which is how a banished shopkeeper comes to give chase; but its
+       spot is then <0,0>, which newsym() refuses, so drop a disguise,
+       wake a sleeper and anger a peaceful target now, while mtmp is
+       still on the map (a sleeper woken over there would growl from
+       nowhere); the caller skips its own wakeup() then */
     if (M_AP_TYPE(mtmp) != M_AP_NOTHING)
         seemimic(mtmp);
-    if (mtmp->mpeaceful)
-        setmangry(mtmp, TRUE);
+    wakeup(mtmp, TRUE);
+    /* an angered temple priest's god answers with a bolt, which can
+       strike the priest down first */
+    if (DEADMONSTER(mtmp))
+        return TRUE;
+    if (canseemon(mtmp))
+        You("banish %s!", mon_nam(mtmp));
     /* a holder lets go as it leaves; migrate_to_level() would otherwise
        free the hero without a word */
     release_hero(mtmp);
@@ -360,8 +365,11 @@ bhitm(struct monst *mtmp, struct obj *otmp)
                             sgn(mtmp->my - u.uy), 1);
                 }
             }
+            /* a target knocked down a hole or through a level
+               teleporter still takes the damage, out of sight */
             if (!DEADMONSTER(mtmp))
-                (void) resist(mtmp, saved_oclass, dmg, TELL);
+                (void) resist(mtmp, saved_oclass, dmg,
+                              mtmp->mx ? TELL : NOTELL);
         } else {
             if (!disguised_mimic)
                 miss(zap_type_text, mtmp);
@@ -476,8 +484,10 @@ bhitm(struct monst *mtmp, struct obj *otmp)
                 case 18:
                 case 17:
                 case 16:
-                    if (dispel_evil_banish(mtmp))
+                    if (dispel_evil_banish(mtmp)) {
                         reveal_invis = FALSE; /* mtmp is gone from bhitpos */
+                        already_woke = TRUE; /* and woken before it went */
+                    }
                     break;
                 default: /* 15 through 0 */
                     monflee(mtmp, 0, FALSE, TRUE);
@@ -594,6 +604,15 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     case SPE_TELEPORT_AWAY:
         if (disguised_mimic)
             seemimic(mtmp);
+        /* an engulfer on a no-teleport level that finds no room goes
+           into limbo, where the closing wakeup() would anger it with a
+           newsym() at <0,0>; wake and anger it here, as dispel evil's
+           banish does */
+        if (engulfing_u(mtmp) && noteleport_level(mtmp)
+            && mtmp->mpeaceful) {
+            wakeup(mtmp, TRUE);
+            already_woke = TRUE;
+        }
         reveal_invis = !u_teleport_mon(mtmp, TRUE);
         learn_it = canspotmon(mtmp);
         break;
@@ -977,8 +996,12 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         /* seemimic() is done by wakeup() and might unblock vision */
         if (!already_woke)
             wakeup(mtmp, helpful_gesture ? FALSE : TRUE);
-        m_respond(mtmp);
-        /* helping a shopkeeper from outside his shop is not an attack */
+        /* a target sent off the level (knocked down a hole, banished,
+           or into limbo) has no spot left to respond from */
+        if (mtmp->mx)
+            m_respond(mtmp);
+        /* helping a shopkeeper from outside his shop is not an attack;
+           a banished one still gives chase */
         if (mtmp->isshk && !*u.ushops && !helpful_gesture)
             hot_pursuit(mtmp);
     }
@@ -986,7 +1009,7 @@ bhitm(struct monst *mtmp, struct obj *otmp)
      * reveal_invis will be false.  We can't use mtmp->mx, my since it
      * might be an invisible worm hit on the tail.
      */
-    if (reveal_invis && !DEADMONSTER(mtmp)) {
+    if (reveal_invis && !DEADMONSTER(mtmp) && mtmp->mx) {
         if (cansee(gb.bhitpos.x, gb.bhitpos.y) && !canspotmon(mtmp))
             map_invisible(gb.bhitpos.x, gb.bhitpos.y);
     }
