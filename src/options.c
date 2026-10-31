@@ -386,6 +386,7 @@ staticfn int doset_simple_menu(void);
 staticfn void reset_needed_visuals(void);
 staticfn void doset_add_menu(winid, const char *, const char *, int, int);
 staticfn int handle_add_list_remove(const char *, int);
+staticfn void cmdline_windowtype(void);
 staticfn void all_options_conds(strbuf_t *);
 staticfn void all_options_menucolors(strbuf_t *);
 staticfn void all_options_msgtypes(strbuf_t *);
@@ -7449,8 +7450,13 @@ initoptions(void)
      * initoptions_init() everywhere, just add it where it's needed in
      * a non-adjacent place and call it here for all the other cases.
      */
-    if (go.opt_phase != builtin_opt)
-         initoptions_init();
+    if (go.opt_phase == phase_not_set)
+        initoptions_init();
+    /* a windowtype from a command line parsed after a port's own
+       initoptions_init() call */
+    cmdline_windowtype();
+    /* sysconf is read here, once, after any port-specific default
+       paths are set, so its *DIR= settings win */
 #ifdef SYSCF
 /* someday there may be other SYSCF alternatives besides text file */
 #ifdef SYSCF_FILE
@@ -7479,6 +7485,32 @@ initoptions(void)
     initoptions_finish();
 }
 
+/* set up a windowtype given on the command line; called early by
+   initoptions_init(), and again by initoptions() for a port that parses
+   its command line after calling initoptions_init() itself (Windows) */
+staticfn void
+cmdline_windowtype(void)
+{
+    if (!gc.cmdline_windowsys)
+        return;
+    nmcpy(gc.chosen_windowtype, gc.cmdline_windowsys, WINTYPELEN);
+    config_error_init(FALSE, "command line", FALSE);
+    choose_windows(gc.cmdline_windowsys);
+    config_error_done();
+    /*
+     * FIXME?  This continues even if setting windowtype to player's
+     * specified value fails.  It doesn't lock the windowtype in
+     * that situation though, so the game will use whatever is in
+     * RC/EVILHACKOPTIONS or resort to DEFAULT_WINDOW_SYS.
+     */
+    if (windowprocs.name && !strcmpi(windowprocs.name, gc.cmdline_windowsys))
+        /* ignore any windowtype:foo in RC file or EVILHACKOPTIONS */
+        iflags.windowtype_locked = TRUE;
+    /* shouldn't need cmdline_windowsys beyond here */
+    free((genericptr_t) gc.cmdline_windowsys),
+        gc.cmdline_windowsys = NULL;
+}
+
 /* set up default values for options where 0 or False isn't sufficient */
 void
 initoptions_init(void)
@@ -7495,25 +7527,7 @@ initoptions_init(void)
     allopt_array_init();
     /* if windowtype has been specified on the command line, set it up
        early so windowtype-specific options use it as their base */
-    if (gc.cmdline_windowsys) {
-        nmcpy(gc.chosen_windowtype, gc.cmdline_windowsys, WINTYPELEN);
-        config_error_init(FALSE, "command line", FALSE);
-        choose_windows(gc.cmdline_windowsys);
-        config_error_done();
-        /*
-         * FIXME?  This continues even if setting windowtype to player's
-         * specified value fails.  It doesn't lock the windowtype in
-         * that situation though, so the game will use whatever is in
-         * RC/EVILHACKOPTIONS or resort to DEFAULT_WINDOW_SYS.
-         */
-        if (windowprocs.name
-            && !strcmpi(windowprocs.name, gc.cmdline_windowsys))
-            /* ignore any windowtype:foo in RC file or EVILHACKOPTIONS */
-            iflags.windowtype_locked = TRUE;
-        /* shouldn't need cmdline_windowsys beyond here */
-        free((genericptr_t) gc.cmdline_windowsys),
-            gc.cmdline_windowsys = NULL;
-    }
+    cmdline_windowtype();
 
     /* make any symbol parsing quicker, but only if
      * gd.disable_glyphname_hash_indices_prefill is not set to TRUE */
@@ -7659,27 +7673,7 @@ initoptions_init(void)
     /* since this is done before init_objects(), do partial init here */
     objects[SLIME_MOLD].oc_name_idx = SLIME_MOLD;
     nmcpy(svp.pl_fruit, OBJ_NAME(objects[SLIME_MOLD]), PL_FSIZ);
-
-#ifdef SYSCF
-/* someday there may be other SYSCF alternatives besides text file */
-#ifdef SYSCF_FILE
-    /* If SYSCF_FILE is specified, it _must_ exist... */
-    assure_syscf_file();
-    config_error_init(TRUE, SYSCF_FILE, FALSE);
-
-    /* ... and _must_ parse correctly. */
-    go.opt_phase = syscf_opt;
-    if (!read_config_file(SYSCF_FILE, set_in_sysconf)) {
-        if (config_error_done() && !iflags.initoptions_noterminate)
-            nh_terminate(EXIT_FAILURE);
-    }
-    config_error_done();
-    /*
-     * TODO [maybe]: parse the sysopt entries which are space-separated
-     * lists of usernames into arrays with one name per element.
-     */
-#endif
-#endif /* SYSCF */
+    /* sysconf is read by initoptions(), not here */
 }
 
 /*
@@ -8143,6 +8137,8 @@ msgtype_add(int typ, char *pattern)
         return FALSE;
     }
     tmp->pattern = dupstr(pattern);
+    /* go.opt_phase is syscf_opt only while sysconf is being read */
+    tmp->from_sysconf = (go.opt_phase == syscf_opt);
     tmp->next = gp.plinemsg_types;
     gp.plinemsg_types = tmp;
     return TRUE;
@@ -10020,16 +10016,34 @@ all_options_menucolors(strbuf_t *sbuf)
 staticfn void
 all_options_msgtypes(strbuf_t *sbuf)
 {
-    struct plinemsg_type *tmp = gp.plinemsg_types;
-    char buf[BUFSZ];
+    int i = 0, n = 0;
+    struct plinemsg_type *tmp;
+    struct plinemsg_type **arr;
+    char buf[BUFSZ * 2]; /* a pattern can be nearly BUFSZ long */
 
-    while (tmp) {
-        const char *mtype = msgtype2name(tmp->msgtype);
-        Sprintf(buf, "MSGTYPE=%s \"%s\"\n",
-                mtype, tmp->pattern);
+    /* sysconf's entries belong to sysconf, not the player's file */
+    for (tmp = gp.plinemsg_types; tmp; tmp = tmp->next)
+        if (!tmp->from_sysconf)
+            n++;
+    if (!n)
+        return;
+
+    /* the list is newest first; write it oldest first, as the player's
+       file had it, so reading it back rebuilds the same list (matching
+       takes the first entry that fits) */
+    arr = (struct plinemsg_type **) alloc(n * sizeof *arr);
+    for (tmp = gp.plinemsg_types; tmp; tmp = tmp->next)
+        if (!tmp->from_sysconf)
+            arr[i++] = tmp;
+
+    for (i = n; i > 0; i--) {
+        tmp = arr[i - 1];
+        Snprintf(buf, sizeof buf, "MSGTYPE=%s \"%s\"\n",
+                 msgtype2name(tmp->msgtype), tmp->pattern);
         strbuf_append(sbuf, buf);
-        tmp = tmp->next;
     }
+
+    free(arr);
 }
 
 staticfn void

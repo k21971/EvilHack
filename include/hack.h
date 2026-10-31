@@ -767,6 +767,7 @@ enum nhcb_calls {
 
 struct plinemsg_type {
     xint16 msgtype;  /* one of MSGTYP_foo */
+    boolean from_sysconf; /* read from sysconf; #saveoptions skips it */
     struct nhregex *regex;
     char *pattern;
     struct plinemsg_type *next;
