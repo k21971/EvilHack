@@ -141,14 +141,12 @@ static NEARDATA struct artifact artilist[] = {
       0, 7, 3500L, NO_COLOR, DEFAULT_MAT, MAGICBANE),
 
     A("Frost Brand", SHORT_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
-      COLD(5, 0), DFNS(AD_COLD), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 0, 9,
-      3000L,
-      NO_COLOR, STEEL, FROST_BRAND),
+      COLD(5, 0), DFNS(AD_COLD), NO_CARY, SNOWSTORM, A_NONE, NON_PM, NON_PM,
+      0, 9, 3000L, NO_COLOR, STEEL, FROST_BRAND),
 
     A("Fire Brand", SHORT_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
-      FIRE(5, 0), DFNS(AD_FIRE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 0, 5,
-      3000L,
-      NO_COLOR, STEEL, FIRE_BRAND),
+      FIRE(5, 0), DFNS(AD_FIRE), NO_CARY, FIRESTORM, A_NONE, NON_PM, NON_PM,
+      0, 5, 3000L, NO_COLOR, STEEL, FIRE_BRAND),
     /*      Let's flip the script a bit - Dragonbane is no longer a weapon,
      *      but a pair of magical gloves made from the scales of a long dead
      *      ancient dragon. The gloves afford much of the same special abilities
