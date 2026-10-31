@@ -17353,10 +17353,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       MUSE_ACIDIC_CORPSE/MUSE_ACID_BLOB_CORPSE absent (branch has
       only MUSE_LIZARD_CORPSE). Archive: Acidic Corpse as Conf/
       Stun Cure for Acid-Resistant Monsters (May 2 2026).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2694).
-      MUSE_ACIDIC_CORPSE 25: an acid-resistant confused or stunned
-      monster eats a carried acidic corpse, any monster that can open
-      tins an acidic tin; mon_consume_unstone() cures on (lizard ||
+      CLOSED 2026-10-31 (session 279, b9a3beed9, tracker 95591c30a;
+      BUG-2694). MUSE_ACIDIC_CORPSE 25: an acid-resistant confused or
+      stunned monster eats a carried acidic corpse, any monster that can
+      open tins an acidic tin; mon_consume_unstone() cures on (lizard ||
       acid) with safe_mons(). Master's cures-first reorder (BUG-910) not
       carried: it serves master's monster stoning countdown, absent here
       (the countdown row keeps it). Battery T3: a yellow dragon "seems
@@ -20277,11 +20277,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       zombie corpse can still rise from inside the box. Needs a trace
       (what zombify_mon() does to an OBJ_CONTAINED corpse; whether the
       box should stop it as it does REVIVE_MON). LOW.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2695, 2696).
-      put_in_icebox() (pickup.c) stops ROT_CORPSE, REVIVE_MON and
-      ZOMBIFY_MON (and a glob's SHRINK_GLOB, an ice troll's
-      cancellation) at all six freeze sites: #loot, #tip, monster
-      stashing, spared contents, horn of plenty, level creation;
+      CLOSED 2026-10-31 (session 279, e295b7006, tracker 95591c30a;
+      BUG-2695, 2696). put_in_icebox() (pickup.c) stops ROT_CORPSE,
+      REVIVE_MON and ZOMBIFY_MON (and a glob's SHRINK_GLOB, an ice
+      troll's cancellation) at all six freeze sites: #loot, #tip,
+      monster stashing, spared contents, horn of plenty, level creation;
       breakchestlock() thaws through removed_from_icebox(). Vanilla and
       master alike (upstream row). Battery T3: PRE the timer survived
       and "A kobold zombie escapes from an ice box!"; POST nothing rises
@@ -20355,19 +20355,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       set_malign() on the peaceful arm. Only the alignment read
       (mon_aligntyp(), BUG-2339) is on the branch. Needs a census
       of those master commits. LOW.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2686..2691).
-      Census of the arm's master commits: ndemon() for dlord()
-      (e8f34a4a0) with the one-in-five "Who dares summon me?" demon
-      ruled ALWAYS HOSTILE (Infidel included; master's code only skipped
-      the peaceful step); 6972e3e62's Infidel high-altar guard and luck
-      sign; 6be99bab3's drained-corpse lines (ruled: the victim's race -
-      a vampire's human victim reads "human" - and "The bloodless %s
-      corpse and the altar vanish in %s cloud!"); drained-corpse wishes
-      (c3816e9ea / 6be99bab3), fixing master's over-drained result
-      (BUG-2691, master frozen). Battery T2: PRE demon lords, all
-      peaceful; POST ordinary demons, "Who dares" hostile (natural,
-      forced, deaf, Infidel); Infidel Luck PRE -2 / POST +2; the sanctum
-      desecration gone; drained wishes and every bloodless line.
+      CLOSED 2026-10-31 (session 279, d3cfd628c, tracker 95591c30a;
+      BUG-2686..2691). Census of the arm's master commits: ndemon() for
+      dlord() (e8f34a4a0) with the one-in-five "Who dares summon me?"
+      demon ruled ALWAYS HOSTILE (Infidel included; master's code only
+      skipped the peaceful step); 6972e3e62's Infidel high-altar guard
+      and luck sign; 6be99bab3's drained-corpse lines (ruled: the
+      victim's race - a vampire's human victim reads "human" - and "The
+      bloodless %s corpse and the altar vanish in %s cloud!");
+      drained-corpse wishes (c3816e9ea / 6be99bab3), fixing master's
+      over-drained result (BUG-2691, master frozen). Battery T2: PRE
+      demon lords, all peaceful; POST ordinary demons, "Who dares"
+      hostile (natural, forced, deaf, Infidel); Infidel Luck PRE -2 /
+      POST +2; the sanctum desecration gone; drained wishes and every
+      bloodless line.
 - [x] LOW: a magic beam trap's launch point can sit beyond a door
       (minted 2026-10-13, session 223, by battery B;
       master-shared). maketrap()'s MAGIC_BEAM_TRAP_SET arm walks up
@@ -20635,15 +20636,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mhitm_ad_phys()'s m-v-m weapon leg (uhitm.c ~6539, where
       dmgval(magr, mwep, mdef) already adds the bonus), sharing
       hmon_hitmon_msg_lightobj()'s wording. LOW.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2692, 2693).
-      The printer is extern lightobj_searmsg(); mdamagem() calls it
-      after the hated-material sear when gv.vis (ruled: only when the
-      hero sees the fight; master prints anywhere), keeping master's
-      "Its flesh is seared!" fork, and the line is capitalized for hero
-      and monster attackers (the hero's Staff line began lowercase).
-      Master's spot, not mhitm_ad_phys(). Battery T1: a dwarf's Sunsword
-      sears a gremlin, an invisible one "Its flesh is seared!", a blind
-      hero sees nothing; the hero's Staff line PRE "the", POST "The".
+      CLOSED 2026-10-31 (session 279, b9a3beed9, tracker 95591c30a;
+      BUG-2692, 2693). The printer is extern lightobj_searmsg();
+      mdamagem() calls it after the hated-material sear when gv.vis
+      (ruled: only when the hero sees the fight; master prints
+      anywhere), keeping master's "Its flesh is seared!" fork, and the
+      line is capitalized for hero and monster attackers (the hero's
+      Staff line began lowercase). Master's spot, not mhitm_ad_phys().
+      Battery T1: a dwarf's Sunsword sears a gremlin, an invisible one
+      "Its flesh is seared!", a blind hero sees nothing; the hero's
+      Staff line PRE "the", POST "The".
 - [x] poly_obj() lit-state carry-over PORTED 2026-09-16 (session 120;
       the LOW row minted 2026-09-09 by the dragon-scaled consumer-sites
       slice's begin_burn caller diff; commit A = src/zap.c, hash in the
@@ -21690,11 +21692,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch has only the hero (yours) demon arm (01bccdecd) - row
       ~13645 over-claimed the monster arm. Master's own comment: "not
       relevant currently, but cover the bases anyways". LOW.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2704). Ported
-      for parity: SPFX_DBONUS spec_applies() already refuses every demon
-      form, so nothing changes in play. Battery T1: a hezrou never
-      picked up Demonbane over 20 turns; the new arm's breakpoint never
-      fired.
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2704). Ported for parity: SPFX_DBONUS spec_applies() already
+      refuses every demon form, so nothing changes in play. Battery T1:
+      a hezrou never picked up Demonbane over 20 turns; the new arm's
+      breakpoint never fired.
 - [ ] Hammer of the Gods tether semantics ABSENT (minted 2026-09-09 by
       the bane-aura census): master 6189cf1e1 treats the Hammer
       wielded at Skilled hammer as an aklys-style tethered weapon in
@@ -25436,15 +25438,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       to use it. force_learn_spell() already exists (spell.c); fold
       the livelog / u.ugifts / dropped_gift() handling and the
       known-spell uwep arm around the new branch. LOW (conduct play).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2685). Ruled
-      master's test: an illiterate hero whose gift spell is spe_Unknown
-      learns it ("Divine knowledge of the spell '%s' fills your mind!",
-      no book made, obj NULL so a failed learn enhances nothing, the
-      prayer-gift livelog line only when learned); a forgotten spell
-      still drops the book, as on master. Battery T1: POST power word
-      kill learned, staff blessed +1 fireproof, still illiterate,
-      livelog line; PRE the book; second crown, literate and forgotten
-      all drop the book.
+      CLOSED 2026-10-31 (session 279, d3cfd628c, tracker 95591c30a;
+      BUG-2685). Ruled master's test: an illiterate hero whose gift
+      spell is spe_Unknown learns it ("Divine knowledge of the spell
+      '%s' fills your mind!", no book made, obj NULL so a failed learn
+      enhances nothing, the prayer-gift livelog line only when learned);
+      a forgotten spell still drops the book, as on master. Battery T1:
+      POST power word kill learned, staff blessed +1 fireproof, still
+      illiterate, livelog line; PRE the book; second crown, literate and
+      forgotten all drop the book.
 - [x] MED: hero spellcasting - caster-class armor penalty and
       per-cast spell memory ABSENT - PORTED 2026-10-01 (session 165,
       commit `Port master's spellcasting armor terms, spell memory and
@@ -26559,8 +26561,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       landing_spot() finds nothing, dismount_steed() moves the steed and
       float_down() drops the hero over open air before spoteffects()'s
       chain catch is reached.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2715; ruled
-      fix). spoteffects() tries the chain catch
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2715; ruled fix). spoteffects() tries the chain catch
       (chain_pulls_rider_off()) before the airborne-steed dismount, so
       the hero lands within the chain's reach still chained and the
       flying steed stays up; dismount_steed()'s DISMOUNT_CHAIN arm
@@ -26635,13 +26637,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the glyph beneath when the chain moves on; set_bc(1) after a blind
       punishment also takes the chain's own glyph as the one beneath.
       Seen on both builds with and without a buried ball.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2702, 2709).
-      feel_location() changes a felt bit only on the ball's or chain's
-      own floor square (master's nesting; a 5.0 regression), and
-      set_bc() keeps placebc()'s glyph for a hero punished while blind
-      (master and vanilla alike). Upstream row. Battery T4: PRE a stale
-      `_` behind a blind walker; POST the floor returns (also after
-      punished-then-blinded and a search).
+      CLOSED 2026-10-31 (session 279, 5181e8adf + f9c1daaab, tracker
+      95591c30a; BUG-2702, 2709). feel_location() changes a felt bit
+      only on the ball's or chain's own floor square (master's nesting;
+      a 5.0 regression), and set_bc() keeps placebc()'s glyph for a hero
+      punished while blind (master and vanilla alike). Upstream row.
+      Battery T4: PRE a stale `_` behind a blind walker; POST the floor
+      returns (also after punished-then-blinded and a search).
 - [x] LOW: a spoteffects() landing re-fires a non-floor trap the
       hovering hero already met (minted 2026-10-06, session 188, Plan
       agent; record unless reached in play). check_in_air() exempts
@@ -26653,20 +26655,21 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       steed landing (BUG-2166) is limited to floor triggers for this
       reason. LOW. Session 189: the buried-ball landing (BUG-2176) is one
       more pass that can reach it.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2712, 2713;
-      ruled fix, every in-place landing). landing_trigger() (floor traps
-      plus the spear trap); spoteffects_in_place() and
-      float_down_core(in_place) skip a trap the hero met here (dotrap()
-      records it; u_on_newpos() forgets it on a move; a portal arrival
-      records the portal), so a hurtled-onto trap still fires (reviewer
-      MED). In-place callers: check_flight_landing(), land_deferred()
-      LANDING_SPOT, timed flight, gravity's pull, levitation put on by
-      ring, boots, invoke or potion; steed_lift_changed() lands a steed
-      on a spear trap. Folded: float_down()'s ball test no longer fires
-      the ball square's trap on the hero (BUG-2713, vanilla, upstream
-      row). Battery T6: one anti-magic drain for ring, amulet and timed
-      flight (PRE two); spear and squeaky board fire on landing; a
-      passed-over teleport trap fires; the steed is stabbed (PRE never).
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2712, 2713; ruled fix, every in-place landing).
+      landing_trigger() (floor traps plus the spear trap);
+      spoteffects_in_place() and float_down_core(in_place) skip a trap
+      the hero met here (dotrap() records it; u_on_newpos() forgets it
+      on a move; a portal arrival records the portal), so a hurtled-onto
+      trap still fires (reviewer MED). In-place callers:
+      check_flight_landing(), land_deferred() LANDING_SPOT, timed
+      flight, gravity's pull, levitation put on by ring, boots, invoke
+      or potion; steed_lift_changed() lands a steed on a spear trap.
+      Folded: float_down()'s ball test no longer fires the ball square's
+      trap on the hero (BUG-2713, vanilla, upstream row). Battery T6:
+      one anti-magic drain for ring, amulet and timed flight (PRE two);
+      spear and squeaky board fire on landing; a passed-over teleport
+      trap fires; the steed is stabbed (PRE never).
 - [x] LOW: TT_BURIEDBALL grounds a flyer without a landing (BUG-2176;
       BUG-2173..2175 and BUG-2177 in the same slice) - FIXED 2026-10-07
       (session 189, commit `Fix: hold releases report lift; the chain
@@ -27329,11 +27332,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       chain behind on another square or out of the chain's reach.
       Suggested fix: add `|| (mon == u.usteed && u.utrap)` to the
       refusal. LOW (needs a trace).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2699).
-      steed_held_in_place() (u.utrap, u.ustuck, Punished with the ball
-      on the floor) refuses in will_hurtle() and mhurtle(); a steed
-      hurtled while the ball is carried drags the chain. Vanilla alike
-      (upstream row). Battery T5: PRE the pair moved three squares
+      CLOSED 2026-10-31 (session 279, 5181e8adf, tracker 95591c30a;
+      BUG-2699). steed_held_in_place() (u.utrap, u.ustuck, Punished with
+      the ball on the floor) refuses in will_hurtle() and mhurtle(); a
+      steed hurtled while the ball is carried drags the chain. Vanilla
+      alike (upstream row). Battery T5: PRE the pair moved three squares
       leaving utrap set; POST "The saddled pony doesn't budge!" for a
       bear trap, u.ustuck and a floor ball; carrying the ball the chain
       follows.
@@ -27432,12 +27435,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       bottom!  You carefully lower yourself into the pit.". Trace which
       forced-trap paths read it, then clear or ignore it there.
       Upstream-reportable once traced. LOW (needs a trace).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2700). rhack()
-      clears iflags.menu_requested after a time-taking command. Vanilla
-      alike (upstream row). Battery T4: PRE "...hurls you down to the
-      bottom!  You carefully lower yourself into the pit."; POST "You
-      fall into a pit!"; m + direction into a known pit still lowers
-      carefully.
+      CLOSED 2026-10-31 (session 279, 5181e8adf, tracker 95591c30a;
+      BUG-2700). rhack() clears iflags.menu_requested after a
+      time-taking command. Vanilla alike (upstream row). Battery T4: PRE
+      "...hurls you down to the bottom!  You carefully lower yourself
+      into the pit."; POST "You fall into a pit!"; m + direction into a
+      known pit still lowers carefully.
 - [x] LOW: float_down()'s branch-held line (BUG-2315) - FIXED
       2026-10-13 (session 220, commit e99aeed17, tracker a15876be9; closure
       notes in BUGFIXES_ARCHIVE): "You are no longer trying to float
@@ -27516,11 +27519,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       finds it in grass_gone_release() / tree_gone_release(); the hold
       runs out on its timer. stucksteed() ignores mentangled, so it is
       cosmetic.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2710).
-      grass_gone_release() and tree_gone_release() release u.usteed (off
-      the map, so m_at() missed it). Battery T5: POST "The vegetation
-      releases the saddled pony." / "The tree releases its grip on the
-      saddled pony."; PRE held until its timer.
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2710). grass_gone_release() and tree_gone_release() release
+      u.usteed (off the map, so m_at() missed it). Battery T5: POST "The
+      vegetation releases the saddled pony." / "The tree releases its
+      grip on the saddled pony."; PRE held until its timer.
 - [ ] LOW: ridden steed entangle residue (minted 2026-10-31, session
       279, by the steed entangle trace; record). stucksteed() ignores an
       entangled steed, so the hero rides away held; explode.c's scatter
@@ -27552,10 +27555,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       maybe_set_terrain_effects() handles the liquid case and leaves
       other terrains as a TODO; a fix would flag nonflyer_vs_hole only
       when the old form was airborne.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2711).
-      maybe_set_terrain_effects() calls mon_lost_support(). Battery T5:
-      POST "Suddenly, the hobbit pickpocket falls through a trap door.";
-      PRE a walking form stayed and walked off.
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2711). maybe_set_terrain_effects() calls mon_lost_support().
+      Battery T5: POST "Suddenly, the hobbit pickpocket falls through a
+      trap door."; PRE a walking form stayed and walked off.
 - [x] LOW: the earthquake never cracks grass (minted 2026-10-24,
       session 259 battery B7; master the same). do_earthquake()'s
       switch has no GRASS case, so a grass square never gets a chasm
@@ -27667,16 +27670,16 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       dies (separate_steed_and_rider()) never drops. Outside the
       session 275 ruling (the steed carries the rider, not the
       reverse). LOW.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2716; ruled
-      fix). mon_steed_walks(); mfndpos() lets a rider on a walking steed
-      go only where the steed can (water, lava, open air, water walls);
-      check_in_air(), pit, hole, bear trap, squeaky board, land mine and
-      rolling boulder arms, dug pits and holes, earthquake chasms and
-      mon_falls_unsupported() treat the pair as grounded (delta-review
-      MED widened it); separate_steed_and_rider() drops a steed left on
-      a hole. Battery T5: PRE the wolf drowned in a moat; POST the pair
-      goes around, falls into pits together, and a separated wolf on a
-      hole falls.
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2716; ruled fix). mon_steed_walks(); mfndpos() lets a rider on
+      a walking steed go only where the steed can (water, lava, open
+      air, water walls); check_in_air(), pit, hole, bear trap, squeaky
+      board, land mine and rolling boulder arms, dug pits and holes,
+      earthquake chasms and mon_falls_unsupported() treat the pair as
+      grounded (delta-review MED widened it); separate_steed_and_rider()
+      drops a steed left on a hole. Battery T5: PRE the wolf drowned in
+      a moat; POST the pair goes around, falls into pits together, and a
+      separated wolf on a hole falls.
 - [ ] LOW: rider / steed lift residue (minted 2026-10-31, session 279,
       by the rider-lift fixes; record, needs a ruling for the placement
       side). goodpos(), minliquid_core() and mon_slowed_by_sewage() read
@@ -27720,11 +27723,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       catch-up (minted 2026-10-24, session 259 Plan agent; master the
       same, record). mon_catchup_elapsed_time() runs neither
       mlevitatetime nor mjumptime down.
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2701).
-      mon_catchup_elapsed_time() runs both timers down, clamped to 2
-      (mon_regen() decrements before the `t && t <= 1` expiry). Battery
-      T5: PRE landed 59 turns after return; POST both 2 on arrival and 0
-      a turn later.
+      CLOSED 2026-10-31 (session 279, 5181e8adf, tracker 95591c30a;
+      BUG-2701). mon_catchup_elapsed_time() runs both timers down,
+      clamped to 2 (mon_regen() decrements before the `t && t <= 1`
+      expiry). Battery T5: PRE landed 59 turns after return; POST both 2
+      on arrival and 0 a turn later.
 - [x] LOW: two vine-hold lines name a tree's hold "vegetation"
       (minted 2026-10-13, session 220, reviewer L5; master-shared
       wording). dothrow.c's held-thrower line "You are anchored by the
@@ -27779,14 +27782,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hooks (dighole(), do_break_wand(), blow_up_landmine(), a lava
       wish) reach it too. Candidate: skip the over-drop defer when
       `Wwalking && is_pool_or_lava()`. LOW (needs a trace).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2714; ruled
-      fix). pooleffects() records the meeting (gp.pool_met_seq /
-      pool_met_at) and doesn't burn a water walker on that lava again in
-      the same move (reviewer MED: a release on another turn doubled in
-      the next move); release_over_drop() skips the deferred landing for
-      one already met. music.c needed nothing. Battery T6: PRE three
-      burns, two in one move; POST one per move; a hero given water
-      walking while held still burns on landing.
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2714; ruled fix). pooleffects() records the meeting
+      (gp.pool_met_seq / pool_met_at) and doesn't burn a water walker on
+      that lava again in the same move (reviewer MED: a release on
+      another turn doubled in the next move); release_over_drop() skips
+      the deferred landing for one already met. music.c needed nothing.
+      Battery T6: PRE three burns, two in one move; POST one per move; a
+      hero given water walking while held still burns on landing.
 - [ ] LOW: a tree-held water walker dangling over lava burns each move
       (minted 2026-10-31, session 279, by the double-burn design pass;
       needs a ruling). pooleffects()' vine-hold test lets a held water
@@ -27835,13 +27838,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (u_init.c's Infidel ini_inv carries the real Amulet worn); check
       master's opening and whether a wizkit or the pauper path is
       involved. LOW (message only).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2705). 5.0's
-      Amulet_on() always ran remove_worn_item() and on_msg(), so
-      set_wear(NULL) took the already-worn starting amulet off and on
-      again (master's Amulet_on() did neither); an amulet already in the
-      slot is no longer re-seated and gets no inventory line. Vanilla
-      alike (upstream row). Battery T4: PRE the T:1 lines for an Infidel
-      and a giant Wizard; POST none.
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2705). 5.0's Amulet_on() always ran remove_worn_item() and
+      on_msg(), so set_wear(NULL) took the already-worn starting amulet
+      off and on again (master's Amulet_on() did neither); an amulet
+      already in the slot is no longer re-seated and gets no inventory
+      line. Vanilla alike (upstream row). Battery T4: PRE the T:1 lines
+      for an Infidel and a giant Wizard; POST none.
 - [x] MED: a returning missile dropped by the two-weapon relight is
       dropped again from the floor (BUG-2184; BUG-2185..2189 in the
       same slice) - FIXED 2026-10-08 (session 191, commit e338a46e4,
@@ -27901,18 +27904,18 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       for the new form and a doubled prinv. Trace poly_obj()'s worn
       arm (remove_worn_item() / set_wear() / Amulet_on()) against
       potion_dip()'s prinv(); check master. LOW (message only).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2705..2707).
-      The BUG-2705 guard removes the second take-off and inventory
-      lines; ruled ONE LINE, so gw.worn_swap_quiet (set by poly_obj()
-      from the old form's removal until the new form is worn in the same
-      slot, tied to that object) silences the old form's "You were
-      wearing". Folded (reviewer MED): worn eyewear had the same re-seat
-      and went blind without a vision toggle; Blindf_on() no longer
-      re-seats and judges sight from before the swap. Battery T4: PRE
-      four lines; POST one inventory line (strangulation "Your amulet
-      constricts your throat!"); blindfold -> towel one line and still
-      blind, -> lenses "You can see!", lenses -> blindfold "You can't
-      see any more.".
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2705..2707). The BUG-2705 guard removes the second take-off
+      and inventory lines; ruled ONE LINE, so gw.worn_swap_quiet (set by
+      poly_obj() from the old form's removal until the new form is worn
+      in the same slot, tied to that object) silences the old form's
+      "You were wearing". Folded (reviewer MED): worn eyewear had the
+      same re-seat and went blind without a vision toggle; Blindf_on()
+      no longer re-seats and judges sight from before the swap. Battery
+      T4: PRE four lines; POST one inventory line (strangulation "Your
+      amulet constricts your throat!"); blindfold -> towel one line and
+      still blind, -> lenses "You can see!", lenses -> blindfold "You
+      can't see any more.".
 - [x] LOW: an aasimar's angelic wings flew in every polymorph form
       (BUG-2148) - FIXED 2026-10-05 (session 185, commit `Fix: angelic
       wings belong to the aasimar body; returning wings told.` =
@@ -31508,26 +31511,26 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       doorway) falls back to the path search with run 8 but multi 0,
       so travel takes one step and stops. Master set run 0 and kept
       multi. LOW (needs a trace and a battery leg).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2708).
-      end_running(FALSE) -> svc.context.run = 0, master's shape: a
-      refused shortcut keeps multi and the travel map, and the path
-      search finishes the trip. Vanilla alike (upstream row). Battery
-      T3: PRE one step and a second '_'; POST one command.
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2708). end_running(FALSE) -> svc.context.run = 0, master's
+      shape: a refused shortcut keeps multi and the travel map, and the
+      path search finishes the trip. Vanilla alike (upstream row).
+      Battery T3: PRE one step and a second '_'; POST one command.
 - [x] LOW: #saveoptions writes sysconf's MSGTYPE lines into the
       player's config file, each twice (minted 2026-10-17, session
       237, battery anomaly). LOW (needs a trace: sysconf parsed
       twice, or the msgtype list doubled).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2697, 2698).
-      Two causes: sysconf was read twice at startup (three times with a
-      double init on Windows) - initoptions() now runs
-      initoptions_init() only at phase_not_set and keeps the one read,
-      after a port's default paths are set, with cmdline_windowtype()
-      covering Windows' late -w; and the MSGTYPE writer wrote sysconf's
-      entries and reversed the player's - entries now remember
-      from_sysconf, and the writer skips them and keeps rc order (BUFSZ
-      * 2, Snprintf). Vanilla alike (upstream row). Battery T3: PRE 6
-      entries, reversed and growing saves; POST 4, the player's two
-      lines in order, stable.
+      CLOSED 2026-10-31 (session 279, 2e5b8ceb3, tracker 95591c30a;
+      BUG-2697, 2698). Two causes: sysconf was read twice at startup
+      (three times with a double init on Windows) - initoptions() now
+      runs initoptions_init() only at phase_not_set and keeps the one
+      read, after a port's default paths are set, with
+      cmdline_windowtype() covering Windows' late -w; and the MSGTYPE
+      writer wrote sysconf's entries and reversed the player's - entries
+      now remember from_sysconf, and the writer skips them and keeps rc
+      order (BUFSZ * 2, Snprintf). Vanilla alike (upstream row). Battery
+      T3: PRE 6 entries, reversed and growing saves; POST 4, the
+      player's two lines in order, stable.
 - [ ] LOW: #saveoptions writer residue (minted 2026-10-31, session 279,
       by the MSGTYPE trace; vanilla-shared). The autopickup-exception
       writer flips the player's order on every save the same way MSGTYPE
@@ -32538,14 +32541,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the door-material record's note that acid destroys no door on the
       branch, and the hard_door override (reached only when
       new_doormask >= 0). LOW (gameplay: doors vs gas and acid).
-      CLOSED 2026-10-31 (session 279, commit pending; BUG-2703).
-      zap_over_floor() gains master's two arms: ZT_POISON_GAS breaks the
-      door ("The door rots away!" / "a hollow thud.", article added per
-      the session 187 ruling) and ZT_ACID removes it ("The door
-      dissolves!" / "hissing."). The hard_door override already exempts
-      acid (a metal or stone door absorbs gas, dissolves under acid);
-      rangemod -1000 stops both rays at the door; billing stays the
-      branch's type >= 0. Battery T1: wood rots / dissolves, iron
+      CLOSED 2026-10-31 (session 279, f9c1daaab, tracker 95591c30a;
+      BUG-2703). zap_over_floor() gains master's two arms: ZT_POISON_GAS
+      breaks the door ("The door rots away!" / "a hollow thud.", article
+      added per the session 187 ruling) and ZT_ACID removes it ("The
+      door dissolves!" / "hissing."). The hard_door override already
+      exempts acid (a metal or stone door absorbs gas, dissolves under
+      acid); rangemod -1000 stops both rays at the door; billing stays
+      the branch's type >= 0. Battery T1: wood rots / dissolves, iron
       absorbs gas once and dissolves, blind hear lines; PRE absorbs
       every time.
 - [x] White dragon scales secondary property: master water walking vs
@@ -34833,14 +34836,14 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-30 | A hero's AT_HUGS AD_WRAP hit on a held target prints "<Mon> is being crushed." twice (hmonas() and mhitm_ad_wrap()'s uhitm leg). On a noncorporeal target, hmonas()'s shade arm ("deals damage but never grabs hold") calls damageum(), and the wrap leg then grabs the shade 1 in 10 or zeroes the damage with "You brush against ...". Official_nh50 b0c09c878 (and 3.6); BUG-2666, 2667, src/uhitm.c | found (branch-fixed 13a6eb43b: the wrap leg leaves hug holds and the crush line to hmonas(); an unheld hug deals specialdmg); not sent; triage pending |
 | 2026-10-30 | A life-saved drowning reads "You are back on solid ground." (pooleffects() on safe_teleds()'s landing) and then "You find yourself on solid ground." (rescued_from_terrain()'s fallback). Seen on a plain drowning with an amulet and with wizard mode's Die? n. Official_nh50 b0c09c878; BUG-2668, src/trap.c | found (branch-fixed a3456df76: the rescue line only for a hero still in the water, called before drown() clears u.uinwater); not sent; triage pending |
 | 2026-10-31 | invoke_storm_spell() (Frost Brand / Fire Brand) sets P_SKILL of the storm's school to P_EXPERT around spelleffects(storm, FALSE, TRUE) and puts it back only when the call returns: a hero killed by their own storm reaches really_done() with the school still at Expert, so the dumplog's show_skills() lists "attack spells [Expert]" (even for a restricted school), and a panic error save or an idle checkpoint (do_idlecheckpoint()) taken at a prompt inside the cast ("Where do you want to cast the spell?", getdir, a --More--) writes Expert through savegamestate()'s Sfo_you(), which a recovered game keeps. Official_nh50 b0c09c878; BUG-2684, src/artifact.c, spell.c, end.c, save.c | found (branch-fixed cda141ce3: cast_at_expert() keeps the school and level in gs, really_done() restores before the dumplog, savegamestate() writes the real level with the sentinel off during the write); not sent; triage pending |
-| 2026-10-31 | Putting a corpse into an ice box stops ROT_CORPSE and REVIVE_MON only (in_container(), tipcontainer(), the spared-contents path), so a zombie's victim's corpse (gz.zombify) keeps its ZOMBIFY_MON timer, and revive() raises a contained corpse: the zombie climbs out of the ice box ("... writhes out of an ice box in your pack!"). breakchestlock() thaws spilled corpses with start_corpse_timeout() but no norevive, unlike removed_from_icebox(). Official_nh50 b0c09c878; BUG-2695, 2696, src/pickup.c, invent.c, mkobj.c, lock.c | found (branch-fixed, commit pending: put_in_icebox() stops all three at every freeze site; breakchestlock() uses removed_from_icebox()); not sent; triage pending |
-| 2026-10-31 | sysconf is read twice at Unix startup and three times on Windows (with a second initoptions_init()): initoptions() calls initoptions_init() whenever opt_phase != builtin_opt, and initoptions_init() ends by reading SYSCF_FILE (6234e96b5) while initoptions() reads it again. Any list-type sysconf line is added twice; #saveoptions then writes all MSGTYPE entries, sysconf's included, walking the newest-first list, so each save reverses the player's MSGTYPE order (changing which matches first) and the file grows on every relaunch; a near-BUFSZ pattern overflows the writer's buffer. Official_nh50 b0c09c878; BUG-2697, 2698, src/options.c, include/hack.h | found (branch-fixed, commit pending: initoptions_init() only at phase_not_set, one read in initoptions(), cmdline_windowtype(); sysconf entries marked and skipped, rc order kept); not sent; triage pending |
-| 2026-10-31 | Amulet_on() calls remove_worn_item() and on_msg() even for an amulet already in the slot: set_wear(NULL) for a starting worn amulet prints "You were wearing ..." and an inventory line, and poly_obj() on a dipped worn amulet prints two take-off lines and two inventory lines. Blindf_on() has the same shape for eyewear and also leaves the view sighted while the hero is blind again. Official_nh50 b0c09c878; BUG-2705..2707, src/do_wear.c, zap.c | found (branch-fixed, commit pending: an item already worn isn't re-seated; poly_obj() swaps a worn item quietly and Blindf_on() judges sight from before the swap); not sent; triage pending |
-| 2026-10-31 | findtravelpath()'s adjacent shortcut calls end_running(FALSE) (multi 0, travel map freed) before test_move(); a refused diagonal out of a doorway falls back to the path search with multi 0, so travel takes one step and stops. 3.6 set context.run = 0 only. Official_nh50 b0c09c878; BUG-2708, src/hack.c | found (branch-fixed, commit pending: svc.context.run = 0); not sent; triage pending |
-| 2026-10-31 | feel_location() clears u.bc_felt's chain and ball bits whenever the felt square isn't theirs (3.6 nested the test), so every blind step forgets the chain and move_bc() leaves its glyph behind; set_bc(1) after a blind punish() replaces placebc()'s saved glyph with the chain's own. Official_nh50 b0c09c878; BUG-2702, 2709, src/display.c, ball.c | found (branch-fixed, commit pending: 3.6's nesting; set_bc() keeps the saved glyphs when already blind); not sent; triage pending |
-| 2026-10-31 | mhurtle() and will_hurtle() refuse a stuck or trapped monster, but the hero's steed is never mtrapped (the hold is u.utrap), so a cursed saddle or a knockback moves the pair with u_on_newpos() out of a bear trap, web or pit, out of u.ustuck's grip, or away from a ball on the floor (hurtle() refuses all of these for the hero), leaving u.utrap set. Official_nh50 b0c09c878; BUG-2699, src/dothrow.c | found (branch-fixed, commit pending: steed_held_in_place() in both refusals; the steed arm drags a carried ball's chain); not sent; triage pending |
-| 2026-10-31 | rhack() leaves iflags.menu_requested set after an 'm'-prefixed command that took time, so the monsters' turns see it: trapeffect_pit()'s "You carefully lower yourself into the pit." for a forced pit, pickup.c's forced-pickup menu. Official_nh50 b0c09c878; BUG-2700, src/cmd.c | found (branch-fixed, commit pending: cleared in rhack()'s ECMD_TIME branch); not sent; triage pending |
-| 2026-10-31 | float_down()'s Punished test assigns trap = t_at(uball->ox, uball->oy); a non-pit trap under the ball survives the failed test, the come-down messages are skipped, and the trap pass runs dotrap() on the hero for a trap on another square. Official_nh50 b0c09c878; BUG-2713, src/trap.c | found (branch-fixed, commit pending: a local for the ball's trap); not sent; triage pending |
+| 2026-10-31 | Putting a corpse into an ice box stops ROT_CORPSE and REVIVE_MON only (in_container(), tipcontainer(), the spared-contents path), so a zombie's victim's corpse (gz.zombify) keeps its ZOMBIFY_MON timer, and revive() raises a contained corpse: the zombie climbs out of the ice box ("... writhes out of an ice box in your pack!"). breakchestlock() thaws spilled corpses with start_corpse_timeout() but no norevive, unlike removed_from_icebox(). Official_nh50 b0c09c878; BUG-2695, 2696, src/pickup.c, invent.c, mkobj.c, lock.c | found (branch-fixed e295b7006: put_in_icebox() stops all three at every freeze site; breakchestlock() uses removed_from_icebox()); not sent; triage pending |
+| 2026-10-31 | sysconf is read twice at Unix startup and three times on Windows (with a second initoptions_init()): initoptions() calls initoptions_init() whenever opt_phase != builtin_opt, and initoptions_init() ends by reading SYSCF_FILE (6234e96b5) while initoptions() reads it again. Any list-type sysconf line is added twice; #saveoptions then writes all MSGTYPE entries, sysconf's included, walking the newest-first list, so each save reverses the player's MSGTYPE order (changing which matches first) and the file grows on every relaunch; a near-BUFSZ pattern overflows the writer's buffer. Official_nh50 b0c09c878; BUG-2697, 2698, src/options.c, include/hack.h | found (branch-fixed 2e5b8ceb3: initoptions_init() only at phase_not_set, one read in initoptions(), cmdline_windowtype(); sysconf entries marked and skipped, rc order kept); not sent; triage pending |
+| 2026-10-31 | Amulet_on() calls remove_worn_item() and on_msg() even for an amulet already in the slot: set_wear(NULL) for a starting worn amulet prints "You were wearing ..." and an inventory line, and poly_obj() on a dipped worn amulet prints two take-off lines and two inventory lines. Blindf_on() has the same shape for eyewear and also leaves the view sighted while the hero is blind again. Official_nh50 b0c09c878; BUG-2705..2707, src/do_wear.c, zap.c | found (branch-fixed f9c1daaab: an item already worn isn't re-seated; poly_obj() swaps a worn item quietly and Blindf_on() judges sight from before the swap); not sent; triage pending |
+| 2026-10-31 | findtravelpath()'s adjacent shortcut calls end_running(FALSE) (multi 0, travel map freed) before test_move(); a refused diagonal out of a doorway falls back to the path search with multi 0, so travel takes one step and stops. 3.6 set context.run = 0 only. Official_nh50 b0c09c878; BUG-2708, src/hack.c | found (branch-fixed f9c1daaab: svc.context.run = 0); not sent; triage pending |
+| 2026-10-31 | feel_location() clears u.bc_felt's chain and ball bits whenever the felt square isn't theirs (3.6 nested the test), so every blind step forgets the chain and move_bc() leaves its glyph behind; set_bc(1) after a blind punish() replaces placebc()'s saved glyph with the chain's own. Official_nh50 b0c09c878; BUG-2702, 2709, src/display.c, ball.c | found (branch-fixed 5181e8adf: 3.6's nesting; set_bc() keeps the saved glyphs when already blind); not sent; triage pending |
+| 2026-10-31 | mhurtle() and will_hurtle() refuse a stuck or trapped monster, but the hero's steed is never mtrapped (the hold is u.utrap), so a cursed saddle or a knockback moves the pair with u_on_newpos() out of a bear trap, web or pit, out of u.ustuck's grip, or away from a ball on the floor (hurtle() refuses all of these for the hero), leaving u.utrap set. Official_nh50 b0c09c878; BUG-2699, src/dothrow.c | found (branch-fixed 5181e8adf: steed_held_in_place() in both refusals; the steed arm drags a carried ball's chain); not sent; triage pending |
+| 2026-10-31 | rhack() leaves iflags.menu_requested set after an 'm'-prefixed command that took time, so the monsters' turns see it: trapeffect_pit()'s "You carefully lower yourself into the pit." for a forced pit, pickup.c's forced-pickup menu. Official_nh50 b0c09c878; BUG-2700, src/cmd.c | found (branch-fixed 5181e8adf: cleared in rhack()'s ECMD_TIME branch); not sent; triage pending |
+| 2026-10-31 | float_down()'s Punished test assigns trap = t_at(uball->ox, uball->oy); a non-pit trap under the ball survives the failed test, the come-down messages are skipped, and the trap pass runs dotrap() on the hero for a trap on another square. Official_nh50 b0c09c878; BUG-2713, src/trap.c | found (branch-fixed f9c1daaab: a local for the ball's trap); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
