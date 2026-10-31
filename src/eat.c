@@ -398,7 +398,8 @@ adj_victual_nutrition(void)
     return nut;
 }
 
-/* might destroy otmp if hero drops it */
+/* might destroy otmp if hero drops it; returns Null if otmp had to be
+   dropped and is gone */
 staticfn struct obj *
 touchfood(struct obj *otmp)
 {
@@ -419,10 +420,13 @@ touchfood(struct obj *otmp)
         freeinv(otmp);
         if (inv_cnt(FALSE) >= invlet_basic) {
             sellobj_state(SELL_DONTSELL);
-            dropy(otmp);
+            /* dropy() returns TRUE if the piece is gone: used up, or
+               sent off the level down a hole or trap door */
+            if (dropy(otmp)) {
+                sellobj_state(SELL_NORMAL);
+                return (struct obj *) 0;
+            }
             sellobj_state(SELL_NORMAL);
-            if (otmp->where == OBJ_DELETED)
-                otmp = (struct obj *) NULL;
         } else {
             otmp = addinv_nomerge(otmp);
         }
@@ -2367,7 +2371,7 @@ eatcorpse(struct obj *otmp)
             otmp->orotten = TRUE;
             otmp = touchfood(otmp);
             if (!otmp)
-                return 1;
+                return 2; /* gone; doeat() mustn't read it again */
             retcode = 1;
         }
 
@@ -3564,12 +3568,14 @@ doeat(void)
             svc.context.victual.canchoke = 0;
         svc.context.victual.o_id = 0;
         otmp = touchfood(otmp);
-        if (otmp) {
-            svc.context.victual.piece = otmp;
-            svc.context.victual.o_id = otmp->o_id;
-        } else {
+        if (!otmp) {
+            /* dropped and gone; nothing left to resume */
+            svc.context.victual.piece = (struct obj *) 0;
             do_reset_eat();
+            return ECMD_TIME;
         }
+        svc.context.victual.piece = otmp;
+        svc.context.victual.o_id = otmp->o_id;
         /* if there's only one bite left, there sometimes won't be any
            "you finish eating" message when done; use different wording
            for resuming with one bite remaining instead of trying to
@@ -3581,8 +3587,7 @@ doeat(void)
         else
             You("%s your meal.",
                 !one_bite_left ? "resume" : "consume the last bite of");
-        if (otmp)
-            start_eating(otmp, FALSE);
+        start_eating(otmp, FALSE);
         return ECMD_TIME;
     }
 

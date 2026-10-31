@@ -818,8 +818,9 @@ moveloop_core(void)
                                           == u.ualign.type);
 
                     /* a monster killed earlier this turn stays on fmon
-                       until the next dmonsfree() pass */
-                    if (DEADMONSTER(mtmp))
+                       until the next dmonsfree() pass; a vault guard
+                       parked at <0,0> isn't on the map at all */
+                    if (DEADMONSTER(mtmp) || !mtmp->mx)
                         continue;
                     /* monster in question has to see you, not just
                        sense you, before it becomes hostile */

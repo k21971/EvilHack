@@ -639,9 +639,8 @@ dog_eat(struct monst *mtmp,
                 freeinv(obj);
                 if (inv_cnt(FALSE) >= invlet_basic
                     && !merge_choice(gi.invent, obj)) {
-                    dropy(obj);
-                    if (obj->where == OBJ_DELETED)
-                        obj = (struct obj *) 0; /* destroyed */
+                    if (dropy(obj))
+                        obj = (struct obj *) 0; /* destroyed, or fell */
                 } else {
                     obj = addinv(obj); /* unlikely, but merge possible */
                 }

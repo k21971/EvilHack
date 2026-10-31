@@ -2040,9 +2040,11 @@ mon_likes_objpile_at(struct monst *mtmp, coordxy x, coordxy y)
     if (!isok(x,y) || !OBJ_AT(x,y))
         return FALSE;
 
-    /* monster likes any of the top 3 items in the pile? */
+    /* monster likes any of the top 3 items in the pile? a corpse it
+       would refuse doesn't count (as in mpickstuff()) */
     for (i = 0, otmp = svl.level.objects[x][y]; otmp && i < 3; i++) {
-        if (mon_would_take_item(mtmp, otmp))
+        if (mon_would_take_item(mtmp, otmp)
+            && !mon_refuses_corpse(mtmp, otmp))
             return TRUE;
         otmp = otmp->nexthere;
     }

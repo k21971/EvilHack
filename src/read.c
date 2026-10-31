@@ -3093,6 +3093,11 @@ set_lit(coordxy x, coordxy y, genericptr_t val)
     struct monst *mtmp;
     struct litmon *target;
 
+    /* a hero-centred area is clamped to the map, but a monster's aura
+       goes through view_from(), which reaches column 0 when column 1
+       is open */
+    if (!isok(x, y))
+        return;
     if (val) {
         levl[x][y].lit = 1;
         if ((mtmp = m_at(x, y)) != 0 && hates_light(r_data(mtmp))) {
@@ -3227,7 +3232,7 @@ litroom(
             else
                 pline("%s glistens.", Monnam(u.ustuck));
         } else if (!Blind && (!Is_rogue_level(&u.uz)
-                              || levl[u.ux][u.uy].typ != CORR)) {
+                              || levl[x][y].typ != CORR)) {
             if (you) {
                 if (mon)
                     pline("A celestial glow surrounds you.");
@@ -3258,7 +3263,9 @@ litroom(
     if (Is_rogue_level(&u.uz)) {
         /* Can't use do_clear_area because MAX_RADIUS is too small */
         /* rogue lighting must light the entire room */
-        int rnum = levl[u.ux][u.uy].roomno - ROOMOFFSET;
+        /* the room the light or darkness is centred on: the hero's, or
+           that of the monster whose aura it is */
+        int rnum = levl[x][y].roomno - ROOMOFFSET;
         int rx, ry;
 
         if (rnum >= 0) {
