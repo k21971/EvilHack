@@ -17,9 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-30, after session 277's
-  debug + infra ports slice: four rows closed, one LOW minted open):
-  578 rows closed, 91 open
+- Phase 2 status (refreshed 2026-10-31, after session 278's
+  storm invokes slice: one row closed, none minted):
+  579 rows closed, 90 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -341,7 +341,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 81 LOW: small parity rows, quirks and watch/record-only items.
+  - 80 LOW: small parity rows, quirks and watch/record-only items.
+    Session 278 closed one (BUG-2683, 2684): Fire Brand and Frost
+    Brand invoke 5.0's fireball and cone of cold storms at Expert
+    (ruled), through one Expert-cast helper shared with #wizcast
+    that keeps the temporary Expert out of the dumplog after a
+    death and out of a checkpoint or panic save.
     Session 277 closed four (BUG-2676..2681): #wizcast casts the
     whole spell at Expert in its school, keeping any skill the
     cast drains (ruled); ^G takes "racial <race>" again, building
@@ -25527,7 +25532,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       one slot too many (wizard mode's #enhance already offers
       "Advance skills without practice?"); a level gained mid-cast
       can miss "You feel more confident" for the school; a death
-      or panic mid-cast shows Expert in that dumplog / error save.
+      or panic mid-cast shows Expert in that dumplog / error save
+      (fixed 2026-10-31, session 278, BUG-2684: cast_at_expert()).
       Battery A (Valkyrie, all four schools restricted): healing
       dice PRE 4 / POST 10, clerical 4 / 12, spell_hit_bonus -4 /
       6, create grass skill 0 / 4; skills and #enhance unchanged
@@ -25538,7 +25544,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       artifact has FIRESTORM / SNOWSTORM (invoke_storm_spell() is
       unreachable; master's Fire / Frost Brand have no invoke) -
       ruled ADOPT 5.0's storm invokes, row minted below.
-- [ ] LOW: Fire Brand and Frost Brand lack 5.0's storm invokes
+- [x] LOW: Fire Brand and Frost Brand lack 5.0's storm invokes
       (minted 2026-10-30, session 277, by battery A; RULED ADOPT
       the same day, decisions log). Vanilla 5.0's artilist gives
       Frost Brand SNOWSTORM (cone of cold) and Fire Brand FIRESTORM
@@ -25549,6 +25555,36 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the 5.0 invokes (a gameplay change from 0.9.3). Check the
       invoke timeout, the #invoke menu text, the dumplog / pager
       lines and data.base when taken. Plannable.
+      CLOSED 2026-10-31 (session 278, commit pending; BUG-2683,
+      BUG-2684). artilist.h gives Frost Brand SNOWSTORM and Fire
+      Brand FIRESTORM. Ruled 2026-10-31: keep EvilHack's "Cast
+      advanced spell?" for the invoke ('y' = the storm, 'n' / ESC
+      = one ray, as when casting at Expert); leave Dichotomy (forged
+      from both) without an invoke, no row; RESTORE ON DEATH - the
+      Expert bracket around the forced cast moved into one helper,
+      cast_at_expert() (spell.c, shared with #wizcast), whose
+      school and level live in gs.expert_cast_skill /
+      gs.expert_cast_level; really_done() puts the level back
+      before the dumplog lists skills, and savegamestate() writes
+      the real level (sentinel off during the write) so a panic
+      save or an idle checkpoint taken at a prompt inside the cast
+      no longer records Expert (BUG-2684; vanilla alike, upstream
+      row minted). Already right and unchanged: the rnz(100)
+      timeout with no Pw payment (as vanilla), the lookup's "When
+      invoked:" line, invoke_ok() / the 'V' item action (every
+      artifact), data.base (the Frost poem), the forced cast's
+      skipped checks. Residue: a cancelled storm target spends the
+      charge (vanilla's shape); a level gained mid-cast can miss
+      "You feel more confident" for the school. Batteries A
+      (9 explosions, skill and slots unchanged, PRE "Nothing
+      happens.", "ignoring you" +22, Frost Brand 'n' one ray, the
+      lookup lines), D (a death mid-storm: no attack spells line;
+      control with the sentinel zeroed shows "attack spells
+      Expert"; #wizcast clean; lifesave ends at skill 0) and E
+      (checkpoint mid-storm, SIGKILL, recover: POST skill 0, PRE
+      #wizcast recovered at Expert) all PASS; delta F on the final
+      binary (the sentinel reads 0 inside the paused write, a nested
+      checkpoint writes the real level, recover -> skill 0) PASS.
 - [x] LOW: exerchk() lets Int exercise land while polymorphed
       (BUG-2109) - FIXED 2026-10-03 (session 173, commit `Rider hold
       text, death-reason race and polymorphed Int exercise.` =
@@ -34549,6 +34585,7 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-30 | curses menu_determine_pages() re-places a menu entry taller than a page on new pages forever, or backs up to a NULL prev_item and crashes when it is the first entry; menu_is_multipage() misses an overflowing last entry (the footer overwrites it); paging counts selectable rows at width - 4 while the draw wraps at width - 6 when an object symbol shows. Official_nh50 b0c09c878 (and 3.6); BUG-2663, win/curses/cursdial.c | found (branch-fixed b871f0f35); not sent; triage pending |
 | 2026-10-30 | A hero's AT_HUGS AD_WRAP hit on a held target prints "<Mon> is being crushed." twice (hmonas() and mhitm_ad_wrap()'s uhitm leg). On a noncorporeal target, hmonas()'s shade arm ("deals damage but never grabs hold") calls damageum(), and the wrap leg then grabs the shade 1 in 10 or zeroes the damage with "You brush against ...". Official_nh50 b0c09c878 (and 3.6); BUG-2666, 2667, src/uhitm.c | found (branch-fixed 13a6eb43b: the wrap leg leaves hug holds and the crush line to hmonas(); an unheld hug deals specialdmg); not sent; triage pending |
 | 2026-10-30 | A life-saved drowning reads "You are back on solid ground." (pooleffects() on safe_teleds()'s landing) and then "You find yourself on solid ground." (rescued_from_terrain()'s fallback). Seen on a plain drowning with an amulet and with wizard mode's Die? n. Official_nh50 b0c09c878; BUG-2668, src/trap.c | found (branch-fixed a3456df76: the rescue line only for a hero still in the water, called before drown() clears u.uinwater); not sent; triage pending |
+| 2026-10-31 | invoke_storm_spell() (Frost Brand / Fire Brand) sets P_SKILL of the storm's school to P_EXPERT around spelleffects(storm, FALSE, TRUE) and puts it back only when the call returns: a hero killed by their own storm reaches really_done() with the school still at Expert, so the dumplog's show_skills() lists "attack spells [Expert]" (even for a restricted school), and a panic error save or an idle checkpoint (do_idlecheckpoint()) taken at a prompt inside the cast ("Where do you want to cast the spell?", getdir, a --More--) writes Expert through savegamestate()'s Sfo_you(), which a recovered game keeps. Official_nh50 b0c09c878; BUG-2684, src/artifact.c, spell.c, end.c, save.c | found (branch-fixed, commit pending: cast_at_expert() keeps the school and level in gs, really_done() restores before the dumplog, savegamestate() writes the real level with the sentinel off during the write); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -34934,6 +34971,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-31 | Storm invokes slice rulings (Phase 2 session 278, AskUserQuestion x2, four questions, all as recommended). (1) SLICE: the storm invokes row only (over the master gameplay ports and traces groups). (2) DEATH LEAK: restore on death - the invoke's (and #wizcast's) Expert bracket moves into one helper whose state lives in gs, really_done() puts the school's level back before the dumplog, and a save inside the cast writes the real level; an upstream row is minted (vanilla alike). Session 277 had kept this as #wizcast residue (wizard mode only); the invoke makes it reachable in play. (3) PROMPT: keep EvilHack's "Cast advanced spell?" for the invoke ('y' = the storm, 'n' / ESC = one ray, exactly as casting the spell at Expert), over always exploding as vanilla does. (4) DICHOTOMY: leave it without an invoke, no row (forging it now gives up the two Brands' invokes). | maintainer |
 | 2026-10-31 | ^G racial rebuild rulings (Phase 2 session 277 follow-up; (1) in conversation, then AskUserQuestion x3, six questions). (1) PLAYER MONSTERS: rebuild a racial ^G one as the game would build it (init_mplayer_erac() with the named race), over minting a row or leaving the layering (as recommended). (2) NAME: re-pick from the new race's list (as recommended). (3) ROLE / RACE COMBINATIONS the game never makes: allowed, with a note. (4) LEFTOVERS: also reset the first race's resistances and re-derive a holy warrior's god; peacefulness and gear stay (as recommended). (5) NOTE SCOPE: race-rolling monsters only - player monsters and mercenaries (as recommended). (6) NOTE TEXT: "Note: the game never makes an elven valkyrie.". (7) KNIGHT STEED (a Plan stress-test find): mount the natural steed after the race (as recommended). | maintainer |
 | 2026-10-30 | Debug + infra ports slice rulings (Phase 2 session 277, AskUserQuestion x5, eight questions). (1) SLICE: the debug + infra ports group (as recommended). (2) #WIZCAST: the whole cast runs at Expert in the spell's school - a P_SKILL bracket in dowizcast(), over master's role_skill-only form (as recommended). (3) ^G RACIAL: replace the race makemon() rolled; player monsters keep master's layering (as recommended). (4) LAVA COUNTER: port master's lava, sink and drown fuzzer counters, over my recommended close-as-superseded. (5) WIZCAST SLOT REFUND: keep the bracket and record the extra slot a drain-life-at-self cast refunds (as recommended). (6) /tmp FULL: delete the pre-2026-10-30 session scratchpads. (7) ^G APPEAR LINE: fold in, so the line names the applied race (as recommended). (8) STORM INVOKES: Fire Brand and Frost Brand adopt 5.0's FIRESTORM / SNOWSTORM invokes, over my recommended keep-master's-shape; row minted for its own slice. | maintainer |
 | 2026-10-30 | Text one-liners slice rulings (Phase 2 session 276, AskUserQuestion x4, eight questions, all as recommended). (1) SLICE: the text one-liners group (eight rows). (2) "2 PAIR OF": keep vanilla's Webster usage, row closed by design. (3) SHADE HUG: follow hmonas()'s comment - a hug on a noncorporeal target deals its blessed or silver damage and never grabs. (4) DRAWBRIDGE REFUSAL: printed when the hero sees the span or portcullis or is next to either; an untold refusal identifies no wand. (5) MONSTER CLOAK SIZE: mirror the hero's canwearobj() rule (centaurs and driders wear any cloak, as on master; giant race only a wrapping). (6) Fold in the druid / vampire form exemption bug in sliparm() / breakarm() (hero only). (7) Fold in back_on_ground()'s terrain wording: "on the grass", "on the sand", "in shallow water", "in raw sewage". (8) Delta battery on the reviewer fold (m_dowear()'s MZ_SMALL gate arm): launch now. | maintainer |
