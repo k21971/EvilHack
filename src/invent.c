@@ -1551,13 +1551,8 @@ spare_indestructible_contents(
         case OBJ_CONTAINED:
             parent = container->ocontainer;
             /* an ice box freezes it, as when it is put in */
-            if (parent->otyp == ICE_BOX && !age_is_relative(otmp)) {
-                otmp->age = svm.moves - otmp->age;
-                if (otmp->otyp == CORPSE && otmp->timed) {
-                    (void) stop_timer(ROT_CORPSE, obj_to_any(otmp));
-                    (void) stop_timer(REVIVE_MON, obj_to_any(otmp));
-                }
-            }
+            if (parent->otyp == ICE_BOX)
+                put_in_icebox(otmp);
             (void) add_to_container(parent, otmp);
             container_weight(parent);
             break;

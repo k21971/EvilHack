@@ -3099,20 +3099,8 @@ in_container(struct obj *obj)
             sellobj(obj, u.ux, u.uy);
         }
     }
-    if (Icebox && !age_is_relative(obj)) {
-        obj->age = svm.moves - obj->age; /* actual age */
-        /* stop any corpse timeouts when frozen */
-        if (obj->otyp == CORPSE) {
-            if (obj->timed) {
-                (void) stop_timer(ROT_CORPSE, obj_to_any(obj));
-                (void) stop_timer(REVIVE_MON, obj_to_any(obj));
-            }
-            /* if this is the corpse of a cancelled ice troll, uncancel it */
-            if (obj->corpsenm == PM_ICE_TROLL && has_omonst(obj))
-                OMONST(obj)->mcan = 0;
-        } else if (obj->globby && obj->timed) {
-            (void) stop_timer(SHRINK_GLOB, obj_to_any(obj));
-        }
+    if (Icebox) {
+        put_in_icebox(obj);
     } else if (boom) {
         /* the container is used up below */
         boolean hesperides = is_art(gc.current_container,
@@ -3265,6 +3253,29 @@ out_container(struct obj *obj)
         bot(); /* update character's gold piece count immediately */
     }
     return 1;
+}
+
+/* an object going into an ice box: its age becomes relative and a
+   corpse's rot, revive and zombie timers or a glob's shrink timer stop;
+   removed_from_icebox() is the counterpart */
+void
+put_in_icebox(struct obj *obj)
+{
+    if (!age_is_relative(obj)) {
+        obj->age = svm.moves - obj->age; /* actual age */
+        if (obj->otyp == CORPSE) {
+            if (obj->timed) {
+                (void) stop_timer(ROT_CORPSE, obj_to_any(obj));
+                (void) stop_timer(REVIVE_MON, obj_to_any(obj));
+                (void) stop_timer(ZOMBIFY_MON, obj_to_any(obj));
+            }
+            /* if this is the corpse of a cancelled ice troll, uncancel it */
+            if (obj->corpsenm == PM_ICE_TROLL && has_omonst(obj))
+                OMONST(obj)->mcan = 0;
+        } else if (obj->globby && obj->timed) {
+            (void) stop_timer(SHRINK_GLOB, obj_to_any(obj));
+        }
+    }
 }
 
 /* taking a corpse out of an ice box needs a couple of adjustments */
@@ -4515,28 +4526,9 @@ tipcontainer(struct obj *box) /* or bag */
                         losehp(Maybe_Half_Phys(d(8, 10)),
                                "exploding magical bag", KILLED_BY_AN);
                 } else {
-                    /* freeze corpse rot/revive timers when tipping into
-                       an ice box, matching #loot put-in */
-                    if (targetbox->otyp == ICE_BOX
-                        && !age_is_relative(otmp)) {
-                        otmp->age = svm.moves - otmp->age; /* actual age */
-                        if (otmp->otyp == CORPSE) {
-                            if (otmp->timed) {
-                                (void) stop_timer(ROT_CORPSE,
-                                                  obj_to_any(otmp));
-                                (void) stop_timer(REVIVE_MON,
-                                                  obj_to_any(otmp));
-                            }
-                            /* if this is the corpse of a cancelled ice
-                               troll, uncancel it */
-                            if (otmp->corpsenm == PM_ICE_TROLL
-                                && has_omonst(otmp))
-                                OMONST(otmp)->mcan = 0;
-                        } else if (otmp->globby && otmp->timed) {
-                            (void) stop_timer(SHRINK_GLOB,
-                                              obj_to_any(otmp));
-                        }
-                    }
+                    /* tipping into an ice box freezes, as #loot does */
+                    if (targetbox->otyp == ICE_BOX)
+                        put_in_icebox(otmp);
                     (void) add_to_container(targetbox, otmp);
                 }
             }
@@ -5032,16 +5024,8 @@ m_stash_items(struct monst *mon, boolean creation)
         if (obj_is_burning(obj))
             (void) snuff_lit(obj, TRUE);
 
-        if (bag->otyp == ICE_BOX && !age_is_relative(obj)) {
-            obj->age = svm.moves - obj->age;
-            if (obj->otyp == CORPSE && obj->timed) {
-                long rot_alarm = stop_timer(ROT_CORPSE, obj_to_any(obj));
-
-                (void) stop_timer(REVIVE_MON, obj_to_any(obj));
-                if (rot_alarm)
-                    obj->norevive = 1;
-            }
-        }
+        if (bag->otyp == ICE_BOX)
+            put_in_icebox(obj);
 
         putitems = TRUE;
 

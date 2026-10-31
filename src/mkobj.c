@@ -402,15 +402,11 @@ mkbox_cnts(struct obj *box)
     for (n = rn2(n + 1); n > 0; n--) {
         if (box->otyp == ICE_BOX) {
             otmp = mksobj(CORPSE, TRUE, FALSE);
+            put_in_icebox(otmp);
             /* Note: setting age to 0 is correct.  Age has a different
              * from usual meaning for objects stored in ice boxes. -KAA
              */
             otmp->age = 0L;
-            if (otmp->timed) {
-                (void) stop_timer(ROT_CORPSE, obj_to_any(otmp));
-                (void) stop_timer(REVIVE_MON, obj_to_any(otmp));
-                (void) stop_timer(SHRINK_GLOB, obj_to_any(otmp));
-            }
         } else {
             int tprob;
             const struct icp *iprobs = boxiprobs;
@@ -3354,23 +3350,9 @@ hornoplenty(
                 dropy(obj);
             }
         } else if (targetbox) {
-            /* freeze corpse rot/revive timers when tipping into an ice
-               box, matching #loot put-in */
-            if (targetbox->otyp == ICE_BOX && !age_is_relative(obj)) {
-                obj->age = svm.moves - obj->age; /* actual age */
-                if (obj->otyp == CORPSE) {
-                    if (obj->timed) {
-                        (void) stop_timer(ROT_CORPSE, obj_to_any(obj));
-                        (void) stop_timer(REVIVE_MON, obj_to_any(obj));
-                    }
-                    /* if this is the corpse of a cancelled ice troll,
-                       uncancel it */
-                    if (obj->corpsenm == PM_ICE_TROLL && has_omonst(obj))
-                        OMONST(obj)->mcan = 0;
-                } else if (obj->globby && obj->timed) {
-                    (void) stop_timer(SHRINK_GLOB, obj_to_any(obj));
-                }
-            }
+            /* tipping into an ice box freezes, as #loot does */
+            if (targetbox->otyp == ICE_BOX)
+                put_in_icebox(obj);
             add_to_container(targetbox, obj);
             /* add to container doesn't update the weight */
             targetbox->owt = weight(targetbox);

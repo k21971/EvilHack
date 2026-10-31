@@ -253,10 +253,9 @@ breakchestlock(struct obj *box, boolean destroyit)
                    otherwise it would fail since otmp is not in inventory */
                 useup(otmp);
             }
-            if (box->otyp == ICE_BOX && otmp->otyp == CORPSE) {
-                otmp->age = svm.moves - otmp->age; /* actual age */
-                start_corpse_timeout(otmp);
-            }
+            /* thaw it, as taking it out of the box does */
+            if (box->otyp == ICE_BOX)
+                removed_from_icebox(otmp);
             place_object(otmp, u.ux, u.uy);
             stackobj(otmp);
         }
