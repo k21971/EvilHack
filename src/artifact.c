@@ -302,6 +302,8 @@ mk_particular_artifact(int artinum)
    possible.
    For the 2nd case, caller should use ``obj = mk_artifact(obj, A_NONE, 99);''
    For the 1st, ``obj = mk_artifact((struct obj *) 0, some_alignment, ...);''.
+   With no 'otmp', A_NONE is a target alignment too (Moloch's gift to an
+   Infidel, an unaligned monster's wish) and picks unaligned artifacts.
    The max_giftvalue is the value of the sacrifice, for an artifact obtained
    by sacrificing, or 99 otherwise.
  */
@@ -315,8 +317,8 @@ mk_artifact(
 {
     const struct artifact *a;
     int m, n, altn;
-    boolean by_align = (alignment != A_NONE);
-    short o_typ = (by_align || !otmp) ? 0 : otmp->otyp;
+    boolean by_align = (alignment != A_NONE || !otmp);
+    short o_typ = by_align ? 0 : otmp->otyp;
     boolean unique = !by_align && otmp && objects[o_typ].oc_unique;
     short eligible[NROFARTIFACTS];
     xint16 skill_compatibility;
