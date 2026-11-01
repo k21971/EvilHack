@@ -607,6 +607,8 @@ add_menu_coloring_parsed(const char *str, int c, int a)
     tmp->origstr = dupstr(str);
     tmp->color = c;
     tmp->attr = a;
+    /* go.opt_phase is syscf_opt only while sysconf is being read */
+    tmp->from_sysconf = (go.opt_phase == syscf_opt);
     gm.menu_colorings = tmp;
     iflags.use_menu_color = TRUE;
     return TRUE;

@@ -109,7 +109,10 @@ static boolean duplicate, using_alias;
 static boolean give_opt_msg = TRUE;
 
 enum { MAX_ROLEOPT = 4 };  /* 4: role,race,gend,algn */
+/* option set anywhere: sysconf, config file, EVILHACKOPTIONS or in game */
 static boolean opt_set_in_config[OPTCOUNT];
+/* the same, by source; #saveoptions writes only the player's settings */
+static boolean opt_set_by_player[OPTCOUNT], opt_set_in_sysconf[OPTCOUNT];
 static char *roleoptvals[MAX_ROLEOPT][num_opt_phases];
 
 static NEARDATA const char *OptS_type[OptS_Advanced+1] = {
@@ -369,6 +372,7 @@ staticfn int opt2roleopt(int);
 staticfn char *getoptstr(int, int);
 staticfn void saveoptstr(int, const char *);
 staticfn void unsaveoptstr(int, int);
+staticfn void mark_opt_set(int);
 staticfn int petname_optfn(int, int, boolean, char *, char *);
 staticfn int shared_menu_optfn(int, int, boolean, char *, char *);
 staticfn int spcfn_misc_menu_cmd(int, int, boolean, char *, char *);
@@ -654,7 +658,7 @@ parseoptions(
             optresult = (*allopt[matchidx].optfn)(allopt[matchidx].idx,
                                                   do_set, negated, opts, op);
             if (optresult == optn_ok)
-                opt_set_in_config[matchidx] = TRUE;
+                mark_opt_set(matchidx);
         }
     }
 
@@ -808,6 +812,19 @@ freeroleoptvals(void)
     for (i = 0; i < 4; ++i)
         for (j = 0; j < num_opt_phases; ++j)
             unsaveoptstr(roleopt2opt[i], j);
+}
+
+/* note that an option has been set, and whether sysconf or the player
+   (config file, EVILHACKOPTIONS or in game) set it */
+staticfn void
+mark_opt_set(int optidx)
+{
+    opt_set_in_config[optidx] = TRUE;
+    /* go.opt_phase is syscf_opt only while sysconf is being read */
+    if (go.opt_phase == syscf_opt)
+        opt_set_in_sysconf[optidx] = TRUE;
+    else
+        opt_set_by_player[optidx] = TRUE;
 }
 
 #if 0   /* not needed */
@@ -5289,7 +5306,7 @@ pfxfn_cond_(
 
         switch (reslt) {
         case 0:
-            opt_set_in_config[pfx_cond_] = TRUE;
+            mark_opt_set(pfx_cond_);
             break;
         case 3:
             config_error_add("Ambiguous condition option %s", opts);
@@ -8824,7 +8841,7 @@ optfn_o_status_cond(
     }
     if (req == do_handler) {
         if (cond_menu())
-            opt_set_in_config[pfx_cond_] = TRUE;
+            mark_opt_set(pfx_cond_);
         return optn_ok;
     }
     return optn_ok;
@@ -9056,7 +9073,7 @@ doset_simple_menu(void)
                                            empty_optstr, empty_optstr);
                 /* if player eventually saves options, include this one */
                 if (reslt == optn_ok && allopt[k].idx != pfx_cond_)
-                    opt_set_in_config[k] = TRUE;
+                    mark_opt_set(k);
             } else {
                 Sprintf(buf, "Set %s to what?", allopt[k].name);
                 getlin(buf, abuf);
@@ -9326,7 +9343,7 @@ doset(void) /* changing options via menu by Per Liboriussen */
                                                empty_optstr);
                     /* if player eventually saves options, include this one */
                     if (reslt == optn_ok)
-                        opt_set_in_config[k] = TRUE;
+                        mark_opt_set(k);
                 } else {
                     char abuf[BUFSZ];
 
@@ -9729,6 +9746,8 @@ add_autopickup_exception(const char *mapping)
     }
     ape->pattern = dupstr(text);
     ape->grab = grab;
+    /* go.opt_phase is syscf_opt only while sysconf is being read */
+    ape->from_sysconf = (go.opt_phase == syscf_opt);
     ape->next = ga.apelist;
     ga.apelist = ape;
     return 1;
@@ -9983,20 +10002,23 @@ all_options_conds(strbuf_t *sbuf)
 staticfn void
 all_options_menucolors(strbuf_t *sbuf)
 {
-    int i = 0, ncolors = count_menucolors();
-    struct menucoloring *tmp = gm.menu_colorings;
+    int i = 0, ncolors = 0;
+    struct menucoloring *tmp;
     char buf[BUFSZ*2]; /* see also: add_menu_coloring() */
     struct menucoloring **arr;
 
+    /* sysconf's entries belong to sysconf, not the player's file */
+    for (tmp = gm.menu_colorings; tmp; tmp = tmp->next)
+        if (!tmp->from_sysconf)
+            ncolors++;
     if (!ncolors)
         return;
 
     /* reverse the order */
     arr = (struct menucoloring **) alloc(ncolors * sizeof *arr);
-    while (tmp) {
-        arr[i++] = tmp;
-        tmp = tmp->next;
-    }
+    for (tmp = gm.menu_colorings; tmp; tmp = tmp->next)
+        if (!tmp->from_sysconf)
+            arr[i++] = tmp;
 
     for (i = ncolors; i > 0; i--) {
         tmp = arr[i-1];
@@ -10049,15 +10071,34 @@ all_options_msgtypes(strbuf_t *sbuf)
 staticfn void
 all_options_apes(strbuf_t *sbuf)
 {
-    struct autopickup_exception *tmp = ga.apelist;
-    char buf[BUFSZ];
+    int i = 0, n = 0;
+    struct autopickup_exception *tmp;
+    struct autopickup_exception **arr;
+    char buf[BUFSZ * 2]; /* a pattern can be nearly BUFSZ long */
 
-    while (tmp) {
-        Sprintf(buf, "autopickup_exception=\"%c%s\"\n",
-                tmp->grab ? '<' : '>', tmp->pattern);
+    /* sysconf's entries belong to sysconf, not the player's file */
+    for (tmp = ga.apelist; tmp; tmp = tmp->next)
+        if (!tmp->from_sysconf)
+            n++;
+    if (!n)
+        return;
+
+    /* the list is newest first; write it oldest first, as the player's
+       file had it, so reading it back rebuilds the same list (matching
+       takes the first entry that fits) */
+    arr = (struct autopickup_exception **) alloc(n * sizeof *arr);
+    for (tmp = ga.apelist; tmp; tmp = tmp->next)
+        if (!tmp->from_sysconf)
+            arr[i++] = tmp;
+
+    for (i = n; i > 0; i--) {
+        tmp = arr[i - 1];
+        Snprintf(buf, sizeof buf, "autopickup_exception=\"%c%s\"\n",
+                 tmp->grab ? '<' : '>', tmp->pattern);
         strbuf_append(sbuf, buf);
-        tmp = tmp->next;
     }
+
+    free(arr);
 }
 
 #ifdef CHANGE_COLOR
@@ -10096,14 +10137,17 @@ all_options_strbuf(strbuf_t *sbuf)
     strbuf_append(sbuf, tmp);
 
     for (i = 0; (name = allopt[i].name) != 0; i++) {
-        if (!opt_set_in_config[i])
+        /* sysconf's settings belong to sysconf, not the player's file */
+        if (!opt_set_by_player[i])
             continue;
         switch (allopt[i].opttyp) {
         case BoolOpt:
             bool_p = allopt[i].addr;
             if (!bool_p || bool_p == &flags.female)
                 break; /* obsolete */
-            if (*bool_p != allopt[i].initval) {
+            /* a default value can be left out, unless sysconf set this
+               option too and would put its own value back */
+            if (*bool_p != allopt[i].initval || opt_set_in_sysconf[i]) {
                 Sprintf(tmp, "OPTIONS=%s%s\n", *bool_p ? "" : "!", name);
                 strbuf_append(sbuf, tmp);
             }
@@ -10131,8 +10175,8 @@ all_options_strbuf(strbuf_t *sbuf)
     /* cond_xyz are closer to regular options than the other 'other opts'
        so put them next; [pfx_cond_] will be set if any cond_Foo were
        present when RC file was read in or if player made any changes via
-       status conditions menu; ignore opt_set_in_config[opt_o_status_cond] */
-    if (opt_set_in_config[pfx_cond_])
+       status conditions menu; ignore opt_set_by_player[opt_o_status_cond] */
+    if (opt_set_by_player[pfx_cond_])
         all_options_conds(sbuf);
 
 #ifdef CHANGE_COLOR

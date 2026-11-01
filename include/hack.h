@@ -384,8 +384,10 @@ enum dismount_types {
     DISMOUNT_ENGULFED = 5,
     DISMOUNT_BONES    = 6,
     DISMOUNT_BYCHOICE = 7,
-    DISMOUNT_CHAIN    = 8  /* a buried ball's chain pulls the hero off a
-                            * walking steed over open air */
+    DISMOUNT_CHAIN    = 8, /* a buried ball's chain pulls the hero off a
+                            * steed over a drop onto ground in its reach */
+    DISMOUNT_TETHER   = 9  /* that chain, with no such ground in reach,
+                            * keeps the hero over the drop to fall */
 };
 
 struct dgn_topology { /* special dungeon levels for speed */
@@ -679,6 +681,7 @@ struct menucoloring {
     struct nhregex *match;
     char *origstr;
     int color, attr;
+    boolean from_sysconf; /* read from sysconf; #saveoptions skips it */
     struct menucoloring *next;
 };
 
@@ -1033,6 +1036,7 @@ struct autopickup_exception {
     struct nhregex *regex;
     char *pattern;
     boolean grab;
+    boolean from_sysconf; /* read from sysconf; #saveoptions skips it */
     struct autopickup_exception *next;
 };
 
