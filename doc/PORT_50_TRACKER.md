@@ -17,10 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-31, after session 280's
-  riding pair and known-fix LOWs slice: 11 rows closed, three
-  LOW minted open):
-  613 rows closed, 65 open
+- Phase 2 status (refreshed 2026-11-01, after session 281's held
+  steed, wording and residue slice: 6 rows closed, four LOW minted
+  open):
+  619 rows closed, 63 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -342,7 +342,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 55 LOW: small parity rows, quirks and watch/record-only items.
+  - 53 LOW: small parity rows, quirks and watch/record-only items.
+    Session 281 closed 6 (BUG-2738..2750): a vine-held steed costs
+    the turn at the stairs (ruled); the vines' cast names the
+    branches over water, lava or a hole and for a monster in the air
+    (ruled); the seen-trap escape rate traced at 20% (not a bug); a
+    tethered rider stays within the chain's reach over open air,
+    water and lava (ruled), a punished rider's steed moves with the
+    hero, and the ball frees a vine-held steed with a line (ruled);
+    floor ice slows a zombie's rise (ruled) and keeps a timer due that
+    turn; bones freezes what goes into an ice box; #saveoptions keeps
+    the exceptions' order and writes only the player's settings
+    (ruled). Four residue rows minted.
     Session 280 closed 11 (BUG-2717..2737): monster riders now match
     the hero (ruled) - the rider's or the steed's lift carries the
     pair, so a levitating rider's walking steed no longer drowns,
@@ -20338,7 +20349,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       and "A kobold zombie escapes from an ice box!"; POST nothing rises
       and the corpse taken out gets only rot_corpse; a forced-apart
       box's glob shrinks again and its trolls don't revive.
-- [ ] LOW: ice box residue (minted 2026-10-31, session 279, by the ice
+- [x] LOW: ice box residue (minted 2026-10-31, session 279, by the ice
       box trace and battery T3; record). obj_timer_checks() slows rot
       and revive timers on floor ice but not ZOMBIFY_MON; bones.c
       empty_inuse_container() can empty an in-use container into an ice
@@ -20346,6 +20357,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       zombify and a rot timer; the troll arm of start_corpse_timeout()
       ignores norevive (revive() then says "twitches feebly"; vanilla's
       shape). LOW.
+      CLOSED 2026-11-01 (session 281, S281-C4; BUG-2748..2750). Floor
+      ice: RULED SLOW IT TOO - obj_timer_checks() adjusts all three
+      corpse timers, and a timer due that very turn is no longer lost
+      (reviewer LOW, vanilla alike). The bones freeze:
+      empty_inuse_container() freezes what it puts in an ice box
+      (code-verified). The wished zombifying corpse's two timers:
+      harmless (the zombify timer fires first and set_corpsenm() clears
+      the rot timer; ice now slows both). Trolls: RULED KEEP VANILLA
+      (record). Battery T5: POST zombify 13->26 and rot 263->526 on ice,
+      halved off, the gnome zombie rose at T:26 (off ice T:15); PRE
+      zombify unchanged (rose at T:11); the due-this-turn timer kept on
+      POST, lost on PRE. Residue: the row below.
+- [ ] LOW: corpse-on-ice residue (minted 2026-11-01, session 281, delta
+      review and battery T5; record, vanilla alike). Timers started on a
+      corpse already on ice outside obj_timer_checks() (revive_mon()'s
+      and zombify_mon()'s rot fallback; set_corpsenm() ->
+      start_corpse_timeout()) aren't doubled and read the doubled age,
+      so such a corpse rots a little early; battery T5 saw a zombie
+      killed on ice leave a corpse with on_ice set and an apparently
+      undoubled rot timer (inferred). LOW.
 - [x] LOW: a dwarf Valkyrie never starts with the bearded axe (minted
       2026-10-15, session 229, by battery T1; master-shared). Master
       8041aacfe gave dwarves `{ PM_DWARF, LONG_SWORD,
@@ -26633,7 +26664,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       accepts a steed that stays up. Battery T6: PRE the hero moved away
       and the ball was dug up; POST set down at the start square, utrap
       TT_BURIEDBALL, pegasus over the air, no impossible().
-- [ ] LOW: landing residue (minted 2026-10-31, session 279, by the
+- [x] LOW: landing residue (minted 2026-10-31, session 279, by the
       landing reviews; record). The tethered-rider fallback, with no
       chain spot, still uses landing_spot() and can land the hero beyond
       the chain, digging the ball up; a tree-held flyer with a pending
@@ -26643,13 +26674,54 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       a few direct u.ux writes (ball drag, drawbridge, pet swap) skip
       u_on_newpos()'s marker reset (unreachable in practice); dismount
       in place and the ceiling-hider drop still re-fire. LOW.
-- [ ] LOW: seen-trap escapes look too frequent (minted 2026-10-31,
+      CLOSED 2026-11-01 (session 281, S281-C3; BUG-2744..2747). The
+      tethered-rider fallback: DISMOUNT_TETHER keeps the hero on the
+      square to fall (2026-10-26 ruling), and over water or lava the
+      chain now pulls the rider off as over open air (RULED SAME AS
+      OPEN AIR; the reviewer MED, a rider whose own levitation the chain
+      blocks, folded). The double burn: unreachable since 033ade5e1
+      (traced; battery V: one lava_effects() per release on both
+      builds). The marker isn't saved: RULED RECORD (vanilla). The
+      direct writes: drag_ball(), drop_ball(), float_down()'s ball pull
+      and do_entity() use u_on_newpos(), which also fixes a punished
+      rider's stale steed coordinates (sanity_check "steed ... claims
+      to be at", vanilla alike, upstream row); the pet swap was already
+      followed by u_on_newpos(). The ball's pull frees a vine-held steed
+      with a line (RULED). Dismount in place: RULED KEEP (record).
+      Ceiling-hider drop: RULED KEEP THE PLUNGE (record). Batteries T3
+      (every POST leg as ruled; PRE landed beyond the chain, or left a
+      drowning pony's rider to fall in and crawl out beyond it) and T4
+      (PRE four "claims to be at" lines on a pit-free throw, POST none;
+      "The ball pulls your pony out of the tree's grip!" / "...out of
+      the vegetation!"). Residue: the two rows below.
+- [ ] LOW: tether residue (minted 2026-11-01, session 281, Plan design
+      pass and battery T3; record). drown()'s crawl-out
+      (rnd_nextto_goodpos() then teleds()) ignores the chain's reach and
+      digs a buried ball up, rider or not (vanilla alike);
+      move_into_trap() sets u.ux0 only after drag_ball(), so ux0 is
+      stale in its jerk-back case. LOW.
+- [ ] LOW: landing message residue (minted 2026-11-01, session 281,
+      delta review and battery T3; record, vanilla-shared lines).
+      float_down()'s "You are no longer trying to float up from the
+      chain." prints while the hero's levitation is still on (a
+      W_SADDLE dismount of a rider whose levitation the chain blocks),
+      and "You stop levitating." follows putting a ring on while
+      chained; a tethered pegasus rider reads "You stop flying." and
+      then "You are no longer flying."; a deferred landing runs on a
+      free action (^R). LOW (cosmetic).
+- [x] LOW: seen-trap escapes look too frequent (minted 2026-10-31,
       session 280, battery T3; both builds, needs a trace). "You escape
       a spear trap." came on 6 of 8 meetings of a seen spear trap
       (landings in place and steps), against dotrap()'s single 1-in-5
       roll (about a 1-in-800 chance). Count dotrap()'s rn2(5) results
       over many meetings, landing and walking, before calling it a bug.
       LOW.
+      CLOSED 2026-11-01 (session 281, trace; not a bug). Battery T2
+      counted with function-entry breakpoints on POST: 60 walk-ons, 14
+      escapes (23%); 30 landings, 4 escapes (13%); 18 / 90 = 20%, one
+      dotrap() entry per meeting (putting the ring on adds the "float
+      over" pass, which never escapes). Session 280's 6 of 8 was a
+      small sample.
 - [x] LOW: a chained own-lift hero over open air plummets while a
       chained pair is pulled off its steed (minted 2026-10-17, session
       235; record / needs a ruling). The session 189 ruling makes the
@@ -27619,7 +27691,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       don't move into it."; mount_up() on an entangled saddled horse PRE
       1, POST 0. F1: a helpless and entangled steed gives the entangled
       line, and a helpless free one still allows a spell jump.
-- [ ] LOW: stairs and a held steed (minted 2026-10-31, session 280,
+- [x] LOW: stairs and a held steed (minted 2026-10-31, session 280,
       delta review; record). doup() and dodown() refuse an entangled or
       helpless steed at no time cost, while the hero's own entanglement
       costs the turn there and the steed's costs one on a move or a
@@ -27627,6 +27699,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       controlled-levitation '>', so a held or helpless steed also blocks
       ending the hero's own levitation (pre-existing for a helpless
       steed). LOW.
+      CLOSED 2026-11-01 (session 281, S281-C1; BUG-2738). RULED TURN
+      COST ONLY: doup() / dodown() take the turn for a vine-held steed,
+      as the hero's own vines and the steed's on a move or a jump do; a
+      sleeping or eating steed stays free (master / vanilla), and '>'
+      keeps master's order (a held or sleeping steed still blocks ending
+      your own levitation; record). Battery T1: '>' and '<' POST moves
+      +1, PRE +0; the sleeping control +0 on both.
 - [x] LOW: the deferred hole fall runs mintrap()'s walk-on anger roll
       (minted 2026-10-24, session 259 reviewer pass 2; needs a ruling).
       A peaceful whose tree hold or levitation ends over a hole the hero
@@ -27940,11 +28019,21 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       is gone); the release meets it once. Battery T3: PRE three burns
       while held and one at release, POST none while held and exactly
       one; controls alike on both builds.
-- [ ] LOW: an entanglement announced as roots lets go as branches
+- [x] LOW: an entanglement announced as roots lets go as branches
       (minted 2026-10-31, session 280, battery T3; both builds, record).
       cast_entangle() names "roots" half the time for a grounded hero
       beside a tree, but entangle_release() always says "The tree's
       branches release their grip on you.". LOW (cosmetic).
+      CLOSED 2026-11-01 (session 281, S281-C1; BUG-2739). The battery's
+      hero was a water walker over lava: entangle_release() names the
+      branches over a drop, the cast didn't. RULED CAST MATCHES RELEASE
+      + MONSTERS: cast_entangle() names the branches over water, lava or
+      a hole as in the air, and for a flying or floating monster (the
+      hero's steed while the pair is aloft). Residue on record: a hero
+      caught by roots on the ground who then floats up hears "branches"
+      at release. Battery T1: water walker 10/10 branches POST (PRE
+      5/5), floating eye 10/10 (PRE 5/5), ridden pegasus 5/5 (PRE 0/5);
+      the floor controls mixed on both.
 - [x] LOW: a life-saved drowning reads "You are back on solid ground."
       then "You find yourself on solid ground." (minted 2026-10-13,
       session 220, battery B; upstream-shared, Official_nh50
@@ -31692,12 +31781,38 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       order (BUFSZ * 2, Snprintf). Vanilla alike (upstream row). Battery
       T3: PRE 6 entries, reversed and growing saves; POST 4, the
       player's two lines in order, stable.
-- [ ] LOW: #saveoptions writer residue (minted 2026-10-31, session 279,
+- [x] LOW: #saveoptions writer residue (minted 2026-10-31, session 279,
       by the MSGTYPE trace; vanilla-shared). The autopickup-exception
       writer flips the player's order on every save the same way MSGTYPE
       did; sysconf MENUCOLOR, AUTOPICKUP_EXCEPTION and OPTIONS lines are
       still written into the player's file; MSGTYPE entries made by
       SOUND lines are saved as MSGTYPE lines. LOW.
+      CLOSED 2026-11-01 (session 281, S281-C2; BUG-2740..2743, upstream
+      rows). The exceptions are written in file order (and a
+      253-character pattern no longer overruns the line buffer); RULED
+      ONLY THE PLAYER'S: sysconf-only OPTIONS, MENUCOLOR and
+      AUTOPICKUP_EXCEPTION lines stay out of the player's file, a
+      sysconf tutorial setting is still honored, and a player's
+      default-valued boolean over a sysconf setting (!time) is kept.
+      SOUND lines: unreachable (USER_SOUNDS is off in linux-debug and
+      hardfought). Battery T6: two #saveoptions sessions per build with three
+      lines appended to sysconf (!tutorial, a MENUCOLOR, an exception):
+      POST save1 == save2, only the player's lines, the exceptions in
+      file order, OPTIONS=!time kept, no tutorial question; PRE reversed
+      and then flipped the exceptions, wrote and duplicated the sysconf
+      entries, wrote sysconf's OPTIONS, and lost !time (time came back
+      on). Residue: the row below.
+- [ ] LOW: #saveoptions residue (minted 2026-11-01, session 281, Plan
+      design pass and reviewer; record - the shipped sysconf has none of
+      these lines). Still written from sysconf: role / race / gender /
+      align (get_cnf_role_opt(); and role:none can't be read back),
+      cond_ settings (written whole once the player sets any), BIND,
+      SYMBOLS / ROGUESYMBOLS, status hilites, AUTOCOMPLETE, WIZKIT, and
+      the palette on CHANGE_COLOR ports; a sysconf MENUCOLOR switches
+      menucolors on without marking the option, so a player's
+      !menucolors is dropped as a default; options set by the
+      tutorial's nh.parse_config() count as the player's; player files
+      polluted by earlier saves stay polluted. LOW.
 - [x] LOW: destroyed levitation boots skip float_down() (BUG-2158;
       BUG-2161..2164 the crash-class siblings under the same guard) -
       FIXED 2026-10-06 (session 187, commit ca7b63f03, tracker
@@ -35020,6 +35135,13 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-31 | mon_likes_objpile_at() (find_offensive()'s MUSE_WAN_TELEPORTATION gate) counts an ordinary corpse under the hero through mon_would_take_item()'s likes_objs FOOD_CLASS arm, though mpickstuff() refuses it (mon_refuses_corpse()), so a collector spends a teleportation charge for nothing. Official_nh50 b0c09c878; BUG-2731, src/muse.c | found (branch-fixed acbdd85de: the mon_refuses_corpse() filter); not sent; triage pending |
 | 2026-10-31 | knock's knockback (bhitm(), mhurtle()) can carry the target onto a trap door, hole or level teleporter, after which bhitm()'s tail runs m_respond() at <0,0> (a gaze, shriek or moan from nowhere). Official_nh50 b0c09c878; BUG-2735, src/zap.c | found (branch-fixed 50cc2c27b: m_respond() and map_invisible() only with mtmp->mx); not sent; triage pending |
 | 2026-10-31 | u_teleport_mon() puts an engulfer on a no-teleport level that rloc() can't place into limbo (m_into_limbo()); bhitm()'s closing wakeup() then angers a peaceful one with newsym(<0,0>) (an impossible). Official_nh50 b0c09c878; BUG-2736, src/zap.c | found (branch-fixed 50cc2c27b: wake and anger it before u_teleport_mon(), as dispel evil does); not sent; triage pending |
+| 2026-11-01 | all_options_apes() writes the autopickup exceptions head first, but add_autopickup_exception() prepends and the first match wins, so every #saveoptions reverses the player's file and changes which exception wins (the MSGTYPE writer's old bug). Official_nh50 b0c09c878; BUG-2740, src/options.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
+| 2026-11-01 | all_options_apes() Sprintf()s "autopickup_exception=\"<pattern\"\n" into buf[BUFSZ], but a pattern may be 253 characters (add_autopickup_exception()'s sscanf limit), 279 bytes in all: a stack overrun on #saveoptions. Official_nh50 b0c09c878; BUG-2741, src/options.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
+| 2026-11-01 | #saveoptions writes sysconf's own OPTIONS, MENUCOLOR and AUTOPICKUP_EXCEPTION settings into the player's rc file (opt_set_in_config[] is set in every phase; the menu color and exception lists record no origin), freezing them there. Official_nh50 b0c09c878; BUG-2742, src/options.c, src/coloratt.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
+| 2026-11-01 | all_options_strbuf() writes a boolean only when it differs from its built-in default, so a player's default-valued setting over a sysconf one (!time over time) is dropped and the next game turns it back. Official_nh50 b0c09c878; BUG-2743, src/options.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
+| 2026-11-01 | drag_ball()'s jerk-back, drop_ball(), float_down()'s ball pull and the drawbridge's do_entity() write u.ux / u.uy directly, so a punished rider's steed stays on the old square (sanity_check: "steed ... claims to be at <x,y>?" every turn) until something calls u_on_newpos(). Official_nh50 b0c09c878; BUG-2746, src/ball.c, src/trap.c, src/dbridge.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
+| 2026-11-01 | obj_timer_checks() adjusts only the first of ROT_CORPSE / REVIVE_MON for a corpse on ice, so a ZOMBIFY_MON timer (a zombie's victim, a wished "zombifying" corpse) is never slowed. Official_nh50 b0c09c878; BUG-2748, src/mkobj.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
+| 2026-11-01 | obj_timer_checks() reads stop_timer()'s 0 for a timer due this very turn as "no timer": the timer is freed and never restarted (and on_ice can stay set off the ice); halving one turn left restarts at 0. Official_nh50 b0c09c878; BUG-2750, src/mkobj.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -35405,6 +35527,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-01 | Held steed, wording and residue slice rulings (Phase 2 session 281, AskUserQuestion x5, eleven questions). (1) SLICE (multiSelect): session 280's three new rows (as recommended) and session 279's three residue rows. (2) STAIRS: turn cost only - a vine-held steed at '<' / '>' takes the turn, a sleeping one stays free, '>' keeps master's order (a held or sleeping steed still blocks ending your own levitation) (as recommended). (3) VINE WORDS: the cast matches the release - "branches" for a hero over water, lava or a hole as in the air - and monsters too: a flying or floating monster always reads "branches" (as recommended). (4) CEILING DROP: keep the plunge - a ceiling hider dropping onto a trap it met meets it again (as recommended). (5) TRAP MARKER: record - not saved, a restore re-meets a trap on the next in-place landing (vanilla) (as recommended). (6) FLOOR ICE: slows a zombie's rise too, as rot and troll revival (as recommended). (7) TROLLS: keep vanilla - a norevive troll corpse still gets a revival timer, twitches feebly and "You feel less hassled." (over the recommended master shape). (8) DISMOUNT IN PLACE: keep - stepping off in place re-meets the trap (over the recommended session 279 rule). (9) #SAVEOPTIONS: only the player's - sysconf-only OPTIONS, MENUCOLOR and AUTOPICKUP_EXCEPTION lines stay out of the player's file; the tutorial question still honors sysconf (as recommended). (10) CHAIN OVER WATER / LAVA: same as open air - the chain pulls a tethered rider off onto dry ground within its reach, the steed goes in alone; with none the hero falls in where they are (as recommended). (11) BALL AND A HELD STEED: a line like yours - "The ball pulls your pony out of the tree's grip!" / "...out of the vegetation!" (as recommended). | maintainer |
 | 2026-10-31 | Riding pair and known-fix LOWs slice rulings (Phase 2 session 280, AskUserQuestion x6, eleven questions). (1) SLICE (multiSelect): the ruled riding pair and the LOWs with known fixes (as recommended). (2) HERO LEG / SYMMETRY: "keep vanilla but make it symmetric with monster steeds", confirmed as MONSTERS MATCH THE HERO - the hero's own flight or levitation keeps carrying a walking steed, and a ridden monster pair gets whichever lift is better, the rider's or the steed's, both ways; supersedes (11) of the session 279 entry ("the steed decides") and BUG-2716's rule; mfndpos() reads the rider's own lift again (session 275's pathing ruling stands). (3) STEED TEXT: reuse trapmove()'s and hurtle()'s lines with the steed as subject (as recommended). (4) SCATTER: free the hero's steed silently, like monsters, both getting the hold-release drop (as recommended). (5) LEVITATION CARRIES TOO: dochug()'s open-air plummet and the sewage slow test (Flying || Levitation) for the hero's steed (as recommended). (6) SPEAR TRAP: "spear trap IS a floor trap" - SPEAR_TRAP_SET joins floor_trigger() (over the recommended rider's-lift-only arm; the floor_trigger() shape confirmed over fire-but-miss). (7) ENTANGLED STEED: magic jumps are blocked too, a teleport or level change frees the steed, and monsters can't mount an entangled one (all as recommended). (8) FOLDS: a rider dropping when its flying steed dies (dropped later: mondead() and mongone() already do it), dispel evil waking its target before the banish, the Rogue-level aura room (all as recommended). (9) TORN FREE: a pit fiend's hurl tears the steed out of the vines too ("Your pony is torn from the vegetation!" / "...the tree's grip!"), and a tree-held steed keeps the pair up over a new pit or hole (as recommended). | maintainer |
 | 2026-10-31 | Master ports, traces and riding / landing slice rulings (Phase 2 session 279, AskUserQuestion x4, nine questions, all as recommended). (1) SLICE: all three offered groups (master gameplay ports, traces, riding / landing LOWs). (2) CROWN SPELLBOOK: master's test - only a never-learned spell (spe_Unknown) is taught to an illiterate hero; a forgotten one still drops the book; the learned path livelogs the prayer-gift "had divine knowledge" line. (3) "WHO DARES SUMMON ME?": the one-in-five same-race-sacrifice demon is always hostile, Infidel included (master's e8f34a4a0 intent; its code only skipped the peaceful step). (4) M-V-M LIT-ARTIFACT SEAR LINE: only when the hero sees the fight (gv.vis, as the hated-material sear beside it), over master's ungated line. (5) DIPPED WORN AMULET: one inventory line, as master and a dipped ring (later folded for worn eyewear under the same rationale, a reviewer sibling). (6) RECORD ROWS: fix all four offered - landing re-fires traps, a rider's lift dragging its steed, the water walker's double burn, the tethered rider. (7) SACRIFICE KIN WORDING: name the victim's race (a vampire's human victim reads "human"), master's elf / drow rule. (8) DRAINED VANISH LINE: name the altar ("The bloodless %s corpse and the altar vanish in %s cloud!"). (9) LANDING SCOPE: every in-place landing and lift-off in place - flight ending, levitation ending, deferred landings - skips a non-floor, non-spear trap the hero already met there; diverges from master and vanilla, and no portal bounce-back. Follow-up the same day (AskUserQuestion x1, two questions, both as recommended), for two rows the slice minted as needing a ruling: (10) TREE-HELD WATER WALKER: branches keep you up - a hero held by a tree over water or lava isn't burned or drowned while held, water walking or not, and meets the liquid once on release. (11) RIDER PLACEMENT: the steed decides - goodpos(), minliquid() and the sewage slow use what a ridden pair can do together, both ways. Both rows plannable. | maintainer |
 | 2026-10-31 | Storm invokes slice rulings (Phase 2 session 278, AskUserQuestion x2, four questions, all as recommended). (1) SLICE: the storm invokes row only (over the master gameplay ports and traces groups). (2) DEATH LEAK: restore on death - the invoke's (and #wizcast's) Expert bracket moves into one helper whose state lives in gs, really_done() puts the school's level back before the dumplog, and a save inside the cast writes the real level; an upstream row is minted (vanilla alike). Session 277 had kept this as #wizcast residue (wizard mode only); the invoke makes it reachable in play. (3) PROMPT: keep EvilHack's "Cast advanced spell?" for the invoke ('y' = the storm, 'n' / ESC = one ray, exactly as casting the spell at Expert), over always exploding as vanilla does. (4) DICHOTOMY: leave it without an invoke, no row (forging it now gives up the two Brands' invokes). | maintainer |
