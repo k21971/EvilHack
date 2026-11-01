@@ -2104,13 +2104,23 @@ potionhit(struct monst *mon, struct obj *obj, int how)
     if (isyou) {
         switch (obj->otyp) {
         case POT_OIL:
-            if (obj->lamplit)
+            if (obj->lamplit) {
                 explode_oil(obj, u.ux, u.uy);
+            } else {
+                pline("Yuck!  You're covered in oil!");
+                if (!Glib)
+                    make_glib(rn1(5, 5));
+                if (obj->dknown)
+                    makeknown(POT_OIL);
+            }
             break;
         case POT_POLYMORPH:
             You_feel("a little %s.", Hallucination ? "normal" : "strange");
             if (!Unchanging && !Antimagic)
                 polyself(POLY_NOFLAGS);
+            else if (Antimagic)
+                /* watchers learn it won't work on you */
+                monstseesu(M_SEEN_MAGR);
             break;
         case POT_ACID:
             if (!Acid_resistance) {
@@ -2122,6 +2132,11 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
                 losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
             }
+            break;
+        case POT_HALLUCINATION:
+            /* its vapors (potionbreathe(), below) give it away */
+            if (!Halluc_resistance)
+                makeknown(POT_HALLUCINATION);
             break;
         }
     } else if (hit_saddle && saddle) {
@@ -2270,6 +2285,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
             break;
         case POT_CONFUSION:
         case POT_BOOZE:
+        case POT_HALLUCINATION:
             if (!resist(mon, POTION_CLASS, 0, NOTELL))
                 mon->mconf = TRUE;
             break;
@@ -2535,9 +2551,24 @@ potionbreathe(struct obj *obj)
             pline_The("drow poison doesn't seem to affect you.");
         }
         break;
-    case POT_HALLUCINATION:
-        You("have a momentary vision.");
+    case POT_HALLUCINATION: {
+        boolean not_affected = Blind
+                               || u.umonnum == PM_BLACK_LIGHT
+                               || u.umonnum == PM_VIOLET_FUNGUS
+                               || dmgtype(gy.youmonst.data, AD_STUN);
+
+        if (!not_affected) {
+            boolean chg = FALSE;
+
+            if (!Hallucination)
+                chg = make_hallucinated(HHallucination + (long) rn1(10, 5),
+                                        FALSE, 0L);
+            You("%s.", chg ? "are freaked out"
+                           : "have a momentary vision,"
+                             " but are otherwise unaffected");
+        }
         break;
+    }
     case POT_CONFUSION:
     case POT_BOOZE:
         if (!Confusion)
@@ -3529,6 +3560,10 @@ djinni_from_bottle(struct obj *obj)
         mtmp->mpeaceful = FALSE;
         set_malign(mtmp);
         newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
+        if (!rn2(5)) {
+            verbalize("I think I'll keep this wish for myself!");
+            mmake_wish(mtmp);
+        }
         break;
     }
 }

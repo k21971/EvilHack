@@ -204,9 +204,16 @@ precheck(struct monst *mon, struct obj *obj)
                     pline_mon(mtmp, "In a cloud of smoke, %s emerges!", a_monnam(mtmp));
                 pline("%s speaks.", vis ? Monnam(mtmp) : Something);
                 /* I suspect few players will be upset that monsters */
-                /* can't wish for wands of death here.... */
+                /* CAN wish for wands of death here */
                 SetVoice(mtmp, 0, 80, 0);
                 if (rn2(2)) {
+                    verbalize("Thank you for freeing me!"
+                              "  In return, I will grant you a wish!");
+                    mmake_wish(mon);
+                    if (vis)
+                        pline_mon(mtmp, "%s vanishes.", Monnam(mtmp));
+                    mongone(mtmp);
+                } else if (rn2(2)) {
                     verbalize("You freed me!");
                     mtmp->mpeaceful = 1;
                     set_malign(mtmp);
@@ -1287,7 +1294,8 @@ use_defensive(struct monst *mtmp)
         m_flee(mtmp);
         mzapwand(mtmp, otmp, TRUE);
         m_tele(mtmp, vismon, oseen, WAN_TELEPORTATION);
-        return 2;
+        /* a trapped zapper meets any trap where it lands */
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_WAN_TELEPORTATION:
         if (!otmp)
             panic(MissingDefensiveItem, "wand of teleportation");
@@ -1428,7 +1436,8 @@ use_defensive(struct monst *mtmp)
             trycall(otmp);
         /* already removed from mtmp->minvent so not 'm_useup(mtmp, otmp)' */
         obfree(otmp, (struct obj *) 0);
-        return 2;
+        /* a trapped reader meets any trap where it lands */
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     }
     case MUSE_WAN_DIGGING:
         if (!otmp)
@@ -1972,6 +1981,12 @@ rnd_defensive_item(struct monst *mtmp)
 /*#define MUSE_WAN_UNDEAD_TURNING 20*/ /* also a defensive item so don't
                                      * redefine; nonconsecutive value is ok */
 #define MUSE_WAN_SLOW_MONSTER 21 /* skips the shared undead-turning value */
+#define MUSE_WAN_CANCELLATION 22 /* 19 stays free for master's charging */
+#define MUSE_SCR_STINKING_CLOUD 23
+#define MUSE_POT_POLYMORPH_THROW 24
+#define MUSE_POT_HALLUCINATION 25
+#define MUSE_WAN_POLYMORPH 26
+#define MUSE_POT_OIL 27
 
 staticfn boolean
 linedup_chk_corpse(coordxy x, coordxy y)
@@ -2116,9 +2131,24 @@ find_offensive(struct monst *mtmp)
         ctx.t = (struct trap *) 0;
         ctx.stuck = FALSE;
 
-        return find_items_recurse(mtmp, mtmp->minvent, FIND_OFFENSIVE,
-                                  check_offensive_item, &ctx);
+        if (!find_items_recurse(mtmp, mtmp->minvent, FIND_OFFENSIVE,
+                                check_offensive_item, &ctx))
+            return FALSE;
     }
+
+    /* a wand's or horn's beam keeps going past the monster it hits, so
+       a pet holds off while the hero or another pet stands anywhere
+       further along the line */
+    if (mtmp->mtame && target != &gy.youmonst
+        && (gm.m.offensive->oclass == WAND_CLASS
+            || gm.m.offensive->otyp == FIRE_HORN
+            || gm.m.offensive->otyp == FROST_HORN)
+        && !m_lined_up(target, mtmp, TRUE)) {
+        gm.m.offensive = (struct obj *) 0;
+        gm.m.has_offense = 0;
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /* callback for checking offensive items */
@@ -2217,6 +2247,15 @@ check_offensive_item(
             return MUSE_WAN_UNDEAD_TURNING;
     }
 
+    nomore(MUSE_WAN_CANCELLATION);
+    if (obj->otyp == WAN_CANCELLATION && obj->spe > 0)
+        return MUSE_WAN_CANCELLATION;
+
+    nomore(MUSE_WAN_POLYMORPH);
+    if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
+        && !m_seenres(mtmp, M_SEEN_MAGR))
+        return MUSE_WAN_POLYMORPH;
+
     nomore(MUSE_WAN_STRIKING);
     if (obj->otyp == WAN_STRIKING && obj->spe > 0
         && !m_seenres(mtmp, M_SEEN_MAGR))
@@ -2240,6 +2279,22 @@ check_offensive_item(
     if (obj->otyp == WAN_SLOW_MONSTER && obj->spe > 0 && !Slow)
         return MUSE_WAN_SLOW_MONSTER;
 
+    /* the cloud is centered on the target; a pet would catch the hero
+       in it, so only a monster attacking the hero reads one */
+    nomore(MUSE_SCR_STINKING_CLOUD);
+    if (obj->otyp == SCR_STINKING_CLOUD && ctx->target == &gy.youmonst
+        && m_canseeu(mtmp) && mdistu(mtmp) < 32
+        && !m_seenres(mtmp, M_SEEN_POISON))
+        return MUSE_SCR_STINKING_CLOUD;
+
+    nomore(MUSE_POT_HALLUCINATION);
+    if (obj->otyp == POT_HALLUCINATION && gm.multi >= 0)
+        return MUSE_POT_HALLUCINATION;
+
+    nomore(MUSE_POT_POLYMORPH_THROW);
+    if (obj->otyp == POT_POLYMORPH && !m_seenres(mtmp, M_SEEN_MAGR))
+        return MUSE_POT_POLYMORPH_THROW;
+
     nomore(MUSE_POT_PARALYSIS);
     if (obj->otyp == POT_PARALYSIS && gm.multi >= 0)
         return MUSE_POT_PARALYSIS;
@@ -2262,12 +2317,29 @@ check_offensive_item(
         && !m_seenres(mtmp, M_SEEN_ACID))
         return MUSE_POT_ACID;
 
+    /* a lit flask bursts into flame where it lands; up close, only a
+       monster that can take the blast throws one, and one aimed at a
+       monster is never thrown where the blast would reach the hero */
+    nomore(MUSE_POT_OIL);
+    if (obj->otyp == POT_OIL && !m_seenres(mtmp, M_SEEN_FIRE)) {
+        boolean at_hero = (ctx->target == &gy.youmonst);
+        coordxy ox = at_hero ? mtmp->mux : ctx->target->mx,
+                oy = at_hero ? mtmp->muy : ctx->target->my;
+
+        if ((at_hero || distu(ox, oy) > 2)
+            && (dist2(mtmp->mx, mtmp->my, ox, oy) > 2 || mtmp->mhp > 10
+                || resists_fire(mtmp) || defended(mtmp, AD_FIRE)))
+            return MUSE_POT_OIL;
+    }
+
     /* we can safely put this scroll here since the locations that
      * are in a 1 square radius are a subset of the locations that
      * are in wand or throwing range (in other words, always lined_up())
      */
+    /* this scroll, the scroll of fire and the camera act on the hero's
+       square, so a pet fighting a monster never uses them */
     nomore(MUSE_SCR_EARTH);
-    if (obj->otyp == SCR_EARTH
+    if (obj->otyp == SCR_EARTH && ctx->target == &gy.youmonst
         && (hard_helmet(ctx->helmet) || mtmp->mconf
             || amorphous(mtmp->data) || passes_walls(mtmp->data)
             || noncorporeal(mtmp->data) || unsolid(mtmp->data)
@@ -2278,8 +2350,17 @@ check_offensive_item(
         && (!In_endgame(&u.uz) || Is_earthlevel(&u.uz)))
         return MUSE_SCR_EARTH;
 
+    /* the reader stands in the flames, so it must not mind fire */
+    nomore(MUSE_SCR_FIRE);
+    if (obj->otyp == SCR_FIRE && ctx->target == &gy.youmonst
+        && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
+        && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
+        && mtmp->mcansee && haseyes(mtmp->data)
+        && !m_seenres(mtmp, M_SEEN_FIRE))
+        return MUSE_SCR_FIRE;
+
     nomore(MUSE_CAMERA);
-    if (obj->otyp == EXPENSIVE_CAMERA
+    if (obj->otyp == EXPENSIVE_CAMERA && ctx->target == &gy.youmonst
         && ((!Blind && !resists_blnd(&gy.youmonst))
             || hates_light(gy.youmonst.data)
             || maybe_polyd(is_drow(gy.youmonst.data),
@@ -2287,22 +2368,6 @@ check_offensive_item(
         && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
         && obj->spe > 0 && !rn2(6))
         return MUSE_CAMERA;
-
-#if 0
-    nomore(MUSE_SCR_FIRE);
-    if (obj->otyp == SCR_FIRE && resists_fire(mtmp)
-        && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
-        && mtmp->mcansee && haseyes(mtmp->data)
-        && !m_seenres(mtmp, M_SEEN_FIRE)) {
-        /*
-         * TODO?
-         *  Could choose scroll if <mux,muy> (where attacker thinks
-         *  hero is located) is ice and attacker either isn't also
-         *  on ice or is able to fly/float/swim.
-         */
-        return MUSE_SCR_FIRE;
-    }
-#endif /* 0 */
 
     return 0;
 #undef nomore
@@ -3159,9 +3224,31 @@ mcast_nodir_spell(struct monst *caster, struct monst *target,
 int
 use_offensive(struct monst *mtmp)
 {
-    int i;
+    int i, maxdmg = 0;
     struct obj *otmp = gm.m.offensive;
     boolean oseen;
+
+    /* From SporkHack (modified): a monster whose own attacks could do
+       more than nine damage, or that wields an artifact, swings at a
+       target next to it instead of using an item - unless the item
+       is one of the wands or horns that can incapacitate or already
+       hits hard; decided before precheck() so a monster that is
+       going to swing anyway doesn't first pull the item out of a
+       bag or risk a cursed wand's backfire */
+    for (i = 0; i < NATTK; i++)
+        maxdmg += mtmp->data->mattk[i].damn * mtmp->data->mattk[i].damd;
+    if ((maxdmg > 9
+         || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact)
+         || (MON_WEP2(mtmp) && MON_WEP2(mtmp)->oartifact))
+        && monnear(mtmp, mtmp->mx + gt.tbx, mtmp->my + gt.tby)
+        && gm.m.has_offense != MUSE_FIRE_HORN
+        && gm.m.has_offense != MUSE_FROST_HORN
+        && gm.m.has_offense != MUSE_WAN_DEATH
+        && gm.m.has_offense != MUSE_WAN_SLEEP
+        && gm.m.has_offense != MUSE_WAN_FIRE
+        && gm.m.has_offense != MUSE_WAN_COLD
+        && gm.m.has_offense != MUSE_WAN_LIGHTNING)
+        return 0;
 
     /* offensive potions are not drunk, they're thrown */
     if (otmp->oclass != POTION_CLASS && (i = precheck(mtmp, otmp)) != 0)
@@ -3201,7 +3288,9 @@ use_offensive(struct monst *mtmp)
         gc.current_wand = 0;
         gm.m_using = FALSE;
         return (DEADMONSTER(mtmp)) ? 1 : 2;
+    case MUSE_WAN_CANCELLATION:
     case MUSE_WAN_TELEPORTATION:
+    case MUSE_WAN_POLYMORPH:
     case MUSE_WAN_UNDEAD_TURNING:
     case MUSE_WAN_STRIKING:
     case MUSE_WAN_SLOW_MONSTER:
@@ -3281,37 +3370,52 @@ use_offensive(struct monst *mtmp)
         lightdamage(otmp, mtmp, TRUE, 5);
         gm.m_using = FALSE;
         otmp->spe--;
-        return 1;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     } /* case MUSE_CAMERA */
-#if 0
     case MUSE_SCR_FIRE: {
         boolean vis = cansee(mtmp->mx, mtmp->my);
+        int cval = bcsign(otmp);
 
         mreadmsg(mtmp, otmp);
+        if (oseen)
+            makeknown(SCR_FIRE);
+        /* the reader is unharmed, but use the scroll up before anything
+           can kill a bystander and drop its inventory */
+        m_useup(mtmp, otmp); /* otmp now gone */
         if (mtmp->mconf) {
             if (vis)
                 pline("Oh, what a pretty fire!");
         } else {
             struct monst *mtmp2;
-            int num;
+            int num = (2 * (rn1(3, 3) + 2 * cval) + 1) / 3;
 
-            if (vis)
+            if (vis) {
                 pline_The("scroll erupts in a tower of flame!");
-            shieldeff(mtmp->mx, mtmp->my);
-            pline_mon(mtmp, "%s is uninjured.", Monnam(mtmp));
-            (void) destroy_mitem(mtmp, SCROLL_CLASS, AD_FIRE);
-            (void) destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
-            (void) destroy_mitem(mtmp, POTION_CLASS, AD_FIRE);
+                shieldeff(mtmp->mx, mtmp->my);
+                pline_mon(mtmp, "%s is uninjured.", Monnam(mtmp));
+            }
+            (void) destroy_items(mtmp, AD_FIRE, num);
             ignite_items(mtmp->minvent);
-            num = (2 * (rn1(3, 3) + 2 * bcsign(otmp)) + 1) / 3;
-            burn_away_slime();
-            if (how_resistant(FIRE_RES) == 100) {
-                You("are not harmed.");
-                monstseesu(M_SEEN_FIRE);
-            } else {
-                if (Half_spell_damage)
-                    num = (num + 1) / 2;
-                losehp(num, "scroll of fire", KILLED_BY_AN);
+            /* the hero only burns when actually in the flames, as the
+               monsters around the reader do */
+            if (dist2(u.ux, u.uy, mtmp->mx, mtmp->my) < 3) {
+                burn_away_slime();
+                if (how_resistant(FIRE_RES) == 100) {
+                    shieldeff(u.ux, u.uy);
+                    You("are not harmed.");
+                    monstseesu(M_SEEN_FIRE);
+                } else {
+                    int udmg = num;
+
+                    if (Half_spell_damage)
+                        udmg = (udmg + 1) / 2;
+                    monstunseesu(M_SEEN_FIRE);
+                    set_monster_killer_hp(mtmp, udmg, FALSE);
+                    losehp(udmg, "scroll of fire", KILLED_BY_AN);
+                }
+                (void) destroy_items(&gy.youmonst, AD_FIRE, num);
+                if (!Underwater)
+                    ignite_items(gi.invent);
             }
             for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
                 if (DEADMONSTER(mtmp2))
@@ -3319,26 +3423,31 @@ use_offensive(struct monst *mtmp)
                 if (mtmp == mtmp2)
                     continue;
                 if (dist2(mtmp2->mx, mtmp2->my, mtmp->mx, mtmp->my) < 3) {
-                    if (resists_fire(mtmp2))
+                    if (resists_fire(mtmp2) || defended(mtmp2, AD_FIRE))
                         continue;
-                    mtmp2->mhp -= num;
-                    if (resists_cold(mtmp2))
-                        mtmp2->mhp -= 3 * num;
+                    /* cold-resistant creatures take extra fire damage */
+                    if (!damage_mon(mtmp2, num, AD_FIRE, FALSE)
+                        && resists_cold(mtmp2))
+                        (void) damage_mon(mtmp2, 3 * num, AD_FIRE, FALSE);
                     if (DEADMONSTER(mtmp2)) {
+                        if (mtmp->mtame)
+                            set_pet_killer(mtmp);
                         mondied(mtmp2);
                         break;
                     }
                 }
             }
         }
-        return 2;
-    }
-#endif /* 0 */
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
+    } /* case MUSE_SCR_FIRE */
     case MUSE_POT_PARALYSIS:
     case MUSE_POT_BLINDNESS:
     case MUSE_POT_CONFUSION:
     case MUSE_POT_SLEEPING:
     case MUSE_POT_ACID:
+    case MUSE_POT_POLYMORPH_THROW:
+    case MUSE_POT_HALLUCINATION:
+    case MUSE_POT_OIL:
         /* Note: this setting of dknown doesn't suffice.  A monster
          * which is out of sight might throw and it hits something _in_
          * sight, a problem not existing with wands because wand rays
@@ -3349,11 +3458,34 @@ use_offensive(struct monst *mtmp)
             pline_mon(mtmp, "%s hurls %s!",
                       Monnam(mtmp), singular(otmp, doname));
         }
+        /* a monster throwing oil wants it to explode, so it lights the
+           flask just before throwing it (a confused one may forget);
+           only the thrown flask is lit, not the rest of its stack,
+           which may be sitting in a bag */
+        if (otmp->otyp == POT_OIL && !otmp->lamplit
+            && (!mtmp->mconf || rn2(3))) {
+            if (otmp->quan > 1L)
+                otmp = splitobj(otmp, 1L);
+            begin_burn(otmp, FALSE);
+        }
         /* use target coordinates (gt.tbx/gt.tby) from mfind_target() */
         m_throw(mtmp, mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby),
                 distmin(mtmp->mx, mtmp->my,
                         mtmp->mx + gt.tbx, mtmp->my + gt.tby), otmp);
-        return 2;
+        /* a lit flask that bursts point-blank can kill the thrower */
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
+    case MUSE_SCR_STINKING_CLOUD: {
+        int cval = bcsign(otmp);
+        coordxy cx = mtmp->mx + gt.tbx, cy = mtmp->my + gt.tby;
+
+        mreadmsg(mtmp, otmp);
+        if (oseen)
+            makeknown(SCR_STINKING_CLOUD);
+        m_useup(mtmp, otmp);
+        /* the hero's own scroll's cloud */
+        (void) create_gas_cloud(cx, cy, 15 + 10 * cval, 8 + 4 * cval, mtmp);
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
+    }
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
@@ -3375,6 +3507,8 @@ rnd_offensive_item(struct monst *mtmp)
         return 0;
     if (difficulty > 7 && !rn2(35))
         return WAN_DEATH;
+    if (difficulty > 7 && !rn2(30))
+        return WAN_POLYMORPH;
     switch (rn2(9 - (difficulty < 4) + 4 * (difficulty > 6))) {
     case 0: {
         struct obj *mtmp_helmet = which_armor(mtmp, W_ARMH);
@@ -3394,7 +3528,7 @@ rnd_offensive_item(struct monst *mtmp)
     case 4:
         return POT_BLINDNESS;
     case 5:
-        return POT_SLEEPING;
+        return rn2(3) ? POT_SLEEPING : POT_HALLUCINATION;
     case 6:
         return POT_PARALYSIS;
     case 7:
@@ -3406,7 +3540,7 @@ rnd_offensive_item(struct monst *mtmp)
         /* wands of fire are rare in the Ice Queen's realm */
         if (Iniceq)
             return rn2(6) ? WAN_SLEEP : rn2(3) ? WAN_LIGHTNING : WAN_FIRE;
-        return WAN_FIRE;
+        return rn2(30) ? WAN_FIRE : POT_OIL;
     case 11:
         return WAN_COLD;
     case 12:
@@ -3420,7 +3554,7 @@ rnd_offensive_item(struct monst *mtmp)
 #define MUSE_WAN_MAKE_INVISIBLE 2
 #define MUSE_POT_INVISIBILITY 3
 #define MUSE_POLY_TRAP 4
-#define MUSE_WAN_POLYMORPH 5
+#define MUSE_WAN_POLYMORPH_SELF 5
 #define MUSE_POT_SPEED 6
 #define MUSE_WAN_SPEED_MONSTER 7
 #define MUSE_BULLWHIP 8
@@ -3429,6 +3563,7 @@ rnd_offensive_item(struct monst *mtmp)
    random bag rummaging obsolete */
 #define MUSE_SPELLBOOK 11
 #define MUSE_POT_BOOZE 12
+#define MUSE_WAN_WISHING 13
 
 /* spells that monsters can learn from spellbooks.
    Excludes: racial abilities (psionic wave), spells with existing
@@ -3701,13 +3836,16 @@ check_misc_item(
 
 #define nomore(x) if (current_muse == (x)) return 0
 
+    /* booze and gain level shouldn't override a wand of wishing */
     nomore(MUSE_POT_BOOZE);
+    nomore(MUSE_WAN_WISHING);
     /* satyrs drink any booze they get hold of; a cursed potion
        sends them into a rage rather than pacifying them */
     if (obj->otyp == POT_BOOZE && is_satyr(mdat))
         return MUSE_POT_BOOZE;
 
     nomore(MUSE_POT_GAIN_LEVEL);
+    nomore(MUSE_WAN_WISHING);
     /* Monsters shouldn't recognize cursed items; this kludge is
        necessary to prevent serious problems though (a ridden steed
        would rise through the ceiling without its rider) */
@@ -3716,6 +3854,10 @@ check_misc_item(
             || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest
                 && !mtmp->ridden_by)))
         return MUSE_POT_GAIN_LEVEL;
+
+    nomore(MUSE_WAN_WISHING);
+    if (obj->otyp == WAN_WISHING && obj->spe > 0)
+        return MUSE_WAN_WISHING;
 
     nomore(MUSE_BULLWHIP);
     if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
@@ -3756,10 +3898,10 @@ check_misc_item(
     if (obj->otyp == POT_SPEED && mtmp->mspeed != MFAST && !mtmp->isgd)
         return MUSE_POT_SPEED;
 
-    nomore(MUSE_WAN_POLYMORPH);
+    nomore(MUSE_WAN_POLYMORPH_SELF);
     if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
         && (mtmp->cham == NON_PM) && mons[monsndx(mdat)].difficulty < 6)
-        return MUSE_WAN_POLYMORPH;
+        return MUSE_WAN_POLYMORPH_SELF;
 
     nomore(MUSE_POT_POLYMORPH);
     if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
@@ -3912,7 +4054,7 @@ use_misc(struct monst *mtmp)
         mon_adjust_speed(mtmp, 1, otmp);
         m_useup(mtmp, otmp);
         return 2;
-    case MUSE_WAN_POLYMORPH:
+    case MUSE_WAN_POLYMORPH_SELF:
         if (!otmp)
             panic(MissingMiscellaneousItem, "wand of polymorph");
         mzapwand(mtmp, otmp, TRUE);
@@ -3920,6 +4062,18 @@ use_misc(struct monst *mtmp)
                        NC_VIA_WAND_OR_SPELL | NC_SHOW_MSG);
         if (oseen)
             makeknown(WAN_POLYMORPH);
+        return 2;
+    case MUSE_WAN_WISHING:
+        if (!otmp)
+            panic(MissingMiscellaneousItem, "wand of wishing");
+        /* put on anything wished for earlier before wishing again */
+        m_dowear(mtmp, FALSE);
+        mzapwand(mtmp, otmp, FALSE);
+        if (!vismon)
+            You_hear("something making a wish!");
+        if (oseen)
+            makeknown(WAN_WISHING);
+        mmake_wish(mtmp);
         return 2;
     case MUSE_POT_POLYMORPH:
         if (!otmp)
@@ -4243,18 +4397,21 @@ searches_for_item(struct monst *mon, struct obj *obj)
             return FALSE;
         if (typ == WAN_DIGGING)
             return (boolean) !(is_floater(mon->data) || can_levitate(mon));
-        if (typ == WAN_POLYMORPH)
-            return (boolean) (mons[monsndx(mon->data)].difficulty < 6);
+        /* a wand of polymorph is an offensive item too, so any monster
+           that uses items wants one, not just weak ones */
         if (objects[typ].oc_dir == RAY || typ == WAN_STRIKING
             || typ == WAN_UNDEAD_TURNING || typ == WAN_SLOW_MONSTER
-            || typ == WAN_TELEPORTATION || typ == WAN_CREATE_MONSTER)
+            || typ == WAN_TELEPORTATION || typ == WAN_CREATE_MONSTER
+            || typ == WAN_CANCELLATION || typ == WAN_POLYMORPH
+            || typ == WAN_WISHING)
             return TRUE;
         break;
     case POTION_CLASS:
         if (typ == POT_HEALING || typ == POT_EXTRA_HEALING
             || typ == POT_FULL_HEALING || typ == POT_POLYMORPH
             || typ == POT_GAIN_LEVEL || typ == POT_PARALYSIS
-            || typ == POT_SLEEPING || typ == POT_ACID || typ == POT_CONFUSION)
+            || typ == POT_SLEEPING || typ == POT_ACID || typ == POT_CONFUSION
+            || typ == POT_HALLUCINATION || typ == POT_OIL)
             return TRUE;
         if (typ == POT_BLINDNESS && !attacktype(mon->data, AT_GAZE))
             return TRUE;
@@ -4263,7 +4420,8 @@ searches_for_item(struct monst *mon, struct obj *obj)
         break;
     case SCROLL_CLASS:
         if (typ == SCR_TELEPORTATION || typ == SCR_CREATE_MONSTER
-            || typ == SCR_EARTH || typ == SCR_FIRE)
+            || typ == SCR_EARTH || typ == SCR_FIRE
+            || (typ == SCR_STINKING_CLOUD && mon->mcansee))
             return TRUE;
         break;
     case AMULET_CLASS:
@@ -4984,6 +5142,255 @@ green_mon(struct monst *mon)
     }
     return FALSE;
 #endif
+}
+
+/* a monster makes a wish (a wand of wishing, a grateful djinni, or one
+   that keeps the hero's wish); it asks for something it can use, falling
+   back to a lesser item when its body can't wear the first choice */
+void
+mmake_wish(struct monst *mon)
+{
+    struct obj *otmp = (struct obj *) 0;
+    const char *wishnam;
+    boolean wearable = FALSE;
+
+    switch (rnd(18)) {
+    case 1:
+        otmp = mksobj(POT_GAIN_LEVEL, FALSE, FALSE);
+        bless(otmp);
+        otmp->quan = (long) rnd(3);
+        otmp->owt = weight(otmp);
+        break;
+    case 2:
+        otmp = mksobj(FIGURINE, FALSE, FALSE);
+        switch (rnd(4)) {
+        case 1:
+            otmp->corpsenm = PM_ARCHON;
+            break;
+        case 2:
+            otmp->corpsenm = PM_BALROG;
+            break;
+        case 3:
+            otmp->corpsenm = PM_VORPAL_JABBERWOCK;
+            break;
+        default:
+            otmp->corpsenm = PM_WOODCHUCK;
+            break;
+        }
+        bless(otmp);
+        break;
+    case 3:
+        otmp = mksobj(AMULET_OF_LIFE_SAVING, FALSE, FALSE);
+        bless(otmp);
+        (void) maybe_erodeproof(otmp, TRUE);
+        wearable = TRUE;
+        break;
+    case 4:
+        if (!has_displacement(mon) && !cantweararm(mon)) {
+            otmp = mksobj(CLOAK_OF_DISPLACEMENT, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(WAN_DIGGING, TRUE, FALSE);
+        }
+        break;
+    case 5:
+        if (!nohands(mon->data)) {
+            otmp = mksobj(GAUNTLETS_OF_DEXTERITY, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(POT_FULL_HEALING, FALSE, FALSE);
+            bless(otmp);
+        }
+        break;
+    case 6:
+        if (!(resists_magm(mon) || defended(mon, AD_MAGM))) {
+            if (!cantweararm(mon))
+                otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
+            else
+                otmp = mksobj(AMULET_OF_MAGIC_RESISTANCE, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(WAN_CREATE_MONSTER, TRUE, FALSE);
+            (void) maybe_erodeproof(otmp, TRUE);
+        }
+        break;
+    case 7:
+        if (!cantweararm(mon)) {
+            otmp = mksobj(CRYSTAL_PLATE_MAIL, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(BAG_OF_HOLDING, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+        }
+        break;
+    case 8:
+        if (!is_flyer(mon->data)) {
+            otmp = mksobj(AMULET_OF_FLYING, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(POT_FULL_HEALING, FALSE, FALSE);
+            bless(otmp);
+        }
+        break;
+    case 9:
+        if (!can_wwalk(mon) && !sliparm(mon)) {
+            otmp = mksobj(WATER_WALKING_BOOTS, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+        } else {
+            otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+        }
+        /* a ring gets put on too */
+        wearable = TRUE;
+        break;
+    case 10:
+        if (!mon_reflects(mon, (char *) 0)) {
+            if (humanoid(mon->data))
+                otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
+            else
+                otmp = mksobj(AMULET_OF_REFLECTION, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(POT_EXTRA_HEALING, FALSE, FALSE);
+            bless(otmp);
+        }
+        break;
+    case 11:
+        if (!nohands(mon->data) && !strongmonst(mon->data)) {
+            otmp = mksobj(GAUNTLETS_OF_POWER, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(POT_GAIN_LEVEL, FALSE, FALSE);
+            curse(otmp);
+        }
+        break;
+    case 12:
+        if (mon->mspeed != MFAST && !sliparm(mon)) {
+            otmp = mksobj(SPEED_BOOTS, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(POT_FULL_HEALING, FALSE, FALSE);
+            bless(otmp);
+        }
+        break;
+    case 13:
+        if (!has_telepathy(mon) && !sliparm(mon)
+            && !has_horns(mon->data)) {
+            otmp = mksobj(HELM_OF_TELEPATHY, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(POT_EXTRA_HEALING, FALSE, FALSE);
+            bless(otmp);
+        }
+        break;
+    case 14:
+        if (!sliparm(mon) && !has_horns(mon->data)) {
+            otmp = mksobj(HELM_OF_BRILLIANCE, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        } else {
+            otmp = mksobj(UNICORN_HORN, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+        }
+        break;
+    case 15:
+        if (!cantweararm(mon)) {
+            otmp = mksobj(CLOAK_OF_PROTECTION, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+        } else {
+            otmp = mksobj(RIN_PROTECTION, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+        }
+        /* a ring gets put on too */
+        wearable = TRUE;
+        break;
+    case 16: /* monsters can wish for certain artifacts */
+        otmp = mk_artifact((struct obj *) 0, mon_aligntyp(mon), 99, FALSE);
+        if (otmp) {
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, TRUE);
+            otmp->spe = rn2(3) + 1;
+            wearable = TRUE;
+        }
+        break;
+    case 17:
+        switch (rnd(3)) {
+        case 1:
+            otmp = mksobj(WAN_CANCELLATION, TRUE, FALSE);
+            break;
+        case 2:
+            otmp = mksobj(WAN_POLYMORPH, TRUE, FALSE);
+            break;
+        default:
+            otmp = mksobj(WAN_DEATH, TRUE, FALSE);
+            break;
+        }
+        (void) maybe_erodeproof(otmp, TRUE);
+        break;
+    default: /* 18 */
+        otmp = mksobj(EGG, FALSE, FALSE);
+        otmp->corpsenm = PM_COCKATRICE;
+        otmp->quan = (long) rnd(3);
+        otmp->owt = weight(otmp);
+        break;
+    }
+
+    if (!otmp) {
+        if (canseemon(mon))
+            pline_mon(mon,
+                      "For a moment, %s had %s in %s %s, but it disappears.",
+                      mon_nam(mon), something, mhis(mon),
+                      makeplural(mbodypart(mon, HAND)));
+        return;
+    }
+
+    wishnam = ansimpleoname(otmp);
+    if (canseemon(mon))
+        pline_mon(mon, "%s makes a wish for%s %s!", Monnam(mon),
+                  (otmp->quan > 1L) ? " some" : "", wishnam);
+
+    /* otmp may merge into a stack and be freed */
+    (void) mpickobj(mon, otmp);
+    if (wearable)
+        check_gear_next_turn(mon);
 }
 
 /*muse.c*/
