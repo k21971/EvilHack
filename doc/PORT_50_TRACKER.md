@@ -7960,7 +7960,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2026-08-26 by the pathfinding slice's reviewer. Candidate
       beyond-master hardening: invalidate beside the vision calls
       in the OBJ_FLOOR arm.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, 5f12ab0fc, tracker a033fd2d4;
       BUG-2757, master frozen-unfixed). invalidate_pathfind_maps() (mon.c)
       replaces the inline pairs and runs in both poly_obj() boulder arms.
       Battery T4 L2: POST recomputed the same turn, square passable; PRE
@@ -9120,7 +9120,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       after the assignment; the line serves ALL des monsters -
       reconcile deliberately, watch the session-22 gendered-name
       des rules.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, 45a405fa5, tracker a033fd2d4;
       BUG-2752, vanilla alike, upstream row). Wider than the row: class-only
       placements were always male (des.monster("n") nymphs, every
       class-placed amorous demon an incubus, mariliths and erinyes) and
@@ -9308,7 +9308,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       post-rloc DEADMONSTER guards (AD_SGLD, AD_SEDU m-v-m, the
       Demonic-Blackmail arms) are therefore defensive today and go
       live if master's clear-before-mintrap ports.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, 5f12ab0fc, tracker a033fd2d4;
       BUG-2755, vanilla alike, upstream row). RULED MASTER'S SHAPE: a
       trapped monster that really moves clears mtrapped and meets the
       landing square's trap (one put back on its own square stays caught,
@@ -10495,7 +10495,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       upstream are both unbounded here and master is strictly worse
       (it also appends mon_wounds and the wielding clause). The armor
       line itself was written bounded; the function wants an audit.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, beffd902f, tracker a033fd2d4;
       BUG-2770, upstream row). lookat_clause() drops a clause that doesn't
       fit whole; the riding clause is reserved and appended last;
       mhidden_description() writes into a local buffer. Battery T5 L3: POST
@@ -21821,7 +21821,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "wakes up." form, no growl, no setmangry). Upstream-shared
       (Official_nh50 uhitm.c: seven bare doreturn producers vs the
       tail wakeup); candidate upstream note. LOW.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, 5f12ab0fc, tracker a033fd2d4;
       BUG-2756, vanilla alike, upstream row). RULED MASTER'S SHAPE: the
       doreturn exit wakes and angers a surviving on-map target (pets stay
       tame); the stone missile's own wakeup folded in. Battery T4 L4: camera
@@ -22478,9 +22478,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       when mmake_wish() lands, its erodeproof writes go through
       maybe_erodeproof() (the commit's 12 muse.c hunks), so a
       wished supermaterial never carries the bit (BUG-2325..2326).
-      PROGRESS 2026-11-01 (session 282, commit pending, tracker pending;
-      BUG-2753, 2759..2767): PORTED MUSE_POT_OIL, MUSE_SCR_FIRE (live;
-      BUG-389 shape, BUG-1319 set_pet_killer, both defended(AD_FIRE) terms),
+      PROGRESS 2026-11-01 (session 282, 5f12ab0fc and 27d126b1b,
+      tracker a033fd2d4; BUG-2753, 2759..2767): PORTED MUSE_POT_OIL,
+      MUSE_SCR_FIRE (live; BUG-389 shape, BUG-1319 set_pet_killer, both
+      defended(AD_FIRE) terms),
       mmake_wish() with its three triggers and the held rumor (cases 4 / 13
       on has_displacement() / has_telepathy(), maybe_erodeproof()
       everywhere), POT_HALLUCINATION, the maxdmg melee gate (RULED on the
@@ -22516,7 +22517,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       corpse/egg gates with `resists_ston || defended`) and its
       monmove.c caller are unported, so the mound never eats. Two
       master defended() sites ride with it.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, 5f12ab0fc, tracker a033fd2d4;
       BUG-2754). Master's meatfood() + all_food() + the postmov() dispatch;
       RULED through 5.0's m_consume_obj() like the branch's other floor
       eaters (corpse intrinsics, eucalyptus cure, a chameleon polymorph with
@@ -28548,7 +28549,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       wears plate mail that canwearobj() would refuse. Fix: re-run
       canwearobj() when the form changed across retouch_object(), or
       refuse. LOW.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, beffd902f, tracker a033fd2d4;
       BUG-2768, master and vanilla alike, upstream row). RULED RE-CHECK:
       canwearobj() again when retouch_object() changed the form; the turn is
       used. Battery T4 L5: drow-form giant at 1 HP, iron plate mail - POST
@@ -28559,7 +28560,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       flight, then lava, then losehp()) leaves the remaining arms
       testing the old form. The paths are contrived. Re-read the form
       after each arm, or record. LOW.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, beffd902f, tracker a033fd2d4;
       BUG-2769). break_armor() returns once gy.youmonst.data != uptr after
       each arm that can reach a rehumanize(), whose own pass fitted the new
       form. Battery T4 L6 (polymorph-trap staging; lava cannot rehumanize):
@@ -33588,7 +33589,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       may plummet on its first move (rider moves by its own mfndpos,
       movemon() runs minliquid() on the off-map steed). Master-
       shared shape apart from BUG-1314's newcham arm. LOW.
-      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      CLOSED 2026-11-01 (session 282, 5f12ab0fc, tracker a033fd2d4;
       BUG-2758, master frozen-unfixed). revive() ends with
       maybe_set_terrain_effects() (covers every revival path; do.c's
       duplicate dropped); the levitation timeout and worn levitation /
@@ -35259,12 +35260,12 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-11-01 | drag_ball()'s jerk-back, drop_ball(), float_down()'s ball pull and the drawbridge's do_entity() write u.ux / u.uy directly, so a punished rider's steed stays on the old square (sanity_check: "steed ... claims to be at <x,y>?" every turn) until something calls u_on_newpos(). Official_nh50 b0c09c878; BUG-2746, src/ball.c, src/trap.c, src/dbridge.c | found (branch-fixed e509300bb); not sent; triage pending |
 | 2026-11-01 | obj_timer_checks() adjusts only the first of ROT_CORPSE / REVIVE_MON for a corpse on ice, so a ZOMBIFY_MON timer (a zombie's victim, a wished "zombifying" corpse) is never slowed. Official_nh50 b0c09c878; BUG-2748, src/mkobj.c | found (branch-fixed 222578999); not sent; triage pending |
 | 2026-11-01 | obj_timer_checks() reads stop_timer()'s 0 for a timer due this very turn as "no timer": the timer is freed and never restarted (and on_ice can stay set off the ice); halving one turn left restarts at 0. Official_nh50 b0c09c878; BUG-2750, src/mkobj.c | found (branch-fixed 222578999); not sent; triage pending |
-| 2026-11-01 | create_monster() writes mtmp->female = m->female after makemon() / mk_mplayer() named the monster, and lspo_monster() resolves an unspecified sex to 0 for class-only placements: des.monster("n") nymphs (minetn-7, Dru-fila / filb, nymph.lua) are male ("he") and named-player-monster sex can disagree with the name. Official_nh50 b0c09c878; BUG-2752, src/sp_lev.c | found (branch-fixed, commit pending); not sent; triage pending |
-| 2026-11-01 | rloc_to_core() calls mintrap() on a monster still flagged mtrapped, so a trapped monster teleported onto another trap never triggers it and stays "trapped" in it (a squeaky board that never squeaks, ~30 turns), and a teleported long worm keeps a stale mtrapped. Official_nh50 b0c09c878; BUG-2755, src/teleport.c | found (branch-fixed, commit pending); not sent; triage pending |
-| 2026-11-01 | hmon_hitmon()'s wakeup() runs only in its tail; the non-killing doreturn exits (artifact zero-damage swipe, expensive camera, a petrifying corpse or egg the target survives) leave a sleeping or peaceful target asleep and unangered. Official_nh50 b0c09c878; BUG-2756, src/uhitm.c | found (branch-fixed, commit pending); not sent; triage pending |
-| 2026-11-01 | use_offensive()'s MUSE_CAMERA arm returns 1 ("monster died") for a live monster, so mattacku() / dog_move() end its move as if it were dead. Official_nh50 b0c09c878; BUG-2766, src/muse.c | found (branch-fixed, commit pending); not sent; triage pending |
-| 2026-11-01 | accessory_or_armor_on() calls retouch_object() before setworn(); an artifact blast that rehumanizes the hero leaves the item worn with the old form's mask (armor the natural form can't wear). Official_nh50 b0c09c878; BUG-2768, src/do_wear.c | found (branch-fixed, commit pending); not sent; triage pending |
-| 2026-11-01 | look_at_monster() Strcat()s its clauses into a BUFSZ buffer unbounded (player-chosen names), and mhidden_description() bounds against its own eos(). Official_nh50 b0c09c878; BUG-2770, src/pager.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-11-01 | create_monster() writes mtmp->female = m->female after makemon() / mk_mplayer() named the monster, and lspo_monster() resolves an unspecified sex to 0 for class-only placements: des.monster("n") nymphs (minetn-7, Dru-fila / filb, nymph.lua) are male ("he") and named-player-monster sex can disagree with the name. Official_nh50 b0c09c878; BUG-2752, src/sp_lev.c | found (branch-fixed 45a405fa5); not sent; triage pending |
+| 2026-11-01 | rloc_to_core() calls mintrap() on a monster still flagged mtrapped, so a trapped monster teleported onto another trap never triggers it and stays "trapped" in it (a squeaky board that never squeaks, ~30 turns), and a teleported long worm keeps a stale mtrapped. Official_nh50 b0c09c878; BUG-2755, src/teleport.c | found (branch-fixed 5f12ab0fc); not sent; triage pending |
+| 2026-11-01 | hmon_hitmon()'s wakeup() runs only in its tail; the non-killing doreturn exits (artifact zero-damage swipe, expensive camera, a petrifying corpse or egg the target survives) leave a sleeping or peaceful target asleep and unangered. Official_nh50 b0c09c878; BUG-2756, src/uhitm.c | found (branch-fixed 5f12ab0fc); not sent; triage pending |
+| 2026-11-01 | use_offensive()'s MUSE_CAMERA arm returns 1 ("monster died") for a live monster, so mattacku() / dog_move() end its move as if it were dead. Official_nh50 b0c09c878; BUG-2766, src/muse.c | found (branch-fixed 27d126b1b); not sent; triage pending |
+| 2026-11-01 | accessory_or_armor_on() calls retouch_object() before setworn(); an artifact blast that rehumanizes the hero leaves the item worn with the old form's mask (armor the natural form can't wear). Official_nh50 b0c09c878; BUG-2768, src/do_wear.c | found (branch-fixed beffd902f); not sent; triage pending |
+| 2026-11-01 | look_at_monster() Strcat()s its clauses into a BUFSZ buffer unbounded (player-chosen names), and mhidden_description() bounds against its own eos(). Official_nh50 b0c09c878; BUG-2770, src/pager.c | found (branch-fixed beffd902f); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
