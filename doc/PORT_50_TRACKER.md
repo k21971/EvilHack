@@ -17,10 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-01, after session 281's held
-  steed, wording and residue slice: 6 rows closed, four LOW minted
-  open):
-  619 rows closed, 63 open
+- Phase 2 status (refreshed 2026-11-01, after session 282's muse
+  offense, monster wishes, creeping mound and known-fix LOWs slice:
+  9 rows closed, the muse row partial, three LOW minted open):
+  628 rows closed, 57 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -7950,7 +7950,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       both batteries); mon_escape_target's *tx && *ty return idiom
       would drop a y == 0 target (master-identical, unreachable in
       practice); the two LOW watch rows below.
-- [ ] LOW watch: poly_obj() boulder<->non-boulder transitions
+- [x] LOW watch: poly_obj() boulder<->non-boulder transitions
       (polymorph zap on a boulder, stone-to-flesh) update vision
       via block_point/unblock_point but never invalidate the
       pathfind caches - master-shared gap (master's poly_obj
@@ -7960,6 +7960,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2026-08-26 by the pathfinding slice's reviewer. Candidate
       beyond-master hardening: invalidate beside the vision calls
       in the OBJ_FLOOR arm.
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2757, master frozen-unfixed). invalidate_pathfind_maps() (mon.c)
+      replaces the inline pairs and runs in both poly_obj() boulder arms.
+      Battery T4 L2: POST recomputed the same turn, square passable; PRE
+      stale.
 - [ ] LOW watch: the pathfind selection's novelty-over-mtrack
       preference (a non-mtrack candidate always displaces an
       mtrack incumbent, even a strictly worse one) marched an
@@ -8225,6 +8230,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       keeps the fill terrain - engine-proven with a 'w' cell
       loading as STONE, zero messages. Implementing that warning
       belongs to this row.
+      NOTE 2026-11-01 (session 282, battery T5): des.trap() with an unknown
+      type name ("bear trap", "squeaky board") makes a random trap with no
+      Lua error (get_table_traptype_opt() falls back to -1); the names are
+      "bear", "board".
 - [x] Halloween undead generation bonus (NEW, minted 2026-07-26 by
       the A_NONE fix, a sibling gap in the same function).
       Master's rndmonst_adj() carries
@@ -9096,7 +9105,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       natural level gen produced a wizard + an infidel across 49
       wizmakemaps with a breakpoint log proving the flag on every
       random pick.
-- [ ] des-placed mplayer name/sex mismatch (minted 2026-08-13 by
+- [x] des-placed mplayer name/sex mismatch (minted 2026-08-13 by
       the kit-slice battery, Anomaly 1): sp_lev create_monster
       does `mtmp->female = m->female` UNCONDITIONALLY after the
       mk_mplayer fork (upstream-5.0-verbatim line; lua "female"
@@ -9111,6 +9120,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       after the assignment; the line serves ALL des monsters -
       reconcile deliberately, watch the session-22 gendered-name
       des rules.
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2752, vanilla alike, upstream row). Wider than the row: class-only
+      placements were always male (des.monster("n") nymphs, every
+      class-placed amorous demon an incubus, mariliths and erinyes) and
+      random-gender leaders / nemeses lost role_init()'s gender. An
+      unspecified sex stays BOOL_RANDOM so makemon() rolls it before naming;
+      an explicit one goes in as MM_FEMALE / MM_MALE (mk_mplayer() and
+      mk_roamer() gained an mmflags argument); the overwrite is gone.
+      Battery T5 L1: POST 13 / 19 incubi / succubi, 40 of 40 names agree,
+      nymphs female; PRE 25 of 25 incubi, 21 of 40 mismatched.
 - [x] music.c earthquake reconcile (minted 2026-08-06 by the Valkyrie
       slice's archive sweep). Two master fixes do not transplant into
       5.0's rewritten do_earthquake() (the do_pit() helper shape):
@@ -9272,7 +9291,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (batch 3); clone the pseudoname plumbing shape (gp/gr/gh letter
       structs + optlist NHOPTC + petname_optfn arm + wrapper + dog.c
       ternary arm).
-- [ ] rloc_to_core worm mtrapped-stale parity note (minted 2026-08-07,
+- [x] rloc_to_core worm mtrapped-stale parity note (minted 2026-08-07,
       Wizard-slice reviewer LOW): branch/upstream-5.0 skips the
       post-teleport mintrap re-check for long worms WITHOUT clearing
       mtrapped, so a teleported trapped worm keeps a stale flag
@@ -9289,6 +9308,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       post-rloc DEADMONSTER guards (AD_SGLD, AD_SEDU m-v-m, the
       Demonic-Blackmail arms) are therefore defensive today and go
       live if master's clear-before-mintrap ports.
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2755, vanilla alike, upstream row). RULED MASTER'S SHAPE: a
+      trapped monster that really moves clears mtrapped and meets the
+      landing square's trap (one put back on its own square stays caught,
+      ruled); mon_lost_in_rloc() guards every caller that keeps using it
+      (thief arms, mon_poly(), the flee teleport, the bribe demon, covetous
+      tactics, guards, shkcatch(), use_defensive() self-teleports, a leashed
+      pet at the stairs, bhitm()'s teleport wakes a trapped target first -
+      the last two reviewer MEDs). Battery T5 L2 / L4 / L5 PASS (squeak,
+      land mine, trap door, a nymph off the level with the katana, no
+      impossible()); PRE stayed trapped ~30 turns.
 - [x] hack.c forcefight fire-burn (fire_wep/burnhd) NOT PORTED (minted
       2026-08-06 by the Archeologist slice's C-hook audit). Master's
       forcefight block computes burnhd (u.umburn burning-hands form,
@@ -10458,13 +10488,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ", scared" mflee append in look_at_monster (two-line arm,
       absent on branch; archive Fleeing State in Farlook Output,
       Jun 10 2026).
-- [ ] look_at_monster buffer accumulation (NEW, minted 2026-07-27 by
+- [x] look_at_monster buffer accumulation (NEW, minted 2026-07-27 by
       the glass/blocker slice). buf is BUFSZ and every clause before
       the new armor line appends unbounded, including player-nameable
       distant_monnam and the newly live ", riding <name>". Master and
       upstream are both unbounded here and master is strictly worse
       (it also appends mon_wounds and the wielding clause). The armor
       line itself was written bounded; the function wants an audit.
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2770, upstream row). lookat_clause() drops a clause that doesn't
+      fit whole; the riding clause is reserved and appended last;
+      mhidden_description() writes into a local buffer. Battery T5 L3: POST
+      246 characters, riding clause intact, the vapor clause dropped whole;
+      PRE cut mid-word. Residue: the row below.
+- [ ] LOW: farlook residue (minted 2026-11-01, session 282, reviewer and
+      battery T5; record). self_lookat() and insight.c mstatusline() keep
+      the same unbounded eos() appends; do_screen_description() cuts the
+      final ; line at BUFSZ - 2 - strlen(prefix) mid-word (its prefix holds
+      the glyph), so a 246-character description still loses the end of its
+      riding clause on screen. LOW.
 - [x] Pokedex damagetypes[] rider (NEW, minted 2026-08-21 by the
       Croesus/gold slice). PORTED 2026-09-08 (pokedex slice, commit A).
       The positional tables were NOT rebuilt as arrays: the branch
@@ -21765,7 +21807,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       through damageum() on both trees, so master's noise never fired
       for them either (parity, the guard is reachable only through a
       weapon-routed attack). Harness lore -> gameplay.md.
-- [ ] hmon_hitmon() early exits skip the target's wakeup (minted
+- [x] hmon_hitmon() early exits skip the target's wakeup (minted
       2026-09-11 by the combat-noise review, LOW): 5.0 moved
       hmon_hitmon's wakeup(mon, TRUE) from the entry (3.6/master: every
       landed hero hit woke and angered the target before anything
@@ -21779,6 +21821,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "wakes up." form, no growl, no setmangry). Upstream-shared
       (Official_nh50 uhitm.c: seven bare doreturn producers vs the
       tail wakeup); candidate upstream note. LOW.
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2756, vanilla alike, upstream row). RULED MASTER'S SHAPE: the
+      doreturn exit wakes and angers a surviving on-map target (pets stay
+      tame); the stone missile's own wakeup folded in. Battery T4 L4: camera
+      POST hostile and awake, PRE asleep and peaceful; the pyrolisk egg's
+      explode() already angered on both (the brief was wrong).
 - [x] bane_applies() monster-side demon arm ABSENT (minted 2026-09-09
       by the bane-aura census): master 7e9e55805 adds, in the !yours
       block beside the drow and zombie/vampire arms,
@@ -22430,12 +22478,52 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       when mmake_wish() lands, its erodeproof writes go through
       maybe_erodeproof() (the commit's 12 muse.c hunks), so a
       wished supermaterial never carries the bit (BUG-2325..2326).
-- [ ] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
+      PROGRESS 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2753, 2759..2767): PORTED MUSE_POT_OIL, MUSE_SCR_FIRE (live;
+      BUG-389 shape, BUG-1319 set_pet_killer, both defended(AD_FIRE) terms),
+      mmake_wish() with its three triggers and the held rumor (cases 4 / 13
+      on has_displacement() / has_telepathy(), maybe_erodeproof()
+      everywhere), POT_HALLUCINATION, the maxdmg melee gate (RULED on the
+      target's square), and four master offensive items that had no row:
+      MUSE_WAN_CANCELLATION, MUSE_WAN_POLYMORPH (misc renamed
+      MUSE_WAN_POLYMORPH_SELF), MUSE_SCR_STINKING_CLOUD,
+      MUSE_POT_POLYMORPH_THROW. Rulings: pets never use earth / camera /
+      fire / stinking cloud; pets throw oil only when the blast can't reach
+      the hero; hallucination vapors master's; a resisted polymorph potion
+      teaches the thrower; tame zappers check the whole beam. STILL OPEN
+      here: MUSE_POT_RESTORE_ABILITY, MUSE_BAG_OF_TRICKS, SCR_CHARGING,
+      PAN_FLUTE, the bearded axe disarm, FIGURINE (wished figurines wait for
+      it), REMOVE_CURSE. Batteries T1 / T2 / T3 PASS.
+- [ ] LOW: muse offense and wish residue (minted 2026-11-01, session 282,
+      reviewer and batteries T1 / T3; record unless a ruling wants a
+      change). (a) The oil blast's hero check doesn't cover other pets next
+      to the target. (b) "It is uninjured." prints for an unseen reader on a
+      seen square (master's cansee() gate). (c) A point-blank burst ignites
+      the thrower's remaining oil (5.0 fire). (d) A monster doesn't learn
+      the hero's poison resistance inside its own stinking cloud (the gas
+      blocks its view). (e) mk_artifact()'s filters are the hero's (role
+      first choice, race, Hate_material, skills, ugifts) for a monster's
+      wish too (master). (f) An Infidel's artifact gift can be silver
+      (Werebane); master re-rolls silver only for regular gifts. (g)
+      m_dowear() swaps two items back and forth on successive calls (boots,
+      cloaks; battery T3). (h) A wished potion of gain level earlier in the
+      pack is drunk before the wand is zapped again (master's nomore order).
+      (i) The monster scroll of fire's hero damage ignores partial fire
+      resistance (master). LOW.
+- [x] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
       defended() sweep audit): the monster exists (include/monsters.h)
       but master's meatfood() (mon.c ~2100: eats food items, cockatrice
       corpse/egg gates with `resists_ston || defended`) and its
       monmove.c caller are unported, so the mound never eats. Two
       master defended() sites ride with it.
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2754). Master's meatfood() + all_food() + the postmov() dispatch;
+      RULED through 5.0's m_consume_obj() like the branch's other floor
+      eaters (corpse intrinsics, eucalyptus cure, a chameleon polymorph with
+      its message, Medusa engulfed); the two defended(AD_STON) sites rode
+      along; DEADMONSTER detection, the Rider-revival break and the prize
+      skip over master. The hero arm in is_edible() is dead code (not
+      ported). Battery T4 L1 PASS on every variant; PRE eats nothing.
 - [ ] Monster chest_trap() arm ABSENT (minted 2026-09-06 by the
       defended() sweep audit; the artifacts-B DEFER list named an
       owner report file only): master chest_trap(mon, obj, bodypart,
@@ -28450,7 +28538,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
           "leather cloak" wish gives a random leather cloak; a
           chameleon under monpolycontrol accepts a player-monster form
           on the branch.
-- [ ] LOW: accessory_or_armor_on() touch-tests before setworn()
+- [x] LOW: accessory_or_armor_on() touch-tests before setworn()
       (minted 2026-09-29, session 157; both trees; SEEN LIVE in that
       slice's battery, POST and PRE). retouch_object()'s burn can
       rehumanize the hero before the item is worn. For example, a
@@ -28460,12 +28548,30 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       wears plate mail that canwearobj() would refuse. Fix: re-run
       canwearobj() when the form changed across retouch_object(), or
       refuse. LOW.
-- [ ] LOW: break_armor() caches `uptr` at entry (minted 2026-09-29,
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2768, master and vanilla alike, upstream row). RULED RE-CHECK:
+      canwearobj() again when retouch_object() changed the form; the turn is
+      used. Battery T4 L5: drow-form giant at 1 HP, iron plate mail - POST
+      "The suit will not fit on your body.", PRE worn.
+- [x] LOW: break_armor() caches `uptr` at entry (minted 2026-09-29,
       session 157, reviewer; branch - master re-reads the form). A
       nested rehumanize inside an off arm (celestial scales' loss of
       flight, then lava, then losehp()) leaves the remaining arms
       testing the old form. The paths are contrived. Re-read the form
       after each arm, or record. LOW.
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2769). break_armor() returns once gy.youmonst.data != uptr after
+      each arm that can reach a rehumanize(), whose own pass fitted the new
+      form. Battery T4 L6 (polymorph-trap staging; lava cannot rehumanize):
+      POST the helm stays on, PRE "Your helm falls to the floor!". Residue:
+      the row below.
+- [ ] LOW: form-change and lift residue (minted 2026-11-01, session 282,
+      Plan pass and reviewer; record). polymon() and newman() keep running
+      after break_armor() when a nested rehumanize() already changed the
+      form; a monster rider losing its lift does not flag its walking steed
+      for the terrain (maybe_set_terrain_effects()); a Rider pushing a
+      trapped bystander off its corpse can still print "X teleports." for
+      one its landing trap killed (cosmetic). LOW.
 - [x] LOW: cloak_simple_name() lacks master's dragon-scales arm
       (minted 2026-09-29, session 157 battery A2). Master returns "set
       of dragon scales" for Is_dragon_scales() (EvilHack's scales are
@@ -33468,7 +33574,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       fieldorder width; cursed-unihorn deafness already upstream).
       Full audit table: doc/claude/NUMERIC_SWEEP.md (local).
 - [ ] Per-subsystem: BUGFIXES_ARCHIVE.md keyword sweep as it lands
-- [ ] LOW: terrain-effects coverage beyond newcham / revive_corpse
+- [x] LOW: terrain-effects coverage beyond newcham / revive_corpse
       (minted 2026-10-04, session 177, by the follow-up reviewer).
       9b4a8dfb0's flag (BUG-2119 extended it to EvilHack terrain) is
       set only by newcham() and revive_corpse(). Not flagged, so the
@@ -33482,6 +33588,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       may plummet on its first move (rider moves by its own mfndpos,
       movemon() runs minliquid() on the off-map steed). Master-
       shared shape apart from BUG-1314's newcham arm. LOW.
+      CLOSED 2026-11-01 (session 282, commit pending, tracker pending;
+      BUG-2758, master frozen-unfixed). revive() ends with
+      maybe_set_terrain_effects() (covers every revival path; do.c's
+      duplicate dropped); the levitation timeout and worn levitation /
+      flying / water walking coming off use it in place of
+      mon_lost_support(). The unverified rider-steed plummet: closed by
+      session 280's mon_rider_airborne(). Battery T4 L3: POST a quivering
+      blob and a kobold drown at the next monster phase; PRE they stood on
+      the water until their own move.
 - [x] LOW: ucatchgem() (mthrowu.c, the unicorn-form gem catch) has
       no helplessness check (BUG-2138) - FIXED 2026-10-05 (session
       183, commit `Fix: helpless unicorn catches and ranged killer
@@ -35144,6 +35259,12 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-11-01 | drag_ball()'s jerk-back, drop_ball(), float_down()'s ball pull and the drawbridge's do_entity() write u.ux / u.uy directly, so a punished rider's steed stays on the old square (sanity_check: "steed ... claims to be at <x,y>?" every turn) until something calls u_on_newpos(). Official_nh50 b0c09c878; BUG-2746, src/ball.c, src/trap.c, src/dbridge.c | found (branch-fixed e509300bb); not sent; triage pending |
 | 2026-11-01 | obj_timer_checks() adjusts only the first of ROT_CORPSE / REVIVE_MON for a corpse on ice, so a ZOMBIFY_MON timer (a zombie's victim, a wished "zombifying" corpse) is never slowed. Official_nh50 b0c09c878; BUG-2748, src/mkobj.c | found (branch-fixed 222578999); not sent; triage pending |
 | 2026-11-01 | obj_timer_checks() reads stop_timer()'s 0 for a timer due this very turn as "no timer": the timer is freed and never restarted (and on_ice can stay set off the ice); halving one turn left restarts at 0. Official_nh50 b0c09c878; BUG-2750, src/mkobj.c | found (branch-fixed 222578999); not sent; triage pending |
+| 2026-11-01 | create_monster() writes mtmp->female = m->female after makemon() / mk_mplayer() named the monster, and lspo_monster() resolves an unspecified sex to 0 for class-only placements: des.monster("n") nymphs (minetn-7, Dru-fila / filb, nymph.lua) are male ("he") and named-player-monster sex can disagree with the name. Official_nh50 b0c09c878; BUG-2752, src/sp_lev.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-11-01 | rloc_to_core() calls mintrap() on a monster still flagged mtrapped, so a trapped monster teleported onto another trap never triggers it and stays "trapped" in it (a squeaky board that never squeaks, ~30 turns), and a teleported long worm keeps a stale mtrapped. Official_nh50 b0c09c878; BUG-2755, src/teleport.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-11-01 | hmon_hitmon()'s wakeup() runs only in its tail; the non-killing doreturn exits (artifact zero-damage swipe, expensive camera, a petrifying corpse or egg the target survives) leave a sleeping or peaceful target asleep and unangered. Official_nh50 b0c09c878; BUG-2756, src/uhitm.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-11-01 | use_offensive()'s MUSE_CAMERA arm returns 1 ("monster died") for a live monster, so mattacku() / dog_move() end its move as if it were dead. Official_nh50 b0c09c878; BUG-2766, src/muse.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-11-01 | accessory_or_armor_on() calls retouch_object() before setworn(); an artifact blast that rehumanizes the hero leaves the item worn with the old form's mask (armor the natural form can't wear). Official_nh50 b0c09c878; BUG-2768, src/do_wear.c | found (branch-fixed, commit pending); not sent; triage pending |
+| 2026-11-01 | look_at_monster() Strcat()s its clauses into a BUFSZ buffer unbounded (player-chosen names), and mhidden_description() bounds against its own eos(). Official_nh50 b0c09c878; BUG-2770, src/pager.c | found (branch-fixed, commit pending); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -35529,6 +35650,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-01 | Muse offense, monster wishes, creeping mound and known-fix LOWs slice rulings (Phase 2 session 282, AskUserQuestion x5, ten questions, all as recommended). (1) SLICE (multiSelect): the unported monster ports and the known-fix LOWs; scoped to offensive items, monster wishes and creeping mound eating (floor-container looting + monster chest traps, the defensive / misc riders, charging and the bearded axe stay open). (2) MELEE GATE: master's SporkHack gate tests the TARGET's square (a strong pet next to the hero still zaps a monster at range). (3) PETS: scroll of earth, camera, scroll of fire and stinking cloud only when the target is the hero. (4) HALLUCINATION SPLASH: master's "You are freaked out." (5-14 turns); a monster hit is confused. (5) TELEPORTED TRAPPED MONSTER: master's shape - the landing trap acts (can kill or carry it off the level), callers guarded. (6) HIT WAKEUP: master's - a landed blow that ends early wakes and angers. (7) MOUND: through 5.0's shared eater. (8) QUIRKS (multiSelect, all three): a resisted polymorph potion teaches the thrower; tame zappers check the whole beam line; armor re-checked after a touch burn changes form. (9) PET OIL (review): only when the blast can't reach the hero (and master's self-test on the target square). (10) SHOP (review): a monster's polymorph / shatter beam bills nobody. (11) STAY PUT (review): only a real move re-fires the trap. Not asked, recorded: master's dead rnd_offensive_item() cases 13-15 not ported; any monster with the wand may wish (master); wished figurines wait for MUSE_FIGURINE. | maintainer |
 | 2026-11-01 | Held steed, wording and residue slice rulings (Phase 2 session 281, AskUserQuestion x5, eleven questions). (1) SLICE (multiSelect): session 280's three new rows (as recommended) and session 279's three residue rows. (2) STAIRS: turn cost only - a vine-held steed at '<' / '>' takes the turn, a sleeping one stays free, '>' keeps master's order (a held or sleeping steed still blocks ending your own levitation) (as recommended). (3) VINE WORDS: the cast matches the release - "branches" for a hero over water, lava or a hole as in the air - and monsters too: a flying or floating monster always reads "branches" (as recommended). (4) CEILING DROP: keep the plunge - a ceiling hider dropping onto a trap it met meets it again (as recommended). (5) TRAP MARKER: record - not saved, a restore re-meets a trap on the next in-place landing (vanilla) (as recommended). (6) FLOOR ICE: slows a zombie's rise too, as rot and troll revival (as recommended). (7) TROLLS: keep vanilla - a norevive troll corpse still gets a revival timer, twitches feebly and "You feel less hassled." (over the recommended master shape). (8) DISMOUNT IN PLACE: keep - stepping off in place re-meets the trap (over the recommended session 279 rule). (9) #SAVEOPTIONS: only the player's - sysconf-only OPTIONS, MENUCOLOR and AUTOPICKUP_EXCEPTION lines stay out of the player's file; the tutorial question still honors sysconf (as recommended). (10) CHAIN OVER WATER / LAVA: same as open air - the chain pulls a tethered rider off onto dry ground within its reach, the steed goes in alone; with none the hero falls in where they are (as recommended). (11) BALL AND A HELD STEED: a line like yours - "The ball pulls your pony out of the tree's grip!" / "...out of the vegetation!" (as recommended). | maintainer |
 | 2026-10-31 | Riding pair and known-fix LOWs slice rulings (Phase 2 session 280, AskUserQuestion x6, eleven questions). (1) SLICE (multiSelect): the ruled riding pair and the LOWs with known fixes (as recommended). (2) HERO LEG / SYMMETRY: "keep vanilla but make it symmetric with monster steeds", confirmed as MONSTERS MATCH THE HERO - the hero's own flight or levitation keeps carrying a walking steed, and a ridden monster pair gets whichever lift is better, the rider's or the steed's, both ways; supersedes (11) of the session 279 entry ("the steed decides") and BUG-2716's rule; mfndpos() reads the rider's own lift again (session 275's pathing ruling stands). (3) STEED TEXT: reuse trapmove()'s and hurtle()'s lines with the steed as subject (as recommended). (4) SCATTER: free the hero's steed silently, like monsters, both getting the hold-release drop (as recommended). (5) LEVITATION CARRIES TOO: dochug()'s open-air plummet and the sewage slow test (Flying || Levitation) for the hero's steed (as recommended). (6) SPEAR TRAP: "spear trap IS a floor trap" - SPEAR_TRAP_SET joins floor_trigger() (over the recommended rider's-lift-only arm; the floor_trigger() shape confirmed over fire-but-miss). (7) ENTANGLED STEED: magic jumps are blocked too, a teleport or level change frees the steed, and monsters can't mount an entangled one (all as recommended). (8) FOLDS: a rider dropping when its flying steed dies (dropped later: mondead() and mongone() already do it), dispel evil waking its target before the banish, the Rogue-level aura room (all as recommended). (9) TORN FREE: a pit fiend's hurl tears the steed out of the vines too ("Your pony is torn from the vegetation!" / "...the tree's grip!"), and a tree-held steed keeps the pair up over a new pit or hole (as recommended). | maintainer |
 | 2026-10-31 | Master ports, traces and riding / landing slice rulings (Phase 2 session 279, AskUserQuestion x4, nine questions, all as recommended). (1) SLICE: all three offered groups (master gameplay ports, traces, riding / landing LOWs). (2) CROWN SPELLBOOK: master's test - only a never-learned spell (spe_Unknown) is taught to an illiterate hero; a forgotten one still drops the book; the learned path livelogs the prayer-gift "had divine knowledge" line. (3) "WHO DARES SUMMON ME?": the one-in-five same-race-sacrifice demon is always hostile, Infidel included (master's e8f34a4a0 intent; its code only skipped the peaceful step). (4) M-V-M LIT-ARTIFACT SEAR LINE: only when the hero sees the fight (gv.vis, as the hated-material sear beside it), over master's ungated line. (5) DIPPED WORN AMULET: one inventory line, as master and a dipped ring (later folded for worn eyewear under the same rationale, a reviewer sibling). (6) RECORD ROWS: fix all four offered - landing re-fires traps, a rider's lift dragging its steed, the water walker's double burn, the tethered rider. (7) SACRIFICE KIN WORDING: name the victim's race (a vampire's human victim reads "human"), master's elf / drow rule. (8) DRAINED VANISH LINE: name the altar ("The bloodless %s corpse and the altar vanish in %s cloud!"). (9) LANDING SCOPE: every in-place landing and lift-off in place - flight ending, levitation ending, deferred landings - skips a non-floor, non-spear trap the hero already met there; diverges from master and vanilla, and no portal bounce-back. Follow-up the same day (AskUserQuestion x1, two questions, both as recommended), for two rows the slice minted as needing a ruling: (10) TREE-HELD WATER WALKER: branches keep you up - a hero held by a tree over water or lava isn't burned or drowned while held, water walking or not, and meets the liquid once on release. (11) RIDER PLACEMENT: the steed decides - goodpos(), minliquid() and the sewage slow use what a ridden pair can do together, both ways. Both rows plannable. | maintainer |
