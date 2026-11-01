@@ -1248,6 +1248,11 @@ landing_spot(
         spot->x = u.ux, spot->y = u.uy;
         return TRUE;
     }
+    /* with no ground in the chain's reach, it keeps the hero where they
+       are, over the drop: the steed is moved off instead and the hero
+       comes down here (teleds() would dig the ball up) */
+    if (reason == DISMOUNT_TETHER)
+        return FALSE;
 
     /* open air is no landing for a hero whose own lift, not the
        steed's, won't keep them up there (a hold keeps it down) */
@@ -1412,6 +1417,7 @@ dismount_steed(
         break;
     case DISMOUNT_ENGULFED:
     case DISMOUNT_CHAIN:
+    case DISMOUNT_TETHER:
         /* caller displays message */
         break;
     case DISMOUNT_BONES:
@@ -1591,8 +1597,11 @@ dismount_steed(
             if (reason == DISMOUNT_CHAIN) {
                 /* the caller sets the hero down; cc is the drop the
                    steed was let go over. One that flies or floats stays
-                   up over it; one still standing there is moved off */
-                if (!DEADMONSTER(mtmp) && !mon_airborne(mtmp)) {
+                   up over it, and one that swims or braves lava (or was
+                   life-saved) stays in the water or lava; one still
+                   standing over open air is moved off */
+                if (!DEADMONSTER(mtmp) && !mon_airborne(mtmp)
+                    && is_open_air(u.ux, u.uy)) {
                     impossible("dismount_steed: chained steed survived?");
                     if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS))
                         rloc_to(mtmp, cc.x, cc.y);

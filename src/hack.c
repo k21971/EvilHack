@@ -1979,7 +1979,7 @@ chain_pulls_off_steed(void)
 }
 
 /* where the chain on a buried iron ball can set a hero down who is over
-   open air: solid ground within its reach, the spot the hero came from
+   a drop: solid ground within its reach, the spot the hero came from
    when that will do; FALSE when there is none (or no ball). A region may
    refuse entry, and one that lets the hero in has been entered, so on
    TRUE the caller must move the hero to *spot */
@@ -2075,11 +2075,12 @@ chain_catches_hero(boolean pick)
     return TRUE;
 }
 
-/* the same chain holds a rider whose steed is over open air: it pulls
-   the hero off onto solid ground within its reach, still chained, and a
-   walking steed goes over the drop alone while one that flies or floats
-   stays up there; FALSE when there is no such spot (or no ball) and the
-   caller goes on with the fall or the plain dismount */
+/* the same chain holds a rider whose steed is over open air, water or
+   lava: it pulls the hero off onto solid ground within its reach, still
+   chained, and a walking steed goes over the drop or into the water or
+   lava alone while one that flies or floats stays up there; FALSE when
+   there is no such spot (or no ball) and the caller goes on with the
+   fall */
 staticfn boolean
 chain_pulls_rider_off(boolean pick)
 {
@@ -3812,19 +3813,40 @@ pooleffects(
                    water or lava, as on the Plane of Water) */
                 return FALSE;
             } else if (u.usteed) {
+                coordxy sx = u.ux, sy = u.uy;
+                boolean tethered = u_tethered();
+
                 /* steed enters pool, or a hold pulls the hero off one
-                   that stays up */
-                chain_pulls_off_steed();
-                dismount_steed(Underwater ? DISMOUNT_FELL : DISMOUNT_GENERIC);
-                /* dismount_steed() -> float_down() -> pickup()
-                   (float_down doesn't do autopickup on Air or Water) */
-                if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
-                    return FALSE;
-                /* even if we actually end up at same location, float_down()
-                   has already done trap and pickup actions of spoteffects() */
-                if (newspot)
-                    check_special_room(FALSE); /* spoteffects */
-                return TRUE;
+                   that stays up; a buried ball's chain sets the hero down
+                   on dry ground within its reach, as over open air, and
+                   the steed goes in alone; with no such ground it pulls
+                   the hero off and keeps them here to fall in */
+                if (tethered && chain_pulls_rider_off(newspot))
+                    return TRUE;
+                if (tethered)
+                    chain_pull_msg();
+                dismount_steed(tethered ? DISMOUNT_TETHER
+                               : Underwater ? DISMOUNT_FELL
+                                 : DISMOUNT_GENERIC);
+                /* dismount_steed()'s float_down() met the water or lava
+                   here, unless the chain kept the hero's own levitation
+                   back; then the hero meets it below, unmounted, as
+                   spoteffects() drops such a hero over open air */
+                if (!(tethered && u_at(sx, sy) && !u.uinwater
+                      && (HLevitation || ELevitation)
+                      && is_pool_or_lava(sx, sy))) {
+                    /* dismount_steed() -> float_down() -> pickup()
+                       (float_down doesn't do autopickup on Air or
+                       Water) */
+                    if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
+                        return FALSE;
+                    /* even if we actually end up at same location,
+                       float_down() has already done trap and pickup
+                       actions of spoteffects() */
+                    if (newspot)
+                        check_special_room(FALSE); /* spoteffects */
+                    return TRUE;
+                }
             }
             /* not mounted */
 
@@ -4129,13 +4151,15 @@ spoteffects_core(boolean pick, boolean in_place)
         /* a hold keeps a rider down over the drop, but a steed that flies
            or floats stays up: a buried ball's chain pulls the hero off it
            onto solid ground within its reach, still chained, when there
-           is such a spot; otherwise the hero comes off it onto a spot
-           nearby when there is one */
+           is such a spot, and with none keeps the hero here to fall; any
+           other hold lets the hero come off onto a spot nearby when
+           there is one */
         if (u.usteed && mon_airborne(u.usteed) && u_held_down()) {
             if (u_tethered() && chain_pulls_rider_off(pick))
                 goto spotdone;
             chain_pulls_off_steed();
-            dismount_steed(DISMOUNT_GENERIC);
+            dismount_steed(u_tethered() ? DISMOUNT_TETHER
+                                        : DISMOUNT_GENERIC);
             /* a hero left here met the drop in dismount_steed()'s
                float_down(), unless the hold kept the hero's levitation
                back */

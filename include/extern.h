@@ -283,6 +283,7 @@ extern void set_bc(int);
 extern void move_bc(int, int, coordxy, coordxy, coordxy, coordxy);
 extern boolean drag_ball(coordxy, coordxy, int *, coordxy *, coordxy *,
                          coordxy *, coordxy *, boolean *, boolean) NONNULLPTRS;
+extern boolean ball_frees_steed(void);
 extern void drop_ball(coordxy, coordxy);
 extern void drag_down(void);
 extern void bc_sanity_check(void);

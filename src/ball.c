@@ -947,8 +947,9 @@ drag_ball(coordxy x, coordxy y, int *bc_control,
             } /* now check again in case mon died */
             if (!m_at(uchain->ox, uchain->oy)
                 && in_out_region(uchain->ox, uchain->oy)) {
-                u.ux = uchain->ox;
-                u.uy = uchain->oy;
+                /* the steed comes along; a trap met where the hero was
+                   isn't one met here */
+                u_on_newpos(uchain->ox, uchain->oy);
                 newsym(u.ux0, u.uy0);
             }
             nomul(0);
@@ -1008,6 +1009,26 @@ drag_ball(coordxy x, coordxy y, int *bc_control,
 #undef IS_CHAIN_ROCK
     *cause_delay = TRUE;
     return TRUE;
+}
+
+/* the iron ball's pull frees the hero's steed from entangling vegetation
+   along with its rider, as it does the hero (drop_ball()); TRUE if a
+   tree's branches held the pair over a drop */
+boolean
+ball_frees_steed(void)
+{
+    boolean over_drop;
+
+    if (!u.usteed || !u.usteed->mentangled)
+        return FALSE;
+    pline_The("ball pulls %s out of the %s!",
+              x_monnam(u.usteed, ARTICLE_YOUR, (char *) 0,
+                       (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE),
+              nexttotree(u.ux, u.uy) ? "tree's grip" : "vegetation");
+    over_drop = (mon_tree_held(u.usteed) && u_over_drop());
+    u.usteed->mentangled = 0;
+    u.usteed->mentangletime = 0;
+    return over_drop;
 }
 
 /*
@@ -1078,20 +1099,24 @@ drop_ball(coordxy x, coordxy y)
             reset_utrap(TRUE);
             fill_pit(u.ux, u.uy);
         }
+        /* and out of the vegetation holding the steed under the hero */
+        if (ball_frees_steed())
+            held_over_drop = TRUE;
 
         u.ux0 = u.ux;
         u.uy0 = u.uy;
+        /* the steed comes along; a trap met where the hero was isn't one
+           met at the new spot */
         if (!Levitation && !MON_AT(x, y) && !u.utrap
             && (is_pool(x, y) || is_open_air(x, y)
                 || ((t = t_at(x, y))
                     && (is_pit(t->ttyp)
                         || is_hole(t->ttyp))))
             && in_out_region(x, y)) {
-            u.ux = x;
-            u.uy = y;
-        } else if (in_out_region(x - u.dx, y - u.dy)) {
-            u.ux = x - u.dx;
-            u.uy = y - u.dy;
+            u_on_newpos(x, y);
+        } else if (!u_at(x - u.dx, y - u.dy)
+                   && in_out_region(x - u.dx, y - u.dy)) {
+            u_on_newpos(x - u.dx, y - u.dy);
         }
         gv.vision_full_recalc = 1; /* hero has moved, recalc vision later */
 

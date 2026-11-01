@@ -4842,8 +4842,13 @@ float_down_core(
                 && (is_pit(btrap->ttyp) || is_hole(btrap->ttyp))))) {
         u.ux0 = u.ux;
         u.uy0 = u.uy;
-        u.ux = uball->ox;
-        u.uy = uball->oy;
+        /* the ball pulls a vine-held steed free along with the hero, and
+           the steed comes along; a trap met where the hero was isn't one
+           met at the ball's spot */
+        if (!u_at(uball->ox, uball->oy)) {
+            (void) ball_frees_steed();
+            u_on_newpos(uball->ox, uball->oy);
+        }
         movobj(uchain, uball->ox, uball->oy);
         newsym(u.ux0, u.uy0);
         gv.vision_full_recalc = 1; /* in case the hero moved. */

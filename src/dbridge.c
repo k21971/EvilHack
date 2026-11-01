@@ -821,8 +821,9 @@ do_entity(struct entity *etmp)
                 unstuck_if_apart(mon);
             }
         } else {
-            u.ux = newx;
-            u.uy = newy;
+            /* the steed comes along; a trap met where the hero was isn't
+               one met here */
+            u_on_newpos(newx, newy);
             /* a hold with a monster left behind ends */
             if (u.ustuck)
                 unstuck_if_apart(u.ustuck);
