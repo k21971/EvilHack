@@ -1730,6 +1730,11 @@ break_armor(void)
     struct obj *otmp;
     struct permonst *uptr = gy.youmonst.data;
 
+    /* taking something off below can drown, burn or drop the hero
+       (scaled armor losing flight or water walking, levitation boots)
+       and rehumanize() them; that runs its own pass of this for the new
+       form, so each "form changed" check below stops this one */
+
     if (breakarm(&gy.youmonst)) {
         if ((otmp = uarm) != 0) {
             if (otmp->otyp == LARGE_SPLINT_MAIL && humanoid(uptr)
@@ -1763,6 +1768,8 @@ break_armor(void)
                 }
             }
         }
+        if (gy.youmonst.data != uptr)
+            return;
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
@@ -1793,6 +1800,8 @@ break_armor(void)
                 useupp(otmp, oid);
             }
         }
+        if (gy.youmonst.data != uptr)
+            return;
         if ((otmp = uarmu) != 0) {
             if (otmp->oartifact) {
                 Your("shirt falls off!");
@@ -1816,6 +1825,8 @@ break_armor(void)
             (void) Armor_gone();
             dropp(otmp);
         }
+        if (gy.youmonst.data != uptr)
+            return;
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
@@ -1828,6 +1839,8 @@ break_armor(void)
             (void) Cloak_off();
             dropp(otmp);
         }
+        if (gy.youmonst.data != uptr)
+            return;
         if ((otmp = uarmu) != 0) {
             if (is_whirly(uptr))
                 You("seep right through your shirt!");
@@ -1846,6 +1859,8 @@ break_armor(void)
             dropp(otmp);
         }
     }
+    if (gy.youmonst.data != uptr)
+        return;
     if (has_horns(uptr) && !druid_form) {
         if ((otmp = uarmh) != 0) {
             if (is_flimsy(otmp) && !donning(otmp)) {
@@ -1911,6 +1926,8 @@ break_armor(void)
             dropp(otmp);
         }
     }
+    if (gy.youmonst.data != uptr)
+        return;
     if ((nohands(uptr) || verysmall(uptr)
          || slithy(uptr) || racial_centaur(&gy.youmonst)
          || racial_tortle(&gy.youmonst) || is_ent(uptr) || is_satyr(uptr))
@@ -1931,6 +1948,8 @@ break_armor(void)
        it/them on (should also come off if head is too tiny or too huge,
        but putting accessories on doesn't reject those cases [yet?]);
        amulet stays worn */
+    if (gy.youmonst.data != uptr)
+        return;
     if ((otmp = ublindf) != 0 && !has_head(uptr)) {
         int l;
         const char *eyewear =

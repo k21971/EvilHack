@@ -17,6 +17,7 @@ staticfn void append_spot_lighting(char *, coordxy, coordxy,
                                    boolean) NONNULLARG1;
 staticfn void trap_description(char *, int, coordxy, coordxy) NONNULLARG1;
 staticfn void look_at_object(char *, coordxy, coordxy, int) NONNULLARG1;
+staticfn void lookat_clause(char *, const char *, size_t) NONNULLARG12;
 staticfn void look_at_monster(char *, char *, struct monst *,
                                                coordxy, coordxy) NONNULLARG13;
 /* lookat() can return Null */
@@ -478,6 +479,18 @@ look_at_object(
     return;
 }
 
+/* add one clause to look_at_monster()'s description; a clause that
+   doesn't fit, with 'reserve' bytes still kept back for a later one,
+   is left out whole rather than cut off part way */
+staticfn void
+lookat_clause(char *buf, const char *clause, size_t reserve)
+{
+    size_t len = strlen(buf);
+
+    if (len + strlen(clause) + reserve < BUFSZ)
+        Strcpy(buf + len, clause);
+}
+
 staticfn void
 look_at_monster(
     char *buf, char *monbuf, /* buf: output, monbuf: optional output */
@@ -485,6 +498,8 @@ look_at_monster(
     coordxy x, coordxy y)
 {
     char *name, monnambuf[BUFSZ], healthbuf[BUFSZ];
+    char clause[BUFSZ], ridebuf[BUFSZ];
+    size_t reserve;
     boolean accurate = !Hallucination;
     char *mwounds;
     struct monst *rider = (struct monst *) 0;
@@ -499,7 +514,7 @@ look_at_monster(
     name = (mtmp->data == &mons[PM_COYOTE] && accurate)
               ? coyotename(mtmp, monnambuf)
               : distant_monnam(mtmp, ARTICLE_NONE, monnambuf);
-    Sprintf(buf, "%s%s%s%s",
+    Snprintf(buf, BUFSZ, "%s%s%s%s",
             (mtmp->mx != x || mtmp->my != y)
                 ? ((mtmp->isshk && accurate) ? "tail of " : "tail of a ")
                 : "",
@@ -510,29 +525,51 @@ look_at_monster(
                     ? "peaceful "
                     : "",
             name);
+
+    /* the riding clause goes last, so nothing after it reads as the
+       steed's; every clause before it leaves room for it, and a clause
+       that doesn't fit is left out whole (names are player-chosen) */
+    ridebuf[0] = '\0';
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
+        struct monst *steed = ERID(mtmp)->mon_steed;
+        /* the steed is off the map, so its half of a hold shows here */
+        const char *held = (u.ustuck != steed) ? ""
+                           : (Upolyd && sticks(gy.youmonst.data))
+                             ? ", which you are holding"
+                             : ", which is holding you";
+
+        Snprintf(ridebuf, sizeof ridebuf, ", riding %s%s",
+                 (is_rider(mtmp->data) && !m_next2u(mtmp)
+                  && !canseemon(mtmp)) ? "its steed" : a_monnam(steed),
+                 held);
+    }
+    reserve = strlen(ridebuf);
+
     if (mtmp->ridden_by) {
-        Strcat(buf, ", being ridden");
         /* the unseen rider's half of a hold shows here, mirroring the
            riding clause's steed half */
-        if (rider && u.ustuck == rider)
-            Snprintf(eos(buf), BUFSZ - strlen(buf), " by something %s",
-                     (Upolyd && sticks(gy.youmonst.data))
-                         ? "you are holding"
-                         : "holding you");
+        Snprintf(clause, sizeof clause, ", being ridden%s",
+                 !(rider && u.ustuck == rider) ? ""
+                 : (Upolyd && sticks(gy.youmonst.data))
+                   ? " by something you are holding"
+                   : " by something holding you");
+        lookat_clause(buf, clause, reserve);
     }
     /* a Healer senses how badly hurt the monster is */
     mwounds = mon_wounds(mtmp);
     if (mwounds) {
-        Strcat(buf, ", ");
-        Strcat(buf, mwounds);
+        Snprintf(clause, sizeof clause, ", %s", mwounds);
+        lookat_clause(buf, clause, reserve);
     }
     if (u.ustuck == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
-            Strcat(buf, digests(mtmp->data) ? ", swallowing you"
-                                            : ", engulfing you");
+            lookat_clause(buf, digests(mtmp->data) ? ", swallowing you"
+                                                   : ", engulfing you",
+                          reserve);
         else
-            Strcat(buf, (Upolyd && sticks(gy.youmonst.data))
-                          ? ", being held" : ", holding you");
+            lookat_clause(buf, (Upolyd && sticks(gy.youmonst.data))
+                                 ? ", being held" : ", holding you",
+                          reserve);
     }
     /* if mtmp isn't able to move (other than because it is a type of
        monster that never moves), say so [excerpt from mstatusline() for
@@ -540,18 +577,19 @@ look_at_monster(
     if (mtmp->mfrozen)
         /* unfortunately mfrozen covers temporary sleep and being busy
            (donning armor, for instance) as well as paralysis */
-        Strcat(buf, ", can't move (paralyzed or sleeping or busy)");
+        lookat_clause(buf, ", can't move (paralyzed or sleeping or busy)",
+                      reserve);
     else if (mtmp->msleeping)
         /* sleeping for an indeterminate duration */
-        Strcat(buf, ", asleep");
+        lookat_clause(buf, ", asleep", reserve);
     else if ((mtmp->mstrategy & STRAT_WAITMASK) != 0)
         /* arbitrary reason why it isn't moving */
-        Strcat(buf, ", meditating");
+        lookat_clause(buf, ", meditating", reserve);
 
     if (mtmp->mleashed)
-        Strcat(buf, ", leashed to you");
+        lookat_clause(buf, ", leashed to you", reserve);
     if (mtmp->mentangled && cansee(mtmp->mx, mtmp->my))
-        Strcat(buf, ", entangled");
+        lookat_clause(buf, ", entangled", reserve);
     if (canseemon(mtmp) && !Blind) {
         if (accurate || program_state.gameover) {
             if ((mtmp->misc_worn_check & W_ARMOR) != 0L) {
@@ -570,13 +608,11 @@ look_at_monster(
                     arm_ct++;
                 }
 
-                /* bounded: buf has already accumulated the name, which can
-                   be player-named, and the held and leashed clauses */
-                Snprintf(eos(buf), BUFSZ - strlen(buf),
-                         ", wearing %s%sarmor",
+                Snprintf(clause, sizeof clause, ", wearing %s%sarmor",
                          arm_ct > 4 ? "full " : arm_ct < 3 ? "some " : "",
                          base_ac > 9 ? "heavy "
                                      : base_ac < 6 ? "light " : "");
+                lookat_clause(buf, clause, reserve);
             }
         } else {
             /* hallucination dresses and arms the monster at random;
@@ -585,8 +621,9 @@ look_at_monster(
             if (rn2_on_display_rng(3)) {
                 char harmor[BUFSZ];
 
-                Snprintf(eos(buf), BUFSZ - strlen(buf), ", wearing %s",
+                Snprintf(clause, sizeof clause, ", wearing %s",
                          hallucinatory_armor(harmor));
+                lookat_clause(buf, clause, reserve);
             }
             if (rn2_on_display_rng(3)) {
                 int htyp;
@@ -595,8 +632,9 @@ look_at_monster(
                     htyp = rn2_on_display_rng(NUM_OBJECTS);
                 } while (htyp <= STRANGE_OBJECT
                          || !OBJ_NAME(objects[htyp]));
-                Snprintf(eos(buf), BUFSZ - strlen(buf), ", wielding %s",
+                Snprintf(clause, sizeof clause, ", wielding %s",
                          an(simple_typename(htyp)));
+                lookat_clause(buf, clause, reserve);
             }
         }
     }
@@ -606,7 +644,9 @@ look_at_monster(
 
         /* newsym lets you know of the trap, so mention it here */
         if (tt == BEAR_TRAP || is_pit(tt) || tt == WEB) {
-            Sprintf(eos(buf), ", trapped in %s", an(trapname(tt, FALSE)));
+            Snprintf(clause, sizeof clause, ", trapped in %s",
+                     an(trapname(tt, FALSE)));
+            lookat_clause(buf, clause, reserve);
             t->tseen = 1;
         }
     }
@@ -614,28 +654,18 @@ look_at_monster(
     /* fleeing state is read from the monster's posture, so the
        hero must actually see it, not just sense it */
     if (mtmp->mflee && canseemon(mtmp))
-        Strcat(buf, ", scared");
+        lookat_clause(buf, ", scared", reserve);
 
     /* we know the hero sees a monster at this location, but if it's shown
        due to persistent monster detection he might remember something else */
-    if (mtmp->mundetected || M_AP_TYPE(mtmp) || visible_region_at(x, y))
+    if (mtmp->mundetected || M_AP_TYPE(mtmp) || visible_region_at(x, y)) {
         mhidden_description(mtmp, MHID_PREFIX | MHID_ARTICLE | MHID_REGION,
-                            eos(buf));
+                            clause);
+        lookat_clause(buf, clause, reserve);
+    }
 
     /* last, so nothing after it reads as the steed's */
-    if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
-        struct monst *steed = ERID(mtmp)->mon_steed;
-        /* the steed is off the map, so its half of a hold shows here */
-        const char *held = (u.ustuck != steed) ? ""
-                           : (Upolyd && sticks(gy.youmonst.data))
-                             ? ", which you are holding"
-                             : ", which is holding you";
-
-        Snprintf(eos(buf), BUFSZ - strlen(buf), ", riding %s%s",
-                 (is_rider(mtmp->data) && !m_next2u(mtmp)
-                  && !canseemon(mtmp)) ? "its steed" : a_monnam(steed),
-                 held);
-    }
+    lookat_clause(buf, ridebuf, 0);
 
     if (monbuf) {
         unsigned how_seen = howmonseen(mtmp);

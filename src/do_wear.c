@@ -3145,6 +3145,7 @@ accessory_or_armor_on(struct obj *obj)
 {
     long mask = 0L;
     boolean armor, ring, amulet, eyewear;
+    struct permonst *pre_touch_form;
 
     if (obj->owornmask & (W_ACCESSORY | W_ARMOR)) {
         already_wearing(c_that_);
@@ -3298,8 +3299,14 @@ accessory_or_armor_on(struct obj *obj)
         }
     }
 
+    pre_touch_form = gy.youmonst.data;
     if (!retouch_object(&obj, will_touch_skin(mask), FALSE))
         return ECMD_TIME; /* costs a turn even though it didn't get worn */
+    /* the touch can burn the hero out of a polymorphed form; armor that
+       fit the old body has to fit the new one too */
+    if (armor && gy.youmonst.data != pre_touch_form
+        && !canwearobj(obj, &mask, TRUE))
+        return ECMD_TIME;
 
     if (armor) {
         int delay;
