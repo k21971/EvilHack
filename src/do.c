@@ -1288,8 +1288,10 @@ dodown(void)
         return ECMD_OK;
     }
 
+    /* straining against vegetation that holds the steed takes time, as
+       for the hero's own entanglement; a sleeping or eating one doesn't */
     if (stucksteed(TRUE)) {
-        return ECMD_OK;
+        return u.usteed->mentangled ? ECMD_TIME : ECMD_OK;
     }
 
     stairs_down = ladder_down = FALSE;
@@ -1517,8 +1519,9 @@ doup(void)
         You_cant("go up here.");
         return ECMD_OK;
     }
+    /* a steed held by vegetation costs the turn, as in dodown() */
     if (stucksteed(TRUE)) {
-        return ECMD_OK;
+        return u.usteed->mentangled ? ECMD_TIME : ECMD_OK;
     }
 
     if (u_stuck_cannot_go("up"))

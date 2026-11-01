@@ -65,6 +65,7 @@ staticfn void display_spell_target_positions(boolean);
 staticfn boolean spell_aim_step(genericptr_t, coordxy, coordxy);
 staticfn void propagate_chain_lightning(struct chain_lightning_queue *,
             struct chain_lightning_zap);
+staticfn boolean entangle_aloft(struct monst *) NONNULLARG1;
 staticfn void grow_grass(coordxy, coordxy, genericptr_t);
 staticfn void cast_create_grass(int);
 staticfn void grow_tree(coordxy, coordxy, genericptr_t);
@@ -1425,6 +1426,18 @@ cast_stoneskin(struct monst *mdef, int skill)
     }
 }
 
+/* is a monster caught by entangle up in the air, where a tree's roots
+   can't reach it? One that flies or floats, or a rider its flying steed
+   carries; the hero's steed is up there when the pair is (Flying counts
+   the steed's lift, and a hold that keeps the pair down) */
+staticfn boolean
+entangle_aloft(struct monst *mdef)
+{
+    if (mdef == u.usteed)
+        return (Levitation || Flying);
+    return (mon_airborne(mdef) || mon_steed_airborne(mdef));
+}
+
 void
 cast_entangle(struct monst *mdef, int skill)
 {
@@ -1486,9 +1499,12 @@ cast_entangle(struct monst *mdef, int skill)
         /* after the dismount: a flying steed's rider is down now */
         aloft = (Levitation || Flying);
         by_tree = nexttotree(u.ux, u.uy);
-        if (by_tree) /* roots can't reach a hero in the air */
+        /* roots can't reach a hero in the air, nor one over water, lava
+           or a hole, whom the branches hold up (entangle_release()) */
+        if (by_tree)
             pline_The("%s from a nearby tree ensnare you!",
-                      (aloft || rn2(2)) ? "branches" : "roots");
+                      (aloft || u_over_drop() || rn2(2)) ? "branches"
+                                                         : "roots");
         else
             pline_The(
                 "grass underneath you twists and loops around your %s!",
@@ -1520,9 +1536,12 @@ cast_entangle(struct monst *mdef, int skill)
             return;
         } else {
             if (canseemon(mdef)) {
+                /* nor a monster up in the air, as for the hero */
                 if (nexttotree(mdef->mx, mdef->my))
                     pline_The("%s from a nearby tree ensnare %s!",
-                              rn2(2) ? "branches" : "roots", mon_nam(mdef));
+                              (entangle_aloft(mdef) || rn2(2)) ? "branches"
+                                                              : "roots",
+                              mon_nam(mdef));
                 else
                     pline_The(
                         "grass underneath %s twists and loops around %s %s!",
