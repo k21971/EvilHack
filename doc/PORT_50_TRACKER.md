@@ -20357,10 +20357,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       zombify and a rot timer; the troll arm of start_corpse_timeout()
       ignores norevive (revive() then says "twitches feebly"; vanilla's
       shape). LOW.
-      CLOSED 2026-11-01 (session 281, S281-C4; BUG-2748..2750). Floor
-      ice: RULED SLOW IT TOO - obj_timer_checks() adjusts all three
-      corpse timers, and a timer due that very turn is no longer lost
-      (reviewer LOW, vanilla alike). The bones freeze:
+      CLOSED 2026-11-01 (session 281, 222578999, tracker ca2e449ad;
+      BUG-2748..2750). Floor ice: RULED SLOW IT TOO - obj_timer_checks()
+      adjusts all three corpse timers, and a timer due that very turn is
+      no longer lost (reviewer LOW, vanilla alike). The bones freeze:
       empty_inuse_container() freezes what it puts in an ice box
       (code-verified). The wished zombifying corpse's two timers:
       harmless (the zombify timer fires first and set_corpsenm() clears
@@ -26674,26 +26674,27 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       a few direct u.ux writes (ball drag, drawbridge, pet swap) skip
       u_on_newpos()'s marker reset (unreachable in practice); dismount
       in place and the ceiling-hider drop still re-fire. LOW.
-      CLOSED 2026-11-01 (session 281, S281-C3; BUG-2744..2747). The
-      tethered-rider fallback: DISMOUNT_TETHER keeps the hero on the
-      square to fall (2026-10-26 ruling), and over water or lava the
-      chain now pulls the rider off as over open air (RULED SAME AS
-      OPEN AIR; the reviewer MED, a rider whose own levitation the chain
-      blocks, folded). The double burn: unreachable since 033ade5e1
-      (traced; battery V: one lava_effects() per release on both
-      builds). The marker isn't saved: RULED RECORD (vanilla). The
-      direct writes: drag_ball(), drop_ball(), float_down()'s ball pull
-      and do_entity() use u_on_newpos(), which also fixes a punished
-      rider's stale steed coordinates (sanity_check "steed ... claims
-      to be at", vanilla alike, upstream row); the pet swap was already
-      followed by u_on_newpos(). The ball's pull frees a vine-held steed
-      with a line (RULED). Dismount in place: RULED KEEP (record).
-      Ceiling-hider drop: RULED KEEP THE PLUNGE (record). Batteries T3
-      (every POST leg as ruled; PRE landed beyond the chain, or left a
-      drowning pony's rider to fall in and crawl out beyond it) and T4
-      (PRE four "claims to be at" lines on a pit-free throw, POST none;
-      "The ball pulls your pony out of the tree's grip!" / "...out of
-      the vegetation!"). Residue: the two rows below.
+      CLOSED 2026-11-01 (session 281, e509300bb, tracker ca2e449ad;
+      BUG-2744..2747). The tethered-rider fallback: DISMOUNT_TETHER
+      keeps the hero on the square to fall (2026-10-26 ruling), and over
+      water or lava the chain now pulls the rider off as over open air
+      (RULED SAME AS OPEN AIR; the reviewer MED, a rider whose own
+      levitation the chain blocks, folded). The double burn: unreachable
+      since 033ade5e1 (traced; battery V: one lava_effects() per release
+      on both builds). The marker isn't saved: RULED RECORD (vanilla).
+      The direct writes: drag_ball(), drop_ball(), float_down()'s ball
+      pull and do_entity() use u_on_newpos(), which also fixes a
+      punished rider's stale steed coordinates (sanity_check "steed ...
+      claims to be at", vanilla alike, upstream row); the pet swap was
+      already followed by u_on_newpos(). The ball's pull frees a
+      vine-held steed with a line (RULED). Dismount in place: RULED KEEP
+      (record). Ceiling-hider drop: RULED KEEP THE PLUNGE (record).
+      Batteries T3 (every POST leg as ruled; PRE landed beyond the
+      chain, or left a drowning pony's rider to fall in and crawl out
+      beyond it) and T4 (PRE four "claims to be at" lines on a pit-free
+      throw, POST none; "The ball pulls your pony out of the tree's
+      grip!" / "...out of the vegetation!"). Residue: the two rows
+      below.
 - [ ] LOW: tether residue (minted 2026-11-01, session 281, Plan design
       pass and battery T3; record). drown()'s crawl-out
       (rnd_nextto_goodpos() then teleds()) ignores the chain's reach and
@@ -26716,12 +26717,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       roll (about a 1-in-800 chance). Count dotrap()'s rn2(5) results
       over many meetings, landing and walking, before calling it a bug.
       LOW.
-      CLOSED 2026-11-01 (session 281, trace; not a bug). Battery T2
-      counted with function-entry breakpoints on POST: 60 walk-ons, 14
-      escapes (23%); 30 landings, 4 escapes (13%); 18 / 90 = 20%, one
-      dotrap() entry per meeting (putting the ring on adds the "float
-      over" pass, which never escapes). Session 280's 6 of 8 was a
-      small sample.
+      CLOSED 2026-11-01 (session 281, trace, tracker ca2e449ad; not a
+      bug). Battery T2 counted with function-entry breakpoints on POST:
+      60 walk-ons, 14 escapes (23%); 30 landings, 4 escapes (13%); 18 /
+      90 = 20%, one dotrap() entry per meeting (putting the ring on adds
+      the "float over" pass, which never escapes). Session 280's 6 of 8
+      was a small sample.
 - [x] LOW: a chained own-lift hero over open air plummets while a
       chained pair is pulled off its steed (minted 2026-10-17, session
       235; record / needs a ruling). The session 189 ruling makes the
@@ -27699,13 +27700,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       controlled-levitation '>', so a held or helpless steed also blocks
       ending the hero's own levitation (pre-existing for a helpless
       steed). LOW.
-      CLOSED 2026-11-01 (session 281, S281-C1; BUG-2738). RULED TURN
-      COST ONLY: doup() / dodown() take the turn for a vine-held steed,
-      as the hero's own vines and the steed's on a move or a jump do; a
-      sleeping or eating steed stays free (master / vanilla), and '>'
-      keeps master's order (a held or sleeping steed still blocks ending
-      your own levitation; record). Battery T1: '>' and '<' POST moves
-      +1, PRE +0; the sleeping control +0 on both.
+      CLOSED 2026-11-01 (session 281, 28181126f, tracker ca2e449ad;
+      BUG-2738). RULED TURN COST ONLY: doup() / dodown() take the turn
+      for a vine-held steed, as the hero's own vines and the steed's on
+      a move or a jump do; a sleeping or eating steed stays free (master
+      / vanilla), and '>' keeps master's order (a held or sleeping steed
+      still blocks ending your own levitation; record). Battery T1: '>'
+      and '<' POST moves +1, PRE +0; the sleeping control +0 on both.
 - [x] LOW: the deferred hole fall runs mintrap()'s walk-on anger roll
       (minted 2026-10-24, session 259 reviewer pass 2; needs a ruling).
       A peaceful whose tree hold or levitation ends over a hole the hero
@@ -28024,16 +28025,17 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       cast_entangle() names "roots" half the time for a grounded hero
       beside a tree, but entangle_release() always says "The tree's
       branches release their grip on you.". LOW (cosmetic).
-      CLOSED 2026-11-01 (session 281, S281-C1; BUG-2739). The battery's
-      hero was a water walker over lava: entangle_release() names the
-      branches over a drop, the cast didn't. RULED CAST MATCHES RELEASE
-      + MONSTERS: cast_entangle() names the branches over water, lava or
-      a hole as in the air, and for a flying or floating monster (the
-      hero's steed while the pair is aloft). Residue on record: a hero
-      caught by roots on the ground who then floats up hears "branches"
-      at release. Battery T1: water walker 10/10 branches POST (PRE
-      5/5), floating eye 10/10 (PRE 5/5), ridden pegasus 5/5 (PRE 0/5);
-      the floor controls mixed on both.
+      CLOSED 2026-11-01 (session 281, 28181126f, tracker ca2e449ad;
+      BUG-2739). The battery's hero was a water walker over lava:
+      entangle_release() names the branches over a drop, the cast
+      didn't. RULED CAST MATCHES RELEASE + MONSTERS: cast_entangle()
+      names the branches over water, lava or a hole as in the air, and
+      for a flying or floating monster (the hero's steed while the pair
+      is aloft). Residue on record: a hero caught by roots on the ground
+      who then floats up hears "branches" at release. Battery T1: water
+      walker 10/10 branches POST (PRE 5/5), floating eye 10/10 (PRE
+      5/5), ridden pegasus 5/5 (PRE 0/5); the floor controls mixed on
+      both.
 - [x] LOW: a life-saved drowning reads "You are back on solid ground."
       then "You find yourself on solid ground." (minted 2026-10-13,
       session 220, battery B; upstream-shared, Official_nh50
@@ -31787,21 +31789,21 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       did; sysconf MENUCOLOR, AUTOPICKUP_EXCEPTION and OPTIONS lines are
       still written into the player's file; MSGTYPE entries made by
       SOUND lines are saved as MSGTYPE lines. LOW.
-      CLOSED 2026-11-01 (session 281, S281-C2; BUG-2740..2743, upstream
-      rows). The exceptions are written in file order (and a
-      253-character pattern no longer overruns the line buffer); RULED
-      ONLY THE PLAYER'S: sysconf-only OPTIONS, MENUCOLOR and
-      AUTOPICKUP_EXCEPTION lines stay out of the player's file, a
+      CLOSED 2026-11-01 (session 281, 8e251c1a5, tracker ca2e449ad;
+      BUG-2740..2743, upstream rows). The exceptions are written in file
+      order (and a 253-character pattern no longer overruns the line
+      buffer); RULED ONLY THE PLAYER'S: sysconf-only OPTIONS, MENUCOLOR
+      and AUTOPICKUP_EXCEPTION lines stay out of the player's file, a
       sysconf tutorial setting is still honored, and a player's
       default-valued boolean over a sysconf setting (!time) is kept.
       SOUND lines: unreachable (USER_SOUNDS is off in linux-debug and
-      hardfought). Battery T6: two #saveoptions sessions per build with three
-      lines appended to sysconf (!tutorial, a MENUCOLOR, an exception):
-      POST save1 == save2, only the player's lines, the exceptions in
-      file order, OPTIONS=!time kept, no tutorial question; PRE reversed
-      and then flipped the exceptions, wrote and duplicated the sysconf
-      entries, wrote sysconf's OPTIONS, and lost !time (time came back
-      on). Residue: the row below.
+      hardfought). Battery T6: two #saveoptions sessions per build with
+      three lines appended to sysconf (!tutorial, a MENUCOLOR, an
+      exception): POST save1 == save2, only the player's lines, the
+      exceptions in file order, OPTIONS=!time kept, no tutorial
+      question; PRE reversed and then flipped the exceptions, wrote and
+      duplicated the sysconf entries, wrote sysconf's OPTIONS, and lost
+      !time (time came back on). Residue: the row below.
 - [ ] LOW: #saveoptions residue (minted 2026-11-01, session 281, Plan
       design pass and reviewer; record - the shipped sysconf has none of
       these lines). Still written from sysconf: role / race / gender /
@@ -35135,13 +35137,13 @@ Sent 2026-10-29, send queue #60 (moved to the front): PR #1734.
 | 2026-10-31 | mon_likes_objpile_at() (find_offensive()'s MUSE_WAN_TELEPORTATION gate) counts an ordinary corpse under the hero through mon_would_take_item()'s likes_objs FOOD_CLASS arm, though mpickstuff() refuses it (mon_refuses_corpse()), so a collector spends a teleportation charge for nothing. Official_nh50 b0c09c878; BUG-2731, src/muse.c | found (branch-fixed acbdd85de: the mon_refuses_corpse() filter); not sent; triage pending |
 | 2026-10-31 | knock's knockback (bhitm(), mhurtle()) can carry the target onto a trap door, hole or level teleporter, after which bhitm()'s tail runs m_respond() at <0,0> (a gaze, shriek or moan from nowhere). Official_nh50 b0c09c878; BUG-2735, src/zap.c | found (branch-fixed 50cc2c27b: m_respond() and map_invisible() only with mtmp->mx); not sent; triage pending |
 | 2026-10-31 | u_teleport_mon() puts an engulfer on a no-teleport level that rloc() can't place into limbo (m_into_limbo()); bhitm()'s closing wakeup() then angers a peaceful one with newsym(<0,0>) (an impossible). Official_nh50 b0c09c878; BUG-2736, src/zap.c | found (branch-fixed 50cc2c27b: wake and anger it before u_teleport_mon(), as dispel evil does); not sent; triage pending |
-| 2026-11-01 | all_options_apes() writes the autopickup exceptions head first, but add_autopickup_exception() prepends and the first match wins, so every #saveoptions reverses the player's file and changes which exception wins (the MSGTYPE writer's old bug). Official_nh50 b0c09c878; BUG-2740, src/options.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
-| 2026-11-01 | all_options_apes() Sprintf()s "autopickup_exception=\"<pattern\"\n" into buf[BUFSZ], but a pattern may be 253 characters (add_autopickup_exception()'s sscanf limit), 279 bytes in all: a stack overrun on #saveoptions. Official_nh50 b0c09c878; BUG-2741, src/options.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
-| 2026-11-01 | #saveoptions writes sysconf's own OPTIONS, MENUCOLOR and AUTOPICKUP_EXCEPTION settings into the player's rc file (opt_set_in_config[] is set in every phase; the menu color and exception lists record no origin), freezing them there. Official_nh50 b0c09c878; BUG-2742, src/options.c, src/coloratt.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
-| 2026-11-01 | all_options_strbuf() writes a boolean only when it differs from its built-in default, so a player's default-valued setting over a sysconf one (!time over time) is dropped and the next game turns it back. Official_nh50 b0c09c878; BUG-2743, src/options.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
-| 2026-11-01 | drag_ball()'s jerk-back, drop_ball(), float_down()'s ball pull and the drawbridge's do_entity() write u.ux / u.uy directly, so a punished rider's steed stays on the old square (sanity_check: "steed ... claims to be at <x,y>?" every turn) until something calls u_on_newpos(). Official_nh50 b0c09c878; BUG-2746, src/ball.c, src/trap.c, src/dbridge.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
-| 2026-11-01 | obj_timer_checks() adjusts only the first of ROT_CORPSE / REVIVE_MON for a corpse on ice, so a ZOMBIFY_MON timer (a zombie's victim, a wished "zombifying" corpse) is never slowed. Official_nh50 b0c09c878; BUG-2748, src/mkobj.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
-| 2026-11-01 | obj_timer_checks() reads stop_timer()'s 0 for a timer due this very turn as "no timer": the timer is freed and never restarted (and on_ice can stay set off the ice); halving one turn left restarts at 0. Official_nh50 b0c09c878; BUG-2750, src/mkobj.c | found (branch-fixed, session 281, commit pending); not sent; triage pending |
+| 2026-11-01 | all_options_apes() writes the autopickup exceptions head first, but add_autopickup_exception() prepends and the first match wins, so every #saveoptions reverses the player's file and changes which exception wins (the MSGTYPE writer's old bug). Official_nh50 b0c09c878; BUG-2740, src/options.c | found (branch-fixed 8e251c1a5); not sent; triage pending |
+| 2026-11-01 | all_options_apes() Sprintf()s "autopickup_exception=\"<pattern\"\n" into buf[BUFSZ], but a pattern may be 253 characters (add_autopickup_exception()'s sscanf limit), 279 bytes in all: a stack overrun on #saveoptions. Official_nh50 b0c09c878; BUG-2741, src/options.c | found (branch-fixed 8e251c1a5); not sent; triage pending |
+| 2026-11-01 | #saveoptions writes sysconf's own OPTIONS, MENUCOLOR and AUTOPICKUP_EXCEPTION settings into the player's rc file (opt_set_in_config[] is set in every phase; the menu color and exception lists record no origin), freezing them there. Official_nh50 b0c09c878; BUG-2742, src/options.c, src/coloratt.c | found (branch-fixed 8e251c1a5); not sent; triage pending |
+| 2026-11-01 | all_options_strbuf() writes a boolean only when it differs from its built-in default, so a player's default-valued setting over a sysconf one (!time over time) is dropped and the next game turns it back. Official_nh50 b0c09c878; BUG-2743, src/options.c | found (branch-fixed 8e251c1a5); not sent; triage pending |
+| 2026-11-01 | drag_ball()'s jerk-back, drop_ball(), float_down()'s ball pull and the drawbridge's do_entity() write u.ux / u.uy directly, so a punished rider's steed stays on the old square (sanity_check: "steed ... claims to be at <x,y>?" every turn) until something calls u_on_newpos(). Official_nh50 b0c09c878; BUG-2746, src/ball.c, src/trap.c, src/dbridge.c | found (branch-fixed e509300bb); not sent; triage pending |
+| 2026-11-01 | obj_timer_checks() adjusts only the first of ROT_CORPSE / REVIVE_MON for a corpse on ice, so a ZOMBIFY_MON timer (a zombie's victim, a wished "zombifying" corpse) is never slowed. Official_nh50 b0c09c878; BUG-2748, src/mkobj.c | found (branch-fixed 222578999); not sent; triage pending |
+| 2026-11-01 | obj_timer_checks() reads stop_timer()'s 0 for a timer due this very turn as "no timer": the timer is freed and never restarted (and on_ice can stay set off the ice); halving one turn left restarts at 0. Official_nh50 b0c09c878; BUG-2750, src/mkobj.c | found (branch-fixed 222578999); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
