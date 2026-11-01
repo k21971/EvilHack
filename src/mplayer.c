@@ -433,8 +433,11 @@ init_mplayer_erac(struct monst *mtmp, boolean noname, short forcerace)
     }
 }
 
+/* mmflags carries MM_MALE / MM_FEMALE from a level file, so the name and
+   rank are drawn for the sex the monster ends up with */
 struct monst *
-mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
+mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special,
+           mmflags_nht mmflags)
 {
     struct monst *mtmp;
     boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
@@ -444,8 +447,8 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         (void) rloc(m_at(x, y), RLOC_ERR|RLOC_NOMSG); /* insurance */
 
     if ((mtmp = makemon(ptr, x, y,
-                        special ? (MM_NOMSG | MM_NONAME)
-                                : MM_NONAME)) != 0) {
+                        (special ? (MM_NOMSG | MM_NONAME)
+                                 : MM_NONAME) | mmflags)) != 0) {
         mtmp->m_lev = (special ? (ascending ? rn1(16, 15)
                                             : min(30, u.ulevel + rn1(4, 4)))
                                : rnd(16));
@@ -547,7 +550,8 @@ create_mplayers(int num, boolean special)
         if (tryct > 500)
             return;
 
-        (void) mk_mplayer(&mons[pm], (coordxy) x, (coordxy) y, special);
+        (void) mk_mplayer(&mons[pm], (coordxy) x, (coordxy) y, special,
+                          NO_MM_FLAGS);
         num--;
     }
 }

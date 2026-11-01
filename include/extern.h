@@ -1972,6 +1972,7 @@ extern void m_consume_obj(struct monst *, struct obj *) NONNULLPTRS;
 extern int meatmetal(struct monst *) NONNULLARG1;
 extern int meatjelly(struct monst *) NONNULLARG1;
 extern int meatobj(struct monst *) NONNULLARG1;
+extern int meatfood(struct monst *) NONNULLARG1;
 extern int meatcorpse(struct monst *) NONNULLARG1;
 extern int gollum_eat(struct monst *) NONNULLARG1;
 extern void mon_give_prop(struct monst *, int) NONNULLARG1;
@@ -1990,6 +1991,7 @@ extern int mfndpos(struct monst *, struct mfndposdata *, long) NONNULLPTRS;
 extern void ensure_pathfind_map(void);
 extern boolean mon_uses_pathfinding(struct monst *) NONNULLARG1;
 extern void ensure_escape_pathfind_map(coordxy, coordxy);
+extern void invalidate_pathfind_maps(void);
 extern long mm_aggression(struct monst *, struct monst *) NONNULLARG12;
 extern boolean monnear(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern boolean icequeen_pending(struct monst *) NONNULLARG1;
@@ -2220,8 +2222,8 @@ extern void monst_globals_init(void);
 /* ### mplayer.c ### */
 
 extern void init_mplayer_erac(struct monst *, boolean, short) NONNULLARG1;
-extern struct monst *mk_mplayer(struct permonst *,
-                                coordxy, coordxy, boolean) NONNULLARG1;
+extern struct monst *mk_mplayer(struct permonst *, coordxy, coordxy,
+                                boolean, mmflags_nht) NONNULLARG1;
 extern void create_mplayers(int, boolean);
 extern void mplayer_talk(struct monst *) NONNULLARG1;
 
@@ -2343,6 +2345,7 @@ extern boolean mcast_immediate_spell(struct monst *, coordxy, coordxy,
                                      int) NONNULLARG1;
 extern boolean mcast_nodir_spell(struct monst *, struct monst *,
                                  int) NONNULLARG1;
+extern void mmake_wish(struct monst *) NONNULLARG1;
 
 /* ### music.c ### */
 
@@ -2914,7 +2917,7 @@ extern void intemple(int);
 extern void forget_temple_entry(struct monst *) NONNULLARG1;
 extern void priest_talk(struct monst *) NONNULLARG1;
 extern struct monst *mk_roamer(struct permonst *, aligntyp, coordxy, coordxy,
-                               boolean) NO_NNARGS;
+                               boolean, mmflags_nht) NO_NNARGS;
 extern void reset_hostility(struct monst *) NONNULLARG1;
 extern boolean in_your_sanctuary(struct monst *, coordxy, coordxy) NO_NNARGS;
 extern void ghod_hitsu(struct monst *) NONNULLARG1;
@@ -3612,6 +3615,7 @@ extern void rloc_to(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern void rloc_to_flag(struct monst *, coordxy, coordxy,
                          unsigned) NONNULLARG1;
 extern boolean rloc(struct monst *, unsigned) NONNULLARG1;
+extern boolean mon_lost_in_rloc(struct monst *) NONNULLARG1;
 extern boolean control_mon_tele(struct monst *, coord *cc, unsigned,
                                 boolean) NONNULLARG1;
 extern boolean tele_restrict(struct monst *) NONNULLARG1;

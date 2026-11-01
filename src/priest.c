@@ -1219,9 +1219,10 @@ priest_talk(struct monst *priest)
     }
 }
 
+/* mmflags carries MM_MALE / MM_FEMALE from a level file */
 struct monst *
 mk_roamer(struct permonst *ptr, aligntyp alignment, coordxy x, coordxy y,
-          boolean peaceful)
+          boolean peaceful, mmflags_nht mmflags)
 {
     struct monst *roamer;
     boolean coaligned = (u.ualign.type == alignment);
@@ -1234,7 +1235,8 @@ mk_roamer(struct permonst *ptr, aligntyp alignment, coordxy x, coordxy y,
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), RLOC_NOMSG); /* insurance */
 
-    if (!(roamer = makemon(ptr, x, y, MM_ADJACENTOK | MM_EMIN | MM_NOMSG)))
+    if (!(roamer = makemon(ptr, x, y,
+                           MM_ADJACENTOK | MM_EMIN | MM_NOMSG | mmflags)))
         return (struct monst *) 0;
 
     EMIN(roamer)->min_align = alignment;

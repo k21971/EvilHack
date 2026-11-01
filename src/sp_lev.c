@@ -1962,6 +1962,7 @@ create_monster(monster *m, struct mkroom *croom)
     coord cc;
     struct permonst *pm;
     unsigned g_mvflags;
+    mmflags_nht genderflags;
 
     if (m->class >= 0)
         class = (char) def_char_to_monclass((char) m->class);
@@ -2027,12 +2028,17 @@ create_monster(monster *m, struct mkroom *croom)
     if (croom && !inside_room(croom, x, y))
         return (struct monst *) 0;
 
+    /* an explicit sex goes in at creation, so a player monster's name and
+       rank are drawn for it; makemon() keeps one-sex species right */
+    genderflags = (m->female == BOOL_RANDOM) ? NO_MM_FLAGS
+                  : m->female ? MM_FEMALE : MM_MALE;
     if (m->sp_amask != AM_SPLEV_RANDOM)
-        mtmp = mk_roamer(pm, Amask2align(amask), x, y, m->peaceful);
+        mtmp = mk_roamer(pm, Amask2align(amask), x, y, m->peaceful,
+                         genderflags);
     else if (PM_ARCHEOLOGIST <= m->id && m->id <= PM_WIZARD)
-        mtmp = mk_mplayer(pm, x, y, TRUE);
+        mtmp = mk_mplayer(pm, x, y, TRUE, genderflags);
     else
-        mtmp = makemon(pm, x, y, m->mm_flags | MM_MPLAYEROK);
+        mtmp = makemon(pm, x, y, m->mm_flags | MM_MPLAYEROK | genderflags);
 
     if (mtmp) {
         x = mtmp->mx, y = mtmp->my; /* sanity precaution */
@@ -2176,7 +2182,6 @@ create_monster(monster *m, struct mkroom *croom)
                 block_point(x, y);
         }
 
-        mtmp->female = m->female;
         if (m->peaceful > BOOL_RANDOM) {
             mtmp->mpeaceful = m->peaceful;
             /* changed mpeaceful again; have to reset malign */
@@ -3303,11 +3308,12 @@ find_montype(
 
     i = name_to_monplus(s, (const char **) 0, &mgend);
     if (i >= LOW_PM && i < NUMMONS) {
+        /* a gendered name picks the sex; a neutral name leaves it
+           NEUTRAL, so makemon() rolls it before the monster is named */
         if (is_male(&mons[i]) || is_female(&mons[i]))
             mgend = is_female(&mons[i]) ? FEMALE : MALE;
-        else
-            mgend = (mgend == FEMALE) ? FEMALE
-                        : (mgend == MALE) ? MALE : rn2(2);
+        else if (mgend != FEMALE && mgend != MALE)
+            mgend = NEUTRAL;
         if (mgender)
             *mgender = mgend;
         return i;
@@ -3382,7 +3388,7 @@ lspo_monster(lua_State *L)
     tmpmons.appear = 0;
     tmpmons.appear_as.str = (char *) 0;
     tmpmons.sp_amask = AM_SPLEV_RANDOM;
-    tmpmons.female = 0;
+    tmpmons.female = BOOL_RANDOM; /* unspecified: makemon() picks */
     tmpmons.invis = 0;
     tmpmons.cancelled = 0;
     tmpmons.revived = 0;
@@ -3413,8 +3419,7 @@ lspo_monster(lua_State *L)
                would silently make a random monster instead */
             if (tmpmons.id == NON_PM)
                 nhl_error(L, "Unknown monster id");
-            tmpmons.female = (mgend == FEMALE) ? FEMALE
-                                : (mgend == MALE) ? MALE : rn2(2);
+            tmpmons.female = (mgend == NEUTRAL) ? BOOL_RANDOM : mgend;
         }
     } else if (argc == 2 && lua_type(L, 1) == LUA_TSTRING
                && lua_type(L, 2) == LUA_TTABLE) {
@@ -3433,8 +3438,7 @@ lspo_monster(lua_State *L)
                would silently make a random monster instead */
             if (tmpmons.id == NON_PM)
                 nhl_error(L, "Unknown monster id");
-            tmpmons.female = (mgend == FEMALE) ? FEMALE
-                                : (mgend == MALE) ? MALE : rn2(2);
+            tmpmons.female = (mgend == NEUTRAL) ? BOOL_RANDOM : mgend;
         }
 
     } else if (argc == 3) {
@@ -3454,8 +3458,7 @@ lspo_monster(lua_State *L)
                would silently make a random monster instead */
             if (tmpmons.id == NON_PM)
                 nhl_error(L, "Unknown monster id");
-            tmpmons.female = (mgend == FEMALE) ? FEMALE
-                                : (mgend == MALE) ? MALE : rn2(2);
+            tmpmons.female = (mgend == NEUTRAL) ? BOOL_RANDOM : mgend;
         }
     } else {
         int keep_default_invent = -1; /* -1 = unspecified */
@@ -3513,19 +3516,16 @@ lspo_monster(lua_State *L)
         get_table_xy_or_coord(L, &mx, &my);
 
         tmpmons.id = get_table_montype(L, &mgend);
-        /* get_table_montype will return a random gender if the species isn't
-         * all-male or all-female; if the level designer specified a certain
-         * gender, override that random one now, unless it *is* a one-gender
-         * species, in which case don't override (don't permit creation of a
-         * male nymph or female Nazgul, etc.) */
+        /* get_table_montype gives the species' own sex for an all-male or
+         * all-female species, the sex a gendered name implies, or NEUTRAL;
+         * a one-gender species overrides the level designer's choice
+         * (don't permit creation of a male nymph or female Nazgul, etc.),
+         * a gendered name fills in an unspecified one; an unspecified sex
+         * stays BOOL_RANDOM so makemon() picks it before naming */
         if (mgend != NEUTRAL
             && (tmpmons.female == BOOL_RANDOM || is_female(&mons[tmpmons.id])
                 || is_male(&mons[tmpmons.id])))
             tmpmons.female = mgend;
-        /* safety net - if find_montype did not find a gender for this species
-         * (should cause a lua error anyway) */
-        if (tmpmons.female == BOOL_RANDOM)
-            tmpmons.female = 0;
 
         tmpmons.class = get_table_monclass(L);
 

@@ -575,7 +575,7 @@ lose_guardian_angel(
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_ANGEL]))
             (void) mk_roamer(&mons[PM_ANGEL], u.ualign.type, mm.x, mm.y,
-                             FALSE);
+                             FALSE, NO_MM_FLAGS);
     }
 }
 
@@ -609,7 +609,7 @@ gain_guardian_angel(void)
         mm.y = u.uy;
         if (enexto(&mm, mm.x, mm.y, &mons[PM_ANGEL])
             && (mtmp = mk_roamer(&mons[PM_ANGEL], u.ualign.type, mm.x, mm.y,
-                                 TRUE)) != 0) {
+                                 TRUE, NO_MM_FLAGS)) != 0) {
             mtmp->mstrategy &= ~STRAT_APPEARMSG;
             /* guardian angel -- the one case mtame doesn't imply an
              * edog structure, so we don't want to call tamedog().

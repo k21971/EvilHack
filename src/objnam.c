@@ -6794,7 +6794,8 @@ readobjnam(char *bp, struct obj *no_wish)
             }
         }
 
-        mtmp = (pm >= 0) ? mk_mplayer(&mons[pm], u.ux, u.uy, TRUE)
+        mtmp = (pm >= 0) ? mk_mplayer(&mons[pm], u.ux, u.uy, TRUE,
+                                      NO_MM_FLAGS)
                          : (struct monst *) 0;
         if (mtmp && !is_mplayer(mtmp->data))
             free_mgivenname(mtmp);
