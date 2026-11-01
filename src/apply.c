@@ -935,6 +935,10 @@ mleashed_next2u(struct monst *mtmp)
     if (mtmp->mleashed) {
         if (!m_next2u(mtmp))
             mnexto(mtmp, RLOC_NOMSG);
+        /* a trapped pet meets the trap where it lands; one that died or
+           left the level there was unleashed on the way */
+        if (!mtmp->mleashed)
+            return FALSE;
         if (!m_next2u(mtmp)) {
             struct obj *otmp = get_mleash(mtmp);
 

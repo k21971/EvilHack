@@ -1731,9 +1731,10 @@ hmon_hitmon_misc_obj(
                              obj->dknown ? CXN_PFX_THE
                              : CXN_ARTICLE));
             observe_object(obj);
-            /* the target is stoned below or cures itself, and either
-               way this returns before hmon_hitmon()'s closing wakeup();
-               a resistant target goes on to the ordinary hit */
+            /* the target is stoned below or cures itself; anger it
+               first so a stoning is scored against a hostile, and
+               hmon_hitmon()'s early return wakes a survivor; a
+               resistant target goes on to the ordinary hit */
             if (!(resists_ston(mon) || defended(mon, AD_STON)))
                 setmangry(mon, TRUE);
             if (!munstone(mon, TRUE))
@@ -2075,7 +2076,7 @@ hmon_hitmon_do_hit(
              || hmd->thrown == HMON_KICKED) /* not Applied */
             && stone_missile(obj) && passes_rocks(hmd->mdat)) {
             hit(mshot_xname(obj), mon, " but does no harm.");
-            wakeup(mon, TRUE);
+            /* hmon_hitmon() wakes the target on the way out */
             hmd->doreturn = TRUE;
             hmd->retval = TRUE;
             return;
@@ -2648,8 +2649,15 @@ hmon_hitmon(
        by value, so our own pointer is the one left dangling */
     if (hmd.obj_gone)
         obj = (struct obj *) 0;
-    if (hmd.doreturn)
+    if (hmd.doreturn) {
+        /* an early exit that didn't kill still landed a blow (a smashed
+           camera, an artifact's harmless swipe, a petrifying corpse or
+           egg the target survived, a pyrolisk egg, a stone missile), so
+           it wakes and angers the target as the tail below does */
+        if (hmd.retval && !DEADMONSTER(mon) && !mon_offmap(mon))
+            wakeup(mon, TRUE);
         return hmd.retval;
+    }
 
     /*
      ***** NOTE: perhaps obj is undefined! (if !thrown && BOOMERANG)
@@ -4536,8 +4544,15 @@ mhitm_ad_sgld(
         hitmsg(magr, mattk);
         if (pd->mlet == pa->mlet)
             return;
-        if (!(magr->mcan || Hidinshell))
+        if (!(magr->mcan || Hidinshell)) {
             stealgold(magr);
+            /* a trap where the thief landed can kill it or carry it
+               off the level */
+            if (mon_lost_in_rloc(magr)) {
+                mhm->hitflags = M_ATTK_AGR_DIED;
+                mhm->done = TRUE;
+            }
+        }
     } else {
         /* mhitm */
         char buf[BUFSZ];
@@ -4566,8 +4581,9 @@ mhitm_ad_sgld(
 
             mhm->hitflags = M_ATTK_AGR_DONE;
             (void) rloc(magr, RLOC_NOMSG);
-            /* rloc -> rloc_to -> mintrap can kill magr */
-            if (DEADMONSTER(magr)) {
+            /* rloc -> rloc_to -> mintrap can kill magr or carry it off
+               the level; either way it is gone from this fight */
+            if (mon_lost_in_rloc(magr)) {
                 mhm->hitflags |= M_ATTK_AGR_DIED;
                 mhm->done = TRUE;
                 return;
@@ -6168,6 +6184,10 @@ mhitm_ad_poly(
             mhm->damage = mon_poly(magr, mdef, mhm->damage);
             if (DEADMONSTER(mdef))
                 mhm->hitflags |= M_ATTK_DEF_DIED;
+            /* mon_poly() can teleport the attacker onto a trap that kills
+               it or carries it off the level */
+            if (mon_lost_in_rloc(magr))
+                mhm->hitflags |= M_ATTK_AGR_DIED;
             mhm->hitflags |= M_ATTK_HIT;
             mhm->done = TRUE;
         }
@@ -7262,6 +7282,12 @@ mhitm_ad_heal(
             } else if (!rn2(33)) {
                 if (!tele_restrict(magr))
                     (void) rloc(magr, RLOC_MSG);
+                /* a trap where it landed can kill it or take it away */
+                if (mon_lost_in_rloc(magr)) {
+                    mhm->done = TRUE;
+                    mhm->hitflags = M_ATTK_AGR_DIED;
+                    return;
+                }
                 monflee(magr, d(3, 6), TRUE, FALSE);
                 mhm->done = TRUE;
                 mhm->hitflags = M_ATTK_HIT | M_ATTK_DEF_DIED; /* return 3??? */
@@ -7513,8 +7539,15 @@ mhitm_ad_samu(
            player monsters want only the Amulet or the invocation tools */
         if (Hidinshell)
             return;
-        if (!rn2(20))
+        if (!rn2(20)) {
             stealamulet(magr);
+            /* a trap where the thief landed can kill it or carry it
+               off the level */
+            if (mon_lost_in_rloc(magr)) {
+                mhm->hitflags = M_ATTK_AGR_DIED;
+                mhm->done = TRUE;
+            }
+        }
     } else {
         /* mhitm */
         mhm->damage = 0;
@@ -7609,7 +7642,9 @@ mhitm_ad_sedu(
                   : "makes some remarks about how difficult theft is lately");
             if (!tele_restrict(magr))
                 (void) rloc(magr, RLOC_MSG);
-            mhm->hitflags = M_ATTK_AGR_DONE; /* return 3??? */
+            /* a trap where it landed can kill it or take it away */
+            mhm->hitflags = mon_lost_in_rloc(magr) ? M_ATTK_AGR_DIED
+                                                   : M_ATTK_AGR_DONE;
             mhm->done = TRUE;
             return;
         } else if (magr->mcan || Hidinshell || purity || druid_mystic) {
@@ -7622,7 +7657,8 @@ mhitm_ad_sedu(
             if (rn2(3)) {
                 if (!tele_restrict(magr))
                     (void) rloc(magr, RLOC_MSG);
-                mhm->hitflags = M_ATTK_AGR_DONE; /* return 3??? */
+                mhm->hitflags = mon_lost_in_rloc(magr) ? M_ATTK_AGR_DIED
+                                                       : M_ATTK_AGR_DONE;
                 mhm->done = TRUE;
                 return;
             }
@@ -7661,7 +7697,10 @@ mhitm_ad_sedu(
                               mhis(magr));
             } else
                 monflee(magr, 0, FALSE, FALSE);
-            mhm->hitflags = M_ATTK_AGR_DONE; /* return 3??? */
+            /* a trap where the thief landed can kill it or take it
+               off the level */
+            mhm->hitflags = mon_lost_in_rloc(magr) ? M_ATTK_AGR_DIED
+                                                   : M_ATTK_AGR_DONE;
             mhm->done = TRUE;
             return;
         }
@@ -7739,9 +7778,9 @@ mhitm_ad_sedu(
 
                 mhm->hitflags = M_ATTK_AGR_DONE;
                 (void) rloc(magr, RLOC_NOMSG);
-                /* a thief that dies in transit must not act again;
-                   rloc_to_core()'s mintrap() can't kill one today */
-                if (DEADMONSTER(magr)) {
+                /* a thief that dies in transit, or that a trap where it
+                   landed carries off the level, must not act again */
+                if (mon_lost_in_rloc(magr)) {
                     mhm->hitflags |= M_ATTK_AGR_DIED;
                     mhm->done = TRUE;
                     mhm->damage = 0;
@@ -7771,7 +7810,11 @@ mhitm_ad_ssex(struct monst *magr, struct attack *mattk, struct monst *mdef,
             if (could_seduce(magr, mdef, mattk) == 1
                 && !(magr->mcan || Hidinshell))
                 if (doseduce(magr)) {
-                    mhm->hitflags = M_ATTK_AGR_DONE;
+                    /* its teleport away can land it on a trap that
+                       kills it or carries it off the level */
+                    mhm->hitflags = mon_lost_in_rloc(magr)
+                                        ? M_ATTK_AGR_DIED
+                                        : M_ATTK_AGR_DONE;
                     mhm->done = TRUE;
                     return;
                 }

@@ -1805,7 +1805,9 @@ m_calcdistress(struct monst *mtmp)
                 pline("%s floats gently to the %s.",
                       Monnam(mtmp), surface(mtmp->mx, mtmp->my));
             steed_lift_changed(mtmp, TRUE);
-            mon_lost_support(mtmp); /* it floated over a hole */
+            /* it meets the water, lava, open air or hole below it this
+               turn, not on its own next move */
+            (void) maybe_set_terrain_effects(mtmp, (struct permonst *) 0);
         }
     }
     if (can_jump(mtmp) && mtmp->mjumptime && mtmp->mjumptime <= 1) {
@@ -2431,6 +2433,108 @@ meatobj(struct monst *mtmp) /* for gelatinous cubes */
             ptr = mtmp->data;
             if (ptr != original_ptr)
                 return !ptr ? 2 : 1;
+        }
+
+        /* Engulf & devour is instant, so don't set meating */
+        if (mtmp->minvis)
+            newsym(mtmp->mx, mtmp->my);
+    }
+
+    if (ecount > 0) {
+        if (cansee(mtmp->mx, mtmp->my) && flags.verbose && buf[0])
+            pline1(buf);
+        else if (flags.verbose)
+            You_hear("%s slurping sound%s.",
+                     (ecount == 1) ? "a" : "several", plur(ecount));
+    }
+    return (count > 0 || ecount > 0) ? 1 : 0;
+}
+
+/* Monster eats all the food it is standing on (a creeping mound); it
+   doesn't go looking for food, and it engulfs what it can't safely eat;
+   returns 0 = nothing eaten, 1 = ate something, 2 = died */
+int
+meatfood(struct monst *mtmp)
+{
+    struct obj *otmp, *otmp2;
+    struct permonst *original_ptr = mtmp->data;
+    int count = 0, ecount = 0;
+    char buf[BUFSZ], *otmpname;
+
+    buf[0] = '\0';
+    /* If a pet, eating is handled separately, in dog.c */
+    if (mtmp->mtame)
+        return 0;
+
+    for (otmp = svl.level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
+        otmp2 = otmp->nexthere;
+
+        /* avoid special items, as meatobj() does */
+        if (is_mines_prize(otmp) || is_soko_prize(otmp))
+            continue;
+
+        /* touch sensitive items */
+        if (otmp->otyp == CORPSE && is_rider(&mons[otmp->corpsenm])) {
+            int ox = otmp->ox, oy = otmp->oy;
+            boolean revived_it = revive_corpse(otmp);
+
+            newsym(ox, oy);
+            /* Rider corpse isn't just inedible; can't engulf it either */
+            if (!revived_it)
+                continue;
+            /* the revival may have taken otmp2 with it */
+            break;
+
+        /* untouchable items */
+        } else if (otmp->otyp == CORPSE
+                   && touch_petrifies(&mons[otmp->corpsenm])
+                   && !(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
+            /* do nothing--neither eaten nor engulfed */
+            continue;
+
+        /* food that would stone or slime it -- engulf these */
+        } else if ((otmp->otyp == CORPSE || otmp->otyp == EGG
+                    || otmp->globby)
+                   && ((mstoning(otmp)
+                        && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
+                       || (otmp->otyp == GLOB_OF_GREEN_SLIME
+                           && !slimeproof(mtmp->data)))) {
+            /* engulf */
+            ++ecount;
+            /* call distant_name() for its possible side-effects even if
+               the result won't be printed */
+            otmpname = distant_name(otmp, doname);
+            if (ecount == 1)
+                Snprintf(buf, sizeof buf, "%s engulfs %s.", Monnam(mtmp),
+                         otmpname);
+            else if (ecount == 2)
+                Sprintf(buf, "%s engulfs several objects.", Monnam(mtmp));
+            obj_extract_self(otmp);
+            (void) mpickobj(mtmp, otmp); /* slurp */
+
+        /* lastly, edible items; yum! (tins and non-food stay put) */
+        } else {
+            if (!all_food(otmp))
+                continue;
+            /* devour */
+            ++count;
+            if (cansee(mtmp->mx, mtmp->my)) {
+                /* (see above; distant_name() sometimes has side-effects */
+                otmpname = distant_name(otmp, doname);
+                if (flags.verbose)
+                    pline_mon(mtmp, "%s eats %s!",
+                              Monnam(mtmp), otmpname);
+            } else {
+                Soundeffect(se_slurping_sound, 30);
+                if (flags.verbose)
+                    You_hear("a slurping sound.");
+            }
+            m_consume_obj(mtmp, otmp);
+            /* in case it died or polymorphed */
+            if (DEADMONSTER(mtmp))
+                return 2;
+            if (mtmp->data != original_ptr)
+                return 1;
         }
 
         /* Engulf & devour is instant, so don't set meating */
@@ -3588,6 +3692,15 @@ compute_escape_pathfind_map(coordxy target_x, coordxy target_y)
     gp.pathfind_escape_turn = svm.moves;
     gp.pathfind_escape_tx = target_x;
     gp.pathfind_escape_ty = target_y;
+}
+
+/* the level's walkable squares changed (a boulder came or went, a new
+   level); make both pathfind maps recompute on their next use */
+void
+invalidate_pathfind_maps(void)
+{
+    gp.pathfind_turn = 0;
+    gp.pathfind_escape_turn = 0;
 }
 
 /* ensure the goal-rooted ("escape") pathfind map is current for the

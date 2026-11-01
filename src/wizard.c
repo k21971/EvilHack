@@ -500,8 +500,9 @@ tactics(struct monst *mtmp)
             if (rloc_pos_ok(nx, ny, mtmp)
                 && distu(nx, ny) > (BOLT_LIM * BOLT_LIM)) {
                 rloc_to(mtmp, nx, ny);
-                /* rloc_to may fire mintrap and kill mtmp */
-                if (DEADMONSTER(mtmp))
+                /* rloc_to may fire mintrap and kill mtmp or carry it
+                   off the level */
+                if (mon_lost_in_rloc(mtmp))
                     return 0;
                 if (mtmp->mhp <= mtmp->mhpmax - 8)
                     healmon(mtmp, rnd(8), 0);
@@ -552,8 +553,9 @@ tactics(struct monst *mtmp)
             if (!covetous_noteleport(mtmp) &&
                 !rn2(3 + mtmp->mhp / 10)) {
                 (void) rloc(mtmp, RLOC_MSG);
-                /* rloc may fire mintrap and kill mtmp */
-                if (DEADMONSTER(mtmp))
+                /* rloc may fire mintrap and kill mtmp or carry it off
+                   the level */
+                if (mon_lost_in_rloc(mtmp))
                     return 0;
                 mx = mtmp->mx, my = mtmp->my; /* update cached location */
             }
@@ -568,8 +570,9 @@ tactics(struct monst *mtmp)
                 return 0;
             }
             /* mnearto succeeded; its internal rloc_to may have killed
-               mtmp via mintrap on the destination tile */
-            if (DEADMONSTER(mtmp))
+               mtmp via mintrap on the destination tile, or sent it off
+               the level */
+            if (mon_lost_in_rloc(mtmp))
                 return 0;
             mx = mtmp->mx, my = mtmp->my; /* update cached location */
         }
@@ -617,10 +620,10 @@ tactics(struct monst *mtmp)
             if (!MON_AT(tx, ty) || (mtmp->mx == tx && mtmp->my == ty)) {
                 /* teleport to it and pick it up */
                 rloc_to(mtmp, tx, ty); /* clean old pos */
-                /* rloc_to may fire mintrap and kill mtmp; bail before
-                   picking up the target so it stays on the floor
-                   instead of being discarded with the corpse */
-                if (DEADMONSTER(mtmp))
+                /* rloc_to may fire mintrap and kill mtmp or carry it off
+                   the level; bail before picking up the target so it
+                   stays on the floor instead of leaving with it */
+                if (mon_lost_in_rloc(mtmp))
                     return 0;
 
                 if ((otmp = on_ground(which_arti(targ))) != 0

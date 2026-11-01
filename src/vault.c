@@ -950,8 +950,10 @@ gd_move(struct monst *grd)
             && (grd_in_vault || (in_fcorridor(grd, grd->mx, grd->my)
                                  && !in_fcorridor(grd, u.ux, u.uy)))) {
             (void) rloc(grd, RLOC_MSG);
-            if (DEADMONSTER(grd))
-                return -2; /* trap killed grd; cleanup done by mondead */
+            /* trap killed grd (cleanup done by mondead) or took it off
+               the level */
+            if (mon_lost_in_rloc(grd))
+                return -2;
             wallify_vault(grd);
             if (!in_fcorridor(grd, grd->mx, grd->my))
                 (void) clear_fcorr(grd, TRUE);
@@ -1031,7 +1033,7 @@ gd_move(struct monst *grd)
                 m = grd->mx;
                 n = grd->my;
                 (void) rloc(grd, RLOC_MSG);
-                if (DEADMONSTER(grd))
+                if (mon_lost_in_rloc(grd))
                     return -2;
                 levl[m][n].typ = egrd->fakecorr[0].ftyp;
                 levl[m][n].flags = egrd->fakecorr[0].flags;
@@ -1275,8 +1277,10 @@ paygd(boolean silently)
             goto remove_guard;
 
         mnexto(grd, RLOC_NOMSG);
-        if (DEADMONSTER(grd))
-            return; /* trap killed grd; cleanup done by mondead */
+        /* trap killed grd (cleanup done by mondead) or took it off the
+           level */
+        if (mon_lost_in_rloc(grd))
+            return;
         if (!silently)
             pline("%s remits your gold to the vault.", Monnam(grd));
         gdx = svr.rooms[EGD(grd)->vroom].lx + rn2(2);

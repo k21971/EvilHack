@@ -811,8 +811,13 @@ update_mon_extrinsics(
            levitation with levitation boots), so the bit goes only when
            nothing else worn still confers it */
         case WWALKING:
-            if (!worn_gear_grants(mon, WWALKING, obj))
+            if (!worn_gear_grants(mon, WWALKING, obj)) {
                 mon->mextrinsics &= ~(MR2_WATERWALK);
+                /* one standing on water or lava meets it this turn */
+                if (!probing_gear)
+                    (void) maybe_set_terrain_effects(mon,
+                                                     (struct permonst *) 0);
+            }
             break;
         case JUMPING:
             /* the monster's own jumping spell may still be running */
@@ -836,8 +841,10 @@ update_mon_extrinsics(
             if (!unseen && !can_levitate(mon) && !probing_gear)
                 pline_mon(mon, "%s floats gently back to the %s.",
                           Monnam(mon), surface(mon->mx, mon->my));
+            /* it meets the water, lava, open air or hole below it this
+               turn, not on its own next move */
             if (!probing_gear)
-                mon_lost_support(mon); /* it floated over a hole */
+                (void) maybe_set_terrain_effects(mon, (struct permonst *) 0);
             break;
         case FREE_ACTION:
             if (!worn_gear_grants(mon, FREE_ACTION, obj))
@@ -853,7 +860,7 @@ update_mon_extrinsics(
                 pline_mon(mon, "%s lands on the %s.",
                           Monnam(mon), surface(mon->mx, mon->my));
             if (!probing_gear)
-                mon_lost_support(mon); /* it flew over a hole */
+                (void) maybe_set_terrain_effects(mon, (struct permonst *) 0);
             break;
         case FIRE_RES:
         case COLD_RES:

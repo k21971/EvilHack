@@ -1810,8 +1810,10 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
         }
     }
     /* when a transformation has happened, can't attack again for poly
-       effect during next turn or two; not enforced for poly'd hero */
-    if (mdef->data != oldform && magr != &gy.youmonst)
+       effect during next turn or two; not enforced for poly'd hero, nor
+       for an attacker its teleport just killed or sent off the level */
+    if (mdef->data != oldform && magr != &gy.youmonst
+        && !mon_lost_in_rloc(magr))
         magr->mspec_used += rnd(2);
 
     return dmg;

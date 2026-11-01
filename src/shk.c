@@ -4841,6 +4841,10 @@ shkcatch(
             SetVoice(shkp, 0, 80, 0);
             verbalize("Out of my way, scum!");
         }
+        /* a trapped shopkeeper meets the trap where it lands; one that
+           died or fell off the level there catches nothing */
+        if (mon_lost_in_rloc(shkp))
+            return (struct monst *) 0;
         if (cansee(x, y)) {
             pline("%s nimbly%s catches %s.", Shknam(shkp),
                   (x == shkp->mx && y == shkp->my) ? "" : " reaches over and",

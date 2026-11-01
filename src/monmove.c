@@ -1143,9 +1143,11 @@ dochug(struct monst *mtmp)
     /* Some monsters teleport. Teleportation costs a turn. */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
         && !noteleport_level(mtmp)) {
-        if (rloc(mtmp, RLOC_MSG))
+        if (rloc(mtmp, RLOC_MSG) && !mon_lost_in_rloc(mtmp))
             leppie_stash(mtmp);
-        return 0;
+        /* a trap where a trapped one landed can kill it or carry it off
+           the level */
+        return mon_lost_in_rloc(mtmp) ? 1 : 0;
     }
 
     /* some monsters have special abilities */
@@ -1226,8 +1228,9 @@ dochug(struct monst *mtmp)
                     if (!covetous_noteleport(mtmp))
                         (void) rloc(mtmp, RLOC_MSG);
                     /* rloc can fire mintrap at the destination and
-                       kill mtmp; stop before later code derefs it */
-                    if (DEADMONSTER(mtmp))
+                       kill mtmp or carry it off the level; stop before
+                       later code derefs it */
+                    if (mon_lost_in_rloc(mtmp))
                         return 1;
                 } else {
                     mtmp->minvis = mtmp->perminvis = 0;
@@ -1246,8 +1249,9 @@ dochug(struct monst *mtmp)
         } else { /* either let the player pass, or pacified somehow */
             if (!covetous_noteleport(mtmp))
                 (void) rloc(mtmp, RLOC_MSG); /* either way no bribe demands */
-            /* rloc can fire mintrap at the destination and kill mtmp */
-            if (DEADMONSTER(mtmp))
+            /* rloc can fire mintrap at the destination and kill mtmp
+               or carry it off the level */
+            if (mon_lost_in_rloc(mtmp))
                 return 1;
             return 0;
         }
@@ -2318,6 +2322,11 @@ postmov(
             /* Maybe a honey badger raided a beehive */
             if (ptr == &mons[PM_HONEY_BADGER]) {
                 if (meatjelly(mtmp) == 2)
+                    return MMOVE_DIED;
+            }
+            /* Maybe a creeping mound ate all the food */
+            if (ptr == &mons[PM_CREEPING_MOUND]) {
+                if (meatfood(mtmp) == 2)
                     return MMOVE_DIED;
             }
             /* Maybe Gollum ate a corpse */

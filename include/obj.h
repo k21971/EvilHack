@@ -430,6 +430,9 @@ struct obj {
                     || (obj)->corpsenm == PM_HOBGOBLIN   \
                     || (obj)->corpsenm == PM_BAT         \
                     || (obj)->corpsenm == PM_GIANT_BAT))
+/* what a creeping mound eats */
+#define all_food(o) \
+    ((ofood(o) || (o)->oclass == FOOD_CLASS) && (o)->otyp != TIN)
 
 /* Containers */
 #define carried(o) ((o)->where == OBJ_INVENT)

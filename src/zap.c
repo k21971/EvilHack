@@ -605,13 +605,18 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         if (disguised_mimic)
             seemimic(mtmp);
         /* an engulfer on a no-teleport level that finds no room goes
-           into limbo, where the closing wakeup() would anger it with a
-           newsym() at <0,0>; wake and anger it here, as dispel evil's
-           banish does */
-        if (engulfing_u(mtmp) && noteleport_level(mtmp)
-            && mtmp->mpeaceful) {
+           into limbo, and a trapped monster can land on a trap door or
+           level teleporter; either way the closing wakeup() would anger
+           it with a newsym() at <0,0>, so wake and anger it here, as
+           dispel evil's banish does */
+        if (mtmp->mtrapped
+            || (engulfing_u(mtmp) && noteleport_level(mtmp)
+                && mtmp->mpeaceful)) {
             wakeup(mtmp, TRUE);
             already_woke = TRUE;
+            /* angering a temple priest can bring his god's bolt down */
+            if (DEADMONSTER(mtmp))
+                break;
         }
         reveal_invis = !u_teleport_mon(mtmp, TRUE);
         learn_it = canspotmon(mtmp);
@@ -1662,6 +1667,10 @@ revive(struct obj *corpse, boolean by_hero)
         panic("revive default case %d", (int) corpse->where);
     }
 
+    /* the revived monster meets the water, lava or open air under it
+       this turn, whoever brought it back (undead turning, a prayer, the
+       Book of the Dead, a container or a carrier's pack) */
+    (void) maybe_set_terrain_effects(mtmp, (struct permonst *) 0);
     return mtmp;
 }
 
@@ -2257,8 +2266,9 @@ do_osshock(struct obj *obj)
     /* what can't be destroyed is left on the floor, unbilled */
     if (has_indestructible_contents(obj))
         spare_indestructible_contents(obj, 0, 0);
-    /* appropriately add damage to bill */
-    if (costly_spot(obj->ox, obj->oy)) {
+    /* appropriately add damage to bill; a monster's beam isn't the
+       hero's doing */
+    if (costly_spot(obj->ox, obj->oy) && !svc.context.mon_moving) {
         if (*u.ushops)
             addtobill(obj, FALSE, FALSE, FALSE);
         else
@@ -2598,15 +2608,19 @@ poly_obj(struct obj *obj, int id)
             gw.worn_slot_exempt = save_exempt;
         } /* old_wornmask */
     } else if (obj_location == OBJ_FLOOR) {
+        /* replace_object() skips place_object()'s and remove_object()'s
+           boulder hooks, so refresh vision and monster pathfinding here */
         if (obj->otyp == BOULDER && otmp->otyp != BOULDER) {
             if (!does_block(ox, oy, &levl[ox][oy]))
                 unblock_point(ox, oy);
+            invalidate_pathfind_maps();
         } else if (obj->otyp != BOULDER && otmp->otyp == BOULDER) {
             /* leaving boulder in liquid would trigger sanity_check warning */
             if (is_pool_or_lava(ox, oy))
                 fracture_rock(otmp);
             if (does_block(ox, oy, &levl[ox][oy]))
                 block_point(ox, oy);
+            invalidate_pathfind_maps();
         }
     }
 
@@ -2635,8 +2649,10 @@ poly_obj(struct obj *obj, int id)
         }
     }
 
-    /* note: if otmp is gone, billing for it was handled by useup() */
-    if (((otmp && !carried(otmp)) || obj->unpaid) && costly_spot(ox, oy)) {
+    /* note: if otmp is gone, billing for it was handled by useup();
+       goods a monster's beam changed aren't the hero's doing */
+    if (((otmp && !carried(otmp)) || obj->unpaid) && costly_spot(ox, oy)
+        && !svc.context.mon_moving) {
         struct monst *shkp = shop_keeper(*in_rooms(ox, oy, SHOPBASE));
 
         if ((!obj->no_charge
@@ -2879,8 +2895,8 @@ bhito(struct obj *obj, struct obj *otmp)
                 res = 0;
                 break;
             }
-            /* KMH, conduct */
-            if (!u.uconduct.polypiles++)
+            /* KMH, conduct; a monster's zap or spell isn't the hero's */
+            if (!svc.context.mon_moving && !u.uconduct.polypiles++)
                 livelog_printf(LL_CONDUCT, "polymorphed %s first object",
                                uhis());
 
@@ -7547,8 +7563,7 @@ fracture_rock(struct obj *obj) /* no texts here! */
     if (obj->otyp == BOULDER) {
         /* the boulder-gated hooks in place_object()/remove_object()
            won't fire once otyp has changed; refresh pathfinding here */
-        gp.pathfind_turn = 0;
-        gp.pathfind_escape_turn = 0;
+        invalidate_pathfind_maps();
     }
 
     obj->otyp = ROCK;

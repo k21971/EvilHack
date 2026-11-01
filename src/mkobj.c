@@ -2678,8 +2678,7 @@ place_object(struct obj *otmp, coordxy x, coordxy y)
             block_point(x, y); /* vision */
             /* boulder now blocks this square; refresh monster
                pathfinding */
-            gp.pathfind_turn = 0;
-            gp.pathfind_escape_turn = 0;
+            invalidate_pathfind_maps();
         }
     }
 
@@ -2906,8 +2905,7 @@ remove_object_core(struct obj *otmp)
         if (!sobj_at(BOULDER, x, y)) {
             /* square no longer blocked by a boulder; refresh monster
                pathfinding */
-            gp.pathfind_turn = 0;
-            gp.pathfind_escape_turn = 0;
+            invalidate_pathfind_maps();
         }
     }
     if (otmp->timed)

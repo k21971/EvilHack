@@ -1981,11 +1981,18 @@ rloc_to_core(
     if (go.occupation)
         (void) dochugw(mtmp, FALSE);
 
-    /* trapped monster teleported away */
-    if (mtmp->mtrapped && !mtmp->wormno) {
-        (void) mintrap(mtmp, NO_TRAP_FLAGS);
-        if (DEADMONSTER(mtmp))
-            return; /* trap killed mtmp; the rest would touch a corpse */
+    /* trapped monster teleported away; its trap stays behind, and a
+       trap where it lands gets its chance (which can kill it or carry
+       it off the level; see mon_lost_in_rloc()); one put back on its
+       own square stays caught as it was */
+    if (mtmp->mtrapped && (x != oldx || y != oldy)) {
+        mtmp->mtrapped = 0;
+        /* a long worm's tail was just laid out around its head */
+        if (!mtmp->wormno) {
+            (void) mintrap(mtmp, NO_TRAP_FLAGS);
+            if (DEADMONSTER(mtmp))
+                return; /* trap killed mtmp; the rest would touch a corpse */
+        }
     }
 
     /* entanglement goes away (pulled away from plants magically
@@ -2007,6 +2014,19 @@ rloc_to_flag(
     unsigned rlocflags)
 {
     rloc_to_core(mtmp, x, y, rlocflags);
+}
+
+/* after rloc() / rloc_to() / mnexto(): did the monster die, or leave the
+   level, when a trapped one met the trap where it landed?  A steed whose
+   monster rider carries it is off the map but still here, as in
+   movemon_singlemon() */
+boolean
+mon_lost_in_rloc(struct monst *mtmp)
+{
+    return (DEADMONSTER(mtmp)
+            || (mon_offmap(mtmp)
+                && (!mtmp->ridden_by
+                    || (mtmp->mstate & MON_OFF_MAP_BITS) != MON_OFFMAP)));
 }
 
 staticfn stairway *

@@ -2212,8 +2212,7 @@ goto_level(
     /* Reset the screen. */
     vision_reset(); /* reset the blockages */
     /* invalidate pathfinding caches - new level, new distances */
-    gp.pathfind_turn = 0;
-    gp.pathfind_escape_turn = 0;
+    invalidate_pathfind_maps();
     reset_glyphmap(gm_levelchange);
     notice_mon_off(); /* not noticing monsters yet! */
     docrt(); /* does a full vision recalc */
@@ -2664,7 +2663,7 @@ revive_corpse(struct obj *corpse)
                     pline("%s disappears%s!", The(cname), effect);
                 }
             }
-            (void) maybe_set_terrain_effects(mtmp, 0);
+            /* revive() flagged it for the terrain under it */
             break;
 
         case OBJ_MINVENT: /* probably a nymph's */
