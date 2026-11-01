@@ -74,6 +74,9 @@ empty_inuse_container(struct obj *container)
             break;
         case OBJ_CONTAINED:
             parent = container->ocontainer;
+            /* an ice box freezes it, as when it is put in */
+            if (parent->otyp == ICE_BOX)
+                put_in_icebox(otmp);
             (void) add_to_container(parent, otmp);
             container_weight(parent);
             break;

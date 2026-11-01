@@ -2806,64 +2806,70 @@ obj_timer_checks(
     coordxy x, coordxy y,
     int force) /* 0 = no force so do checks, <0 = force off, >0 force on */
 {
-    long tleft = 0L;
-    short action = ROT_CORPSE;
-    boolean restart_timer = FALSE;
+    /* every timer a corpse can carry runs slower on ice; a wished
+       "zombifying" corpse carries both a rot and a zombie timer */
+    static const short corpse_timers[] = {
+        ROT_CORPSE, REVIVE_MON, ZOMBIFY_MON
+    };
+    long tleft[SIZE(corpse_timers)], age;
     boolean on_floor = (otmp->where == OBJ_FLOOR);
     boolean buried = (otmp->where == OBJ_BURIED);
+    boolean going_on, any = FALSE;
+    int i;
 
     /* Check for corpses just placed on or in ice */
-    if (otmp->otyp == CORPSE && (on_floor || buried) && is_ice(x, y)) {
-        tleft = stop_timer(action, obj_to_any(otmp));
-        if (tleft == 0L) {
-            action = REVIVE_MON;
-            tleft = stop_timer(action, obj_to_any(otmp));
-        }
-        if (tleft != 0L) {
-            long age;
-
-            /* mark the corpse as being on ice */
-            otmp->on_ice = 1;
-            debugpline3("%s is now on ice at <%d,%d>.",
-                        The(xname(otmp)), x, y);
-            /* Adjust the time remaining */
-            tleft *= ROT_ICE_ADJUSTMENT;
-            restart_timer = TRUE;
-            /* Adjust the age; time spent off ice needs to be multiplied
-               by the ice adjustment and subtracted from the age so that
-               later calculations behave as if it had been on ice during
-               that time (longwinded way of saying this is the inverse
-               of removing it from the ice and of peeking at its age). */
-            age = svm.moves - otmp->age;
-            otmp->age = svm.moves - (age * ROT_ICE_ADJUSTMENT);
-        }
-
+    if (otmp->otyp == CORPSE && (on_floor || buried) && is_ice(x, y))
+        going_on = TRUE;
     /* Check for corpses coming off ice */
-    } else if (force < 0 || (otmp->otyp == CORPSE && otmp->on_ice
-                             && !((on_floor || buried) && is_ice(x, y)))) {
-        tleft = stop_timer(action, obj_to_any(otmp));
-        if (tleft == 0L) {
-            action = REVIVE_MON;
-            tleft = stop_timer(action, obj_to_any(otmp));
-        }
-        if (tleft != 0L) {
-            long age;
+    else if (force < 0 || (otmp->otyp == CORPSE && otmp->on_ice
+                           && !((on_floor || buried) && is_ice(x, y))))
+        going_on = FALSE;
+    else
+        return;
 
-            otmp->on_ice = 0;
-            debugpline3("%s is no longer on ice at <%d,%d>.",
-                        The(xname(otmp)), x, y);
-            /* Adjust the remaining time */
-            tleft /= ROT_ICE_ADJUSTMENT;
-            restart_timer = TRUE;
-            /* Adjust the age */
-            age = svm.moves - otmp->age;
-            otmp->age += age * (ROT_ICE_ADJUSTMENT - 1) / ROT_ICE_ADJUSTMENT;
+    /* a timer due this very turn reads as 0 from stop_timer(); keep it
+       at 1 rather than lose it */
+    for (i = 0; i < SIZE(corpse_timers); i++) {
+        tleft[i] = 0L;
+        if (obj_has_timer(otmp, corpse_timers[i])) {
+            tleft[i] = stop_timer(corpse_timers[i], obj_to_any(otmp));
+            tleft[i] = max(tleft[i], 1L);
+            any = TRUE;
         }
     }
+    if (!any)
+        return;
 
-    /* now re-start the timer with the appropriate modifications */
-    if (restart_timer)
-        (void) start_timer(tleft, TIMER_OBJECT, action, obj_to_any(otmp));
+    age = svm.moves - otmp->age;
+    if (going_on) {
+        /* mark the corpse as being on ice */
+        otmp->on_ice = 1;
+        debugpline3("%s is now on ice at <%d,%d>.", The(xname(otmp)), x, y);
+        /* Adjust the age; time spent off ice needs to be multiplied
+           by the ice adjustment and subtracted from the age so that
+           later calculations behave as if it had been on ice during
+           that time (longwinded way of saying this is the inverse
+           of removing it from the ice and of peeking at its age). */
+        otmp->age = svm.moves - (age * ROT_ICE_ADJUSTMENT);
+    } else {
+        otmp->on_ice = 0;
+        debugpline3("%s is no longer on ice at <%d,%d>.",
+                    The(xname(otmp)), x, y);
+        /* Adjust the age */
+        otmp->age += age * (ROT_ICE_ADJUSTMENT - 1) / ROT_ICE_ADJUSTMENT;
+    }
+
+    /* now re-start each timer with the remaining time adjusted */
+    for (i = 0; i < SIZE(corpse_timers); i++) {
+        if (!tleft[i])
+            continue;
+        if (going_on)
+            tleft[i] *= ROT_ICE_ADJUSTMENT;
+        else
+            tleft[i] = max(tleft[i] / ROT_ICE_ADJUSTMENT, 1L);
+        (void) start_timer(tleft[i], TIMER_OBJECT, corpse_timers[i],
+                           obj_to_any(otmp));
+    }
 }
 
 #undef ROT_ICE_ADJUSTMENT
