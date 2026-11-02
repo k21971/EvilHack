@@ -17,10 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-01, after session 282's muse
-  offense, monster wishes, creeping mound and known-fix LOWs slice:
-  9 rows closed, the muse row partial, three LOW minted open):
-  628 rows closed, 57 open
+- Phase 2 status (refreshed 2026-11-01, after session 283's
+  floor-container looting and monster box traps slice: the monster
+  chest_trap() row closed, the Rumor-slice riders row's item (a) MED
+  done (the row stays open for its LOW items), two LOW minted open):
+  629 rows closed, 58 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -336,8 +337,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     ends Stoneskin's stoning resistance, and spares a form's or
     race's reflection and vulnerabilities.
   - 9 untagged: port gaps (Muse offense items, creeping mound
-    meatfood(), monster chest_trap(), des-placed mplayer sex,
-    look_at_monster buffer; "pairs of" closed by design, session 276),
+    meatfood(), monster chest_trap() (closed session 283, BUG-2773),
+    des-placed mplayer sex, look_at_monster buffer; "pairs of" closed
+    by design, session 276),
     rows that wait on other work (endgame plane order with Phase
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
@@ -3643,7 +3645,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       removed the branch's 5.0 muse.c mloot_container/MUSE_BAG
       rummager, so this port re-lands master's mon.c
       mloot_container fresh with its mpickstuff callers - no
-      name collision remains), iron safes
+      name collision remains; DISCHARGED 2026-11-01 session 283,
+      BUG-2777), iron safes
       (generation arms + stethoscope cracking + lock_action
       flavor), magic detection (marker above), cursed-tool
       break (LANDED 2026-10-15, BUG-2374), Is_container range to
@@ -16227,7 +16230,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       looting (mpickstuff arm, likes_contents, m_move goal splice,
       key pickup, master's mon.c mloot_container) stays with the
       magic-chest row's deferral and both TODO-EVILHACK markers
-      stay. PREMISE CORRECTION: could_use_item() was an unlisted
+      stay (DISCHARGED 2026-11-01 session 283, BUG-2777). PREMISE CORRECTION: could_use_item() was an unlisted
       prerequisite (sole caller of is_better_armor, called by
       m_stash_items) and came whole with its consumers -
       droppables keep-gate, dog_invent pickup boost + stash tail,
@@ -22525,7 +22528,37 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       along; DEADMONSTER detection, the Rider-revival break and the prize
       skip over master. The hero arm in is_edible() is dead code (not
       ported). Battery T4 L1 PASS on every variant; PRE eats nothing.
-- [ ] Monster chest_trap() arm ABSENT (minted 2026-09-06 by the
+- [ ] LOW: breakchestlock() bills a whole shop stack for one shattered
+      item (minted 2026-11-01, session 283, census of master 6f156aa7c):
+      a forced box's shattered potion stack is charged by stolen_value()
+      for every unit while useup() destroys one; master billed per unit
+      (quan clamped to 1 around the call). The other hunks of that commit
+      are on the branch or moot (BUG-2771). Port the per-unit billing.
+- [ ] LOW: floor-container looting residue (minted 2026-11-01, session
+      283, reviewer and batteries T1 / T2 / T4; record unless a ruling
+      wants a change). (a) "carefully opens ..." repeats each turn while
+      mloot_container()'s throttle takes nothing, and a box on top of a
+      pile is reopened instead of the items under it until emptied
+      (master). (b) "removes a corpse" - ansimpleoname() drops the
+      corpse type (master). (c) Box-trap lines about the box are gated
+      on canseemon(), so an invisible monster's box blowing up in view
+      reads "You hear a distant explosion." (master); the Blind gas
+      colour arm is dead under that gate. (d) An emptied box, or an
+      unlocked safe stood on, is then carried off whole through the
+      branch's widened searches_for_item() (pre-existing, PRE too). (e)
+      A carryable Schroedinger's box is picked up whole and rummaged
+      through muse precheck(), which has no SchroedingersBox()
+      exclusion (pre-existing; the quantum corpse is not selected). (f)
+      A monster unlocking the shared magic chest silently ends the
+      hero's lock pick of it from another chest tile (two tiles need a
+      wizard wish). (g) Every item-seeking monster within 5 squares
+      walks an unlocked magic chest's whole stash each turn (master).
+      (h) Worn shimmering dragon scales (cloak slot) don't count for
+      defended(AD_STUN) - only W_ARM dragon armor does (master
+      identical). (i) Battery T1 saw a large box's lknown drop 1 -> 0
+      when a monster picked it up while the hero was blind; cause not
+      traced (no lknown write on that path in the slice). LOW.
+- [x] Monster chest_trap() arm ABSENT (minted 2026-09-06 by the
       defended() sweep audit; the artifacts-B DEFER list named an
       owner report file only): master chest_trap(mon, obj, bodypart,
       disarm) has a full monster/hero split (needle prick, tower of
@@ -22538,6 +22571,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       too: has_free_action(mon) prints "stiffens momentarily."
       (canseemon) and skips the freeze, else mcanmove 0 / mfrozen
       d(5,6) (5e5123697 + 5091b9a40) - carry it with the leg.
+      CLOSED 2026-11-01 (session 283, commit pending; BUG-2773..2776).
+      mon_chest_trap(mon, box, bodypart) beside the hero's chest_trap()
+      (vanilla body kept; the dud table and the destruction block
+      shared as chest_trap_dud() / chest_blast(), hero side identical:
+      battery T3 messages, bills and every RNG draw PRE = POST).
+      Master's monster leg with the five gates and the free-action
+      rider (paralyze_monst(d(5,6))). RULED: a monster's blast bills
+      nobody; it wakes around the box (wake_nearto 400); the gas arm
+      mirrors the hero's (1 in 3 a cloud credited to nobody). Over
+      master: item-destruction damage applied, mhpmax floored at 1,
+      immolation doubled. Battery T2 every arm PASS (forced and
+      natural; ice drowning; MMOVE_DIED; save/restore with a cloud).
 - [x] montraits/clone_mon transient-reset drift PORTED 2026-09-02
       (minted 2026-08-30 by the orbs-remainder slice's reviewer;
       LOW; closes the 2026-08-23 mberserk-slice family row as
@@ -34015,6 +34060,21 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       and src/monmove.c m_move(). Held lines: rumors.tru "Better keep
       a lock on your stash..."; rumors.fal "Monsters have no interest
       in your magic chest." and "No need to lock that chest...".
+      DONE 2026-11-01 (session 283, commit pending; BUG-2777..2782):
+      master's mloot_container() + the container arm (mopen_container())
+      with the magic chest spliced ahead of the floor pile, one shared
+      opening test for the goal search and the action
+      (mon_opens_container() / mon_wanted_content() / likes_contents(),
+      goal = the square), keys in searches_for_item(), postmov() on a
+      bare chest square and MMOVE_DIED after a deadly trap, the three
+      held rumor lines; both TODO-EVILHACK markers removed; both rare
+      bags excluded on both sides. RULED: peacefuls leave boxes shut;
+      no Wizard / Rider keyless pass; waslocked per box; safes and
+      crystal chests never a goal or unlocked (one stood on and
+      unlocked may be looted); nothing opened on pool or lava; the
+      container must be touchable. Master's `can_carry > 0 ||
+      Is_container` goal relax not ported (hover). Batteries T1 / T4
+      PASS. The row stays open for (b), (e), (f), (g).
       (b) BLESSED-STETHOSCOPE EGG IDENTIFICATION (LOW): master
       748b8f752 apply.c use_stethoscope() egg arm (BUC-graded guess,
       blessed reliable, hallucination junk name, stale_egg()/NON_PM
@@ -35651,6 +35711,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-01 | Floor-container looting and monster box traps slice rulings (Phase 2 session 283, AskUserQuestion x3, seven questions plus the slice pick; all as recommended except (3)). (1) SLICE: floor-container looting + the monster chest_trap() arm. (2) SHOP: a monster's box explosion bills nobody. (3) GAS (over the recommendation): the monster gas arm mirrors the hero's - 2 in 3 master's direct dose, 1 in 3 a gas cloud over the box credited to nobody. (4) QUIRKS (multiSelect, all three): the blast wakes around the box; waslocked per box; no Wizard / Rider keyless pass on the goal side either. (5) PEACEFULS: leave boxes shut. (6) SAFES: master's split - never a goal, never unlocked, an unlocked one stood on may be looted (the reviewer's take-it-whole leak closed under this ruling, gelatinous cubes excepted). (7) FOLD-INS (multiSelect, all four): nothing opened on pool or lava; the container must be touchable; master's lost 6f156aa7c #force guards; the fire trap's max HP floor (the battery found the life-saving premise unreachable - the real path is SPFX_HPHDAM halving). Not asked, recorded: tknown / lknown follow what the hero saw; master's "erupts" wording; wake radius 400 (land mine); 5.0's Schroedinger's box refusal kept; an engulfer holding the hero opens no box; the chest trap leg is a separate function to keep vanilla's chest_trap() mergeable. | maintainer |
 | 2026-11-01 | Muse offense, monster wishes, creeping mound and known-fix LOWs slice rulings (Phase 2 session 282, AskUserQuestion x5, ten questions, all as recommended). (1) SLICE (multiSelect): the unported monster ports and the known-fix LOWs; scoped to offensive items, monster wishes and creeping mound eating (floor-container looting + monster chest traps, the defensive / misc riders, charging and the bearded axe stay open). (2) MELEE GATE: master's SporkHack gate tests the TARGET's square (a strong pet next to the hero still zaps a monster at range). (3) PETS: scroll of earth, camera, scroll of fire and stinking cloud only when the target is the hero. (4) HALLUCINATION SPLASH: master's "You are freaked out." (5-14 turns); a monster hit is confused. (5) TELEPORTED TRAPPED MONSTER: master's shape - the landing trap acts (can kill or carry it off the level), callers guarded. (6) HIT WAKEUP: master's - a landed blow that ends early wakes and angers. (7) MOUND: through 5.0's shared eater. (8) QUIRKS (multiSelect, all three): a resisted polymorph potion teaches the thrower; tame zappers check the whole beam line; armor re-checked after a touch burn changes form. (9) PET OIL (review): only when the blast can't reach the hero (and master's self-test on the target square). (10) SHOP (review): a monster's polymorph / shatter beam bills nobody. (11) STAY PUT (review): only a real move re-fires the trap. Not asked, recorded: master's dead rnd_offensive_item() cases 13-15 not ported; any monster with the wand may wish (master); wished figurines wait for MUSE_FIGURINE. | maintainer |
 | 2026-11-01 | Held steed, wording and residue slice rulings (Phase 2 session 281, AskUserQuestion x5, eleven questions). (1) SLICE (multiSelect): session 280's three new rows (as recommended) and session 279's three residue rows. (2) STAIRS: turn cost only - a vine-held steed at '<' / '>' takes the turn, a sleeping one stays free, '>' keeps master's order (a held or sleeping steed still blocks ending your own levitation) (as recommended). (3) VINE WORDS: the cast matches the release - "branches" for a hero over water, lava or a hole as in the air - and monsters too: a flying or floating monster always reads "branches" (as recommended). (4) CEILING DROP: keep the plunge - a ceiling hider dropping onto a trap it met meets it again (as recommended). (5) TRAP MARKER: record - not saved, a restore re-meets a trap on the next in-place landing (vanilla) (as recommended). (6) FLOOR ICE: slows a zombie's rise too, as rot and troll revival (as recommended). (7) TROLLS: keep vanilla - a norevive troll corpse still gets a revival timer, twitches feebly and "You feel less hassled." (over the recommended master shape). (8) DISMOUNT IN PLACE: keep - stepping off in place re-meets the trap (over the recommended session 279 rule). (9) #SAVEOPTIONS: only the player's - sysconf-only OPTIONS, MENUCOLOR and AUTOPICKUP_EXCEPTION lines stay out of the player's file; the tutorial question still honors sysconf (as recommended). (10) CHAIN OVER WATER / LAVA: same as open air - the chain pulls a tethered rider off onto dry ground within its reach, the steed goes in alone; with none the hero falls in where they are (as recommended). (11) BALL AND A HELD STEED: a line like yours - "The ball pulls your pony out of the tree's grip!" / "...out of the vegetation!" (as recommended). | maintainer |
 | 2026-10-31 | Riding pair and known-fix LOWs slice rulings (Phase 2 session 280, AskUserQuestion x6, eleven questions). (1) SLICE (multiSelect): the ruled riding pair and the LOWs with known fixes (as recommended). (2) HERO LEG / SYMMETRY: "keep vanilla but make it symmetric with monster steeds", confirmed as MONSTERS MATCH THE HERO - the hero's own flight or levitation keeps carrying a walking steed, and a ridden monster pair gets whichever lift is better, the rider's or the steed's, both ways; supersedes (11) of the session 279 entry ("the steed decides") and BUG-2716's rule; mfndpos() reads the rider's own lift again (session 275's pathing ruling stands). (3) STEED TEXT: reuse trapmove()'s and hurtle()'s lines with the steed as subject (as recommended). (4) SCATTER: free the hero's steed silently, like monsters, both getting the hold-release drop (as recommended). (5) LEVITATION CARRIES TOO: dochug()'s open-air plummet and the sewage slow test (Flying || Levitation) for the hero's steed (as recommended). (6) SPEAR TRAP: "spear trap IS a floor trap" - SPEAR_TRAP_SET joins floor_trigger() (over the recommended rider's-lift-only arm; the floor_trigger() shape confirmed over fire-but-miss). (7) ENTANGLED STEED: magic jumps are blocked too, a teleport or level change frees the steed, and monsters can't mount an entangled one (all as recommended). (8) FOLDS: a rider dropping when its flying steed dies (dropped later: mondead() and mongone() already do it), dispel evil waking its target before the banish, the Rogue-level aura room (all as recommended). (9) TORN FREE: a pit fiend's hurl tears the steed out of the vines too ("Your pony is torn from the vegetation!" / "...the tree's grip!"), and a tree-held steed keeps the pair up over a new pit or hole (as recommended). | maintainer |
