@@ -22536,8 +22536,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       turn). Batteries T3 / T4 PASS. STILL OPEN here: SCR_CHARGING (with a
       monster recharge arm on mon_charge_ring()) and the bearded axe disarm
       (wave 2).
-      CLOSED 2026-11-02 (session 285, wave 2; BUG-2795..2804; commits
-      pending). SCR_CHARGING PORTED: MUSE_SCR_CHARGING 19 in both
+      CLOSED 2026-11-02 (session 285, wave 2; BUG-2795..2804; code
+      059962eb1 / 7e46a36b2 / 96319cfe2, tracker d5c7665d9).
+      SCR_CHARGING PORTED: MUSE_SCR_CHARGING 19 in both
       check_offensive_item() (after slow monster) and check_misc_item()
       (after the polymorph potion); find_best_item_to_charge() (open
       inventory, master's 17 wand types + frost / fire horn + camera,

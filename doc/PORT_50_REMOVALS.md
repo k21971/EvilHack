@@ -332,7 +332,7 @@ tracker; sNNN = port session.
   wishing and its one-charge recharge ("glows feebly") -> master's
   (1:1..3), already recharged outside explore mode, so charging one
   blows it up; a never-recharged one recharges to 1..3 (ruled s285,
-  BUG-2796; upstream 615edb1c7; master 80ab6d9dc). The other
+  BUG-2796, 059962eb1; upstream 615edb1c7; master 80ab6d9dc). The other
   wish-spreading parts (Vlad's throne, the Amulet wish) went earlier.
 
 ### 2.4 Text and logs
