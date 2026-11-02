@@ -79,6 +79,9 @@ staticfn int try_lift(struct monst *, struct trap *, int, boolean);
 staticfn int help_monster_out(struct monst *, struct trap *);
 staticfn void disarm_box(struct obj *, boolean, boolean);
 staticfn void untrap_box(struct obj *, boolean, boolean);
+staticfn const char *chest_trap_dud(void);
+staticfn boolean chest_blast(struct obj *, coordxy, coordxy, struct monst *,
+                             long *) NONNULLARG1;
 #if 0
 staticfn void join_adjacent_pits(struct trap *);
 #endif
@@ -2203,6 +2206,11 @@ trapeffect_fire_trap(
                 trapkilled = TRUE;
             else {
                 mtmp->mhpmax -= rn2(num + 1);
+                /* a monster whose damage was halved (damage_mon() for an
+                   SPFX_HPHDAM carrier) can be left with less max HP
+                   than the cut */
+                if (mtmp->mhpmax < 1)
+                    mtmp->mhpmax = 1;
                 if (mtmp->mhp > mtmp->mhpmax)
                     mtmp->mhp = mtmp->mhpmax;
             }
@@ -7678,15 +7686,100 @@ openfallingtrap(
     return result;
 }
 
-/* only called when the player is doing something to the chest directly;
-   returns True if chest is destroyed, False if it remains in play */
+/* a box trap went off but did no harm; which part of it failed */
+staticfn const char *
+chest_trap_dud(void)
+{
+    const char *msg;
+
+    switch (rn2(13)) {
+    case 12:
+    case 11:
+        msg = "explosive charge is a dud";
+        break;
+    case 10:
+    case 9:
+        msg = "electric charge is grounded";
+        break;
+    case 8:
+    case 7:
+        msg = "flame fizzles out";
+        break;
+    case 6:
+    case 5:
+    case 4:
+        msg = "poisoned needle misses";
+        break;
+    case 3:
+    case 2:
+    case 1:
+    case 0:
+        msg = "gas cloud blows away";
+        break;
+    default:
+        impossible("chest disarm bug");
+        msg = (char *) 0;
+        break;
+    }
+    return msg;
+}
+
+/* a trapped box has exploded: destroy it and everything at its spot (the
+   Amulet, the invocation tools, Rider corpses and the other indestructible
+   objects remain intact and uncharged, and a bag or statue here gives them
+   up first); with a shopkeeper, what is destroyed is charged to the hero
+   and added to *lossp; returns True if the box itself was destroyed, which
+   a carried one isn't */
+staticfn boolean
+chest_blast(
+    struct obj *box,
+    coordxy ox, coordxy oy, /* the box's spot */
+    struct monst *shkp,     /* null: nothing is charged */
+    long *lossp)            /* only used with shkp */
+{
+    struct obj *otmp, *otmp2;
+    boolean chestgone = FALSE;
+
+    /* what can't be destroyed is left where the box is, and
+       isn't charged for */
+    if (has_indestructible_contents(box))
+        spare_indestructible_contents(box, 0, 0);
+    if (shkp)
+        *lossp += stolen_value(box, ox, oy, (boolean) shkp->mpeaceful, TRUE);
+    delete_contents(box);
+    /* unpunish() in advance if either ball or chain (or both)
+       is going to be destroyed */
+    if (Punished && ((uchain->ox == ox && uchain->oy == oy)
+                     || (uball->where == OBJ_FLOOR
+                         && uball->ox == ox && uball->oy == oy)))
+        unpunish();
+    /* usually the box will be destroyed along with the stuff at this
+       spot, but not if it is being carried */
+    for (otmp = svl.level.objects[ox][oy]; otmp; otmp = otmp2) {
+        otmp2 = otmp->nexthere;
+        if (has_indestructible_contents(otmp))
+            spare_indestructible_contents(otmp, 0, 0);
+        /* the box itself was charged with its contents above */
+        if (shkp && otmp != box && !obj_indestructible(otmp))
+            *lossp += stolen_value(otmp, otmp->ox, otmp->oy,
+                                   (boolean) shkp->mpeaceful, TRUE);
+        if (otmp == box)
+            chestgone = TRUE;
+        delobj(otmp);
+    }
+    return chestgone;
+}
+
+/* only called when the player is doing something to the chest directly
+   (a monster's is mon_chest_trap()); returns True if chest is destroyed,
+   False if it remains in play */
 boolean
 chest_trap(
     struct obj *obj,
     int bodypart,
     boolean disarm)
 {
-    struct obj *otmp = obj, *otmp2;
+    struct obj *otmp = obj;
     char buf[BUFSZ];
     const char *msg;
     coord cc;
@@ -7701,35 +7794,7 @@ chest_trap(
     display_nhwindow(WIN_MESSAGE, FALSE);
     if (Luck > -13 && rn2(13 + Luck) > 7) { /* saved by luck */
         /* trap went off, but good luck prevents damage */
-        switch (rn2(13)) {
-        case 12:
-        case 11:
-            msg = "explosive charge is a dud";
-            break;
-        case 10:
-        case 9:
-            msg = "electric charge is grounded";
-            break;
-        case 8:
-        case 7:
-            msg = "flame fizzles out";
-            break;
-        case 6:
-        case 5:
-        case 4:
-            msg = "poisoned needle misses";
-            break;
-        case 3:
-        case 2:
-        case 1:
-        case 0:
-            msg = "gas cloud blows away";
-            break;
-        default:
-            impossible("chest disarm bug");
-            msg = (char *) 0;
-            break;
-        }
+        msg = chest_trap_dud();
         if (msg)
             pline("But luckily the %s!", msg);
     } else {
@@ -7754,45 +7819,15 @@ chest_trap(
             pline("%s!", Tobjnam(obj, "explode"));
             Snprintf(buf, sizeof buf, "exploding %s", xname(obj));
 
-            /* what can't be destroyed is left where the box is, and
-               isn't charged for */
-            if (has_indestructible_contents(obj))
-                spare_indestructible_contents(obj, 0, 0);
-            if (costly)
-                loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful,
-                                     TRUE);
-            delete_contents(obj);
             /*
-             * Note:  the explosion is taking place at the chest's
-             * location, not necessarily at the hero's.  (Simplest
+             * Note: the explosion is taking place at the chest's
+             * location, not necessarily at the hero's. (Simplest
              * case: kicking it from one step away and getting the
              * chest_trap() outcome.)
              */
-            /* unpunish() in advance if either ball or chain (or both)
-               is going to be destroyed */
-            if (Punished && ((uchain->ox == ox && uchain->oy == oy)
-                             || (uball->where == OBJ_FLOOR
-                                 && uball->ox == ox && uball->oy == oy)))
-                unpunish();
-            /* destroy everything at the spot (the Amulet, the
-               invocation tools, Rider corpses and the other
-               indestructible objects will remain intact, uncharged, and
-               a bag or statue here gives them up first); usually the
-               chest will be destroyed along with the stuff at this spot,
-               but not if it is being carried */
-            chestgone = FALSE;
-            for (otmp = svl.level.objects[ox][oy]; otmp; otmp = otmp2) {
-                otmp2 = otmp->nexthere;
-                if (has_indestructible_contents(otmp))
-                    spare_indestructible_contents(otmp, 0, 0);
-                /* the box itself was charged with its contents above */
-                if (costly && otmp != obj && !obj_indestructible(otmp))
-                    loss += stolen_value(otmp, otmp->ox, otmp->oy,
-                                         (boolean) shkp->mpeaceful, TRUE);
-                if (otmp == obj)
-                    chestgone = TRUE;
-                delobj(otmp);
-            }
+            chestgone = chest_blast(obj, ox, oy,
+                                    costly ? shkp : (struct monst *) 0,
+                                    &loss);
             wake_nearby(FALSE);
             losehp(Maybe_Half_Phys(d(6, 6)), buf, KILLED_BY_AN);
             exercise(A_STR, FALSE);
@@ -7897,6 +7932,223 @@ chest_trap(
 
     obj->tknown = 1; /* hero knows chest is no longer trapped */
     return FALSE;
+}
+
+/* a monster has set off the trap on a box at its feet (mpickstuff());
+   the hero's Luck plays no part, its kills are credited to nobody and a
+   box it blows up in a shop is charged to nobody; returns True if mon
+   died or left the level; the box can be gone either way (blown up, or
+   buried when melting ice lets a boulder fill the pool), so the caller
+   must not touch it again */
+boolean
+mon_chest_trap(
+    struct monst *mon,
+    struct obj *obj,
+    int bodypart)
+{
+    coordxy x = mon->mx, y = mon->my;
+    boolean vis = canseemon(mon);
+    const char *msg;
+
+    if (obj->where != OBJ_FLOOR || obj->ox != x || obj->oy != y) {
+        impossible("mon_chest_trap: %s not at %s feet",
+                   simpleonames(obj), s_suffix(mon_nam(mon)));
+        return FALSE;
+    }
+    obj->otrapped = 0; /* trap is one-shot */
+    /* the hero learns it is no longer trapped only by seeing it go off;
+       anything known about it before is now out of date */
+    obj->tknown = vis ? 1 : 0;
+    if (vis) {
+        pline_mon(mon, "%s triggers a trap!", Monnam(mon));
+        display_nhwindow(WIN_MESSAGE, FALSE);
+    }
+    if (rn2(13) > 9) { /* saved by chance */
+        msg = chest_trap_dud();
+        if (msg && vis)
+            pline_mon(mon, "But luckily the %s!", msg);
+        return FALSE;
+    }
+    switch (rn2(26)) {
+    case 25:
+    case 24:
+    case 23:
+    case 22:
+    case 21:
+        if (vis)
+            pline_mon(mon, "%s!", Tobjnam(obj, "explode"));
+        else
+            You_hear("a distant explosion.");
+        /* the hero didn't set it off, so nothing is charged */
+        (void) chest_blast(obj, x, y, (struct monst *) 0, (long *) 0);
+        /* obj is gone; as loud as a land mine, wherever the hero is */
+        wake_nearto(x, y, 400);
+        if (damage_mon(mon, d(6, 6), AD_PHYS, FALSE))
+            monkilled(mon, "explosion", AD_PHYS);
+        break;
+    case 20:
+    case 19:
+    case 18:
+    case 17:
+        if (vis)
+            pline_mon(mon, "A cloud of noxious gas billows from %s.",
+                      the(xname(obj)));
+        if (rn2(3)) {
+            if (!(resists_poison(mon) || defended(mon, AD_DRST))) {
+                int dmg = rnd(15);
+
+                if (!rn2(10))
+                    dmg = mon->mhp;
+                if (damage_mon(mon, dmg, AD_DRST, FALSE))
+                    monkilled(mon, "", AD_DRST);
+            }
+        } else {
+            /* nobody's cloud: no kill credit, nobody angered */
+            create_gas_cloud(x, y, 1, 8, (struct monst *) 0);
+        }
+        break;
+    case 16:
+    case 15:
+    case 14:
+    case 13:
+        if (vis)
+            pline_mon(mon, "A needle pricks %s %s.",
+                      s_suffix(mon_nam(mon)), mbodypart(mon, bodypart));
+        if (!(resists_poison(mon) || defended(mon, AD_DRST))) {
+            int dmg = rnd(10);
+
+            if (!rn2(10))
+                dmg = mon->mhp;
+            if (damage_mon(mon, dmg, AD_DRST, FALSE))
+                monkilled(mon, "", AD_DRST);
+        } else if (vis) {
+            pline_mon(mon, "%s is unaffected.", Monnam(mon));
+        }
+        break;
+    case 12:
+    case 11:
+    case 10:
+    case 9: {
+        int orig_dmg = d(2, 4);
+
+        if (vis)
+            pline_mon(mon, "A %s erupts from %s!", tower_of_flame,
+                      the(xname(obj)));
+        if (resists_fire(mon) || defended(mon, AD_FIRE)) {
+            if (vis) {
+                shieldeff(x, y);
+                pline_mon(mon, "%s is uninjured.", Monnam(mon));
+            }
+        } else {
+            int num = orig_dmg, alt;
+            boolean immolate = FALSE;
+
+            /* paper burns very fast, assume straw is tightly packed
+               and burns a bit slower */
+            switch (monsndx(mon->data)) {
+            case PM_PAPER_GOLEM:
+                immolate = TRUE;
+                alt = mon->mhpmax;
+                break;
+            case PM_STRAW_GOLEM:
+                alt = mon->mhpmax / 2;
+                break;
+            case PM_WOOD_GOLEM:
+                alt = mon->mhpmax / 4;
+                break;
+            case PM_LEATHER_GOLEM:
+                alt = mon->mhpmax / 8;
+                break;
+            default:
+                alt = 0;
+                break;
+            }
+            if (alt > num)
+                num = alt;
+
+            /* immolation is a kill; doubled because damage_mon()
+               halves physical damage for an SPFX_HPHDAM carrier */
+            if (!thitm(0, mon, (struct obj *) 0, immolate ? 2 * num : num,
+                       immolate, FALSE)) {
+                mon->mhpmax -= rn2(num + 1);
+                /* a monster whose damage was halved (damage_mon() for
+                   an SPFX_HPHDAM carrier) can be left with less max HP
+                   than the cut */
+                if (mon->mhpmax < 1)
+                    mon->mhpmax = 1;
+                if (mon->mhp > mon->mhpmax)
+                    mon->mhp = mon->mhpmax;
+            }
+        }
+        if (burnarmor(mon) || rn2(3)) {
+            int xtradmg = destroy_items(mon, AD_FIRE, orig_dmg);
+
+            ignite_items(mon->minvent);
+            if (!DEADMONSTER(mon)
+                && damage_mon(mon, xtradmg, AD_FIRE, FALSE))
+                monkilled(mon, "", AD_FIRE);
+        }
+        if (burn_floor_objects(x, y, vis, FALSE) && !vis
+            && distu(x, y) <= 3 * 3)
+            You("smell smoke.");
+        /* melting ice can drown mon or send it elsewhere */
+        if (is_ice(x, y))
+            melt_ice(x, y, (char *) 0);
+        break;
+    }
+    case 8:
+    case 7:
+    case 6: {
+        int dmg = d(4, 4), xtradmg;
+
+        if (vis)
+            pline_mon(mon, "%s is jolted by a surge of electricity!",
+                      Monnam(mon));
+        /* rings and wands are at risk even if mon resists */
+        xtradmg = destroy_items(mon, AD_ELEC, dmg);
+        if (resists_elec(mon) || defended(mon, AD_ELEC)) {
+            if (vis)
+                pline_mon(mon, "%s doesn't seem to be affected.",
+                          Monnam(mon));
+            dmg = 0;
+        }
+        dmg += xtradmg;
+        if (dmg > 0 && !DEADMONSTER(mon)
+            && damage_mon(mon, dmg, AD_ELEC, FALSE))
+            monkilled(mon, "", AD_ELEC);
+        break;
+    }
+    case 5:
+    case 4:
+    case 3:
+        if (has_free_action(mon)) {
+            if (vis)
+                pline_mon(mon, "%s stiffens momentarily.", Monnam(mon));
+        } else if (mon->mcanmove) {
+            if (vis)
+                pline_mon(mon, "%s is frozen in place!", Monnam(mon));
+            paralyze_monst(mon, d(5, 6));
+        }
+        break;
+    case 2:
+    case 1:
+    case 0:
+        if (vis)
+            pline_mon(mon, "A cloud of %s gas billows from %s.",
+                      Blind ? ROLL_FROM(blindgas) : rndcolor(),
+                      the(xname(obj)));
+        if (!(mon_resists_stun(mon) || defended(mon, AD_STUN)
+              || mon_wielding_artifact(mon, ART_TEMPEST)))
+            mon->mstun = 1;
+        mon->mconf = 1;
+        if (vis)
+            pline_mon(mon, "%s staggers for a moment.", Monnam(mon));
+        break;
+    default:
+        impossible("bad chest trap");
+        break;
+    }
+    return mon_lost_in_rloc(mon);
 }
 
 struct trap *

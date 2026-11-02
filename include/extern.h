@@ -2175,6 +2175,10 @@ extern int mstrength(struct permonst *) NONNULLARG1;
 
 extern boolean mon_would_take_item(struct monst *, struct obj *) NONNULLARG12;
 extern boolean mon_would_consume_item(struct monst *, struct obj *) NONNULLARG12;
+extern int mon_opens_container(struct monst *, struct obj *, coordxy, coordxy,
+                               boolean *) NONNULLPTRS;
+extern struct obj *mon_wanted_content(struct monst *,
+                                      struct obj *) NONNULLARG12;
 extern boolean itsstuck(struct monst *) NONNULLARG1;
 extern boolean mb_trapped(struct monst *, boolean) NONNULLARG1;
 extern void mon_track_add(struct monst *, coordxy, coordxy) NONNULLARG1;
@@ -3755,6 +3759,7 @@ extern boolean openholdingtrap(struct monst *, boolean *) NO_NNARGS;
 extern boolean closeholdingtrap(struct monst *, boolean *) NO_NNARGS;
 extern boolean openfallingtrap(struct monst *, boolean, boolean *) NONNULLARG3;
 extern boolean chest_trap(struct obj *, int, boolean) NONNULLARG1;
+extern boolean mon_chest_trap(struct monst *, struct obj *, int) NONNULLARG12;
 extern void deltrap(struct trap *) NONNULLARG1;
 extern struct obj *deltrap_with_ammo(struct trap *, int) NO_NNARGS;
 extern void set_trap_ammo(struct trap *, struct obj *) NO_NNARGS;
