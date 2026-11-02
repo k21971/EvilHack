@@ -16,7 +16,11 @@ staticfn int read_ok(struct obj *);
 staticfn void stripspe(struct obj *);
 staticfn void p_glow1(struct obj *);
 staticfn void p_glow2(struct obj *, const char *);
-staticfn void p_glow3(struct obj *, const char *);
+staticfn void mon_p_glow(struct monst *, struct obj *, const char *);
+staticfn void mon_stripspe(struct monst *, struct obj *);
+staticfn int wand_recharge_lim(struct obj *);
+staticfn int wand_recharge_n(int, boolean);
+staticfn void mwand_explode(struct monst *, struct obj *);
 staticfn int maybe_tame(struct monst *, struct obj *);
 staticfn boolean can_center_cloud(coordxy, coordxy);
 staticfn void display_stinking_cloud_positions(boolean);
@@ -785,12 +789,38 @@ p_glow2(struct obj *otmp, const char *color)
           Blind ? "" : " ", Blind ? "" : hcolor(color));
 }
 
+/* p_glow1() (null color) or p_glow2() for an item a monster charges;
+   only a hero who sees the monster notices */
 staticfn void
-p_glow3(struct obj *otmp, const char *color)
+mon_p_glow(struct monst *mon, struct obj *obj, const char *color)
 {
-    pline("%s feebly%s%s for a moment.",
-          Yobjnam2(otmp, Blind ? "vibrate" : "glow"),
-          Blind ? "" : " ", Blind ? "" : hcolor(color));
+    if (!canseemon(mon))
+        return;
+    if (color)
+        pline_mon(mon, "%s %s %s %s for a moment.", s_suffix(Monnam(mon)),
+                  distant_name(obj, xname), otense(obj, "glow"),
+                  hcolor(color));
+    else
+        pline_mon(mon, "%s %s %s briefly.", s_suffix(Monnam(mon)),
+                  distant_name(obj, xname), otense(obj, "glow"));
+}
+
+/* stripspe() for an item a monster charges: feedback only when the
+   monster is seen, and nothing to bill (the item is its own) */
+staticfn void
+mon_stripspe(struct monst *mon, struct obj *obj)
+{
+    boolean vis = canseemon(mon);
+
+    if (obj->blessed || obj->spe <= 0) {
+        if (vis)
+            pline1(nothing_happens);
+    } else {
+        if (vis)
+            pline_mon(mon, "%s %s %s briefly.", s_suffix(Monnam(mon)),
+                      distant_name(obj, xname), otense(obj, "vibrate"));
+        obj->spe = 0;
+    }
 }
 
 /* getobj callback for object to charge */
@@ -832,6 +862,47 @@ charge_ok(struct obj *obj)
     return GETOBJ_EXCLUDE_SELECTABLE;
 }
 
+/* does charging wand obj blow it up? Once recharged, a wand of wishing
+   or of death always does; any other wand's chance climbs with each
+   recharge (the table in recharge()) and is certain after seven
+   recharges. With 'certain', only a sure explosion counts and the RNG
+   isn't touched, so a monster can look before it reads; otherwise rn2()
+   is called just where recharge()'s own test always called it */
+boolean
+recharge_explodes(struct obj *obj, boolean certain)
+{
+    int n = (int) obj->recharged;
+
+    if (obj->oclass != WAND_CLASS || n <= 0)
+        return FALSE;
+    if (obj->otyp == WAN_WISHING || obj->otyp == WAN_DEATH)
+        return TRUE;
+    /* recharge_limit; at seven, n * n * n beats every roll */
+    return (boolean) (certain ? (n * n * n > 7 * 7 * 7 - 1)
+                              : (n * n * n > rn2(7 * 7 * 7)));
+}
+
+/* a wand's charging limit: 3.6's three for a wand of wishing, where
+   5.0's wish spreading allows one */
+staticfn int
+wand_recharge_lim(struct obj *obj)
+{
+    return (obj->otyp == WAN_WISHING) ? 3
+           : (objects[obj->otyp].oc_dir != NODIR) ? 8 : 15;
+}
+
+/* the charge count a non-cursed recharge brings a wand with limit lim
+   up to; a wand of wishing gets up to three */
+staticfn int
+wand_recharge_n(int lim, boolean is_blessed)
+{
+    int n = (lim == 3) ? 3 : rn1(5, lim + 1 - 5);
+
+    if (!is_blessed)
+        n = rnd(n);
+    return n;
+}
+
 /* recharge an object; curse_bless is -1 if the recharging implement
    was cursed, +1 if blessed, 0 otherwise. */
 void
@@ -844,9 +915,7 @@ recharge(struct obj *obj, int curse_bless)
     is_blessed = curse_bless > 0;
 
     if (obj->oclass == WAND_CLASS) {
-        int lim = (obj->otyp == WAN_WISHING)
-                      ? 1
-                      : (objects[obj->otyp].oc_dir != NODIR) ? 8 : 15;
+        int lim = wand_recharge_lim(obj);
 
         /* undo any prior cancellation, even when is_cursed */
         if (obj->spe == -1)
@@ -867,8 +936,7 @@ recharge(struct obj *obj, int curse_bless)
          *      7 : 100     100
          */
         n = (int) obj->recharged;
-        if (n > 0 && (obj->otyp == WAN_WISHING
-                      || (n * n * n > rn2(7 * 7 * 7)))) { /* recharge_limit */
+        if (recharge_explodes(obj, FALSE)) { /* recharge_limit */
             wand_explode(obj, rnd(lim));
             return;
         }
@@ -879,24 +947,18 @@ recharge(struct obj *obj, int curse_bless)
         if (is_cursed) {
             stripspe(obj);
         } else {
-            n = (lim == 1) ? 1 : rn1(5, lim + 1 - 5);
-            if (!is_blessed)
-                n = rnd(n);
+            n = wand_recharge_n(lim, is_blessed);
 
             if (obj->spe < n)
                 obj->spe = n;
             else
                 obj->spe++;
             if (obj->otyp == WAN_WISHING && obj->spe > 3) {
-                /* wands can't give more than three wishes; this code is
-                   currently unreachable but left in case the rules for
-                   wands of wishing change in future */
+                /* wands can't give more than three wishes */
                 wand_explode(obj, 1);
                 return;
             }
-            if (lim == 1)
-                p_glow3(obj, NH_BLUE);
-            else if (obj->spe >= lim)
+            if (obj->spe >= lim)
                 p_glow2(obj, NH_BLUE);
             else
                 p_glow1(obj);
@@ -1129,6 +1191,95 @@ recharge(struct obj *obj, int curse_bless)
         You("have a feeling of loss.");
     }
 
+    /* prevent enchantment from getting out of range */
+    cap_spe(obj);
+}
+
+/* recharge() for an item a monster charges with a scroll of charging:
+   the wands, frost and fire horns and expensive camera that muse.c's
+   find_best_item_to_charge() offers. Only a hero who sees the reader
+   gets feedback, and nothing is billed. An overcharged wand can kill
+   the reader, so the caller uses the scroll up first and checks
+   DEADMONSTER() after */
+void
+mon_recharge(struct monst *mon, struct obj *obj, int curse_bless)
+{
+    int n;
+    boolean is_cursed = (curse_bless < 0), is_blessed = (curse_bless > 0);
+
+    if (obj->oclass == WAND_CLASS) {
+        int lim = wand_recharge_lim(obj);
+
+        /* undo any prior cancellation, even when is_cursed */
+        if (obj->spe == -1)
+            obj->spe = 0;
+        n = (int) obj->recharged;
+        if (recharge_explodes(obj, FALSE)) { /* recharge_limit */
+            mwand_explode(mon, obj);
+            return;
+        }
+        /* didn't explode, so increment the recharge count */
+        obj->recharged = (unsigned) (n + 1);
+        if (is_cursed) {
+            mon_stripspe(mon, obj);
+        } else {
+            n = wand_recharge_n(lim, is_blessed);
+            if (obj->spe < n)
+                obj->spe = n;
+            else
+                obj->spe++;
+            if (obj->otyp == WAN_WISHING && obj->spe > 3) {
+                /* wands can't give more than three wishes */
+                mwand_explode(mon, obj);
+                return;
+            }
+            mon_p_glow(mon, obj,
+                       (obj->spe >= lim) ? NH_BLUE : (const char *) 0);
+        }
+    } else if (obj->otyp == FROST_HORN || obj->otyp == FIRE_HORN
+               || obj->otyp == EXPENSIVE_CAMERA) {
+        /* tools don't have a limit, but the counter used does */
+        if (obj->recharged < 7) /* recharge_limit */
+            obj->recharged++;
+        if (is_cursed) {
+            mon_stripspe(mon, obj);
+        } else if (obj->otyp == EXPENSIVE_CAMERA) {
+            /* recharge()'s camera amounts */
+            if (is_blessed) {
+                n = rn1(16, 15); /* 15..30 */
+                if (obj->spe + n <= 50)
+                    obj->spe = 50;
+                else if (obj->spe + n <= 75)
+                    obj->spe = 75;
+                else
+                    obj->spe = min(obj->spe + n, 127);
+            } else {
+                n = rn1(11, 10); /* 10..20 */
+                if (obj->spe + n <= 50)
+                    obj->spe = 50;
+                else
+                    obj->spe = min(obj->spe + n, SPE_LIM);
+            }
+            mon_p_glow(mon, obj, is_blessed ? NH_BLUE : NH_WHITE);
+        } else {
+            /* recharge()'s magical instrument amounts */
+            obj->spe += is_blessed ? d(2, 4) : rnd(4);
+            if (obj->spe > 20)
+                obj->spe = 20;
+            mon_p_glow(mon, obj, is_blessed ? NH_BLUE : (const char *) 0);
+        }
+    } else {
+        /* nothing else is offered; a monster's ring never is */
+        if (canseemon(mon))
+            pline_mon(mon, "%s looks disappointed.", Monnam(mon));
+        return;
+    }
+    /* the hero can't tell the new count; an unseen use costs the hero
+       what was known about the item, as for a monster's zapped wand */
+    if (!canseemon(mon))
+        unknow_object(obj);
+    else if (objects[obj->otyp].oc_uses_known)
+        obj->known = 0;
     /* prevent enchantment from getting out of range */
     cap_spe(obj);
 }
@@ -3073,6 +3224,58 @@ wand_explode(struct obj *obj, int chg /* recharging */)
     useup(obj);
     /* obscure side-effect */
     exercise(A_STR, FALSE);
+}
+
+/* wand_explode() for a wand a monster overcharges (mon_recharge()): the
+   same dice size, but a fixed two more dice where the hero's charge adds
+   rnd(lim), so monster wand explosions are not as punishing. Physical,
+   so SPFX_HPHDAM halves it in damage_mon() as Maybe_Half_Phys() does for
+   the hero; no one gets the kill */
+staticfn void
+mwand_explode(struct monst *mon, struct obj *obj)
+{
+    int dmg, n, k;
+
+    /* number of damage dice */
+    n = obj->spe + 2;
+    if (n < 2)
+        n = 2; /* arbitrary minimum */
+    /* size of damage dice; the same table as wand_explode() */
+    switch (obj->otyp) {
+    case WAN_WISHING:
+        k = 12;
+        break;
+    case WAN_CANCELLATION:
+    case WAN_DEATH:
+    case WAN_POLYMORPH:
+    case WAN_UNDEAD_TURNING:
+        k = 10;
+        break;
+    case WAN_COLD:
+    case WAN_FIRE:
+    case WAN_LIGHTNING:
+    case WAN_MAGIC_MISSILE:
+        k = 8;
+        break;
+    case WAN_NOTHING:
+        k = 4;
+        break;
+    default:
+        k = 6;
+        break;
+    }
+    dmg = d(n, k);
+    if (canseemon(mon)) {
+        pline_mon(mon, "%s %s %s violently and %s!", s_suffix(Monnam(mon)),
+                  distant_name(obj, xname), otense(obj, "vibrate"),
+                  otense(obj, "explode"));
+    } else if (!Deaf) {
+        Soundeffect(se_explosion, 75);
+        You_hear("an explosion.");
+    }
+    m_useup(mon, obj);
+    if (damage_mon(mon, dmg, AD_PHYS, FALSE))
+        monkilled(mon, "explosion", AD_PHYS);
 }
 
 /* used to collect light-hating monsters being hit by light so that they

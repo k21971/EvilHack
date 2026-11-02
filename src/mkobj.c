@@ -1268,12 +1268,18 @@ mksobj_init(struct obj **obj, boolean artif)
         break;
     case WAND_CLASS:
         if (otmp->otyp == WAN_WISHING)
-            otmp->spe = 1;
+            otmp->spe = rnd(3);
         else
             otmp->spe = rn1(5,
                             (objects[otmp->otyp].oc_dir == NODIR) ? 11 : 4);
         blessorcurse(otmp, 17);
         otmp->recharged = 0; /* used to control recharging */
+        /* EvilHack's random wand of wishing is (1:1..3), not 5.0's
+           (0:1): 3.6's rnd(3) charges, and it counts as recharged once
+           already, so charging it blows it up (outside explore mode);
+           the level files' wands set their own spe and recharged */
+        if (otmp->otyp == WAN_WISHING && !discover)
+            otmp->recharged = 1;
         break;
     case RING_CLASS:
         if (objects[otmp->otyp].oc_charged) {
