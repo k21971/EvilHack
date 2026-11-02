@@ -19,6 +19,9 @@ staticfn void mzapwand(struct monst *, struct obj *, boolean) NONNULLPTRS;
 staticfn void mplayhorn(struct monst *, struct obj *, boolean) NONNULLPTRS;
 staticfn void mbagmsg(struct monst *, struct obj *) NONNULLPTRS;
 staticfn void mreadmsg(struct monst *, struct obj *) NONNULLPTRS;
+staticfn int charge_precedence(int);
+staticfn struct obj *find_best_item_to_charge(struct monst *) NONNULLARG1;
+staticfn int mon_read_charging(struct monst *, struct obj *) NONNULLPTRS;
 staticfn boolean m_use_healing(struct monst *);
 staticfn boolean m_sees_sleepy_soldier(struct monst *);
 staticfn void m_tele(struct monst *, boolean, boolean, int);
@@ -83,6 +86,8 @@ staticfn int check_offensive_item(struct monst *, struct obj *, int,
                                   struct find_context *) NONNULLPTRS;
 staticfn int check_misc_item(struct monst *, struct obj *, int,
                              struct find_context *) NONNULLPTRS;
+staticfn boolean can_attempt_disarm(struct monst *, struct obj *,
+                                    int) NONNULLARG12;
 
 /* Any preliminary checks which may result in the monster being unable to use
  * the item.  Returns 0 if nothing happened, 2 if the monster can't do
@@ -413,6 +418,104 @@ mquaffmsg(struct monst *mtmp, struct obj *otmp)
         Soundeffect(se_mon_chugging_potion, 25);
         You_hear("a chugging sound.");
     }
+}
+
+/* the types a monster most wants charged, best first; any other item
+   find_best_item_to_charge() accepts scores 0 */
+static const short charge_wants[] = {
+    WAN_WISHING, WAN_DEATH, WAN_SLEEP, WAN_FIRE, FIRE_HORN, WAN_COLD,
+    FROST_HORN, WAN_LIGHTNING, WAN_MAGIC_MISSILE, WAN_CANCELLATION,
+    WAN_POLYMORPH, WAN_STRIKING, WAN_TELEPORTATION, WAN_SLOW_MONSTER
+};
+
+staticfn int
+charge_precedence(int otyp)
+{
+    int i;
+
+    for (i = 0; i < SIZE(charge_wants); i++)
+        if (charge_wants[i] == otyp)
+            return SIZE(charge_wants) - i;
+    return 0;
+}
+
+/* the empty wand, horn or camera a monster would most like to charge
+   with a scroll of charging, or null: one in its open inventory (a
+   stashed one stays put), of a type it uses, and never one the charging
+   is sure to blow up (recharge_explodes()) - it takes its next best
+   instead. Asked when choosing the scroll and again when reading it;
+   uses no RNG, since find_offensive() also serves as a predicate */
+staticfn struct obj *
+find_best_item_to_charge(struct monst *mtmp)
+{
+    struct obj *obj, *best = (struct obj *) 0;
+    int priority, best_priority = -1;
+
+    for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+        switch (obj->otyp) {
+        case WAN_DEATH:
+        case WAN_SLEEP:
+        case WAN_FIRE:
+        case WAN_COLD:
+        case WAN_LIGHTNING:
+        case WAN_MAGIC_MISSILE:
+        case WAN_STRIKING:
+        case WAN_TELEPORTATION:
+        case WAN_CANCELLATION:
+        case WAN_POLYMORPH:
+        case WAN_SLOW_MONSTER:
+        case WAN_DIGGING:
+        case WAN_CREATE_MONSTER:
+        case WAN_UNDEAD_TURNING:
+        case WAN_MAKE_INVISIBLE:
+        case WAN_SPEED_MONSTER:
+        case WAN_WISHING:
+        case FROST_HORN:
+        case FIRE_HORN:
+        case EXPENSIVE_CAMERA:
+            break;
+        default:
+            continue; /* not something a monster uses */
+        }
+        if (obj->spe > 0 || recharge_explodes(obj, TRUE))
+            continue;
+        priority = charge_precedence(obj->otyp);
+        if (priority > best_priority) {
+            best = obj;
+            best_priority = priority;
+        }
+    }
+    return best;
+}
+
+/* a monster reads a scroll of charging, as an offensive or a misc item:
+   it charges what find_best_item_to_charge() picks now, or a confused
+   reader recovers its spellcasting. Returns 0 if there's nothing to
+   charge after all (no turn spent), 1 if the reader died, 2 otherwise */
+staticfn int
+mon_read_charging(struct monst *mtmp, struct obj *scroll)
+{
+    struct obj *item = find_best_item_to_charge(mtmp);
+    int curse_bless;
+
+    if (!item)
+        return 0;
+    mreadmsg(mtmp, scroll);
+    if (canseemon(mtmp))
+        makeknown(SCR_CHARGING);
+    curse_bless = scroll->cursed ? -1 : scroll->blessed ? 1 : 0;
+    /* use the scroll up first: an overcharged wand can kill the reader,
+       whose death drops the rest of its inventory */
+    m_useup(mtmp, scroll);
+    if (mtmp->mconf) {
+        if (attacktype(mtmp->data, AT_MAGC))
+            mtmp->mspec_used = 0;
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s looks charged up!", Monnam(mtmp));
+    } else {
+        mon_recharge(mtmp, item, curse_bless);
+    }
+    return DEADMONSTER(mtmp) ? 1 : 2;
 }
 
 /* Defines for various types of stuff.  The order in which monsters prefer
@@ -2045,10 +2148,12 @@ rnd_defensive_item(struct monst *mtmp)
 #define MUSE_POT_SLEEPING 16
 #define MUSE_SCR_EARTH 17
 #define MUSE_CAMERA 18
+#define MUSE_SCR_CHARGING 19 /* also a misc item, so no misc MUSE_ value
+                              * may be 19 either */
 /*#define MUSE_WAN_UNDEAD_TURNING 20*/ /* also a defensive item so don't
                                      * redefine; nonconsecutive value is ok */
 #define MUSE_WAN_SLOW_MONSTER 21 /* skips the shared undead-turning value */
-#define MUSE_WAN_CANCELLATION 22 /* 19 stays free for master's charging */
+#define MUSE_WAN_CANCELLATION 22
 #define MUSE_SCR_STINKING_CLOUD 23
 #define MUSE_POT_POLYMORPH_THROW 24
 #define MUSE_POT_HALLUCINATION 25
@@ -2345,6 +2450,12 @@ check_offensive_item(
     nomore(MUSE_WAN_SLOW_MONSTER);
     if (obj->otyp == WAN_SLOW_MONSTER && obj->spe > 0 && !Slow)
         return MUSE_WAN_SLOW_MONSTER;
+
+    /* reading it puts charges back in an emptied wand or horn; what gets
+       charged is settled when the scroll is read */
+    nomore(MUSE_SCR_CHARGING);
+    if (obj->otyp == SCR_CHARGING && find_best_item_to_charge(mtmp))
+        return MUSE_SCR_CHARGING;
 
     /* the cloud is centered on the target; a pet would catch the hero
        in it, so only a monster attacking the hero reads one */
@@ -3553,6 +3664,8 @@ use_offensive(struct monst *mtmp)
         (void) create_gas_cloud(cx, cy, 15 + 10 * cval, 8 + 4 * cval, mtmp);
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     }
+    case MUSE_SCR_CHARGING:
+        return mon_read_charging(mtmp, otmp);
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
@@ -3634,6 +3747,10 @@ rnd_offensive_item(struct monst *mtmp)
 #define MUSE_WAN_WISHING 13
 #define MUSE_FIGURINE 14  /* master's 12 is MUSE_POT_BOOZE here */
 #define MUSE_PAN_FLUTE 15
+/* master's 13 / 14 are MUSE_WAN_WISHING / MUSE_FIGURINE here */
+#define MUSE_DWARVISH_BEARDED_AXE_WEAPON 16
+#define MUSE_DWARVISH_BEARDED_AXE_SHIELD 17
+/* 19 is MUSE_SCR_CHARGING, shared with the offensive items */
 
 /* spells that monsters can learn from spellbooks.
    Excludes: racial abilities (psionic wave), spells with existing
@@ -3894,6 +4011,29 @@ find_misc(struct monst *mtmp)
     }
 }
 
+/* can mtmp try to hook the hero's weapon (disarm_type 0) or shield (1)
+   with obj, its wielded bearded axe? The bullwhip keeps its own inline
+   test in check_misc_item() */
+staticfn boolean
+can_attempt_disarm(struct monst *mtmp, struct obj *obj, int disarm_type)
+{
+    if (mtmp->mpeaceful || obj != MON_WEP(mtmp))
+        return FALSE;
+    /* hero's location must be known and adjacent */
+    if (!u_at(mtmp->mux, mtmp->muy) || !m_next2u(mtmp) || u.uswallow)
+        return FALSE;
+    if (disarm_type == 0) {
+        /* don't bother if it can't work (this doesn't
+           prevent cursed weapons from being targeted) */
+        if (!uwep)
+            return FALSE;
+        return (canletgo(uwep, "")
+                || (u.twoweap && canletgo(uswapwep, "")));
+    }
+    /* bracers leave nothing to hook */
+    return (uarms && !is_bracer(uarms));
+}
+
 /* callback for checking misc items */
 staticfn int
 check_misc_item(
@@ -3952,6 +4092,19 @@ check_misc_item(
             || (u.twoweap && canletgo(uswapwep, ""))))
         return MUSE_BULLWHIP;
 
+    /* the bearded axe hooks like the bullwhip; the random tests keep an
+       axe-wielder from trying every turn, and a shield is harder to hook
+       than a weapon */
+    nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
+    if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(5)
+        && can_attempt_disarm(mtmp, obj, 0))
+        return MUSE_DWARVISH_BEARDED_AXE_WEAPON;
+
+    nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
+    if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(7)
+        && can_attempt_disarm(mtmp, obj, 1))
+        return MUSE_DWARVISH_BEARDED_AXE_SHIELD;
+
     /* Note: peaceful/tame monsters won't make themselves
      * invisible unless you can see them. Not really right, but...
      */
@@ -3985,6 +4138,10 @@ check_misc_item(
     if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
         && mons[monsndx(mdat)].difficulty < 6)
         return MUSE_POT_POLYMORPH;
+
+    nomore(MUSE_SCR_CHARGING);
+    if (obj->otyp == SCR_CHARGING && find_best_item_to_charge(mtmp))
+        return MUSE_SCR_CHARGING;
 
     /* Infidels thrive on cursed gear */
     nomore(MUSE_SCR_REMOVE_CURSE);
@@ -4348,6 +4505,150 @@ use_misc(struct monst *mtmp)
         }
         /*NOTREACHED*/
         return 0;
+    case MUSE_DWARVISH_BEARDED_AXE_WEAPON:
+        /* attempt to hook the hero's weapon away */
+        {
+            const char *The_axe = vismon ? "The axe" : "An axe";
+            int where_to = rn2(4);
+            struct obj *obj = uwep;
+            const char *hand;
+            char the_weapon[BUFSZ], hand_buf[BUFSZ];
+
+            if (!obj || !canletgo(obj, "")
+                || (u.twoweap && canletgo(uswapwep, "") && rn2(2)))
+                obj = uswapwep;
+            if (!obj)
+                break; /* shouldn't happen after find_misc() */
+
+            Strcpy(the_weapon, the(xname(obj)));
+            hand = body_part(HAND);
+            if (bimanual(obj))
+                hand = makeplural(hand);
+            (void) strncpy(hand_buf, hand, sizeof hand_buf - 1);
+            hand_buf[sizeof hand_buf - 1] = '\0';
+
+            if (vismon)
+                pline_mon(mtmp, "%s swings %s axe towards your %s!",
+                          Monnam(mtmp), mhis(mtmp), hand_buf);
+            if (obj->otyp == HEAVY_IRON_BALL || Hidinshell) {
+                pline("%s glances off of %s.", The_axe, the_weapon);
+                return 1;
+            }
+            if (is_flimsy(obj)) {
+                pline("%s is unable to hook onto %s.", The_axe, the_weapon);
+                return 1;
+            }
+            urgent_pline("%s hooks onto %s you're wielding!", The_axe,
+                         the_weapon);
+            if (welded(obj)) {
+                pline("%s welded to your %s%c",
+                      !is_plural(obj) ? "It is" : "They are", hand_buf,
+                      !obj->bknown ? '!' : '.');
+                /* obj->bknown = 1; */ /* welded() takes care of this */
+                where_to = 0;
+            }
+            if (!where_to) {
+                pline_The("axe comes free."); /* not `The_axe' */
+                return 1;
+            } else if (where_to == 3
+                       && mon_hates_material(mtmp, obj->material)) {
+                /* this monster won't want to catch a weapon made
+                   of a material it hates; drop it at hero's feet
+                   instead */
+                where_to = 2;
+            }
+            remove_worn_item(obj, FALSE);
+            freeinv(obj);
+            switch (where_to) {
+            case 1: /* onto floor beneath mon */
+                pline_mon(mtmp, "%s pulls %s from your %s!", Monnam(mtmp),
+                          the_weapon, hand_buf);
+                place_object(obj, mtmp->mx, mtmp->my);
+                stackobj(obj);
+                newsym(mtmp->mx, mtmp->my);
+                break;
+            case 2: /* onto floor beneath you */
+                pline_mon(mtmp, "%s pulls %s to the %s!", Monnam(mtmp),
+                          the_weapon, surface(u.ux, u.uy));
+                dropy(obj);
+                break;
+            case 3: /* into mon's inventory */
+                pline_mon(mtmp, "%s disarms you, and snatches %s!",
+                          Monnam(mtmp), the_weapon);
+                (void) mpickobj(mtmp, obj);
+                break;
+            }
+            return 1;
+        }
+        /*NOTREACHED*/
+        return 0;
+    case MUSE_DWARVISH_BEARDED_AXE_SHIELD:
+        /* attempt to hook the hero's shield away */
+        {
+            const char *The_axe = vismon ? "The axe" : "An axe";
+            int where_to = rn2(4);
+            struct obj *obj = uarms;
+            /* a shield is never bimanual(); the hand stays singular */
+            const char *hand = body_part(HAND);
+            char the_shield[BUFSZ];
+
+            if (!obj || is_bracer(obj))
+                break; /* shouldn't happen after find_misc() */
+
+            Strcpy(the_shield, the(xname(obj)));
+            if (vismon)
+                pline_mon(mtmp, "%s swings %s axe towards your off%s!",
+                          Monnam(mtmp), mhis(mtmp), hand);
+            if (is_flimsy(obj) || Hidinshell) {
+                pline("%s is unable to hook onto %s.", The_axe, the_shield);
+                return 1;
+            }
+            urgent_pline("%s hooks onto %s!", The_axe, the_shield);
+            if (cursed(obj, TRUE)) {
+                pline("%s welded to your off%s%c",
+                      !is_plural(obj) ? "It is" : "They are", hand,
+                      !obj->bknown ? '!' : '.');
+                /* a silent cursed() leaves the curse unknown */
+                set_bknown(obj, 1);
+                where_to = 0;
+            } else if (P_SKILL(P_SHIELD) >= P_EXPERT) {
+                You("hold on firmly to %s.", ysimple_name(obj));
+                where_to = 0;
+            }
+            if (!where_to) {
+                pline_The("axe comes free."); /* not `The_axe' */
+                return 1;
+            } else if (where_to == 3
+                       && mon_hates_material(mtmp, obj->material)) {
+                /* as for a weapon: a shield made of a material it
+                   hates lands at the hero's feet instead */
+                where_to = 2;
+            }
+            remove_worn_item(obj, FALSE);
+            freeinv(obj);
+            switch (where_to) {
+            case 1: /* onto floor beneath mon */
+                pline_mon(mtmp, "%s pulls %s from your off%s!", Monnam(mtmp),
+                          the_shield, hand);
+                place_object(obj, mtmp->mx, mtmp->my);
+                stackobj(obj);
+                newsym(mtmp->mx, mtmp->my);
+                break;
+            case 2: /* onto floor beneath you */
+                pline_mon(mtmp, "%s pulls %s to the %s!", Monnam(mtmp),
+                          the_shield, surface(u.ux, u.uy));
+                dropy(obj);
+                break;
+            case 3: /* into mon's inventory */
+                pline_mon(mtmp, "%s removes and snatches %s!", Monnam(mtmp),
+                          the_shield);
+                (void) mpickobj(mtmp, obj);
+                break;
+            }
+            return 1;
+        }
+        /*NOTREACHED*/
+        return 0;
     case MUSE_POT_BOOZE:
         if (!otmp)
             panic(MissingMiscellaneousItem, "potion of booze");
@@ -4404,6 +4705,10 @@ use_misc(struct monst *mtmp)
         m_useup(mtmp, otmp);
         return 2;
     }
+    case MUSE_SCR_CHARGING:
+        if (!otmp)
+            panic(MissingMiscellaneousItem, "scroll of charging");
+        return mon_read_charging(mtmp, otmp);
     case MUSE_SCR_REMOVE_CURSE:
         if (!otmp)
             panic(MissingMiscellaneousItem, "scroll of remove curse");
@@ -4617,7 +4922,8 @@ searches_for_item(struct monst *mon, struct obj *obj)
     case SCROLL_CLASS:
         if (typ == SCR_TELEPORTATION || typ == SCR_CREATE_MONSTER
             || typ == SCR_EARTH || typ == SCR_FIRE || typ == SCR_REMOVE_CURSE
-            || (typ == SCR_STINKING_CLOUD && mon->mcansee))
+            || (typ == SCR_STINKING_CLOUD && mon->mcansee)
+            || typ == SCR_CHARGING)
             return TRUE;
         break;
     case AMULET_CLASS:
