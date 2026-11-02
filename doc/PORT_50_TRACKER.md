@@ -17,11 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-02, after session 284's muse
-  riders wave 1 slice: five muse items landed on the still-open muse
-  offense row, the Idol timer / never-tame / satyr fold-ins landed with
-  no row of their own, one LOW residue row minted open):
-  629 rows closed, 59 open
+- Phase 2 status (refreshed 2026-11-02, after session 285's muse
+  wave 2 slice: monster scroll of charging and the bearded axe disarm
+  closed the muse offense row; the wand of death limit, master's
+  random wands of wishing and the is_flimsy() material read landed with
+  no row of their own; one LOW residue row minted open):
+  630 rows closed, 59 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -336,7 +337,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     other hand's plain weapon no longer counts); cancellation also
     ends Stoneskin's stoning resistance, and spares a form's or
     race's reflection and vulnerabilities.
-  - 9 untagged: port gaps (Muse offense items, creeping mound
+  - 9 untagged: port gaps (Muse offense items (closed session 285,
+    BUG-2798 / 2803), creeping mound
     meatfood(), monster chest_trap() (closed session 283, BUG-2773),
     des-placed mplayer sex, look_at_monster buffer; "pairs of" closed
     by design, session 276),
@@ -2682,6 +2684,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       5.0-native rest.
       PROGRESS (2026-10-25, session 261): burnarmor()'s helm name reads
       item->material (BUG-2588, be6bd0f84), master's read.
+      PROGRESS (2026-11-02, session 285): is_flimsy() reads
+      (otmp)->material with master's DRAGON_HIDE arm (BUG-2797). Battery
+      T1: dragon scales leave red streaks on a touchstone and say
+      "Flapp!" at iron bars, iron bracers scratch flint, leather barding
+      streaks it. Siblings left on this row: use_stone()'s outer switch
+      and its streak colour still read objects[].oc_material (leather
+      barding streaks the iron base type's cyan), and hits_bars()' Clink
+      test for gold / silver reads the base type too (mthrowu.c).
 - [x] LOW: materials nits (minted 2026-10-19 by the Materials
       umbrella audit; master-shared, its "fix master first" void
       since the freeze). not_spec_material() reads one past the NUL
@@ -10469,6 +10479,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the muse.c Expert-shield battle-axe hook resist (master
       muse.c) is the one consumer still open - it rides with the
       muse.c AI slice.
+      UPDATE 2026-11-02 (session 285, BUG-2803): the muse.c consumer
+      LANDED with the monster bearded axe disarm - at Expert or better
+      "You hold on firmly to your <shield>."; battery T4 S6 PASS
+      (Skilled is pulled). Every master P_SKILL(P_SHIELD) consumer is
+      now on the branch.
 - [x] pager farlook remainder (NEW, minted 2026-07-27 by the
       glass/blocker slice, which ported the armor-weight half).
       PORTED 2026-09-08 with the pokedex slice (commit A):
@@ -22425,7 +22440,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       rc with mention_decor 1, and /dev/null for --no-evilhackrc; a
       missing file's open error prints once at startup on both. Upstream
       row.
-- [ ] Muse offense items ABSENT (minted 2026-09-06 by the defended()
+- [x] Muse offense items ABSENT (minted 2026-09-06 by the defended()
       sweep audit; the mhitm slice's "-> muse offense" deferral had
       no row): MUSE_POT_OIL (master check_offensive_item/use_offensive
       lit-oil throw; the icequeen slice deliberately left the case-10
@@ -22521,6 +22536,63 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       turn). Batteries T3 / T4 PASS. STILL OPEN here: SCR_CHARGING (with a
       monster recharge arm on mon_charge_ring()) and the bearded axe disarm
       (wave 2).
+      CLOSED 2026-11-02 (session 285, wave 2; BUG-2795..2804; commits
+      pending). SCR_CHARGING PORTED: MUSE_SCR_CHARGING 19 in both
+      check_offensive_item() (after slow monster) and check_misc_item()
+      (after the polymorph potion); find_best_item_to_charge() (open
+      inventory, master's 17 wand types + frost / fire horn + camera,
+      spe <= 0, master's precedence as a table) and mon_read_charging()
+      shared by both use arms; the monster leg of recharge() is read.c
+      mon_recharge() + mwand_explode() beside the hero's (shared
+      recharge_explodes(), wand_recharge_lim(), wand_recharge_n());
+      searches_for_item() wants the scroll. The session 147 rider's
+      "reuse mon_charge_ring()" premise was unreachable - a ring is never
+      a charge candidate (master's monster ring arm in recharge() is dead
+      code) - so neither it nor master's re-find / saved-name band-aids
+      were ported. RULED: a monster never picks a wand charging is sure
+      to blow up (a recharged wand of wishing or death, any wand at
+      recharged 7). Master bugs fixed (frozen-unfixed there): the scroll
+      is used up before the charge (master's after-death m_useup() of a
+      dropped last scroll is "Program in disorder!" + panic, reproduced
+      twice by battery M), both arms return 1 for a dead reader, every
+      monster-side line is gated on the reader being seen, and the hero
+      forgets a monster-charged item's count (reviewer MEDIUM). The
+      DWARVISH_BEARDED_AXE disarm PORTED: misc values 16 / 17 (master's
+      13 / 14 are taken), can_attempt_disarm() for the axe arms only (the
+      vanilla whip stays inline), master's two use arms with every
+      carried fix (Hidinshell, !u.uswallow, both bracer gates, the
+      Expert-shield resist - the find_ac row's last consumer -,
+      mhis(), the mon_hates_material downgrade, BUG-392's stackobj() +
+      newsym()); RULED: a cursed shield that stays put becomes known
+      cursed. Fold-ins (ruled): the wand of death recharge limit and
+      master's (1:1..3) pre-recharged random wand of wishing (silent
+      reverts, BUG-2795 / 2796), is_flimsy() reading the item's own
+      material (BUG-2797). Batteries T1-T4 PASS, M (master) recorded;
+      reviewer CONDITIONAL PASS (MEDIUM folded), delta PASS.
+- [ ] LOW: muse wave 2 residue (minted 2026-11-02, session 285,
+      reviewer and batteries T1-T4 / M; record unless a ruling wants a
+      change). (a) A monster's empty wands are bagged by m_stash_items()
+      when the hero is far off and are then never charge candidates
+      (master identical; battery T2 saw the wand bagged and no read for
+      17 turns). (b) monkilled() prints its death line by the square, so
+      an invisible reader's explosion reads "You hear an explosion." then
+      "It is killed by the explosion!" (5.0's monkilled(); master used
+      canseemon). (c) mwand_explode() copies wand_explode()'s dice-size
+      table. (d) A snatched weapon or shield gets no check_gear_next_turn()
+      (whip and vanilla parity); battery T4 saw the dwarf wield the
+      snatched long sword some turns later on its own. (e) A hostile
+      lined up with a grudge target (mfind_target() returns a monster)
+      takes the mattackm() path, which never uses items, so an empty
+      wand + scroll of charging stalls there as charged wands already do
+      (master structure). (f) Horns are charged without a can_blow()
+      check (master). (g) 5.0's sp_lev only applies a nonzero recharged,
+      so a level file can't ask for recharged 0 (no dat/ file needs it).
+      (h) The axe's rn2(5) / rn2(7) are rolled for any wielded axe, and a
+      tame axe-wielder's misc check runs twice per move (dochug and
+      dog_move; never attempts). (i) An off-hand pull reads "...you're
+      wielding!" / "...from your hand!" like a main-hand pull (master).
+      (j) Charging a wand of wishing explodes one that was recharged even
+      once; a wizard-mode wish sets recharged from the wish text. LOW.
 - [ ] LOW: muse riders wave 1 residue (minted 2026-11-02, session 284,
       reviewer and batteries T1-T4; record unless a ruling wants a
       change). (a) A bag of tricks used on a pool square makes a random
@@ -31493,7 +31565,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       obj after it is freed. Its LOW items: four monster shock callers
       drop item-blast damage (master parity, own LOW row minted);
       monster SCR_CHARGING should reuse mon_charge_ring() (rider on
-      the Muse offense items row).
+      the Muse offense items row; closed 2026-11-02, session 285, as
+      unreachable - a monster never charges a ring).
       RE-TEST (~25 min, maintainer-approved; POST
       3f3afaf5baa2d978d09d9618a999524c, PRE2
       9afe538ceba5b126d6296e92cadf6ad9 = 6ace2e519 code; no master
@@ -35761,6 +35834,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-02 | Muse wave 2 slice rulings (Phase 2 session 285, AskUserQuestion x3, five questions, all as recommended). (1) SLICE: muse wave 2 - monster scroll of charging and the monster bearded axe disarm. (2) RANDOM WANDS OF WISHING: master's shape (80ab6d9dc, from SporkHack) - (1:1..3) and already recharged outside explore mode, so charging one blows it up, hero and monsters, Vecna's drop included; recharge()'s wishing limit back to 3 (a never-recharged wand recharges to 1..3, blessed 3) - 5.0's wish spreading (615edb1c7: (0:1), one safe one-charge recharge, the "feebly" glow) removed (BUG-2796). (3) DOOMED WANDS: a monster never picks an empty wand charging is sure to blow up (a recharged wand of wishing or death; any wand at recharged 7) and charges its next best - master always read at its pre-recharged wishing wand, against 122c9cd9f's stated goal (BUG-2802). (4) FOLD-INS (multiSelect, both): the wand of death recharge limit (master 457f5d79c / 6f4d79593, on the wiki; BUG-2795) and is_flimsy() reading the item's own material with DRAGON_HIDE (the 2026-10-19 SWEEP ruling; BUG-2797). (5) CURSED SHIELD (Plan pass): a cursed shield the axe can't pull becomes known cursed (master's silent cursed() never set bknown; BUG-2804). Not asked, recorded: the scroll is used up before the charge, both use arms return 1 for a dead reader, every monster-side line is gated on the reader being seen (BUG-2799 / 2800); the hero forgets a monster-charged item's count (reviewer MEDIUM, under the existing unseen-use rule of mzapwand(); BUG-2801); the tracker rider's mon_charge_ring() route is unreachable and not used; the vanilla whip stays inline; the explosion kills through monkilled(..., "explosion", AD_PHYS); m_stash_items() bagging empty wands stays (master). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-02 | Muse riders wave 1 slice rulings (Phase 2 session 284, AskUserQuestion x5, nine questions, all as recommended except (9)). (1) SLICE: muse riders wave 1 - restore ability, bag of tricks, figurine, remove curse, pan flute (wave 2: SCR_CHARGING, bearded axe disarm). (2) MONSTER FIGURINE: always hostile (0.9.3 live), written `if (!you) chance = 2;` - master's verbatim `!(u.uconduct.pets && you)` would make a petless hero's own figurines hostile on 5.0; the commit message's petless-only intent not taken. (3) PAN FLUTE PICKUP: satyrs only (master's `!is_satyr` was inverted). (4) FOLD-INS (multiSelect): all three - the Idol of Moloch timer arm (BUG-2783), the never-tame list in tamedog() / make_familiar() (BUG-2784 / 2785), satyr parity from master 4ac81e26f (BUG-2787 / 2788). (5) FIGURINE VS WISHING: a charged wand of wishing first (bb05452de's rule). (6) FLUTE REACH: find_offensive()'s gates - not while the hero is engulfed or in their sanctuary. (7)-(8) recorded in the plan without asking: the Idol is never selected or sought; master's figurine curse write dropped; bag of tricks sought only while charged. (9) CREATE FAMILIAR (reviewer LOW): RE-ROLL a never-tame pick (over the recommended master parity) - BUG-2789. | maintainer |
 | 2026-11-01 | Floor-container looting and monster box traps slice rulings (Phase 2 session 283, AskUserQuestion x3, seven questions plus the slice pick; all as recommended except (3)). (1) SLICE: floor-container looting + the monster chest_trap() arm. (2) SHOP: a monster's box explosion bills nobody. (3) GAS (over the recommendation): the monster gas arm mirrors the hero's - 2 in 3 master's direct dose, 1 in 3 a gas cloud over the box credited to nobody. (4) QUIRKS (multiSelect, all three): the blast wakes around the box; waslocked per box; no Wizard / Rider keyless pass on the goal side either. (5) PEACEFULS: leave boxes shut. (6) SAFES: master's split - never a goal, never unlocked, an unlocked one stood on may be looted (the reviewer's take-it-whole leak closed under this ruling, gelatinous cubes excepted). (7) FOLD-INS (multiSelect, all four): nothing opened on pool or lava; the container must be touchable; master's lost 6f156aa7c #force guards; the fire trap's max HP floor (the battery found the life-saving premise unreachable - the real path is SPFX_HPHDAM halving). Not asked, recorded: tknown / lknown follow what the hero saw; master's "erupts" wording; wake radius 400 (land mine); 5.0's Schroedinger's box refusal kept; an engulfer holding the hero opens no box; the chest trap leg is a separate function to keep vanilla's chest_trap() mergeable. | maintainer |
 | 2026-11-01 | Muse offense, monster wishes, creeping mound and known-fix LOWs slice rulings (Phase 2 session 282, AskUserQuestion x5, ten questions, all as recommended). (1) SLICE (multiSelect): the unported monster ports and the known-fix LOWs; scoped to offensive items, monster wishes and creeping mound eating (floor-container looting + monster chest traps, the defensive / misc riders, charging and the bearded axe stay open). (2) MELEE GATE: master's SporkHack gate tests the TARGET's square (a strong pet next to the hero still zaps a monster at range). (3) PETS: scroll of earth, camera, scroll of fire and stinking cloud only when the target is the hero. (4) HALLUCINATION SPLASH: master's "You are freaked out." (5-14 turns); a monster hit is confused. (5) TELEPORTED TRAPPED MONSTER: master's shape - the landing trap acts (can kill or carry it off the level), callers guarded. (6) HIT WAKEUP: master's - a landed blow that ends early wakes and angers. (7) MOUND: through 5.0's shared eater. (8) QUIRKS (multiSelect, all three): a resisted polymorph potion teaches the thrower; tame zappers check the whole beam line; armor re-checked after a touch burn changes form. (9) PET OIL (review): only when the blast can't reach the hero (and master's self-test on the target square). (10) SHOP (review): a monster's polymorph / shatter beam bills nobody. (11) STAY PUT (review): only a real move re-fires the trap. Not asked, recorded: master's dead rnd_offensive_item() cases 13-15 not ported; any monster with the wand may wish (master); wished figurines wait for MUSE_FIGURINE. | maintainer |

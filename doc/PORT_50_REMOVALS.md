@@ -328,6 +328,12 @@ tracker; sNNN = port session.
   double punch -> master's 1.5x for any blow struck with a two-handed
   weapon, and the full bonus on each hit (s252, BUG-2520 / 2521,
   8814d900a).
+- [x] Wish spreading, the wand half: 5.0's (0:1) random wand of
+  wishing and its one-charge recharge ("glows feebly") -> master's
+  (1:1..3), already recharged outside explore mode, so charging one
+  blows it up; a never-recharged one recharges to 1..3 (ruled s285,
+  BUG-2796; upstream 615edb1c7; master 80ab6d9dc). The other
+  wish-spreading parts (Vlad's throne, the Amulet wish) went earlier.
 
 ### 2.4 Text and logs
 
