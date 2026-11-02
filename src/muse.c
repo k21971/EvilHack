@@ -17,6 +17,7 @@
 staticfn int precheck(struct monst *, struct obj *);
 staticfn void mzapwand(struct monst *, struct obj *, boolean) NONNULLPTRS;
 staticfn void mplayhorn(struct monst *, struct obj *, boolean) NONNULLPTRS;
+staticfn void mbagmsg(struct monst *, struct obj *) NONNULLPTRS;
 staticfn void mreadmsg(struct monst *, struct obj *) NONNULLPTRS;
 staticfn boolean m_use_healing(struct monst *);
 staticfn boolean m_sees_sleepy_soldier(struct monst *);
@@ -331,6 +332,19 @@ mplayhorn(
     otmp->spe -= 1; /* use a charge */
 }
 
+/* see or hear a monster using a bag of tricks; caller uses the charge */
+staticfn void
+mbagmsg(struct monst *mtmp, struct obj *otmp)
+{
+    if (!canseemon(mtmp)) {
+        You_hear("a bag being used.");
+        unknow_object(otmp); /* hero loses info when unseen obj is used */
+    } else {
+        pline_mon(mtmp, "%s uses %s!", Monnam(mtmp), an(xname(otmp)));
+        stop_occupation();
+    }
+}
+
 /* see or hear a monster reading a scroll;
    when scroll hasn't been seen, its label is revealed unless hero is deaf */
 staticfn void
@@ -430,6 +444,8 @@ mquaffmsg(struct monst *mtmp, struct obj *otmp)
 #define MUSE_EUCALYPTUS_LEAF 23
 #define MUSE_POT_VAMPIRE_BLOOD 24
 #define MUSE_ACIDIC_CORPSE 25
+#define MUSE_BAG_OF_TRICKS 26       /* master's 21 is taken here */
+#define MUSE_POT_RESTORE_ABILITY 27 /* master's 25 is taken here */
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -770,6 +786,14 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             return TRUE;
     }
 
+    /* a cancelled monster restores itself, even at full health */
+    if (mtmp->mcan && !nohands(mtmp->data)
+        && (obj = m_carrying(mtmp, POT_RESTORE_ABILITY)) != 0) {
+        gm.m.defensive = obj;
+        gm.m.has_defense = MUSE_POT_RESTORE_ABILITY;
+        return TRUE;
+    }
+
     /* monsters aren't given wands of undead turning but if they
        happen to have picked one up, use it against corpse wielder;
        when applicable, use it now even if 'mtmp' isn't wounded */
@@ -1054,6 +1078,11 @@ find_defensive(struct monst *mtmp, boolean tryescape)
                 gm.m.has_defense = MUSE_WAN_CREATE_MONSTER;
             }
         }
+        nomore(MUSE_BAG_OF_TRICKS);
+        if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0) {
+            gm.m.defensive = obj;
+            gm.m.has_defense = MUSE_BAG_OF_TRICKS;
+        }
         nomore(MUSE_SCR_CREATE_MONSTER);
         if (obj->otyp == SCR_CREATE_MONSTER) {
             gm.m.defensive = obj;
@@ -1176,6 +1205,15 @@ check_defensive_item(
         if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0)
             return MUSE_WAN_CREATE_MONSTER;
     }
+
+    /* a potion in a carried container; a loose one returned early */
+    nomore(MUSE_POT_RESTORE_ABILITY);
+    if (mtmp->mcan && obj->otyp == POT_RESTORE_ABILITY)
+        return MUSE_POT_RESTORE_ABILITY;
+
+    nomore(MUSE_BAG_OF_TRICKS);
+    if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0)
+        return MUSE_BAG_OF_TRICKS;
 
     nomore(MUSE_SCR_CREATE_MONSTER);
     if (obj->otyp == SCR_CREATE_MONSTER)
@@ -1532,6 +1570,24 @@ use_defensive(struct monst *mtmp)
             makeknown(WAN_CREATE_MONSTER);
         return 2;
     }
+    case MUSE_BAG_OF_TRICKS: {
+        coord cc;
+        struct monst *mon;
+        /* pm: 0 => random, eel => aquatic, croc => amphibious */
+        struct permonst *pm = !is_pool(mtmp->mx, mtmp->my) ? 0
+                            : &mons[u.uinwater ? PM_GIANT_EEL : PM_CROCODILE];
+
+        if (!otmp)
+            panic(MissingDefensiveItem, "bag of tricks");
+        if (!enexto(&cc, mtmp->mx, mtmp->my, pm))
+            return 0;
+        mbagmsg(mtmp, otmp);
+        otmp->spe--;
+        mon = makemon((struct permonst *) 0, cc.x, cc.y, NO_MM_FLAGS);
+        if (mon && canspotmon(mon) && oseen)
+            makeknown(BAG_OF_TRICKS);
+        return 2;
+    }
     case MUSE_SCR_CREATE_MONSTER: {
         coord cc;
         struct permonst *pm = 0, *fish = 0;
@@ -1800,6 +1856,17 @@ use_defensive(struct monst *mtmp)
             panic(MissingDefensiveItem, "eucalyptus leaf");
         /* not actually called for its unstoning effect */
         mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
+        return 2;
+    case MUSE_POT_RESTORE_ABILITY:
+        if (!otmp)
+            panic(MissingDefensiveItem, "potion of restore ability");
+        mquaffmsg(mtmp, otmp);
+        mtmp->mcan = 0;
+        if (vismon)
+            pline_mon(mtmp, "%s looks revitalized.", Monnam(mtmp));
+        if (oseen)
+            makeknown(POT_RESTORE_ABILITY);
+        m_useup(mtmp, otmp);
         return 2;
     case 0:
         return 0; /* i.e. an exploded wand */
@@ -3560,10 +3627,13 @@ rnd_offensive_item(struct monst *mtmp)
 #define MUSE_BULLWHIP 8
 #define MUSE_POT_POLYMORPH 9
 /* value 10 was MUSE_BAG, retired when carried-container search made
-   random bag rummaging obsolete */
+   random bag rummaging obsolete; remove curse reuses master's 10 */
+#define MUSE_SCR_REMOVE_CURSE 10
 #define MUSE_SPELLBOOK 11
 #define MUSE_POT_BOOZE 12
 #define MUSE_WAN_WISHING 13
+#define MUSE_FIGURINE 14  /* master's 12 is MUSE_POT_BOOZE here */
+#define MUSE_PAN_FLUTE 15
 
 /* spells that monsters can learn from spellbooks.
    Excludes: racial abilities (psionic wave), spells with existing
@@ -3859,6 +3929,14 @@ check_misc_item(
     if (obj->otyp == WAN_WISHING && obj->spe > 0)
         return MUSE_WAN_WISHING;
 
+    /* below wishing, like booze and gain level; a monster never
+       activates the Idol of Moloch, and picking it would starve every
+       lower item here */
+    nomore(MUSE_FIGURINE);
+    if (obj->otyp == FIGURINE && !mtmp->mpeaceful
+        && !is_art(obj, ART_IDOL_OF_MOLOCH))
+        return MUSE_FIGURINE;
+
     nomore(MUSE_BULLWHIP);
     if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
         /* the random test prevents whip-wielding
@@ -3907,6 +3985,26 @@ check_misc_item(
     if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
         && mons[monsndx(mdat)].difficulty < 6)
         return MUSE_POT_POLYMORPH;
+
+    /* Infidels thrive on cursed gear */
+    nomore(MUSE_SCR_REMOVE_CURSE);
+    if (obj->otyp == SCR_REMOVE_CURSE && !obj->cursed
+        && mdat != &mons[PM_INFIDEL]) {
+        struct obj *otmp;
+
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
+            if (otmp->cursed
+                && (otmp->otyp == LOADSTONE || Is_mbag(otmp)
+                    || otmp->owornmask))
+                return MUSE_SCR_REMOVE_CURSE;
+    }
+
+    /* as with offensive items, an engulfed hero or one in their own
+       sanctuary is out of reach */
+    nomore(MUSE_PAN_FLUTE);
+    if (obj->otyp == PAN_FLUTE && is_satyr(mdat) && !mtmp->mpeaceful
+        && !u.uswallow && !in_your_sanctuary(mtmp, 0, 0) && !rn2(5))
+        return MUSE_PAN_FLUTE;
 
     return 0;
 #undef nomore
@@ -4281,6 +4379,104 @@ use_misc(struct monst *mtmp)
            peaceful or vice versa */
         newsym(mtmp->mx, mtmp->my);
         return 2;
+    case MUSE_FIGURINE: {
+        coord cc;
+        int mndx;
+
+        if (!otmp)
+            panic(MissingMiscellaneousItem, "figurine");
+        mndx = otmp->corpsenm;
+        if (!ismnum(mndx)) {
+            impossible("use_misc: monster activating bad figurine (%d)?",
+                       mndx);
+            break;
+        }
+        if (!enexto(&cc, mtmp->mx, mtmp->my, &mons[mndx]))
+            break;
+        /* make_familiar() handles genocide and extinction and makes the
+           result hostile */
+        if (vismon)
+            pline_mon(mtmp, "%s activates a figurine, and it transforms!",
+                      Monnam(mtmp));
+        else
+            You_hear("a figurine being activated.");
+        (void) make_familiar(otmp, cc.x, cc.y, !vismon, FALSE);
+        m_useup(mtmp, otmp);
+        return 2;
+    }
+    case MUSE_SCR_REMOVE_CURSE:
+        if (!otmp)
+            panic(MissingMiscellaneousItem, "scroll of remove curse");
+        mreadmsg(mtmp, otmp);
+        if (vismon) {
+            if (mtmp->mconf)
+                You("feel as though %s needs some help.", mon_nam(mtmp));
+            else
+                You("feel like someone is helping %s.", mon_nam(mtmp));
+            trycall(otmp);
+        }
+        monster_uncurse_items(mtmp, mtmp->mconf != 0);
+        m_useup(mtmp, otmp);
+        return 2;
+    case MUSE_PAN_FLUTE:
+        if (!otmp)
+            panic(MissingMiscellaneousItem, "pan flute");
+        if (Deaf) /* nothing happens */
+            return 0;
+        if (!vismon) {
+            boolean nearby = (couldsee(mtmp->mx, mtmp->my)
+                              && dist2(mtmp->mx, mtmp->my,
+                                       mtmp->mux, mtmp->muy) <= 25);
+
+            You_hear("a pan flute being played %s.",
+                     nearby ? "nearby" : "in the distance");
+        } else {
+            pline_mon(mtmp, "%s plays %s %s, producing %s melody.",
+                      Monnam(mtmp), mhis(mtmp), xname(otmp),
+                      rn2(2) ? "a beautiful" : "an enchanting");
+        }
+        /* various effects */
+        if (uarmh && uarmh->otyp == TOQUE) {
+            if (!rn2(3)) /* not spammy */
+                Your("%s protects your ears from the enchanting music.",
+                     helm_simple_name(uarmh));
+        } else if (is_nymph(gy.youmonst.data)
+                   || is_satyr(gy.youmonst.data)) {
+            if (!rn2(3)) /* not spammy */
+                You("find the enchanting music pleasant, but are"
+                    " otherwise unaffected.");
+        } else {
+            switch (rnd(3)) {
+            case 1:
+                if (how_resistant(SLEEP_RES) == 100) {
+                    monstseesu(M_SEEN_SLEEP);
+                    You("yawn.");
+                } else {
+                    You_feel("very drowsy.");
+                    fall_asleep(-resist_reduce(rn2(5) + 2, SLEEP_RES),
+                                TRUE);
+                }
+                break;
+            case 2:
+                if (!Confusion) { /* won't stack */
+                    if (Hallucination)
+                        pline("Like... wow, man!");
+                    else
+                        pline("Huh, What?  Where am I?");
+                    make_confused((HConfusion & TIMEOUT)
+                                  + (long) (rn2(5) + 2), FALSE);
+                }
+                break;
+            case 3:
+                if (!Stunned) { /* won't stack */
+                    make_stunned((HStun & TIMEOUT) + (long) (rn2(5) + 2),
+                                 TRUE);
+                    stop_occupation();
+                }
+                break;
+            }
+        }
+        return 2;
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
@@ -4420,7 +4616,7 @@ searches_for_item(struct monst *mon, struct obj *obj)
         break;
     case SCROLL_CLASS:
         if (typ == SCR_TELEPORTATION || typ == SCR_CREATE_MONSTER
-            || typ == SCR_EARTH || typ == SCR_FIRE
+            || typ == SCR_EARTH || typ == SCR_FIRE || typ == SCR_REMOVE_CURSE
             || (typ == SCR_STINKING_CLOUD && mon->mcansee))
             return TRUE;
         break;
@@ -4448,6 +4644,15 @@ searches_for_item(struct monst *mon, struct obj *obj)
         if (typ == SKELETON_KEY || typ == LOCK_PICK || typ == CREDIT_CARD
             || typ == MAGIC_KEY)
             return TRUE;
+        /* a bag of tricks is worth having only while charged */
+        if (typ == BAG_OF_TRICKS)
+            return (boolean) (obj->spe > 0);
+        /* a monster never activates the Idol (check_misc_item()) */
+        if (typ == FIGURINE)
+            return (boolean) !is_art(obj, ART_IDOL_OF_MOLOCH);
+        /* only a satyr can play one */
+        if (typ == PAN_FLUTE)
+            return (boolean) is_satyr(mon->data);
         /* the two rare bags are excluded by otyp, matching find_misc:
            a bag of treasure is meant to stay sealed once a monster has
            one, and a bag of devouring is a disposal unit that should
