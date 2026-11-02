@@ -576,8 +576,8 @@ struct obj {
          && (o)->otyp != ROCK))
 
 /* misc helpers, simple enough to be macros */
-#define is_flimsy(otmp)                           \
-    (objects[(otmp)->otyp].oc_material <= LEATHER \
+#define is_flimsy(otmp)                                             \
+    ((otmp)->material <= LEATHER || (otmp)->material == DRAGON_HIDE \
      || (otmp)->otyp == RUBBER_HOSE)
 #define is_plural(o) \
     ((o)->quan != 1L                                                    \
