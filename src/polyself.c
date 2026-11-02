@@ -1580,7 +1580,7 @@ polymon(int mntmp)
             pline(use_thec, monsterc, "use your breath weapon");
         if (attacktype(uptr, AT_SPIT))
             pline(use_thec, monsterc, "spit venom");
-        if (uptr->mlet == S_NYMPH)
+        if (is_nymph(uptr))
             pline(use_thec, monsterc, "remove an iron ball");
         if (attacktype(uptr, AT_GAZE))
             pline(use_thec, monsterc, "gaze at monsters");

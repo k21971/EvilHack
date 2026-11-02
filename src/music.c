@@ -9,6 +9,7 @@
  * The list of instruments / effects is :
  *
  * (wooden) flute       may calm snakes if player has enough dexterity
+ * pan flute            used exclusively by satyrs
  * magic flute          may put monsters to sleep:  area of effect depends
  *                      on player level.
  * (tooled) horn        Will awaken monsters:  area of effect depends on
@@ -145,7 +146,7 @@ calm_nymphs(int distance)
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
             continue;
-        if (mtmp->data->mlet == S_NYMPH && mtmp->mcanmove
+        if (is_nymph(mtmp->data) && mtmp->mcanmove
             && mdistu(mtmp) < distance) {
             mtmp->msleeping = 0;
             mtmp->mpeaceful = 1;
@@ -609,6 +610,9 @@ do_improvisation(struct obj *instr)
             itmp.otyp -= 1;
             mundane = TRUE;
         }
+    /* the pan flute sits between the flute and the magic flute */
+    if (mundane && itmp.otyp == PAN_FLUTE)
+        itmp.otyp = FLUTE;
 
 #define PLAY_NORMAL   0x00
 #define PLAY_STUNNED  0x01
@@ -684,6 +688,21 @@ do_improvisation(struct obj *instr)
             same_old_song ? ", familiar" : "");
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 50);
         put_monsters_to_sleep(u.ulevel * 5);
+        exercise(A_DEX, TRUE);
+        break;
+    case PAN_FLUTE: /* satyr exclusive */
+        do_spec &= (rn2(ACURR(A_DEX)) + u.ulevel > 25);
+        You("%sproduce %s%s%s music.", !Deaf ? "" : "seem to ",
+            Hallucination ? "weird" : "beautiful",
+            do_spec ? ", enchanting" : "",
+            same_old_song ? ", familiar" : "");
+        Hero_playnotes(obj_to_instr(&itmp), improvisation, 50);
+        if (do_spec) {
+            if (rn2(3))
+                put_monsters_to_sleep(u.ulevel * 5);
+            else
+                charm_monsters((u.ulevel - 1) / 3 + 1);
+        }
         exercise(A_DEX, TRUE);
         break;
     case FLUTE: /* May charm snakes */
@@ -899,9 +918,13 @@ do_play_instrument(struct obj *instr)
         You_cant("play music underwater!");
         return ECMD_OK;
     } else if ((instr->otyp == FLUTE || instr->otyp == MAGIC_FLUTE
-                || instr->otyp == TOOLED_HORN || instr->otyp == FROST_HORN
-                || instr->otyp == FIRE_HORN || instr->otyp == BUGLE)
+                || instr->otyp == PAN_FLUTE || instr->otyp == TOOLED_HORN
+                || instr->otyp == FROST_HORN || instr->otyp == FIRE_HORN
+                || instr->otyp == BUGLE)
                && !can_blow(&gy.youmonst)) {
+        You("are incapable of playing %s.", thesimpleoname(instr));
+        return ECMD_OK;
+    } else if (instr->otyp == PAN_FLUTE && !is_satyr(gy.youmonst.data)) {
         You("are incapable of playing %s.", thesimpleoname(instr));
         return ECMD_OK;
     }
@@ -1038,6 +1061,7 @@ obj_to_instr(struct obj *obj SOUNDLIBONLY) {
         case FLUTE:
             ret_instr = ins_flute;
             break;
+        case PAN_FLUTE:
         case MAGIC_FLUTE:
             ret_instr = ins_pan_flute;
             break;

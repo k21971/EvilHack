@@ -2821,14 +2821,14 @@ mpickgold(struct monst *mtmp)
     }
 }
 
-/* most monsters don't pick up corpses: a nymph may take any, anyone
-   else only the few types let through here to can_carry();
+/* most monsters don't pick up corpses: a nymph (not a satyr) may take
+   any, anyone else only the few types let through here to can_carry();
    m_search_items() uses this too, so a monster doesn't go after a
    corpse it won't take */
 boolean
 mon_refuses_corpse(struct monst *mtmp, struct obj *otmp)
 {
-    return (otmp->otyp == CORPSE && mtmp->data->mlet != S_NYMPH
+    return (otmp->otyp == CORPSE && !is_nymph(mtmp->data)
             && !touch_petrifies(&mons[otmp->corpsenm])
             && otmp->corpsenm != PM_LIZARD
             && !acidic(&mons[otmp->corpsenm]));

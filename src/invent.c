@@ -221,6 +221,7 @@ loot_classify(Loot *sort_item, struct obj *obj)
         else
             switch (otyp) {
             case FLUTE:
+            case PAN_FLUTE:
             case MAGIC_FLUTE:
             case TOOLED_HORN:
             case FROST_HORN:

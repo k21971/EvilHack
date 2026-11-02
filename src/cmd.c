@@ -989,7 +989,7 @@ domonability(void)
         return dobreathe();
     else if (attacktype(uptr, AT_SPIT))
         return dospit();
-    else if (uptr->mlet == S_NYMPH)
+    else if (is_nymph(uptr))
         return doremove();
     else if (attacktype(uptr, AT_GAZE))
         return dogaze();

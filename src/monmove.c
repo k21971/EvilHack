@@ -542,7 +542,7 @@ disturb(struct monst *mtmp)
      */
     if (couldsee(mtmp->mx, mtmp->my) && mdistu(mtmp) <= 100
         && (!Stealth || (mtmp->data == &mons[PM_ETTIN] && rn2(10)))
-        && (!(mtmp->data->mlet == S_NYMPH
+        && (!(is_nymph(mtmp->data)
               || mtmp->data == &mons[PM_JABBERWOCK]
 #if 0 /* DEFERRED */
               || mtmp->data == &mons[PM_VORPAL_JABBERWOCK]
