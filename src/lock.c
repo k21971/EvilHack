@@ -271,7 +271,12 @@ breakchestlock(struct obj *box, boolean destroyit)
 staticfn int
 forcelock(void)
 {
-    if ((gx.xlock.box->ox != u.ux) || (gx.xlock.box->oy != u.uy))
+    /* gx.xlock.box may have been freed mid-occupation; obfree clears it
+       through maybe_reset_pick but does not stop the occupation */
+    if (!gx.xlock.box)
+        return ((gx.xlock.usedtime = 0));
+    if (gx.xlock.box->where != OBJ_FLOOR
+        || gx.xlock.box->ox != u.ux || gx.xlock.box->oy != u.uy)
         return ((gx.xlock.usedtime = 0)); /* you or it moved */
 
     if (gx.xlock.usedtime++ >= 50 || !uwep || nohands(gy.youmonst.data)) {
@@ -1274,9 +1279,14 @@ boxlock(struct obj *obj, struct obj *otmp) /* obj *is* a box */
     case WAN_POLYMORPH:
     case SPE_POLYMORPH:
         /* maybe start unlocking chest, get interrupted, then zap it;
-           we must avoid any attempt to resume unlocking it */
-        if (gx.xlock.box == obj)
+           we must avoid any attempt to resume unlocking it. Pair
+           stop_occupation with reset_pick or forcelock would tick
+           once more on a null box */
+        if (gx.xlock.box == obj) {
+            if (go.occupation == picklock || go.occupation == forcelock)
+                stop_occupation();
             reset_pick();
+        }
         break;
     }
     return res;
