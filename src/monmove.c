@@ -16,6 +16,9 @@ staticfn void mind_blast(struct monst *);
 staticfn boolean holds_up_web(coordxy, coordxy);
 staticfn int count_webbing_walls(coordxy, coordxy);
 staticfn boolean soko_allow_web(struct monst *);
+staticfn boolean mon_seeks_items(struct monst *) NONNULLARG1;
+staticfn boolean likes_contents(struct monst *, struct obj *, coordxy,
+                                coordxy) NONNULLARG12;
 staticfn boolean m_search_items(struct monst *, coordxy *, coordxy *, int *,
                                 int *, boolean *) NONNULLPTRS;
 staticfn boolean m_item_in_reach(struct monst *, coordxy,
@@ -1646,6 +1649,104 @@ mon_would_consume_item(struct monst *mtmp, struct obj *otmp)
     return FALSE;
 }
 
+/* would mtmp go after items at all?  The leanings and load limits of
+   mon_would_take_item(); only such a monster opens containers */
+staticfn boolean
+mon_seeks_items(struct monst *mtmp)
+{
+    struct permonst *ptr = mtmp->data;
+    int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
+
+    return ((likes_gold(ptr) && pctload < 95)
+            || (likes_gems(ptr) && pctload < 85)
+            || (likes_objs(ptr) && pctload < 75)
+            || (likes_magic(ptr) && pctload < 85)
+            || (racial_throws_rocks(mtmp) && pctload < 50 && !Sokoban)
+            || (!mindless(ptr) && !is_animal(ptr) && pctload < 75));
+}
+
+/* can mtmp get into a container at x,y to take things out of it?
+   1: yes, and *unlocking is set when that takes one of its unlocking
+   tools; 0: no; -1: no, and as it is locked against mtmp it isn't
+   carried off whole either */
+int
+mon_opens_container(
+    struct monst *mtmp,
+    struct obj *container,
+    coordxy x, coordxy y,
+    boolean *unlocking)
+{
+    boolean handy = !(nohands(mtmp->data) || r_verysmall(mtmp));
+
+    *unlocking = FALSE;
+    if (container->olocked) {
+        /* monsters never crack a safe, and don't think to use artifacts
+           on either magic or crystal chests */
+        if (!handy || container->otyp == IRON_SAFE
+            || container->otyp == CRYSTAL_CHEST
+            || ((container->otyp == HIDDEN_CHEST)
+                    ? !m_carrying(mtmp, MAGIC_KEY)
+                    : !(m_carrying(mtmp, SKELETON_KEY)
+                        || m_carrying(mtmp, LOCK_PICK)
+                        || m_carrying(mtmp, CREDIT_CARD)
+                        || m_carrying(mtmp, MAGIC_KEY))))
+            return -1;
+    }
+    if (!handy || notake(mtmp->data) || !mon_seeks_items(mtmp))
+        return 0;
+    /* a peaceful takes nothing (see can_carry()), so leaves boxes shut;
+       an engulfer holding the hero has better things to do */
+    if ((mtmp->mpeaceful && !mtmp->mtame && !mtmp->isshk)
+        || engulfing_u(mtmp))
+        return 0;
+    /* things deep in water or lava can't be looted, as for the hero */
+    if (is_pool(x, y) || is_lava(x, y))
+        return 0;
+    if (!Is_nonprize_container(container)
+        /* the two rare bags stay shut, as in searches_for_item() */
+        || container->otyp == BAG_OF_TREASURE
+        || container->otyp == BAG_OF_DEVOURING
+        || (Is_mbag(container) && container->cursed)
+        || SchroedingersBox(container)
+        || !can_touch_safely(mtmp, container)
+        /* a bag it can lift is carried off whole instead */
+        || (Is_allbag(container) && can_carry(mtmp, container) > 0))
+        return 0;
+    *unlocking = container->olocked ? TRUE : FALSE;
+    return 1;
+}
+
+/* the first item in container that mtmp would take out, or null */
+struct obj *
+mon_wanted_content(struct monst *mtmp, struct obj *container)
+{
+    struct obj *otmp;
+
+    for (otmp = container->cobj; otmp; otmp = otmp->nobj)
+        if (mon_would_take_item(mtmp, otmp)
+            && !mon_refuses_corpse(mtmp, otmp)
+            && can_carry(mtmp, otmp) > 0) /* checks can_touch_safely() */
+            return otmp;
+    return (struct obj *) 0;
+}
+
+/* is a container at x,y worth going to for what is in it?  Never an iron
+   safe or a crystal chest, though an unlocked one mtmp happens to be
+   standing on may be looted */
+staticfn boolean
+likes_contents(
+    struct monst *mtmp,
+    struct obj *container,
+    coordxy x, coordxy y)
+{
+    boolean unlocking;
+
+    if (container->otyp == IRON_SAFE || container->otyp == CRYSTAL_CHEST)
+        return FALSE;
+    return (mon_opens_container(mtmp, container, x, y, &unlocking) > 0
+            && mon_wanted_content(mtmp, container) != 0);
+}
+
 boolean
 itsstuck(struct monst *mtmp)
 {
@@ -1918,7 +2019,8 @@ m_search_items(
     coordxy omx = mtmp->mx, omy = mtmp->my;
     struct permonst *ptr = mtmp->data;
     struct monst *mtoo;
-    boolean costly;
+    boolean costly, mchest_here,
+            mchest_lvl = (svl.level.flags.nmagicchests && gm.mchest);
 
     *itemgoal = FALSE;
 
@@ -1942,8 +2044,9 @@ m_search_items(
 
     for (xx = lmx; xx <= hmx; xx++) {
         for (yy = lmy; yy <= hmy; yy++) {
+            mchest_here = (mchest_lvl && IS_MAGIC_CHEST(levl[xx][yy].typ));
             /* no object here */
-            if (!OBJ_AT(xx, yy))
+            if (!OBJ_AT(xx, yy) && !mchest_here)
                 continue;
             /* found an object closer already */
             if (minr < distmin(omx, omy, xx, yy))
@@ -1983,9 +2086,12 @@ m_search_items(
 
             costly = costly_spot(xx, yy);
 
-            /* look through the items on this location */
-            for (otmp = svl.level.objects[xx][yy];
-                 otmp; otmp = otmp->nexthere) {
+            /* look through the items on this location; the shared magic
+               chest comes first, and its nexthere is never valid */
+            for (otmp = mchest_here ? gm.mchest : svl.level.objects[xx][yy];
+                 otmp;
+                 otmp = (otmp == gm.mchest) ? svl.level.objects[xx][yy]
+                                            : otmp->nexthere) {
                 /* monsters may pick rocks up, but won't go out of their way
                    to grab them; this might hamper sling wielders, but it cuts
                    down on move overhead by filtering out most common item */
@@ -1999,27 +2105,32 @@ m_search_items(
                 if (costly && !otmp->no_charge)
                     continue;
 
-                /* TODO-EVILHACK: master ORs `|| Is_container(otmp)` into
-                   the can_carry test here, so a monster will walk to a
-                   container it cannot lift in order to crack it open.
-                   Porting that arm must exclude BAG_OF_TREASURE and
-                   BAG_OF_DEVOURING, which master's own arm does; a
-                   cursed bag of treasure weighs its contents x10, so
-                   !can_carry is exactly the case a dropped one hits */
                 /* skip a corpse mpickstuff() would refuse, as master's
                    search did; one underfoot would otherwise hold the
                    monster in place turn after turn. A gelatinous cube
                    still goes for one: postmov()'s meatobj() eats it
-                   before any pickup */
-                if (((mon_would_take_item(mtmp, otmp)
-                      && (!mon_refuses_corpse(mtmp, otmp)
-                          || ptr == &mons[PM_GELATINOUS_CUBE])
-                      && (can_carry(mtmp, otmp) > 0))
-                     || mon_would_consume_item(mtmp, otmp))
-                    && can_touch_safely(mtmp, otmp)) {
+                   before any pickup. The magic chest is never taken
+                   away; a container is also worth going to for what is
+                   in it, with the same tests mpickstuff() opens it by,
+                   so the monster doesn't stand on one it won't open */
+                if ((otmp != gm.mchest
+                     /* never goes after an iron safe or a crystal chest,
+                        though a cube engulfs anything */
+                     && ((otmp->otyp != IRON_SAFE
+                          && otmp->otyp != CRYSTAL_CHEST)
+                         || ptr == &mons[PM_GELATINOUS_CUBE])
+                     && ((mon_would_take_item(mtmp, otmp)
+                          && (!mon_refuses_corpse(mtmp, otmp)
+                              || ptr == &mons[PM_GELATINOUS_CUBE])
+                          && (can_carry(mtmp, otmp) > 0))
+                         || mon_would_consume_item(mtmp, otmp))
+                     && can_touch_safely(mtmp, otmp))
+                    || (Is_container(otmp)
+                        && likes_contents(mtmp, otmp, xx, yy))) {
                     minr = distmin(omx, omy, xx, yy);
-                    *ggx = otmp->ox;
-                    *ggy = otmp->oy;
+                    /* not otmp->ox,oy: the magic chest has none */
+                    *ggx = xx;
+                    *ggy = yy;
                     *itemgoal = TRUE;
                     if (*ggx == omx && *ggy == omy) {
                         *mmoved = MMOVE_DONE; /* actually unnecessary */
@@ -2301,7 +2412,11 @@ postmov(
     } /* mmoved==MMOVE_MOVED */
 
     if (mmoved == MMOVE_MOVED || mmoved == MMOVE_DONE) {
-        if (OBJ_AT(mtmp->mx, mtmp->my) && mtmp->mcanmove) {
+        /* the floor eaters below find nothing on a bare magic chest
+           square; only mpickstuff() goes into the chest */
+        if ((OBJ_AT(mtmp->mx, mtmp->my)
+             || (gm.mchest && IS_MAGIC_CHEST(levl[mtmp->mx][mtmp->my].typ)))
+            && mtmp->mcanmove) {
 
             /* Maybe a rock mole just ate some metal object */
             if (metallivorous(ptr)) {
@@ -2354,6 +2469,13 @@ postmov(
                     mpickgold(mtmp);
                 if (mpickstuff(mtmp))
                     mmoved = MMOVE_DONE;
+                /* a box trap it set off can kill it, or melt the ice
+                   under it and drown it or move it elsewhere */
+                if (DEADMONSTER(mtmp))
+                    return MMOVE_DIED;
+                if (mon_offmap(mtmp))
+                    return MMOVE_DONE;
+                ptr = mtmp->data; /* in case it came back as something else */
             }
 
             if (mtmp->minvis) {

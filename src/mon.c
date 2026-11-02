@@ -11,6 +11,9 @@ staticfn void sanity_check_single_mon(struct monst *, boolean, const char *);
 staticfn struct obj *make_corpse(struct monst *, unsigned);
 staticfn int minliquid_core(struct monst *);
 staticfn void m_calcdistress(struct monst *);
+staticfn int mloot_container(struct monst *, struct obj *,
+                             boolean) NONNULLARG12;
+staticfn int mopen_container(struct monst *, struct obj *) NONNULLARG12;
 staticfn boolean growing_original_vine(struct monst *);
 staticfn boolean monlineu(struct monst *, int, int);
 staticfn boolean pathfind_passable(coordxy, coordxy);
@@ -2831,26 +2834,185 @@ mon_refuses_corpse(struct monst *mtmp, struct obj *otmp)
             && !acidic(&mons[otmp->corpsenm]));
 }
 
-/* monster picks up one item stack from the map location they are at */
+/* mon takes up to four things, picked at random, out of a floor container
+   it has opened; returns 2 if it took anything, otherwise 0 */
+staticfn int
+mloot_container(
+    struct monst *mon,
+    struct obj *container,
+    boolean vismon)
+{
+    char contnr_nam[BUFSZ], mpronounbuf[20];
+    boolean nearby;
+    int takeout_indx, takeout_count, howfar, res = 0;
+
+    if (!Has_contents(container) || container->olocked)
+        return res; /* 0 */
+    /* FIXME: handle cursed bag of holding */
+    if (Is_mbag(container) && container->cursed)
+        return res; /* 0 */
+    if (SchroedingersBox(container))
+        return res; /* 0 */
+
+    switch (rn2(10)) {
+    default: /* case 0, 1, 2, 3: */
+        takeout_count = 1;
+        break;
+    case 4:
+    case 5:
+    case 6:
+        takeout_count = 2;
+        break;
+    case 7:
+    case 8:
+        takeout_count = 3;
+        break;
+    case 9:
+        takeout_count = 4;
+        break;
+    }
+    howfar = mdistu(mon);
+    nearby = (howfar <= 7 * 7);
+    contnr_nam[0] = mpronounbuf[0] = '\0';
+    if (vismon) {
+        /* do this once so that when hallucinating it won't change
+           from one item to the next */
+        Strcpy(mpronounbuf, mhe(mon));
+    }
+
+    for (takeout_indx = 0; takeout_indx < takeout_count; ++takeout_indx) {
+        struct obj *xobj;
+        int nitems;
+
+        if (!Has_contents(container)) /* might have removed all items */
+            break;
+        nitems = 0;
+        for (xobj = container->cobj; xobj; xobj = xobj->nobj)
+            ++nitems;
+        /* nitems is always greater than 0 due to Has_contents() check;
+           throttle item removal as the container becomes less filled */
+        if (!rn2(nitems + 1))
+            break;
+        nitems = rn2(nitems);
+        for (xobj = container->cobj; xobj; xobj = xobj->nobj)
+            if (--nitems < 0)
+                break;
+        if (!xobj) /* can't happen */
+            break;
+
+        container->cknown = 0; /* hero no longer knows container's contents
+                                * even if [attempted] removal is observed */
+        if (!*contnr_nam) {
+            /* xname sets dknown, distant_name doesn't */
+            Strcpy(contnr_nam, the(nearby ? xname(container)
+                                          : distant_name(container, xname)));
+        }
+        /* take xobj out, check whether it can be carried, and put it
+           back (below) if it can't be */
+        obj_extract_self(xobj); /* this reduces container's weight */
+        if (can_carry(mon, xobj)) {
+            if (vismon) {
+                if (!nearby) /* not close by */
+                    Norep("%s rummages through %s.", Monnam(mon),
+                          contnr_nam);
+                else if (takeout_indx == 0) /* first item */
+                    pline_mon(mon, "%s removes %s from %s.", Monnam(mon),
+                              ansimpleoname(xobj), contnr_nam);
+                else /* additional items */
+                    pline_mon(mon, "%s also removes %s.",
+                              upstart(mpronounbuf), ansimpleoname(xobj));
+            } else if (!Deaf && nearby) {
+                Norep("You hear something rummaging through %s.",
+                      ansimpleoname(container));
+            }
+            if (container->otyp == ICE_BOX)
+                removed_from_icebox(xobj); /* resume rotting for corpse */
+            (void) mpickobj(mon, xobj);
+            check_gear_next_turn(mon);
+            res = 2;
+        } else { /* couldn't carry xobj separately so put back inside */
+            /* an achievement prize (castle's wand?) might already be
+               marked nomerge (when it hasn't been in invent yet) */
+            boolean already_nomerge = xobj->nomerge != 0,
+                    just_xobj = !Has_contents(container);
+
+            /* this doesn't restore the original contents ordering
+               [shouldn't be a problem; even though this item didn't
+               give the rummage message, that's what mon was doing] */
+            xobj->nomerge = 1;
+            xobj = add_to_container(container, xobj);
+            if (!already_nomerge)
+                xobj->nomerge = 0;
+            container_weight(container);
+            if (just_xobj)
+                break; /* out of takeout_count loop */
+        }
+    }
+    return res;
+}
+
+/* mtmp, standing on a floor container, opens it if it can and sets off
+   its trap or takes out some of what is in it; 1: it did, and may have
+   died or moved doing so, and the container may be gone; 0: it didn't;
+   -1: it didn't, as the container is locked against it, and so mtmp
+   doesn't carry it off whole either */
+staticfn int
+mopen_container(struct monst *mtmp, struct obj *container)
+{
+    coordxy bx = mtmp->mx, by = mtmp->my;
+    boolean waslocked, trapped, vismon = canseemon(mtmp);
+    int res, udist = mdistu(mtmp);
+
+    if ((res = mon_opens_container(mtmp, container, bx, by,
+                                   &waslocked)) <= 0)
+        return res;
+    trapped = container->otrapped ? TRUE : FALSE;
+    /* it opens a trapped one without knowing what is inside, as master
+       did; otherwise only for something it wants */
+    if (!trapped && !mon_wanted_content(mtmp, container))
+        return 0;
+    if (flags.verbose) {
+        if (vismon) {
+            if (trapped)
+                pline_mon(mtmp, "%s %s %s%s", Monnam(mtmp),
+                          waslocked ? "unlocks" : "carefully opens",
+                          (udist <= 5) ? doname(container)
+                                       : distant_name(container, doname),
+                          waslocked ? "." : "...");
+            else
+                pline_mon(mtmp, "%s %s opens %s...", Monnam(mtmp),
+                          waslocked ? "unlocks and" : "carefully",
+                          the((udist <= 5)
+                                  ? xname(container)
+                                  : distant_name(container, xname)));
+        } else if (udist <= BOLT_LIM * BOLT_LIM) {
+            You_hear("%s being %s.", ansimpleoname(container),
+                     waslocked ? "unlocked" : "opened");
+        }
+    }
+    if (waslocked) {
+        container->olocked = 0;
+        /* the hero knows it is unlocked only by seeing it happen */
+        container->lknown = vismon ? 1 : 0;
+        /* an interrupted attempt to unlock it mustn't resume as locking */
+        maybe_reset_pick(container);
+    }
+    if (trapped)
+        (void) mon_chest_trap(mtmp, container, FINGER);
+    else
+        (void) mloot_container(mtmp, container, vismon);
+    newsym(bx, by);
+    return 1;
+}
+
+/* monster picks up one item stack from the map location they are at, or
+   opens a container there */
 boolean
 mpickstuff(struct monst *mtmp)
 {
     struct obj *otmp, *otmp2, *otmp3;
-    int carryamt = 0;
-
-    /* TODO-EVILHACK: master lets monsters unlock and loot containers
-       here (keyed on carried unlocking tools, with magic chests gated
-       on MAGIC_KEY and crystal chests off limits), splices the shared
-       magic chest into this walk and into m_move's goal search
-       (likes_contents), and has searches_for_item() cover keys so
-       monsters pick them up; port all of that together as the
-       monster-container-looting slice.
-       WHEN THAT LANDS it must exclude BAG_OF_TREASURE and
-       BAG_OF_DEVOURING explicitly, as master's own arm does: they are
-       Is_container() and merely being TOOL_CLASS is not enough to keep
-       them out, and a cursed bag of treasure weighs its contents x10,
-       which makes !can_carry true and so routes a dropped one straight
-       into the crack-it-open path */
+    coordxy mx = mtmp->mx, my = mtmp->my;
+    int carryamt = 0, opened;
 
     /* prevent shopkeepers from leaving the door of their shop */
     if (mtmp->isshk && inhishop(mtmp))
@@ -2864,12 +3026,34 @@ mpickstuff(struct monst *mtmp)
     if (!could_reach_item(mtmp, mtmp->mx, mtmp->my))
         return FALSE;
 
-    for (otmp = svl.level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
-        otmp2 = otmp->nexthere;
+    /* the shared magic chest is spliced in ahead of the floor chain, as
+       in pick_lock(); its nexthere is never valid */
+    otmp = (IS_MAGIC_CHEST(levl[mx][my].typ) && gm.mchest)
+               ? gm.mchest
+               : svl.level.objects[mx][my];
+    for (; otmp; otmp = otmp2) {
+        otmp2 = (otmp == gm.mchest) ? svl.level.objects[mx][my]
+                                    : otmp->nexthere;
 
         /* avoid special items; once hero picks them up, they'll cease
            being special, becoming eligible for normal pickup */
         if (is_mines_prize(otmp) || is_soko_prize(otmp))
+            continue;
+
+        /* a box, or a bag too heavy to take away, is looted where it is;
+           once one is opened nothing here may be touched (its trap can
+           destroy the pile, or kill or move mtmp) */
+        if (Is_box(otmp)
+            || (Is_allbag(otmp) && otmp->otyp != BAG_OF_TREASURE
+                && otmp->otyp != BAG_OF_DEVOURING
+                && !can_carry(mtmp, otmp))) {
+            if ((opened = mopen_container(mtmp, otmp)) > 0)
+                return TRUE;
+            if (opened < 0)
+                continue;
+        }
+        /* the magic chest is looted but never picked up */
+        if (otmp == gm.mchest)
             continue;
 
         /* Nymphs take everything.  Most monsters don't pick up corpses. */

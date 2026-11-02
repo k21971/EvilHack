@@ -4443,6 +4443,11 @@ searches_for_item(struct monst *mon, struct obj *obj)
                               && mon->data != &mons[PM_ELDRITCH_KI_RIN]);
         if (typ == FROST_HORN || typ == FIRE_HORN)
             return (obj->spe > 0 && can_blow(mon));
+        /* unlocking tools let it into locked boxes, and all but the
+           magic key into locked doors (monhaskey()) */
+        if (typ == SKELETON_KEY || typ == LOCK_PICK || typ == CREDIT_CARD
+            || typ == MAGIC_KEY)
+            return TRUE;
         /* the two rare bags are excluded by otyp, matching find_misc:
            a bag of treasure is meant to stay sealed once a monster has
            one, and a bag of devouring is a disposal unit that should
