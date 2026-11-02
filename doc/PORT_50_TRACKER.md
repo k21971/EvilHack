@@ -22571,7 +22571,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       too: has_free_action(mon) prints "stiffens momentarily."
       (canseemon) and skips the freeze, else mcanmove 0 / mfrozen
       d(5,6) (5e5123697 + 5091b9a40) - carry it with the leg.
-      CLOSED 2026-11-01 (session 283, commit pending; BUG-2773..2776).
+      CLOSED 2026-11-01 (session 283, 16ad56a9e, tracker c7e3ec850;
+      BUG-2773..2776).
       mon_chest_trap(mon, box, bodypart) beside the hero's chest_trap()
       (vanilla body kept; the dud table and the destruction block
       shared as chest_trap_dud() / chest_blast(), hero side identical:
@@ -34060,7 +34061,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       and src/monmove.c m_move(). Held lines: rumors.tru "Better keep
       a lock on your stash..."; rumors.fal "Monsters have no interest
       in your magic chest." and "No need to lock that chest...".
-      DONE 2026-11-01 (session 283, commit pending; BUG-2777..2782):
+      DONE 2026-11-01 (session 283, f2eea3dad, tracker c7e3ec850;
+      BUG-2777..2782):
       master's mloot_container() + the container arm (mopen_container())
       with the magic chest spliced ahead of the floor pile, one shared
       opening test for the goal search and the action
