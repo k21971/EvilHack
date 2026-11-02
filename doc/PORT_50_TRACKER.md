@@ -22504,8 +22504,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       here: MUSE_POT_RESTORE_ABILITY, MUSE_BAG_OF_TRICKS, SCR_CHARGING,
       PAN_FLUTE, the bearded axe disarm, FIGURINE (wished figurines wait for
       it), REMOVE_CURSE. Batteries T1 / T2 / T3 PASS.
-      PROGRESS 2026-11-02 (session 284, wave 1; BUG-2790..2794; commit
-      hash pending): PORTED MUSE_POT_RESTORE_ABILITY (a cancelled monster
+      PROGRESS 2026-11-02 (session 284, wave 1; BUG-2790..2794; code
+      516f43f4a, fold-ins dde6ff722 / a820cd234, tracker d54bdf59d):
+      PORTED MUSE_POT_RESTORE_ABILITY (a cancelled monster
       drinks a loose one before the wounded-only gate - pets and peacefuls
       too; a stashed one only when wounded) and MUSE_BAG_OF_TRICKS
       (mbagmsg(); below the wand of create monster) as defensive items;
