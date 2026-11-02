@@ -17,11 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-01, after session 283's
-  floor-container looting and monster box traps slice: the monster
-  chest_trap() row closed, the Rumor-slice riders row's item (a) MED
-  done (the row stays open for its LOW items), two LOW minted open):
-  629 rows closed, 58 open
+- Phase 2 status (refreshed 2026-11-02, after session 284's muse
+  riders wave 1 slice: five muse items landed on the still-open muse
+  offense row, the Idol timer / never-tame / satyr fold-ins landed with
+  no row of their own, one LOW residue row minted open):
+  629 rows closed, 59 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -6579,7 +6579,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       encyclopedia (name_to_arti/get_artilist_entry) joins the
       pager recipe-lookup deferral (LANDED 2026-09-08, pokedex port;
       the non_tameable macro now exists for the pets/taming row to
-      wire). COMMIT A COMMITTED de7ab107f.
+      wire). The figurine-taming owner row was never minted; its work
+      LANDED 2026-11-02 (session 284, BUG-2784 / 2785 / 2789:
+      non_tameable() in tamedog() and make_familiar(), the `you`
+      argument, the create familiar re-roll). COMMIT A COMMITTED
+      de7ab107f.
       COMMIT B (combat behaviors) PORTED + REVIEWED + COORDINATOR-
       FIXED 2026-07-23, COMMIT PENDING (32 files +1848/-236 incl.
       fix round, zero-warning): mon_wielding_artifact + the
@@ -13283,7 +13287,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (BUG-1799, frozen-unfixed). Tips still true despite a missing
       secondary arm (ported): Idol of Moloch (fig_transform idol arm),
       Dragonbane disintegration (destroy_arm arm), Dichotomy
-      (lava-inventory arm).
+      (lava-inventory arm). CORRECTION 2026-11-02 (session 284): the
+      fig_transform() Idol arm was never ported - the Idol was used up by
+      its own timer; landed as BUG-2783.
 - [x] MED: bag explosion damage and text never ported (minted
       2026-10-15, session 230, by the held-tips census; no row
       before). Master pickup.c blasts the hero for
@@ -22498,6 +22504,38 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       here: MUSE_POT_RESTORE_ABILITY, MUSE_BAG_OF_TRICKS, SCR_CHARGING,
       PAN_FLUTE, the bearded axe disarm, FIGURINE (wished figurines wait for
       it), REMOVE_CURSE. Batteries T1 / T2 / T3 PASS.
+      PROGRESS 2026-11-02 (session 284, wave 1; BUG-2790..2794; commit
+      hash pending): PORTED MUSE_POT_RESTORE_ABILITY (a cancelled monster
+      drinks a loose one before the wounded-only gate - pets and peacefuls
+      too; a stashed one only when wounded) and MUSE_BAG_OF_TRICKS
+      (mbagmsg(); below the wand of create monster) as defensive items;
+      MUSE_FIGURINE (always hostile through make_familiar()'s new `you`
+      argument), MUSE_SCR_REMOVE_CURSE (not Infidels), MUSE_PAN_FLUTE
+      (hostile satyrs) as misc items; searches_for_item() wants charged
+      bags of tricks only, figurines (not the Idol), remove curse, and pan
+      flutes for satyrs only. RULED: always hostile; satyrs-only pickup
+      (master's !is_satyr was inverted); a charged wand of wishing before a
+      figurine; no flute while the hero is engulfed or in their sanctuary.
+      The Idol is never selected (master picked it and did nothing every
+      turn). Batteries T3 / T4 PASS. STILL OPEN here: SCR_CHARGING (with a
+      monster recharge arm on mon_charge_ring()) and the bearded axe disarm
+      (wave 2).
+- [ ] LOW: muse riders wave 1 residue (minted 2026-11-02, session 284,
+      reviewer and batteries T1-T4; record unless a ruling wants a
+      change). (a) A bag of tricks used on a pool square makes a random
+      monster; the eel / crocodile only picks a water square (master, and
+      the wand of create monster). (b) An unidentified bag reads "uses a
+      bag!" (master's an(xname())). (c) A Deaf hero makes the satyr skip
+      its flute and act normally, which leaks the deafness (master). (d) A
+      figurine with no free square around is re-picked every turn,
+      blocking lower misc items (master). (e) Taming magic on a pet already
+      at tameness 10+ re-runs initedog(FALSE): its hunger clock is pushed
+      to at least 1000 turns and u.uconduct.pets grows (master and vanilla
+      5.0 share the shape). (f) A hatched celestial dragon egg comes out
+      wild now (non_tameable(); master parity - the tamedog() caller census
+      in the plan missed it). (g) Battery T1: a gdb mcanmove = 0 on a
+      hostile Cerberus did not hold on POST through a thrown tripe ration
+      (no tamedog() call on that path; cause not traced). LOW.
 - [ ] LOW: muse offense and wish residue (minted 2026-11-01, session 282,
       reviewer and batteries T1 / T3; record unless a ruling wants a
       change). (a) The oil blast's hero check doesn't cover other pets next
@@ -35713,6 +35751,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-02 | Muse riders wave 1 slice rulings (Phase 2 session 284, AskUserQuestion x5, nine questions, all as recommended except (9)). (1) SLICE: muse riders wave 1 - restore ability, bag of tricks, figurine, remove curse, pan flute (wave 2: SCR_CHARGING, bearded axe disarm). (2) MONSTER FIGURINE: always hostile (0.9.3 live), written `if (!you) chance = 2;` - master's verbatim `!(u.uconduct.pets && you)` would make a petless hero's own figurines hostile on 5.0; the commit message's petless-only intent not taken. (3) PAN FLUTE PICKUP: satyrs only (master's `!is_satyr` was inverted). (4) FOLD-INS (multiSelect): all three - the Idol of Moloch timer arm (BUG-2783), the never-tame list in tamedog() / make_familiar() (BUG-2784 / 2785), satyr parity from master 4ac81e26f (BUG-2787 / 2788). (5) FIGURINE VS WISHING: a charged wand of wishing first (bb05452de's rule). (6) FLUTE REACH: find_offensive()'s gates - not while the hero is engulfed or in their sanctuary. (7)-(8) recorded in the plan without asking: the Idol is never selected or sought; master's figurine curse write dropped; bag of tricks sought only while charged. (9) CREATE FAMILIAR (reviewer LOW): RE-ROLL a never-tame pick (over the recommended master parity) - BUG-2789. | maintainer |
 | 2026-11-01 | Floor-container looting and monster box traps slice rulings (Phase 2 session 283, AskUserQuestion x3, seven questions plus the slice pick; all as recommended except (3)). (1) SLICE: floor-container looting + the monster chest_trap() arm. (2) SHOP: a monster's box explosion bills nobody. (3) GAS (over the recommendation): the monster gas arm mirrors the hero's - 2 in 3 master's direct dose, 1 in 3 a gas cloud over the box credited to nobody. (4) QUIRKS (multiSelect, all three): the blast wakes around the box; waslocked per box; no Wizard / Rider keyless pass on the goal side either. (5) PEACEFULS: leave boxes shut. (6) SAFES: master's split - never a goal, never unlocked, an unlocked one stood on may be looted (the reviewer's take-it-whole leak closed under this ruling, gelatinous cubes excepted). (7) FOLD-INS (multiSelect, all four): nothing opened on pool or lava; the container must be touchable; master's lost 6f156aa7c #force guards; the fire trap's max HP floor (the battery found the life-saving premise unreachable - the real path is SPFX_HPHDAM halving). Not asked, recorded: tknown / lknown follow what the hero saw; master's "erupts" wording; wake radius 400 (land mine); 5.0's Schroedinger's box refusal kept; an engulfer holding the hero opens no box; the chest trap leg is a separate function to keep vanilla's chest_trap() mergeable. | maintainer |
 | 2026-11-01 | Muse offense, monster wishes, creeping mound and known-fix LOWs slice rulings (Phase 2 session 282, AskUserQuestion x5, ten questions, all as recommended). (1) SLICE (multiSelect): the unported monster ports and the known-fix LOWs; scoped to offensive items, monster wishes and creeping mound eating (floor-container looting + monster chest traps, the defensive / misc riders, charging and the bearded axe stay open). (2) MELEE GATE: master's SporkHack gate tests the TARGET's square (a strong pet next to the hero still zaps a monster at range). (3) PETS: scroll of earth, camera, scroll of fire and stinking cloud only when the target is the hero. (4) HALLUCINATION SPLASH: master's "You are freaked out." (5-14 turns); a monster hit is confused. (5) TELEPORTED TRAPPED MONSTER: master's shape - the landing trap acts (can kill or carry it off the level), callers guarded. (6) HIT WAKEUP: master's - a landed blow that ends early wakes and angers. (7) MOUND: through 5.0's shared eater. (8) QUIRKS (multiSelect, all three): a resisted polymorph potion teaches the thrower; tame zappers check the whole beam line; armor re-checked after a touch burn changes form. (9) PET OIL (review): only when the blast can't reach the hero (and master's self-test on the target square). (10) SHOP (review): a monster's polymorph / shatter beam bills nobody. (11) STAY PUT (review): only a real move re-fires the trap. Not asked, recorded: master's dead rnd_offensive_item() cases 13-15 not ported; any monster with the wand may wish (master); wished figurines wait for MUSE_FIGURINE. | maintainer |
 | 2026-11-01 | Held steed, wording and residue slice rulings (Phase 2 session 281, AskUserQuestion x5, eleven questions). (1) SLICE (multiSelect): session 280's three new rows (as recommended) and session 279's three residue rows. (2) STAIRS: turn cost only - a vine-held steed at '<' / '>' takes the turn, a sleeping one stays free, '>' keeps master's order (a held or sleeping steed still blocks ending your own levitation) (as recommended). (3) VINE WORDS: the cast matches the release - "branches" for a hero over water, lava or a hole as in the air - and monsters too: a flying or floating monster always reads "branches" (as recommended). (4) CEILING DROP: keep the plunge - a ceiling hider dropping onto a trap it met meets it again (as recommended). (5) TRAP MARKER: record - not saved, a restore re-meets a trap on the next in-place landing (vanilla) (as recommended). (6) FLOOR ICE: slows a zombie's rise too, as rot and troll revival (as recommended). (7) TROLLS: keep vanilla - a norevive troll corpse still gets a revival timer, twitches feebly and "You feel less hassled." (over the recommended master shape). (8) DISMOUNT IN PLACE: keep - stepping off in place re-meets the trap (over the recommended session 279 rule). (9) #SAVEOPTIONS: only the player's - sysconf-only OPTIONS, MENUCOLOR and AUTOPICKUP_EXCEPTION lines stay out of the player's file; the tutorial question still honors sysconf (as recommended). (10) CHAIN OVER WATER / LAVA: same as open air - the chain pulls a tethered rider off onto dry ground within its reach, the steed goes in alone; with none the hero falls in where they are (as recommended). (11) BALL AND A HELD STEED: a line like yours - "The ball pulls your pony out of the tree's grip!" / "...out of the vegetation!" (as recommended). | maintainer |
