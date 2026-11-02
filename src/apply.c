@@ -1226,7 +1226,7 @@ use_mirror(struct obj *obj)
         if (vis)
             pline("%s confuses itself!", Monnam(mtmp));
         mtmp->mconf = 1;
-    } else if (monable && (mlet == S_NYMPH
+    } else if (monable && (is_nymph(mtmp->data)
                            || mtmp->data == &mons[PM_AMOROUS_DEMON])) {
         if (vis) {
             char buf[BUFSZ]; /* "She" or "He" */
@@ -1300,6 +1300,8 @@ use_bell(struct obj **optr)
     } else if (ordinary) {
         if (obj->cursed && !rn2(4)
             /* note: once any of them are gone, we stop all of them */
+            && !(svm.mvitals[PM_SATYR].mvflags & G_GONE)
+            && !(svm.mvitals[PM_ICE_NYMPH].mvflags & G_GONE)
             && !(svm.mvitals[PM_WOOD_NYMPH].mvflags & G_GONE)
             && !(svm.mvitals[PM_WATER_NYMPH].mvflags & G_GONE)
             && !(svm.mvitals[PM_MOUNTAIN_NYMPH].mvflags & G_GONE)
@@ -2578,17 +2580,21 @@ fig_transform(anything *arg, long timeout)
     boolean cansee_spot, silent, okay_spot;
     boolean redraw = FALSE;
     boolean suppress_see = FALSE;
+    boolean idol;
     char monnambuf[BUFSZ], carriedby[BUFSZ];
 
     if (!figurine) {
         impossible("null figurine in fig_transform()");
         return;
     }
+    idol = is_art(figurine, ART_IDOL_OF_MOLOCH);
     silent = (timeout != svm.moves); /* happened while away */
     okay_spot = get_obj_location(figurine, &cc.x, &cc.y, 0);
     if (figurine->where == OBJ_INVENT || figurine->where == OBJ_MINVENT)
         okay_spot = enexto(&cc, cc.x, cc.y, &mons[figurine->corpsenm]);
-    if (!okay_spot || !figurine_location_checks(figurine, &cc, TRUE)) {
+    /* the Idol rests after channeling (use_figurine() sets its age) */
+    if ((idol && figurine->age > timeout) || !okay_spot
+        || !figurine_location_checks(figurine, &cc, TRUE)) {
         /* reset the timer to try again later */
         (void) start_timer((long) rnd(5000), TIMER_OBJECT, FIG_TRANSFORM,
                            obj_to_any(figurine));
@@ -2596,7 +2602,7 @@ fig_transform(anything *arg, long timeout)
     }
 
     cansee_spot = cansee(cc.x, cc.y);
-    mtmp = make_familiar(figurine, cc.x, cc.y, TRUE);
+    mtmp = make_familiar(figurine, cc.x, cc.y, TRUE, TRUE);
     if (mtmp) {
         char and_vanish[BUFSZ];
         struct obj *mshelter = svl.level.objects[mtmp->mx][mtmp->my];
@@ -2640,12 +2646,23 @@ fig_transform(anything *arg, long timeout)
 
         case OBJ_FLOOR:
             if (cansee_spot && !silent) {
-                set_msg_xy(cc.x, cc.y);
-                if (suppress_see)
-                    pline("%s suddenly vanishes!", an(xname(figurine)));
-                else
-                    You_see("a figurine transform into %s%s!", monnambuf,
-                            and_vanish);
+                if (idol) {
+                    /* the Idol stays put; only the demon is new */
+                    if (!suppress_see) {
+                        set_msg_xy(cc.x, cc.y);
+                        You_see("a cloud of %s mist coagulate into the "
+                                "shape of %s%s!", hcolor("crimson"),
+                                monnambuf, and_vanish);
+                    }
+                } else {
+                    set_msg_xy(cc.x, cc.y);
+                    if (suppress_see)
+                        pline("%s suddenly vanishes!",
+                              an(xname(figurine)));
+                    else
+                        You_see("a figurine transform into %s%s!",
+                                monnambuf, and_vanish);
+                }
                 redraw = TRUE; /* update figurine's map location */
             }
             break;
@@ -2679,8 +2696,16 @@ fig_transform(anything *arg, long timeout)
             break;
         }
     }
-    /* free figurine now */
-    if (carried(figurine)) {
+    if (idol) {
+        /* never used up: it rests, then channels again (still cursed;
+           blessing or uncursing it stops the timer) */
+        long cooldown = (long) rnz(100);
+
+        figurine->age = timeout + cooldown;
+        (void) start_timer((long) rnd(9000) + cooldown, TIMER_OBJECT,
+                           FIG_TRANSFORM, obj_to_any(figurine));
+    } else if (carried(figurine)) {
+        /* free figurine now */
         useup(figurine);
     } else {
         obj_extract_self(figurine);
@@ -2780,7 +2805,7 @@ use_figurine(struct obj **optr)
         You("%s and it %stransforms.", release_figurine,
             Blind ? "supposedly " : "");
     }
-    (void) make_familiar(obj, cc.x, cc.y, FALSE);
+    (void) make_familiar(obj, cc.x, cc.y, FALSE, TRUE);
     if (idol) {
         /* the Idol is never consumed; it rests instead */
         obj->age = svm.moves + rnz(100);
@@ -5279,6 +5304,7 @@ doapply(void)
         use_unicorn_horn(&obj);
         break;
     case FLUTE:
+    case PAN_FLUTE:
     case MAGIC_FLUTE:
     case TOOLED_HORN:
     case FROST_HORN:

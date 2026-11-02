@@ -143,17 +143,28 @@ pick_familiar_pm(struct obj *otmp, boolean quietly)
         pm = &mons[pet_type()];
     } else {
         int skill = spell_skilltype(SPE_CREATE_FAMILIAR);
-        int max = 3 * P_SKILL(skill);
+        int max = 3 * P_SKILL(skill), tries = 0;
 
-        pm = rndmonst_adj(0, max);
+        /* the spell never summons a species that can't be tamed;
+           re-roll, and settle for the usual pet if that keeps failing */
+        do {
+            pm = rndmonst_adj(0, max);
+        } while (pm && non_tameable(pm) && ++tries < 50);
+        if (pm && non_tameable(pm))
+            pm = &mons[pet_type()];
         if (!pm && !quietly)
             There("seems to be nothing available for a familiar.");
     }
     return pm;
 }
 
+/* 'you' is FALSE when a monster activated the figurine */
 struct monst *
-make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
+make_familiar(
+    struct obj *otmp,
+    coordxy x, coordxy y,
+    boolean quietly,
+    boolean you)
 {
     struct permonst *pm;
     struct monst *mtmp = 0;
@@ -227,6 +238,13 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         if (chance > 2)
             chance = otmp->blessed ? 0 : !otmp->cursed ? 1 : 2;
         /* 0,1,2:  b=80%,10,10; nc=10%,80,10; c=10%,10,80 */
+        /* uniques, quest nemeses (they covet the quest artifact), and the
+           rest of the mondata.h list can't be tamed */
+        if (non_tameable(mtmp->data))
+            chance = 2;
+        /* a figurine that a monster activates always turns hostile */
+        if (!you)
+            chance = 2;
         if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL
             && mtmp->data == &mons[PM_ELDRITCH_KI_RIN])
             chance = 2;
@@ -1731,9 +1749,10 @@ tamedog(
     if (mtmp->msleeping)
         wake_nearto(mtmp->mx, mtmp->my, 1); /* [different from wakeup()] */
 
-    /* The Wiz, Medusa and the quest nemeses aren't even made peaceful. */
-    if (mtmp->iswiz || mtmp->data == &mons[PM_MEDUSA]
-        || (mtmp->data->mflags3 & M3_WANTSARTI))
+    /* Unique monsters, quest nemeses (they covet the quest artifact),
+       and various other creatures (see mondata.h) aren't even made
+       peaceful */
+    if (mtmp->iswiz || non_tameable(mtmp->data))
         return FALSE;
 
     /* Knights can never tame dragons of differing alignment */
@@ -2158,7 +2177,8 @@ gain_guardian_steed(void)
                                MM_EDOG | MM_NOMSG)) != 0) {
             /* Too nasty for the game to unexpectedly break petless conduct on
              * the final level of the game. The Red Horse will still appear, but
-             * won't be tamed. Toss some carrots at it if you want to tame it */
+             * won't be tamed, and as a unique (non_tameable()) it can't be
+             * tamed afterwards either */
             if (u.uconduct.pets) {
                 mtmp->mtame = 20;
                 u.uconduct.pets++;

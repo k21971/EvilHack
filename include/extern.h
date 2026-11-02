@@ -881,7 +881,8 @@ extern struct obj *choose_worn_armor(const char *, const char *) NONNULLPTRS;
 extern void newedog(struct monst *) NONNULLARG1;
 extern void free_edog(struct monst *) NONNULLARG1;
 extern void initedog(struct monst *, boolean) NONNULLARG1;
-extern struct monst *make_familiar(struct obj *, coordxy, coordxy, boolean);
+extern struct monst *make_familiar(struct obj *, coordxy, coordxy, boolean,
+                                   boolean);
 extern struct monst *make_helper(int, coordxy, coordxy);
 extern struct monst *make_woodland_animal(coordxy, coordxy);
 extern struct monst *make_elemental(coordxy, coordxy);
