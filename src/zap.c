@@ -3389,10 +3389,10 @@ dozap(void)
 
     if (nohands(gy.youmonst.data)) {
         You("aren't able to zap anything in your current form.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     if (check_capacity((char *) 0))
-        return ECMD_OK;
+        return ECMD_FAIL;
     obj = getobj("zap", zap_ok, GETOBJ_NOFLAGS);
     if (!obj)
         return ECMD_CANCEL;

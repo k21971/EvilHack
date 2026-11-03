@@ -1917,7 +1917,7 @@ dorub(void)
 
     if (nohands(gy.youmonst.data)) {
         You("aren't able to rub anything without hands.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     obj = getobj("rub", rub_ok, GETOBJ_NOFLAGS);
     if (!obj)
@@ -5337,10 +5337,10 @@ doapply(void)
         && !(druid_form && !slithy(gy.youmonst.data))
         && !(vampire_form && !is_whirly(gy.youmonst.data))) {
         You("aren't able to use or apply tools in your current form.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     if (check_capacity((char *) 0))
-        return ECMD_OK;
+        return ECMD_FAIL;
 
     obj = getobj("use or apply", apply_ok, GETOBJ_NOFLAGS);
     if (!obj)

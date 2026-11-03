@@ -2686,11 +2686,11 @@ dotakeoff(void)
             pline("Your scaly armor is merged with your skin!");
         else
             pline("Not wearing any armor or accessories.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     if (Hidinshell) {
         You_cant("take off worn items while hiding in your shell.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     if (Narmorpieces != 1 || ParanoidRemove || gi.item_action_in_progress)
         otmp = getobj("take off", takeoff_ok, GETOBJ_NOFLAGS);
@@ -3573,13 +3573,13 @@ dowear(void)
         || Hidinshell || is_ent(gy.youmonst.data)
         || is_plant(gy.youmonst.data)) {
         pline("Don't even bother.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     if (uarm && uarmu && uarmc && uarmh && uarms && uarmg && uarmf
         && uleft && uright && uamul && ublindf) {
         /* 'W' message doesn't mention accessories */
         You("are already wearing a full complement of armor.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     otmp = getobj("wear", wear_ok, GETOBJ_NOFLAGS);
     return otmp ? accessory_or_armor_on(otmp) : ECMD_CANCEL;

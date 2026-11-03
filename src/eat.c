@@ -3452,11 +3452,11 @@ doeat(void)
 
     if (Hidinshell) {
         You_cant("eat while hiding in your shell.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     if (Strangled) {
         pline("If you can't breathe air, how can you consume solids?");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     if (!(otmp = floorfood(isvamp ? "drain" : "eat", 0)))
         return ECMD_OK;

@@ -437,7 +437,7 @@ dothrow(void)
      * [3.6.0:  shot count setup has been moved into ok_to_throw().]
      */
     if (!ok_to_throw(&shotlimit))
-        return ECMD_OK;
+        return ECMD_FAIL;
 
     obj = getobj("throw", throw_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT);
     /* it is also possible to throw food */

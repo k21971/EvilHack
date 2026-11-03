@@ -692,11 +692,11 @@ dodrink(void)
 
     if (Hidinshell) {
         You_cant("drink anything while hiding in your shell.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     if (Strangled) {
         pline("If you can't breathe air, how can you drink liquid?");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
 
     drink_ok_extra = 0;

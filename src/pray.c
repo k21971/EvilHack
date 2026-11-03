@@ -3031,13 +3031,13 @@ dosacrifice(void)
     if (!on_altar() || u.uswallow) {
         You("are not %s an altar.",
             (Levitation || Flying) ? "over" : "on");
-        return ECMD_OK;
+        return ECMD_FAIL;
     } else if (Confusion || Stunned) {
         You("are too impaired to perform the rite.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     } else if (Hidinshell) {
         You_cant("offer a sacrifice while hiding in your shell.");
-        return ECMD_OK;
+        return ECMD_FAIL;
     }
     highaltar = (levl[u.ux][u.uy].altarmask & AM_SANCTUM);
 
