@@ -1957,6 +1957,14 @@ doname_base(
             }
         } else if (obj->otyp == MEAT_RING) {
             goto ring;
+        } else if (is_meat_armor(obj) && carried(obj)
+                   && (obj->owornmask & W_ARMOR) != 0L) {
+            /* worn in the armor slot of the stone piece it came from */
+            Concat(bp, 0,
+                   doffing(obj) ? " (being doffed)"
+                   : donning(obj) ? " (being donned)"
+                     : (druid_form || vampire_form) ? " (merged to your form)"
+                       : " (being worn)");
         }
         break;
     case BALL_CLASS:
@@ -7002,7 +7010,7 @@ const char *
 armor_simple_name(struct obj *armor)
 {
     const char *result = 0;
-    unsigned armcat = objects[armor->otyp].oc_armcat;
+    unsigned armcat = (unsigned) armcat_of(armor);
 
     switch (armcat) {
     case ARM_SUIT:
@@ -7178,7 +7186,8 @@ boots_simple_name(struct obj *boots)
         const char *actualn = OBJ_NAME(*ocl),
                    *descrpn = OBJ_DESCR(*ocl);
 
-        if (strstri(descrpn, shoes)
+        /* stone to flesh's meat boots have no description */
+        if ((descrpn && strstri(descrpn, shoes))
             || (objects[otyp].oc_name_known && strstri(actualn, shoes)))
             return shoes;
     }

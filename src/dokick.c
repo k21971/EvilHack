@@ -1568,8 +1568,7 @@ dokick(void)
                    || IS_SEWAGE(levl[u.ux][u.uy].typ))
                && !Levitation && !Flying && !Wwalking
                /* mud boots negate water resistance */
-               && (!uarmf
-                   || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
+               && (!uarmf || !is_mud_boots(uarmf))) {
         pline_The("%s surrounding your %s hinders your ability to kick.",
                   IS_SEWAGE(levl[u.ux][u.uy].typ) ? "sewage" : "water",
                   makeplural(body_part(FOOT)));

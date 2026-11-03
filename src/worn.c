@@ -374,8 +374,19 @@ wearslot(struct obj *obj)
             res = W_BARDING;
         break;
     case FOOD_CLASS:
+        /* stone to flesh's meat armor keeps the stone piece's slot */
         if (obj->otyp == MEAT_RING)
             res = W_RINGL | W_RINGR;
+        else if (obj->otyp == MEAT_SUIT)
+            res = W_ARM;
+        else if (obj->otyp == MEAT_HELMET)
+            res = W_ARMH;
+        else if (obj->otyp == MEAT_SHIELD)
+            res = W_ARMS;
+        else if (obj->otyp == MEAT_GLOVES)
+            res = W_ARMG;
+        else if (obj->otyp == MEAT_BOOTS)
+            res = W_ARMF;
         break;
     case GEM_CLASS:
         res = W_QUIVER;

@@ -2496,6 +2496,7 @@ thitmonst(
         case GAUNTLETS_OF_PROTECTION:
         case GLOVES:
         case DARK_ELVEN_GLOVES:
+        case MEAT_GLOVES:
         case MUMMIFIED_HAND: /* the Hand of Vecna */
             break;
         case GAUNTLETS_OF_DEXTERITY:

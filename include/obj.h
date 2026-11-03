@@ -401,6 +401,25 @@ struct obj {
      || (otmp)->otyp == DWARVISH_BOOTS       \
      || (otmp)->otyp == DWARVISH_ROUNDSHIELD)
 #define is_gnomish_armor(otmp) (FALSE)
+/* what stone to flesh makes of stone armor; food, but it stays worn
+   in the armor slot the stone piece had */
+#define is_meat_armor(otmp)         \
+    ((otmp)->otyp == MEAT_SUIT      \
+     || (otmp)->otyp == MEAT_HELMET \
+     || (otmp)->otyp == MEAT_SHIELD \
+     || (otmp)->otyp == MEAT_GLOVES \
+     || (otmp)->otyp == MEAT_BOOTS)
+/* armor category of a piece of armor; meat armor is food, whose
+   oc_armcat reads as 0 (ARM_SUIT) whatever the piece, so it goes by
+   its armor slot */
+#define armcat_of(otmp)                                   \
+    (is_meat_armor(otmp) ? wornmask_to_armcat(wearslot(otmp)) \
+                         : (int) objects[(otmp)->otyp].oc_armcat)
+/* boots that look like "mud boots" keep the feet dry; the meat boots
+   stone to flesh makes have no appearance at all */
+#define is_mud_boots(o)                 \
+    (OBJ_DESCR(objects[(o)->otyp]) != 0 \
+     && !strncmp(OBJ_DESCR(objects[(o)->otyp]), "mud ", 4))
 
 /* Eggs and other food */
 #define MAX_EGG_HATCH_TIME 200 /* longest an egg can remain unhatched */
@@ -587,7 +606,8 @@ struct obj {
          && !undiscovered_artifact(ART_EYES_OF_THE_OVERWORLD)))
 #define pair_of(o)                                    \
     ((o)->otyp == LENSES || (o)->otyp == GOGGLES      \
-     || is_gloves(o) || is_boots(o) || is_bracer(o))
+     || is_gloves(o) || is_boots(o) || is_bracer(o)   \
+     || (o)->otyp == MEAT_GLOVES || (o)->otyp == MEAT_BOOTS)
 
 /* objects that skip the metallic/crystal material requirement when
    used as a forge ingredient */

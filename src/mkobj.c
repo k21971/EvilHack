@@ -1046,7 +1046,9 @@ mksobj_init(struct obj **obj, boolean artif)
             start_glob_timeout(otmp, 0L);
         } else {
             if (otmp->otyp != CORPSE && otmp->otyp != MEAT_RING
-                && otmp->otyp != KELP_FROND && !rn2(6)) {
+                && otmp->otyp != KELP_FROND
+                && otmp->otyp != STRIP_OF_BACON && !is_meat_armor(otmp)
+                && !rn2(6)) {
                 otmp->quan = 2L;
             }
         }
@@ -4132,7 +4134,8 @@ sanity_check_worn(struct obj *obj)
            be wielded/alt-wielded/quivered, so tests on those are limited */
         what = 0;
         if (owornmask & W_ARMOR) {
-            if (obj->oclass != ARMOR_CLASS)
+            /* stone to flesh's meat armor is food worn as armor */
+            if (obj->oclass != ARMOR_CLASS && !is_meat_armor(obj))
                 what = "armor";
             /* embedded skin is bare dragon scales from the cloak slot
                or a dragon-scaled suit from the body slot */

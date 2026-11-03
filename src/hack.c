@@ -3713,7 +3713,7 @@ slowed_by_sewage(void)
             && (Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES
                 || Dragon_armor_to_scales(uarm) == BLUE_DRAGON_SCALES))
         || Wwalking
-        || (uarmf && !strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4)))
+        || (uarmf && is_mud_boots(uarmf)))
         return FALSE;
     return TRUE;
 }
@@ -3893,9 +3893,7 @@ pooleffects(
                              == WHITE_DRAGON_SCALES
                              || Dragon_armor_to_scales(uarm)
                                 == BLUE_DRAGON_SCALES))
-                     || (uarmf
-                         && !strncmp(OBJ_DESCR(objects[uarmf->otyp]),
-                                     "mud ", 4)))) {
+                     || (uarmf && is_mud_boots(uarmf)))) {
                 pline("%s %s difficulty %s through %s.",
                       u.usteed ? upstart(x_monnam(u.usteed,
                                                   has_mgivenname(u.usteed)
@@ -3918,9 +3916,7 @@ pooleffects(
                 (void) split_mon(&gy.youmonst, (struct monst *) 0);
             } else if (gy.youmonst.data == &mons[PM_IRON_GOLEM]
                        /* mud boots keep the feet dry */
-                       && (!uarmf
-                           || strncmp(OBJ_DESCR(objects[uarmf->otyp]),
-                                      "mud ", 4))) {
+                       && (!uarmf || !is_mud_boots(uarmf))) {
                 int dam = rnd(6);
 
                 Your("%s rust!", makeplural(body_part(FOOT)));

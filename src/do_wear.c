@@ -332,6 +332,7 @@ Boots_on(void)
 
     switch (uarmf->otyp) {
     case ORCISH_BOOTS:
+    case MEAT_BOOTS:
     case LOW_BOOTS:
     case DWARVISH_BOOTS:
     case HIGH_BOOTS:
@@ -512,6 +513,7 @@ Boots_off(void)
         }
         break;
     case ORCISH_BOOTS:
+    case MEAT_BOOTS:
     case LOW_BOOTS:
     case DWARVISH_BOOTS:
     case HIGH_BOOTS:
@@ -728,6 +730,7 @@ Helmet_on(void)
     case DWARVISH_HELM:
     case ORCISH_HELM:
     case HELM_OF_TELEPATHY:
+    case MEAT_HELMET:
         break;
     case HELM_OF_SPEED:
         if (!oldprop && !(HFast & TIMEOUT)) {
@@ -880,6 +883,7 @@ Helmet_off(void)
     case ELVEN_HELM:
     case DWARVISH_HELM:
     case ORCISH_HELM:
+    case MEAT_HELMET:
         break;
     case DUNCE_CAP:
         disp.botl = TRUE;
@@ -940,6 +944,7 @@ Gloves_on(void)
     case DARK_ELVEN_GLOVES:
     case GAUNTLETS:
     case GLOVES:
+    case MEAT_GLOVES:
         break;
     case GAUNTLETS_OF_PROTECTION:
         makeknown(uarmg->otyp);
@@ -1046,6 +1051,7 @@ Gloves_off(void)
     case DARK_ELVEN_GLOVES:
     case GAUNTLETS:
     case GLOVES:
+    case MEAT_GLOVES:
         break;
     case GAUNTLETS_OF_PROTECTION:
     case MUMMIFIED_HAND:
@@ -1110,6 +1116,7 @@ Shield_on(void)
     case SMALL_SHIELD:
     case SHIELD_OF_LIGHT:
     case SHIELD_OF_MOBILITY:
+    case MEAT_SHIELD:
     case BRACERS:
     case DARK_ELVEN_BRACERS:
     case RUNED_BRACERS:
@@ -1157,6 +1164,7 @@ Shield_off(void)
     case SMALL_SHIELD:
     case SHIELD_OF_LIGHT:
     case SHIELD_OF_MOBILITY:
+    case MEAT_SHIELD:
     case BRACERS:
     case DARK_ELVEN_BRACERS:
     case RUNED_BRACERS:
@@ -2770,6 +2778,7 @@ armoroff(struct obj *otmp)
 {
     static char offdelaybuf[60];
     int delay = -objects[otmp->otyp].oc_delay;
+    int armcat = armcat_of(otmp);
     const char *what = 0;
 
     if (cursed(otmp, FALSE))
@@ -2779,7 +2788,7 @@ armoroff(struct obj *otmp)
     if (delay) {
         nomul(delay);
         gm.multi_reason = "disrobing";
-        switch (objects[otmp->otyp].oc_armcat) {
+        switch (armcat) {
         case ARM_SUIT:
             what = suit_simple_name(otmp);
             ga.afternmv = Armor_off;
@@ -2810,7 +2819,7 @@ armoroff(struct obj *otmp)
             break;
         default:
             impossible("Taking off unknown armor (%d: %d), delay %d",
-                       otmp->otyp, objects[otmp->otyp].oc_armcat, delay);
+                       otmp->otyp, armcat, delay);
             break;
         }
         if (what) {
@@ -2821,7 +2830,7 @@ armoroff(struct obj *otmp)
         }
     } else {
         /* no delay so no '(*afternmv)()' or 'nomovemsg' */
-        switch (objects[otmp->otyp].oc_armcat) {
+        switch (armcat) {
         case ARM_SUIT:
             (void) Armor_off();
             break;
@@ -2845,7 +2854,7 @@ armoroff(struct obj *otmp)
             break;
         default:
             impossible("Taking off unknown armor (%d: %d), no delay",
-                       otmp->otyp, objects[otmp->otyp].oc_armcat);
+                       otmp->otyp, armcat);
             break;
         }
         /* We want off_msg() after removing the item to
@@ -2916,7 +2925,7 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
 
     which = is_cloak(otmp) ? c_cloak
             : is_shirt(otmp) ? c_shirt
-              : is_suit(otmp) ? c_suit
+              : (is_suit(otmp) || otmp->otyp == MEAT_SUIT) ? c_suit
                 : 0;
     if (which && cantweararm(&gy.youmonst)
         /* same exception for cloaks as used in m_dowear() and
@@ -2940,14 +2949,17 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
         return 0;
     }
 
-    if (welded(uwep) && bimanual(uwep) && (is_suit(otmp) || is_shirt(otmp))) {
+    if (welded(uwep) && bimanual(uwep)
+        && (is_suit(otmp) || otmp->otyp == MEAT_SUIT || is_shirt(otmp))) {
         if (noisy)
             You("cannot do that while holding your %s.",
                 is_sword(uwep) ? c_sword : c_weapon);
         return 0;
     }
 
-    if (is_helmet(otmp)) {
+    /* stone to flesh's meat armor is food, so the is_<slot>() tests
+       below don't know it */
+    if (is_helmet(otmp) || otmp->otyp == MEAT_HELMET) {
         if (uarmh) {
             if (noisy)
                 already_wearing(an(helm_simple_name(uarmh)));
@@ -2966,7 +2978,7 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             err++;
         } else
             *mask = W_ARMH;
-    } else if (is_shield(otmp)) {
+    } else if (is_shield(otmp) || otmp->otyp == MEAT_SHIELD) {
         if (uarms) {
             if (noisy)
                 already_wearing(is_bracer(uarms) ? c_bracers
@@ -2985,7 +2997,7 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             err++;
         } else
             *mask = W_ARMS;
-    } else if (is_boots(otmp)) {
+    } else if (is_boots(otmp) || otmp->otyp == MEAT_BOOTS) {
         if (uarmf) {
             if (noisy)
                 already_wearing(c_boots);
@@ -3035,7 +3047,7 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             err++;
         } else
             *mask = W_ARMF;
-    } else if (is_gloves(otmp)) {
+    } else if (is_gloves(otmp) || otmp->otyp == MEAT_GLOVES) {
         if (uarmg) {
             if (noisy) {
                 if (uarmg->otyp == MUMMIFIED_HAND)
@@ -3105,7 +3117,7 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             if (noisy)
                 pline_The("scales are just large enough to fit your body.");
         }
-    } else if (is_suit(otmp)) {
+    } else if (is_suit(otmp) || otmp->otyp == MEAT_SUIT) {
         if (uarmc) {
             if (noisy)
                 You("cannot wear armor over a %s.", cloak_simple_name(uarmc));
@@ -3151,7 +3163,7 @@ accessory_or_armor_on(struct obj *obj)
         already_wearing(c_that_);
         return ECMD_OK;
     }
-    armor = (obj->oclass == ARMOR_CLASS);
+    armor = (obj->oclass == ARMOR_CLASS || is_meat_armor(obj));
     ring = (obj->oclass == RING_CLASS || obj->otyp == MEAT_RING);
     amulet = (obj->oclass == AMULET_CLASS);
     eyewear = (obj->otyp == BLINDFOLD || obj->otyp == TOWEL
@@ -4799,11 +4811,14 @@ inaccessible_equipment(
 staticfn int
 equip_ok(struct obj *obj, boolean removing, boolean accessory)
 {
-    boolean is_worn;
+    boolean is_worn, armor;
     long dummymask = 0;
 
     if (!obj)
         return GETOBJ_EXCLUDE;
+
+    /* stone to flesh's meat armor is food worn as armor */
+    armor = (obj->oclass == ARMOR_CLASS || is_meat_armor(obj));
 
     /* ignore for putting on if already worn, or removing if not worn */
     is_worn = ((obj->owornmask & (W_ARMOR | W_ACCESSORY)) != 0);
@@ -4811,7 +4826,7 @@ equip_ok(struct obj *obj, boolean removing, boolean accessory)
         return GETOBJ_EXCLUDE_INACCESS;
 
     /* exclude most object classes outright */
-    if (obj->oclass != ARMOR_CLASS && obj->oclass != RING_CLASS
+    if (!armor && obj->oclass != RING_CLASS
         && obj->oclass != AMULET_CLASS) {
         /* ... except for a few wearable exceptions outside these classes */
         if (obj->otyp != MEAT_RING && obj->otyp != BLINDFOLD
@@ -4821,11 +4836,11 @@ equip_ok(struct obj *obj, boolean removing, boolean accessory)
     }
 
     /* armor with 'P' or 'R' or accessory with 'W' or 'T' */
-    if (accessory ^ (obj->oclass != ARMOR_CLASS))
+    if (accessory ^ !armor)
         return GETOBJ_DOWNPLAY;
 
     /* armor we can't wear, e.g. from polyform */
-    if (obj->oclass == ARMOR_CLASS && !removing
+    if (armor && !removing
         && !canwearobj(obj, &dummymask, FALSE))
         return GETOBJ_DOWNPLAY;
 

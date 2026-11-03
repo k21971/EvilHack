@@ -982,7 +982,8 @@ engulfer_digests_food(struct obj *obj)
     if (digests(u.ustuck->data)
         && (obj->otyp == CORPSE || obj->globby
             || obj->otyp == MEATBALL || obj->otyp == ENORMOUS_MEATBALL
-            || obj->otyp == MEAT_RING || obj->otyp == MEAT_STICK)
+            || obj->otyp == MEAT_RING || obj->otyp == MEAT_STICK
+            || obj->otyp == STRIP_OF_BACON || is_meat_armor(obj))
         && !obj_indestructible(obj)) {
         boolean could_petrify = FALSE,
                 could_poly = FALSE, could_slime = FALSE,

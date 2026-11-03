@@ -2256,7 +2256,8 @@ hits_bars(
             if (obj_type == CORPSE && mons[otmp->corpsenm].msize > MZ_TINY)
                 hits = TRUE;
             else
-                hits = (obj_type == MEAT_STICK
+                hits = (is_meat_armor(otmp) || obj_type == MEAT_STICK
+                        || obj_type == STRIP_OF_BACON
                         || obj_type == ENORMOUS_MEATBALL);
             break;
         case SPBOOK_CLASS:

@@ -654,13 +654,13 @@ itemactions(struct obj *otmp)
 
     /* W: wear armor */
     if (!already_worn) {
-        if (otmp->oclass == ARMOR_CLASS) {
+        if (otmp->oclass == ARMOR_CLASS || is_meat_armor(otmp)) {
             /* if 'otmp' is worn we skip 'W' (and show 'T' above instead);
                if it isn't, we either show "W - wear this" if otmp's slot
                isn't populated, or "W - [already wearing <simple-armor>]";
                for the latter, picking 'W' will fail but we don't want to
                omit 'W' in this situation */
-            long Wmask = armcat_to_wornmask(objects[otmp->otyp].oc_armcat);
+            long Wmask = armcat_to_wornmask(armcat_of(otmp));
             struct obj *o = wearmask_to_obj(Wmask);
 
             if (!o) {
