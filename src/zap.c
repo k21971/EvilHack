@@ -2688,10 +2688,14 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
     boolean smell = FALSE, golem_xform = FALSE, ent_xform = FALSE;
     int res = 1; /* affected object by default */
 
-    if (objects[obj->otyp].oc_material != MINERAL
-        && objects[obj->otyp].oc_material != GEMSTONE)
+    /* judged by the object's own material */
+    if (obj->material != MINERAL && obj->material != GEMSTONE)
         return 0;
-    /* Heart of Ahriman usually resists; ordinary items rarely do */
+    /* dragon-scaled armor merged into a dragon form is part of that
+       body; poly_obj() can't take it off */
+    if (obj == uskin)
+        return 0;
+    /* artifacts always resist; ordinary items rarely do */
     if (obj_resists(obj, 2, 100))
         return 0;
 
@@ -2785,11 +2789,51 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
         obj = poly_obj(obj, MEATBALL);
         smell = TRUE;
         break;
-    case WEAPON_CLASS: /* crysknife */
-        FALLTHROUGH;
-        /*FALLTHRU*/
+    case ARMOR_CLASS: /* various pieces of armor */
+        /* a worn piece stays worn in its slot as meat armor; a wielded
+           one is let go, as meat is no weapon; crystal plate mail
+           resists nearly all magic */
+        if (is_suit(obj) && obj->otyp == CRYSTAL_PLATE_MAIL) {
+            res = 0;
+            break;
+        }
+        if (obj->owornmask & W_WEAPONS)
+            remove_worn_item(obj, FALSE);
+        if (is_suit(obj)) {
+            obj = poly_obj(obj, MEAT_SUIT);
+            smell = TRUE;
+        } else if (is_helmet(obj)) {
+            obj = poly_obj(obj, MEAT_HELMET);
+            smell = TRUE;
+        } else if (is_shield(obj)) { /* bracers too */
+            obj = poly_obj(obj, MEAT_SHIELD);
+            smell = TRUE;
+        } else if (is_gloves(obj)) {
+            obj = poly_obj(obj, MEAT_GLOVES);
+            smell = TRUE;
+        } else if (is_boots(obj)) {
+            obj = poly_obj(obj, MEAT_BOOTS);
+            smell = TRUE;
+        } else { /* cloaks and shirts are never made of stone */
+            res = 0;
+        }
+        break;
+    case WEAPON_CLASS:
+        /* poly_obj() keeps a wielded, alternate or quivered item in its
+           slot, but bacon is no weapon; let go of it first */
+        if (obj->owornmask & W_WEAPONS)
+            remove_worn_item(obj, FALSE);
+        obj = poly_obj(obj, STRIP_OF_BACON);
+        smell = TRUE;
+        break;
     default:
-        res = 0;
+        if (valid_obj_material(obj, FLESH)) {
+            pline("%s to flesh!", Tobjnam(obj, "turn"));
+            set_material(obj, FLESH);
+            obj->owt = weight(obj);
+        } else {
+            res = 0;
+        }
         break;
     }
     nhUse(obj); /* avoid 'assigned value not used' for poly_obj() calls */

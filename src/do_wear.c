@@ -1033,7 +1033,7 @@ Gloves_off(void)
 {
     struct obj *gloves = uarmg; /* needed after uarmg has been set to Null */
     long oldprop;
-    boolean on_purpose;
+    boolean on_purpose, swapping;
 
     if (!gloves) {
         svc.context.takeoff.mask &= ~W_ARMG;
@@ -1083,8 +1083,11 @@ Gloves_off(void)
     if (Glib)
         make_glib(0); /* for update_inventory() */
 
-    /* prevent wielding cockatrice when not wearing gloves */
-    if (uwep && uwep->otyp == CORPSE)
+    /* prevent wielding cockatrice when not wearing gloves; poly_obj()
+       puts the new form of these gloves straight back on, so the hand
+       is never bare during that swap */
+    swapping = (gw.worn_swap_quiet && gloves == gw.worn_slot_exempt);
+    if (uwep && uwep->otyp == CORPSE && !swapping)
         wielding_corpse(uwep, gloves, on_purpose);
     /* KMH -- ...or your secondary weapon when you're wielding it
        [This case can't actually happen; twoweapon mode won't engage
@@ -1093,7 +1096,7 @@ Gloves_off(void)
        be cockatrice corpses, life-saving for the first would need to
        prevent the second from being fatal since conceptually they'd
        be being touched simultaneously.] */
-    if (u.twoweap && uswapwep && uswapwep->otyp == CORPSE)
+    if (u.twoweap && uswapwep && uswapwep->otyp == CORPSE && !swapping)
         wielding_corpse(uswapwep, gloves, on_purpose);
 
     if (condtests[bl_bareh].enabled)
