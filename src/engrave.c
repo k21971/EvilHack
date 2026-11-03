@@ -396,6 +396,8 @@ read_engr_at(coordxy x, coordxy y)
             }
             You("%s: \"%s\"%s", (Blind) ? "feel the words" : "read", et,
                 endpunct);
+            if (ep->engr_type != HEADSTONE)
+                maybe_learn_elbereth(et);
             Strcpy(ep->engr_txt[remembered_text], ep->engr_txt[actual_text]);
             ep->eread = 1;
             ep->erevealed = 1;
@@ -403,6 +405,47 @@ read_engr_at(coordxy x, coordxy y)
                 nomul(0);
         }
     }
+}
+
+/* what a hero who hasn't learned Elbereth writes instead */
+static const char *const bogus_elbereth[] = {
+    "Elizabeth",
+    "OwlBreath",
+    "Everest",
+    "Elly'sBreast", /* maybe not ;) */
+    "Eratosthenes",
+    "EvilHack",     /* hahahah */
+    "htereblE",
+    "Ermahgerd"     /* Gersberms, mah fravrit berks */
+};
+
+/* and how that hero is told so; each is completed by You() */
+static const char *const cannot_write[] = {
+    "can't seem to wrap your mind around that!",
+    "feel like you've seen this word before, but can't quite remember it.",
+    "regret skipping Sindarin class during school.",
+    "have difficulty writing a word you've never learned."
+};
+
+/* the hero now knows how to write Elbereth */
+void
+learn_elbereth(void)
+{
+    if (!u.uevent.ulearned_elbereth) {
+        debugpline0("You learn how to write Elbereth");
+        u.uevent.ulearned_elbereth = 1;
+    } else {
+        debugpline0("You would have learnt Elbereth from this,"
+                    " but you already know it");
+    }
+}
+
+/* text the hero has just read teaches Elbereth if it contains it */
+void
+maybe_learn_elbereth(const char *s)
+{
+    if (strstri(s, "Elbereth"))
+        learn_elbereth();
 }
 
 void
@@ -415,9 +458,21 @@ make_engr_at(
 {
     int i;
     struct engr *ep;
-    unsigned smem = Strlen(s) + 1;
+    unsigned smem;
     boolean havepristine = FALSE;
 
+    /* a hero who hasn't learned Elbereth can't bring it about; the hero's
+       own words were already swapped and announced by doengrave(), so this
+       quietly covers the rest (a polymorphed engraving, or a rub-out
+       between engrave() actions that turns the text into Elbereth, after
+       which the carving simply goes on); it comes before the size is taken
+       because a stand-in can be longer */
+    if (!gi.in_mklev && e_type != HEADSTONE
+        && !u.uevent.ulearned_elbereth && strstri(s, "Elbereth")) {
+        s = ROLL_FROM(bogus_elbereth);
+        pristine_s = (const char *) 0;
+    }
+    smem = Strlen(s) + 1;
     if (pristine_s != NULL) {
         unsigned prmem = Strlen(pristine_s) + 1;
         if (prmem > smem)
@@ -1118,7 +1173,10 @@ doengrave(void)
         tmp_ep = engr_at(u.ux, u.uy);
         if (!Blind) {
             if (tmp_ep != 0) {
-                pline_The("engraving now reads: \"%s\".", de->buf);
+                /* quote what was stored; make_engr_at() swaps out an
+                   Elbereth the hero hasn't learned */
+                pline_The("engraving now reads: \"%s\".",
+                          tmp_ep->engr_txt[actual_text]);
                 tmp_ep->eread = 1;
                 tmp_ep->erevealed = 1;
                 de->disprefresh = TRUE;
@@ -1267,6 +1325,29 @@ doengrave(void)
             || (Stunned && !rn2(4)) || (Hallucination && !rn2(2)))
             *sp = ' ' + rnd(96 - 2); /* ASCII '!' thru '~'
                                         (excludes ' ' and DEL) */
+    }
+
+    /* a hero who hasn't learned Elbereth writes something else; the text
+       is checked as it will stand, with any old text being added to, so
+       the word can't be built up a few letters at a time */
+    if (!u.uevent.ulearned_elbereth && de->type != HEADSTONE) {
+        char cbuf[BUFSZ];
+
+        cbuf[0] = '\0';
+        if (de->adding)
+            copynchars(cbuf, de->oep->engr_txt[actual_text], BUFSZ - 1);
+        (void) strncat(cbuf, de->ebuf, sizeof cbuf - strlen(cbuf) - 1);
+        if (strstri(cbuf, "Elbereth")) {
+            Strcpy(de->ebuf, ROLL_FROM(bogus_elbereth));
+            You("%s", ROLL_FROM(cannot_write));
+            You("%swrite %s instead.",
+                de->adding ? "wipe out the message and " : "", de->ebuf);
+            /* the stand-in replaces the old text rather than adding to it */
+            if (de->adding) {
+                de->eow = TRUE;
+                de->adding = FALSE;
+            }
+        }
     }
 
     /* Previous engraving is overwritten */

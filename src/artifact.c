@@ -5052,6 +5052,7 @@ arti_speak(struct obj *obj)
     pline("%s:", Tobjnam(obj, "whisper"));
     SetVoice((struct monst *) 0, 0, 80, voice_talking_artifact);
     verbalize1(line);
+    maybe_learn_elbereth(line);
     return ECMD_TIME;
 }
 

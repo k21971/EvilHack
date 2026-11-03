@@ -482,6 +482,7 @@ doread(void)
             pline("It reads:");
         }
         pline("\"%s\"%s", mesg, endpunct);
+        maybe_learn_elbereth(mesg);
         return ECMD_TIME;
     } else if ((otyp == DUNCE_CAP || otyp == CORNUTHAUM)
         /* note: "DUNCE" isn't directly connected to tourists but
@@ -533,16 +534,18 @@ doread(void)
             "Yendorian Express - Mithril Card",
             "Yendorian Express - Platinum Card", /* must be last */
         };
+        const char *mesg;
 
         if (Blind) {
             You("feel the embossed numbers:");
         } else {
             if (flags.verbose)
                 pline("It reads:");
-            pline("\"%s\"",
-                  scroll->oartifact
-                      ? card_msgs[SIZE(card_msgs) - 1]
-                      : card_msgs[scroll->o_id % (SIZE(card_msgs) - 1)]);
+            mesg = scroll->oartifact
+                       ? card_msgs[SIZE(card_msgs) - 1]
+                       : card_msgs[scroll->o_id % (SIZE(card_msgs) - 1)];
+            pline("\"%s\"", mesg);
+            maybe_learn_elbereth(mesg);
         }
         /* Make a credit card number */
         pline("\"%d0%d %ld%d1 0%d%d0\"%s",
@@ -662,6 +665,7 @@ doread(void)
             return ECMD_OK;
         }
         pline("The wrapper reads: \"%s\".", wrapper);
+        maybe_learn_elbereth(wrapper);
         if (!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT,
                            "became literate by reading a candy bar wrapper");

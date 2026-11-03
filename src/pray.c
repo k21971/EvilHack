@@ -977,6 +977,7 @@ gcrownu(void)
         u.uevent.uhand_of_elbereth = 1;
         SetVoice((struct monst *) 0, 0, 80, voice_deity);
         verbalize("I crown thee...  The Hand of Elbereth!");
+        learn_elbereth();
         livelog_printf(LL_DIVINEGIFT,
                        "was crowned \"The Hand of Elbereth\" by %s",
                        u_gname());

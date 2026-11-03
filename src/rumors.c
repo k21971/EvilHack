@@ -557,6 +557,7 @@ outrumor(
     line = getrumor(truth, buf, reading ? FALSE : TRUE);
     if (!*line)
         line = "NetHack rumors file closed for renovation.";
+    maybe_learn_elbereth(line);
     switch (mechanism) {
     case BY_ORACLE:
         /* Oracle delivers the rumor */
@@ -688,6 +689,7 @@ outoracle(boolean special, boolean delphi)
             if ((endp = strchr(line, '\n')) != 0)
                 *endp = 0;
             putstr(tmpwin, 0, xcrypt(line, xbuf));
+            maybe_learn_elbereth(xbuf);
         }
         display_nhwindow(tmpwin, TRUE);
         destroy_nhwindow(tmpwin);
