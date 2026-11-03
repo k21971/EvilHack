@@ -2737,6 +2737,14 @@ show_achievements(
         } /* switch */
     } /* for */
 
+    /* quest progress has no formal achievement slot */
+    if (u.uevent.qcompleted)
+        you_have_X("completed the Quest");
+    if (svq.quest_status.killed_nemesis)
+        you_have_X("defeated your quest nemesis");
+    if (svq.quest_status.leader_is_dead)
+        you_have_X("defeated your quest leader");
+
     /* the Wizard's tower entry event has no formal achievement slot;
        it is tracked via u.uevent (set in goto_level), so it cannot
        participate in the chronological list above */

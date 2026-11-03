@@ -878,6 +878,10 @@ xname_flags(
                       TRUE, !!strstri(buf, " of "));
         ConcUpdate(buf);
 
+        /* the Bell won't work until the quest is done */
+        if (typ == BELL_OF_OPENING && !u.uevent.qcompleted)
+            Concat(buf, 0, " (locked)");
+
         if (typ == FIGURINE && omndx != NON_PM) {
             char anbuf[10]; /* [4] would be enough: 'a','n',' ','\0' */
             const char *pm_name = obj_pmname(obj);

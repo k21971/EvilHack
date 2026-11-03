@@ -7,7 +7,7 @@
 
 staticfn int use_camera(struct obj *);
 staticfn int use_towel(struct obj *);
-staticfn boolean its_dead(coordxy, coordxy, int *);
+staticfn boolean its_dead(coordxy, coordxy, int *, struct obj *);
 staticfn int use_stethoscope(struct obj *);
 staticfn void use_eight_ball(struct obj **);
 staticfn void use_whistle(struct obj *);
@@ -203,16 +203,18 @@ use_towel(struct obj *obj)
 
 /* maybe give a stethoscope message based on floor objects */
 staticfn boolean
-its_dead(coordxy rx, coordxy ry, int *resp)
+its_dead(coordxy rx, coordxy ry, int *resp, struct obj *tobj)
 {
     char buf[BUFSZ];
     boolean more_corpses;
     struct permonst *mptr;
     struct obj *corpse = sobj_at(CORPSE, rx, ry),
-               *statue = sobj_at(STATUE, rx, ry);
+               *statue = sobj_at(STATUE, rx, ry),
+               *egg = sobj_at(EGG, rx, ry);
 
     if (!can_reach_floor(TRUE)) { /* levitation or unskilled riding */
         corpse = 0;               /* can't reach corpse on floor */
+        egg = 0;                  /* nor an egg */
         /* you can't reach tiny statues (even though you can fight
            tiny monsters while levitating--consistency, what's that?) */
         while (statue && mons[statue->corpsenm].msize == MZ_TINY)
@@ -313,7 +315,25 @@ its_dead(coordxy rx, coordxy ry, int *resp)
         pline("%s is in %s health for a statue.", what, how);
         return TRUE;
     }
-    return FALSE; /* no corpse or statue */
+
+    /* a blessed stethoscope can tell what's growing inside an egg */
+    if (egg) {
+        if (Hallucination || tobj->cursed) {
+            You("listen to the egg and guess... %s?",
+                rndmonnam((char *) 0));
+        } else if (tobj->blessed) {
+            if (stale_egg(egg) || !ismnum(egg->corpsenm))
+                pline_The("egg doesn't really make any noise at all.");
+            else
+                You("listen to the egg and guess... %s!",
+                    mons[egg->corpsenm].pmnames[NEUTRAL]);
+            egg->known = 1;
+        } else {
+            You_cant("quite tell what's inside the egg.");
+        }
+        return TRUE;
+    }
+    return FALSE; /* no corpse, statue or egg */
 }
 
 static const char hollow_str[] = "a hollow sound.  This must be a secret %s!";
@@ -370,7 +390,7 @@ use_stethoscope(struct obj *obj)
             You_hear("faint splashing.");
         } else if (u.dz < 0 || !can_reach_floor(TRUE)) {
             cant_reach_floor(u.ux, u.uy, (u.dz < 0), TRUE, FALSE);
-        } else if (its_dead(u.ux, u.uy, &res)) {
+        } else if (its_dead(u.ux, u.uy, &res, obj)) {
             ; /* message already given */
         } else if (Is_stronghold(&u.uz)) {
             Soundeffect(se_crackling_of_hellfire, 35);
@@ -476,7 +496,7 @@ use_stethoscope(struct obj *obj)
         return res;
     }
 
-    if (!its_dead(rx, ry, &res))
+    if (!its_dead(rx, ry, &res, obj))
         You("hear nothing special."); /* not You_hear()  */
     return res;
 }
@@ -1351,6 +1371,23 @@ use_bell(struct obj **optr)
             obj->age = svm.moves;
             learno = TRUE;
             wakem = TRUE;
+            /* The Bell of Opening has been cursed by the quest nemesis,
+               it will not be freed from that curse until the quest has
+               been completed (either talking to the quest leader with
+               the quest artifact in open inventory, or killing both the
+               quest leader and nemesis) */
+            if (!u.uevent.qcompleted) {
+                curse(obj);
+                /* the hero is told it's cursed; set bknown directly and
+                   refresh, since curse() changes what's shown even when
+                   bknown was already set */
+                obj->bknown = 1;
+                update_inventory();
+                pline("%s has not been freed of its curse!",
+                      The(xname(obj)));
+                You("must complete your quest for %s to work!",
+                    the(xname(obj)));
+            }
 
         } else if (obj->blessed) {
             int res = 0;
