@@ -2799,7 +2799,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       nohands() test. Census each hunk of 1ae3ddbbc (apply.c, dig.c,
       lock.c, pray.c, zap.c) against the R1 tortle shell gates, then
       port the missing ones.
-      CLOSED 2026-11-03 (session 288; BUG-2836, 2837; commit pending).
+      CLOSED 2026-11-03 (session 288; BUG-2836, 2837; 8a8ab504d).
       Census of 1ae3ddbbc and its follow-ups (b300d88e3, a1e07bc6e,
       f27264bc3, 982fecc00's dig.c shape, 04fc58a16's druid forms)
       against master's final text: apply.c 11 missing (camera, both
@@ -2827,7 +2827,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (BUG-2834) and zapyourself() survives it (BUG-2835); the landing
       itself is master / vanilla shape (an in_lava_effects-style wrap
       is one fix shape). LOW.
-      CLOSED 2026-11-03 (session 288; BUG-2839..2841; commit pending).
+      CLOSED 2026-11-03 (session 288; BUG-2839..2841; 640dd1cfd).
       poly_obj() runs freeinv_core() and remove_worn_item() for the
       old form under iflags.in_lava_effects, as erode_obj() does, so
       the off-functions defer_landing() and the landing or drowning
@@ -2844,7 +2844,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       use after free, frozen-unfixed). Upstream row.
 - [x] MED: refused commands ran the item-action menu's queued item
       letter (minted and closed 2026-11-03, session 288, reviewer of
-      the hands-free slice; BUG-2838; commit pending; ruled: sweep the
+      the hands-free slice; BUG-2838; e9e6c4a5b; ruled: sweep the
       class). The item-action menu queues the command plus the item
       letter; a refusal before the object prompt returned ECMD_OK, which
       leaves the queue alone, so the letter ran as the next command
@@ -35776,8 +35776,8 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-02 | The same in container_impact_dmg(): a kicked, dropped or thrown box that breaks one potion or egg of a shop's stack bills the whole stack ("You owe 5 x price"), and 4 stay for sale. An unpaid stack must keep the whole-stack charge (sub_one_frombill() would otherwise leave a used-up dummy for the rest). Official_nh50 b0c09c878; BUG-2806, src/dokick.c | found (branch-fixed be0c0dcfc: quan held at 1 for a stack that isn't unpaid); not sent; triage pending |
 | 2026-11-02 | A new game after a failed restore ("You were not healthy enough to survive restoration.", or "Saved game was not yours." outside wizard mode) keeps pieces of the save: restgamestate() puts flags and context back but not u, so u_init_misc() carries the save's u.uroleplay across its memset as if they were the config file's (blind / deaf / nudist / pauper, the bones and reroll counts); svm.moves stays the save's turn while newgame() makes the first level and the starting pet (its hungrytime is offset by it); and svn.nhuuid keeps the dead game's id (get_nhuuid() keeps a set id). Official_nh50 b0c09c878; BUG-2808, src/restore.c | found (branch-fixed 4bede6bd9: u copied before Sfi_you() and put back on failure, svm.moves 0 and nhuuid cleared in both arms); not sent; triage pending |
 | 2026-11-03 | zapyourself()'s SPE_STONE_TO_FLESH loop saves otmp->nobj before bhito(); a stone ring of levitation turned into a meat ring drops a hero levitating over lava, lava_effects() burns the saved next item (use after free), and over water emergency_disrobe() can move it to the floor so the walk continues down the floor chain. Official_nh50 b0c09c878; BUG-2835, src/zap.c | found (branch-fixed c66b49154: walk by the o_ids carried at the start); not sent; triage pending |
-| 2026-11-03 | The item-action menu (iactions.c) queues a command plus the item letter; a refusal before the object prompt returns ECMD_OK, which rhack() leaves the command queue alone for, so the letter runs as the next command (vi-keys: a step or an attack; ^A repeats it). Vanilla refusals that do it: dodrink() / doeat() while Strangled, doapply() / dozap() / doread() check_capacity(), doapply() / dozap() nohands(), dowear()'s "Don't even bother.". Also: IA_BUY_OBJ queues a letter dopay() never reads (it answers the next yn_function), and IA_SACRIFICE has no m-prefix, so floorfood()'s "sacrifice it?" can take the letter. Official_nh50 b0c09c878; BUG-2838, src/apply.c zap.c eat.c potion.c read.c do_wear.c | found (branch-fixed, commit pending: those refusals return ECMD_FAIL, 5.0's own idiom); not sent; triage pending |
-| 2026-11-03 | poly_obj() takes a worn item off with remove_worn_item() before the new form goes on; the old piece's off-function can land or drown the hero right then (levitation boots or a ring of levitation dipped over lava, a magical breathing amulet underwater), and lava_effects() burns the new form while it sits in invent unworn, then setworn() / prinv() use the freed object; over water emergency_disrobe() can drop it while it is about to be worn. Official_nh50 b0c09c878; BUG-2839, src/zap.c | found (branch-fixed, commit pending: freeinv_core() / remove_worn_item() run under iflags.in_lava_effects and the landing is deferred to moveloop); not sent; triage pending |
+| 2026-11-03 | The item-action menu (iactions.c) queues a command plus the item letter; a refusal before the object prompt returns ECMD_OK, which rhack() leaves the command queue alone for, so the letter runs as the next command (vi-keys: a step or an attack; ^A repeats it). Vanilla refusals that do it: dodrink() / doeat() while Strangled, doapply() / dozap() / doread() check_capacity(), doapply() / dozap() nohands(), dowear()'s "Don't even bother.". Also: IA_BUY_OBJ queues a letter dopay() never reads (it answers the next yn_function), and IA_SACRIFICE has no m-prefix, so floorfood()'s "sacrifice it?" can take the letter. Official_nh50 b0c09c878; BUG-2838, src/apply.c zap.c eat.c potion.c read.c do_wear.c | found (branch-fixed e9e6c4a5b: those refusals return ECMD_FAIL, 5.0's own idiom); not sent; triage pending |
+| 2026-11-03 | poly_obj() takes a worn item off with remove_worn_item() before the new form goes on; the old piece's off-function can land or drown the hero right then (levitation boots or a ring of levitation dipped over lava, a magical breathing amulet underwater), and lava_effects() burns the new form while it sits in invent unworn, then setworn() / prinv() use the freed object; over water emergency_disrobe() can drop it while it is about to be worn. Official_nh50 b0c09c878; BUG-2839, src/zap.c | found (branch-fixed 640dd1cfd: freeinv_core() / remove_worn_item() run under iflags.in_lava_effects and the landing is deferred to moveloop); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
