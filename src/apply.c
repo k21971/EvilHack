@@ -30,8 +30,12 @@ staticfn int use_grease(struct obj **);
 staticfn void use_trap_kit(struct obj *);
 staticfn int traptype_of_obj(struct obj *);
 staticfn void use_trap(struct obj *);
+staticfn int flint_tip_ok(struct obj *);
+staticfn int apply_flint(struct obj **);
 staticfn int touchstone_ok(struct obj *);
-staticfn int use_stone(struct obj *);
+staticfn int bang_rock(struct obj *, struct obj *);
+staticfn int flint_sparks(struct obj **);
+staticfn int use_stone(struct obj **);
 staticfn int set_trap(void); /* occupation callback */
 staticfn boolean pit_hookout_spot(coord *, coordxy, coordxy);
 staticfn int use_axe(struct obj **);
@@ -1899,7 +1903,7 @@ rub_ok(struct obj *obj)
 
     if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
         || obj->otyp == LANTERN || is_graystone(obj)
-        || obj->otyp == LUMP_OF_ROYAL_JELLY)
+        || obj->otyp == ROCK || obj->otyp == LUMP_OF_ROYAL_JELLY)
         return GETOBJ_SUGGEST;
 
     return GETOBJ_EXCLUDE;
@@ -1919,8 +1923,8 @@ dorub(void)
     if (!obj)
         return ECMD_CANCEL;
     if (obj->oclass == GEM_CLASS || obj->oclass == FOOD_CLASS) {
-        if (is_graystone(obj)) {
-            return use_stone(obj);
+        if (is_graystone(obj) || obj->otyp == ROCK) {
+            return use_stone(&obj);
         } else if (obj->otyp == LUMP_OF_ROYAL_JELLY) {
             return use_royal_jelly(&obj);
         } else {
@@ -2933,6 +2937,68 @@ use_grease(struct obj **objp)
     return ECMD_TIME;
 }
 
+/* getobj callback for arrows to tip with flint */
+staticfn int
+flint_tip_ok(struct obj *obj)
+{
+    if (!obj || obj->oclass != WEAPON_CLASS)
+        return GETOBJ_EXCLUDE;
+
+    /* any arrow, whatever its enchantment; testing spe here would
+       reveal an unknown one through the prompt */
+    if (obj->otyp >= ARROW && obj->otyp <= YA)
+        return GETOBJ_SUGGEST;
+
+    /* other weapons get "You aren't really sure what good that will
+       do." */
+    return GETOBJ_DOWNPLAY;
+}
+
+/* creating flint arrows - DSR */
+staticfn int
+apply_flint(struct obj **optr)
+{
+    struct obj *flint = *optr, *obj;
+    char qbuf[QBUFSZ];
+    long need;
+
+    Sprintf(qbuf, "affix the stone%s to", plur(flint->quan));
+    if ((obj = getobj(qbuf, flint_tip_ok, GETOBJ_NOFLAGS)) == 0)
+        return ECMD_CANCEL;
+
+    if (!u_handsy())
+        return ECMD_OK;
+
+    /* can only stick flint to arrows; ARROW..YA are contiguous */
+    if (obj->otyp < ARROW || obj->otyp > YA) {
+        You("aren't really sure what good that will do.");
+        return ECMD_OK;
+    }
+
+    /* can't make MIRV arrows; if they're +1, leave it be */
+    if (obj->spe > 0) {
+        You("don't think you can make these any better than they are.");
+        return ECMD_OK;
+    }
+
+    /* one flint stone will do ten arrows */
+    need = (obj->quan + 9L) / 10L;
+    if (flint->quan < need) {
+        You("don't have enough flint to re-tip all of these %s.",
+            xname(obj));
+        return ECMD_OK;
+    }
+
+    obj->spe++;
+    You("lash flint tips to the %s.", xname(obj));
+    /* need <= flint->quan, so only the final useup() can free it */
+    if (need == flint->quan)
+        *optr = (struct obj *) 0; /* doapply() mustn't use it */
+    while (need-- > 0L)
+        useup(flint);
+    return ECMD_TIME;
+}
+
 /* getobj callback for object to rub on a known touchstone */
 staticfn int
 touchstone_ok(struct obj *obj)
@@ -2954,13 +3020,99 @@ touchstone_ok(struct obj *obj)
     return GETOBJ_DOWNPLAY;
 }
 
+/* break a rock on a stone and maybe get some flint out of it */
+staticfn int
+bang_rock(struct obj *tstone, struct obj *rock)
+{
+    struct obj *flint;
+    int flint_made = rnd(10) - 9;
+
+    if (Role_if(PM_CAVE_DWELLER)) {
+        /* experts on banging rocks together */
+        flint_made += 3;
+    } else if (tstone->otyp == TOUCHSTONE) {
+        /* a rock can be broken on any other rock, but breaking it on a
+           touchstone will yield the most */
+        flint_made += 2;
+    }
+    You("bang %s%s on %s.", (rock->quan > 1L) ? "one of " : "",
+        the(xname(rock)), the(xname(tstone)));
+    pline("It crumbles.");
+    /* the rock is gone whether or not it held any flint; a rock that is
+       also tstone is a stack of two or more (a lone stone can't be
+       rubbed on itself), so this never frees tstone */
+    useup(rock);
+    if (flint_made <= 0)
+        return ECMD_TIME;
+
+    flint = mksobj(FLINT, TRUE, FALSE);
+    flint->quan = (long) flint_made;
+    flint->owt = weight(flint);
+    (void) hold_another_object(flint, "Oops!  %s out of your grasp!",
+                               The(aobjnam(flint, "slip")),
+                               (const char *) 0);
+    return ECMD_TIME;
+}
+
+/* iron struck on flint throws sparks */
+staticfn int
+flint_sparks(struct obj **optr)
+{
+    struct obj *tstone = *optr;
+    struct monst *mtmp;
+    coordxy x, y;
+
+    /* Iron and flint make sparks. Non-intelligent creatures fear
+     * fire, so anything next to Our Hero(tm) that isn't intelligent
+     * should have a chance of becoming afraid.
+     */
+    makeknown(tstone->otyp);
+    if (Underwater) {
+        pline("You'd need a flamethrower to make fire here.");
+        return ECMD_TIME;
+    }
+    You("strike a few sparks from the flint stone!");
+    if (u.uswallow) {
+        /* not even the thing you're inside can see your piddly spark */
+        pline("That's not going to make it any brighter in here.");
+    } else {
+        for (x = u.ux - 1; x <= u.ux + 1; x++) {
+            for (y = u.uy - 1; y <= u.uy + 1; y++) {
+                if (!isok(x, y) || (mtmp = m_at(x, y)) == 0)
+                    continue;
+                /* a monster that can't see can't see the sparks */
+                if (!mtmp->mcansee || !haseyes(mtmp->data))
+                    continue;
+                /* animals and undead fear fire, but not if they're
+                   fire resistant, unique, gigantic (purple worm),
+                   mindless, or currently in water */
+                if ((is_animal(mtmp->data) || is_undead(mtmp->data))
+                    && !(resists_fire(mtmp) || defended(mtmp, AD_FIRE)
+                         || (mtmp->data->geno & G_UNIQ)
+                         || mtmp->data->msize == MZ_GIGANTIC
+                         || mindless(mtmp->data)
+                         || is_damp_terrain(x, y))
+                    && rn2(3))
+                    monflee(mtmp, rnd(10), TRUE, TRUE);
+            }
+        }
+    }
+    if (!rn2(3)) {
+        Your("flint stone crumbles!");
+        if (tstone->quan == 1L)
+            *optr = (struct obj *) 0; /* doapply() mustn't use it */
+        useup(tstone);
+    }
+    return ECMD_TIME;
+}
+
 /* touchstones - by Ken Arnold */
 staticfn int
-use_stone(struct obj *tstone)
+use_stone(struct obj **optr)
 {
     static const char scritch[] = "\"scritch, scritch\"";
-    struct obj *obj;
-    boolean do_scratch;
+    struct obj *tstone = *optr, *obj;
+    boolean do_scratch, make_sparks;
     const char *streak_color;
     char stonebuf[QBUFSZ];
     int oclass;
@@ -2977,6 +3129,9 @@ use_stone(struct obj *tstone)
     if ((obj = getobj(stonebuf, known ? touchstone_ok : any_obj_ok,
                       GETOBJ_PROMPT)) == 0)
         return ECMD_CANCEL;
+
+    if (!u_handsy())
+        return ECMD_OK;
 
     if (obj == tstone && obj->quan == 1L) {
         You_cant("rub %s on itself.", the(xname(obj)));
@@ -2997,6 +3152,10 @@ use_stone(struct obj *tstone)
         return ECMD_TIME;
     }
 
+    /* break rocks and maybe get some flint out of them */
+    if (obj->otyp == ROCK)
+        return bang_rock(tstone, obj);
+
     if (Blind) {
         pline(scritch);
         return ECMD_TIME;
@@ -3005,7 +3164,7 @@ use_stone(struct obj *tstone)
         return ECMD_TIME;
     }
 
-    do_scratch = FALSE;
+    do_scratch = make_sparks = FALSE;
     streak_color = 0;
 
     oclass = obj->oclass;
@@ -3019,6 +3178,9 @@ use_stone(struct obj *tstone)
     case GEM_CLASS: /* these have class-specific handling below */
     case RING_CLASS:
         if (tstone->otyp != TOUCHSTONE) {
+            /* an iron sling bullet strikes sparks from flint */
+            if (tstone->otyp == FLINT && obj->material == IRON)
+                make_sparks = TRUE; /* we'll catch it later */
             do_scratch = TRUE;
         } else if (obj->oclass == GEM_CLASS
                    && (tstone->blessed
@@ -3032,7 +3194,7 @@ use_stone(struct obj *tstone)
             return ECMD_TIME;
         } else {
             /* either a ring or the touchstone was not effective */
-            if (objects[obj->otyp].oc_material == GLASS) {
+            if (obj->material == GLASS) {
                 do_scratch = TRUE;
                 break;
             }
@@ -3041,7 +3203,8 @@ use_stone(struct obj *tstone)
         break; /* gem or ring */
 
     default:
-        switch (objects[obj->otyp].oc_material) {
+        /* judged by what the object is made of */
+        switch (obj->material) {
         case CLOTH:
             pline("%s a little more polished now.", Tobjnam(tstone, "look"));
             return ECMD_TIME;
@@ -3065,6 +3228,11 @@ use_stone(struct obj *tstone)
             do_scratch = TRUE; /* scratching and streaks */
             streak_color = "silvery";
             break;
+        case IRON:
+            if (tstone->otyp == FLINT)
+                make_sparks = TRUE;
+            FALLTHROUGH;
+            /*FALLTHRU*/
         default:
             /* Objects passing the is_flimsy() test will not
                scratch a stone.  They will leave streaks on
@@ -3079,11 +3247,14 @@ use_stone(struct obj *tstone)
     }
 
     Sprintf(stonebuf, "stone%s", plur(tstone->quan));
-    if (do_scratch)
+    if (do_scratch) {
+        /* make_sparks is only ever set for a flint tstone */
+        if (make_sparks)
+            return flint_sparks(optr);
         You("make %s%sscratch marks on the %s.",
             streak_color ? streak_color : (const char *) "",
             streak_color ? " " : "", stonebuf);
-    else if (streak_color)
+    } else if (streak_color)
         You_see("%s streaks on the %s.", streak_color, stonebuf);
     else
         pline(scritch);
@@ -5129,8 +5300,12 @@ apply_ok(struct obj *obj)
 
     if (is_graystone(obj)) {
         /* The only case where we don't suggest a gray stone is if we KNOW it
-           isn't a touchstone. */
+           isn't a touchstone and isn't flint */
         if (!obj->dknown)
+            return GETOBJ_SUGGEST;
+
+        /* known flint strikes sparks and tips a Caveperson's arrows */
+        if (obj->otyp == FLINT && objects[FLINT].oc_name_known)
             return GETOBJ_SUGGEST;
 
         if (obj->otyp != TOUCHSTONE
@@ -5140,6 +5315,10 @@ apply_ok(struct obj *obj)
 
         return GETOBJ_SUGGEST;
     }
+
+    /* rocks can be banged on other stones for flint */
+    if (obj->otyp == ROCK)
+        return GETOBJ_SUGGEST;
 
     /* item can't be applied; if picked anyway,
        _EXCLUDE would yield "That is a silly thing to apply.",
@@ -5377,10 +5556,17 @@ doapply(void)
         obj = (struct obj *) 0;
         break;
     case FLINT:
+        if (Role_if(PM_CAVE_DWELLER)
+            && y_n("Affix your flint to some arrows?") == 'y')
+            res = apply_flint(&obj);
+        else
+            res = use_stone(&obj);
+        break;
     case LUCKSTONE:
     case LOADSTONE:
     case TOUCHSTONE:
-        res = use_stone(obj);
+    case ROCK: /* bang it on another stone for flint */
+        res = use_stone(&obj);
         break;
     case BANANA:
         if (Hallucination) {

@@ -581,6 +581,8 @@ itemactions(struct obj *otmp)
         ia_addmenu(win, IA_RUB_OBJ, 'R', buf);
     } else if (otmp->oclass == GEM_CLASS && is_graystone(otmp))
         ia_addmenu(win, IA_RUB_OBJ, 'R', "Rub something on this stone");
+    else if (otmp->otyp == ROCK)
+        ia_addmenu(win, IA_RUB_OBJ, 'R', "Rub something on this rock");
 
     /* t: throw item */
     if (!already_worn) {
