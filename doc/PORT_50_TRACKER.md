@@ -17,13 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-02, after session 286's rumor
-  riders slice: the stethoscope egg, the Bell's quest curse, learned
-  Elbereth and the pet intrinsic preference (with master's satiation
-  gates) closed the Rumor-slice riders row; the failed-restore leak
-  and breakchestlock() billing LOWs closed with their siblings; two
-  LOW rows minted open):
-  633 rows closed, 58 open
+- Phase 2 status (refreshed 2026-11-03, after session 287's
+  base-material slice: the oc_material SWEEP closed; master's material
+  consumers, Caveperson flint and meat armor minted and closed with it;
+  one MED and two LOW rows minted open):
+  637 rows closed, 60 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -33,8 +31,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 1 MED: door-material colors (an unported master feature; it
-    stays with Phase 4).
+  - 2 MED: door-material colors (an unported master feature; it
+    stays with Phase 4); master 1ae3ddbbc's hands-free gates (minted
+    session 287).
     Session 270 closed the three crash-class MEDs the 5.0 fixes
     sessions minted (BUG-2623, 2625, 2626): a shape changer arriving
     under protection from shape changers reverts once it is placed,
@@ -304,9 +303,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 5 SWEEP: race-predicate census, inert persistent fields,
-    monstseesu() setter parity, racial size macros, base-type
-    oc_material reads.
+  - 4 SWEEP: race-predicate census, inert persistent fields,
+    monstseesu() setter parity, racial size macros.
+    Session 287 closed the base-type oc_material sweep (BUG-2821..
+    2826): items are judged by their own material - gold detection,
+    polypiling, bars, kicked boxes, #sit, xorns, unicorns, the aklys;
+    metal boots only protect from traps (ruled); the food-word table
+    has one word per material again (gold coins no longer taste of
+    "mithril", glass / crystal / stone no longer read past it).
     Session 261 closed the is_bracer() census with the bracers
     wording port (BUG-2587): every master-only site is ported or
     covered by shield_simple_name().
@@ -338,7 +342,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     other hand's plain weapon no longer counts); cancellation also
     ends Stoneskin's stoning resistance, and spares a form's or
     race's reflection and vulnerabilities.
-  - 8 untagged: port gaps (Rumor-slice riders (closed session 286,
+  - 8 untagged: port gaps (material consumers, Caveperson flint and
+    meat armor (minted and closed session 287, BUG-2827..2835),
+    Rumor-slice riders (closed session 286,
     BUG-2810..2820), Muse offense items (closed session 285,
     BUG-2798 / 2803), creeping mound
     meatfood(), monster chest_trap() (closed session 283, BUG-2773),
@@ -348,7 +354,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 53 LOW: small parity rows, quirks and watch/record-only items.
+  - 55 LOW: small parity rows, quirks and watch/record-only items.
+    Session 287 minted 2 (poly_obj()'s worn-armor transition; the
+    slice residue).
     Session 286 closed 2 (BUG-2805..2809): a #forced or kicked box
     bills one shattered item, not the whole shop stack (an unpaid
     stack is still settled whole); a new game after a failed restore
@@ -2682,7 +2690,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       after two "falls to pieces!", a fire elemental at 29/59 after "is
       extinguished!", a level-0 newt at 12/50; POST all killed and
       resist() never reached; forced-false controls kill on both.
-- [ ] SWEEP: base-type oc_material reads (minted 2026-10-19 by the
+- [x] SWEEP: base-type oc_material reads (minted 2026-10-19 by the
       Materials umbrella audit): about 88 objects[].oc_material reads
       on the branch against 65 on master. Known gaps: o_material()
       (detect.c), polyuse() / poly_zapped (zap.c), is_flimsy()
@@ -2700,6 +2708,113 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       and its streak colour still read objects[].oc_material (leather
       barding streaks the iron base type's cyan), and hits_bars()' Clink
       test for gold / silver reads the base type too (mthrowu.c).
+      CLOSED 2026-11-03 (session 287; BUG-2821..2826; commit pending).
+      Three Explore censuses classified all 94 branch reads against
+      master's 66 and vanilla. Converted to the item's own material:
+      master parity - o_material(), polyuse() / poly_zapped,
+      autoquiver(), gem_accept(), dosit(), scatter(),
+      container_impact_dmg(), chest_shatter_msg(), befriend_with_obj(),
+      mon_would_take_item() x2, mpickgold(), use_stone()'s glass test
+      and switch, stone_to_flesh_obj()'s guard, eat.c x7 (with master's
+      25-entry foodwords[]: the vanilla 22-entry table shifted every
+      word from leather on and read past its end, BUG-2821); ruled
+      5.0-native - stone_missile(), harmless_missile(), hit_bars()'
+      Clink (master reads the base type), wearing_iron_shoes() (any
+      metal, BUG-2826), select_rwep()'s aklys gate (deleted: oselect()
+      already rejects hated instances); oid_price_adjustment() kept
+      vanilla's meaning (master's dropped '!', BUG-2824). Left by
+      design (type-only or default): check_map_spot()'s glyph,
+      use_stone()'s ring test, get_cost() / set_cost() ratios,
+      veggy_item(), loot_classify(), add_obj_info() / add_arti_info(),
+      select_hwep() (BUG-487), set_trap() / mongets() fallbacks,
+      valid_obj_material(), weight / AC ratios, set_material() resets,
+      objnam.c name-diff tests, poly_obj()'s gem backfire and
+      thitmonst()'s unicorn MINERAL (gems never vary). The streak
+      colour keeps objects[].oc_color (master's; no material colour on
+      either tree - Door-material colour row). Battery T1 / T2 / T3 all
+      PASS; master M6 "Clonk!", M7 "This gold is delicious!".
+- [x] Material consumers from master's materials patch (minted and
+      closed 2026-11-03, session 287, census of master's oc_material
+      reads; BUG-2827..2829; commit pending). End-of-game valuables
+      count amulets per type and material and price them with
+      material_cost() (master's matprices ratio; ga.amulets sized per
+      material, non-saved); loot_xname() / sortloot_cmp() group a type
+      across materials and sort by seen material (ruled dknown gate);
+      object_from_map() resets a fake object's material (BUG-1184's
+      line, lost in the adoption). Battery T2 V1 / L1 / F1 PASS (PRE
+      "3 silver amulets of ESP (worth 450 zorkmids)", POST 150 / 300 /
+      600 and +600 points); master M5 / M9 match POST.
+- [x] Caveperson flint features (master e8ef39919 + 0d5a7d120; minted
+      and closed 2026-11-03, session 287; BUG-2830, 2831; commit
+      pending). The Caveperson role-arms row pointed at a "flint
+      feature row" that never existed. Ported apply_flint() (the
+      Caveperson's "Affix your flint to some arrows?"), rock banging in
+      use_stone() and flint sparks, use_stone(struct obj **) with
+      master's u_handsy(), the rock in the apply / #rub prompts and its
+      item action. Ruled fixes over master: the rock is always used up,
+      one flint per ten arrows, a monster that can't see isn't scared.
+      Battery T3 all PASS; master M1..M3 confirm master's shape (10
+      arrows refused, 6 of 10 bangs kept the rock).
+- [x] Meat armor (master 023bca49e; minted and closed 2026-11-03,
+      session 287; BUG-2832..2835; commit pending). Only the five meat
+      objects and the strip of bacon had reached the branch. Ported the
+      wear plumbing (is_meat_armor(), armcat_of(), wearslot(), the
+      do_wear.c switches, armoroff(), canwearobj(), equip_ok(), doname,
+      sanity, dogfood(), hits_bars(), engulfer digestion, item actions)
+      and stone_to_flesh_obj()'s armor / weapon / default arms. Ruled:
+      a wielded stone armor piece is let go; a meat suit obeys the body
+      fit. Fixed on the way: master's latent NULL-description crashes
+      for meat boots (mud-boots tests, boots_simple_name()), the bow
+      gloves impossible(), the uskin "embedded scales" impossible
+      (BUG-2833); Gloves_off() no longer bares the hand for a wielded
+      cockatrice corpse during the swap (BUG-2834, reviewer MED);
+      zapyourself()'s stone-to-flesh walk no longer follows a burned
+      item (BUG-2835, reviewer CRITICAL, vanilla-shared, upstream row).
+      Battery T4 M1..M12 PASS; master M4 matches.
+- [ ] MED: master 1ae3ddbbc's hands-free gates (minted 2026-11-03,
+      session 287, flint Plan pass): master's "Handle more cases when
+      tortle is hiding in its shell" puts u_handsy() / freehand() gates
+      on most apply.c tools (camera, whistles, tinning kit, grease,
+      lamps, candles, bells), lock / unlock / open / close / #force,
+      digging, axes, whips and wand breaking. The branch apply.c has 4
+      u_handsy() calls against master's 18 (use_stone() and
+      apply_flint() came with session 287), and dorub() uses vanilla's
+      nohands() test. Census each hunk of 1ae3ddbbc (apply.c, dig.c,
+      lock.c, pray.c, zap.c) against the R1 tortle shell gates, then
+      port the missing ones.
+- [ ] LOW: poly_obj()'s worn-armor transition (minted 2026-11-03,
+      session 287, reviewer). poly_obj() takes a worn piece off with
+      remove_worn_item() before the new form goes on, so the old
+      piece's off-function runs in between: a dragon-scaled stone suit
+      or a stone helm of opposite alignment can land / drown the hero
+      or drop items while the new meat piece is not yet worn, and the
+      merged dragon scales vanish silently. Gloves are handled
+      (BUG-2834) and zapyourself() survives it (BUG-2835); the landing
+      itself is master / vanilla shape (an in_lava_effects-style wrap
+      is one fix shape). LOW.
+- [ ] LOW: base-material slice residue (minted 2026-11-03, session
+      287, reviewer and batteries; record unless a ruling wants a
+      change). (a) Stone bracers become a meat shield in W_ARMS even
+      with a two-hander wielded (master). (b) An unknown scroll of
+      enchant armor can pick a worn meat piece (some_armor()) and give
+      it AC; a known one can't target it (worn_armor_ok()) (master).
+      (c) The 'A' menu's armor class skips worn meat armor (food
+      class), like the meat ring. (d) The eat prompt lists worn meat
+      pieces, then refuses them; the item menu offers "Eat this" too.
+      (e) Worn meat gloves never read "slippery"; cursed()'s wording
+      and wielding_corpse()'s "now wield" for meat gloves / boots are
+      untouched (master). (f) Bacon from a wielded weapon may not merge
+      with other bacon until a later merge pass (dknown / age differ).
+      (g) An unseen sling bullet's material shows in its name but the
+      loot sort ignores it (dknown gate). (h) check_map_spot()'s
+      remembered-glyph test is by type, so gold detection's stale-map
+      clearing goes by the base material (master). (i) Unpaid flint
+      used up by apply_flint() / sparks isn't billed; sparks scare
+      pets too; "You bang one of the rocks on the rocks." (master).
+      (j) Battery: "You kick an unlocked large box." loses its
+      "containing N items" suffix after a kick shatters something; a
+      "leather cloak" wish gives a random leather cloak and "cloth" is
+      silently ignored as a wish material (both builds; not traced).
 - [x] LOW: materials nits (minted 2026-10-19 by the Materials
       umbrella audit; master-shared, its "fix master first" void
       since the freeze). not_spec_material() reads one past the NUL
@@ -7579,8 +7694,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the sweep's reviewer rounds; each re-carries its damp arm when
       the owning feature ports):
       (a) flint-sparks fear arm (master apply.c use_stone: animals/
-      undead not scared while in damp terrain) - the flint
-      fire-starting feature itself is unported;
+      undead not scared while in damp terrain) - DONE 2026-11-03
+      (session 287, BUG-2830; commit pending) with the Caveperson flint
+      row: flint_sparks() carries the is_damp_terrain(x, y) exemption;
+      battery T3 S3 a jackal on a puddle never fled (0 / 5);
       (b) master's Underwater-forcefight swap block (master
       uhitm.c:678-690 + hack.c:2333-2345, "swim underneath" arms with
       can_wwalk terms) has no branch counterpart - port the block,
@@ -25672,7 +25789,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       and read_ability is capped at 16 ("always at least a 20% chance
       to fail"). The role's other two spell.c terms ride the hero
       spellcasting row below. Already covered elsewhere: the apply.c
-      flint arms (flint feature row), hack_artifacts' retarget (the
+      flint arms (no row existed; ported by the Caveperson flint row,
+      session 287), hack_artifacts' retarget (the
       artifacts row), prayer and steed arms (ported). NOT a gap
       (reviewer claim falsified): the monster-side sling / spear
       volley bonus - mthrowu.c calls 5.0's shared
@@ -35577,6 +35695,7 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-02 | A #force that destroys a box on a shop floor bills a shattered stack for every unit: breakchestlock() charges stolen_value(), which prices get_pricing_units() (the whole stack), then useup() destroys one and leaves the rest on the floor, still for sale (5 shop potions cost 5, 4 stay). Official_nh50 b0c09c878; BUG-2805, src/lock.c | found (branch-fixed be0c0dcfc: quan held at 1 around the stolen_value() call); not sent; triage pending |
 | 2026-11-02 | The same in container_impact_dmg(): a kicked, dropped or thrown box that breaks one potion or egg of a shop's stack bills the whole stack ("You owe 5 x price"), and 4 stay for sale. An unpaid stack must keep the whole-stack charge (sub_one_frombill() would otherwise leave a used-up dummy for the rest). Official_nh50 b0c09c878; BUG-2806, src/dokick.c | found (branch-fixed be0c0dcfc: quan held at 1 for a stack that isn't unpaid); not sent; triage pending |
 | 2026-11-02 | A new game after a failed restore ("You were not healthy enough to survive restoration.", or "Saved game was not yours." outside wizard mode) keeps pieces of the save: restgamestate() puts flags and context back but not u, so u_init_misc() carries the save's u.uroleplay across its memset as if they were the config file's (blind / deaf / nudist / pauper, the bones and reroll counts); svm.moves stays the save's turn while newgame() makes the first level and the starting pet (its hungrytime is offset by it); and svn.nhuuid keeps the dead game's id (get_nhuuid() keeps a set id). Official_nh50 b0c09c878; BUG-2808, src/restore.c | found (branch-fixed 4bede6bd9: u copied before Sfi_you() and put back on failure, svm.moves 0 and nhuuid cleared in both arms); not sent; triage pending |
+| 2026-11-03 | zapyourself()'s SPE_STONE_TO_FLESH loop saves otmp->nobj before bhito(); a stone ring of levitation turned into a meat ring drops a hero levitating over lava, lava_effects() burns the saved next item (use after free), and over water emergency_disrobe() can move it to the floor so the walk continues down the floor chain. Official_nh50 b0c09c878; BUG-2835, src/zap.c | found (branch-fixed, commit pending: walk by the o_ids carried at the start); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -35964,6 +36083,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-03 | Base-material sweep slice rulings (Phase 2 session 287, AskUserQuestion x3, nine questions, all as recommended except the meat-armor fold-in). (1) SLICE: the base-type oc_material SWEEP. (2) FOLD-INS (multiSelect): master's material consumers (recommended: valuables, loot sort, farlook fake object), Caveperson flint (e8ef39919) and meat armor (023bca49e; recommended as its own MED row, the maintainer folded it). (3) IRON SHOES: wearing_iron_shoes() = any metal boots (is_metallic); bone / stone orcish boots and non-metal kicking boots stop protecting. Rejected: iron only; keep the base type. (4) BARS: hit_bars()' Clink reads the item's own material (master reads the base type). (5) GEM SURCHARGE: oid_price_adjustment() keeps vanilla's meaning (unidentified real gems surcharged, glass exempt); master 03e87e1bd dropped the "!" - archived frozen-unfixed (BUG-2824). (6) FLINT QUIRKS, all fixed: the rock is used up on every bang; one flint per ten arrows; a monster that can't see isn't scared. (7) MEAT ARMOR: a wielded stone armor piece is let go (master's shape over 5.0 keeping it wielded); a meat suit obeys the body-armor fit test. (8) POLY TRAP: the any-metal rule also decides the polymorph-trap warp. (9) LOOT SORT: material sorts only once seen (dknown); master's leak frozen-unfixed. Plan-approved, not asked: the uskin guard, res = 0 for untransformed armor, the aklys gate deleted, u_handsy() in use_stone(), select_hwep() kept (BUG-487); after review: the gloves swap (BUG-2834) and the o_id walk (BUG-2835). | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-02 | Rumor riders + known-fix LOWs slice rulings (Phase 2 session 286, AskUserQuestion x3, eight questions, all as recommended). (1) SLICE (multiSelect): the Rumor-slice riders (b) / (e) / (f) / (g) and the known-fix LOWs (breakchestlock() billing, the failed-restore race leak); the base-material SWEEP siblings not taken. NO v3 production hot patch for BUG-2799 (master stays frozen-unfixed). (2) PET SATIATION: port master's satiation gates (611bcd8f3, 604306b50) with the intrinsic-corpse bypass. (3) VAMPIRE DRAIN: grants through the branch's mon_givit() (5.0 odds, stalker arm). (4) QUIRK FIXES, all four: a mindless pet ignores the telepathy term; a polymorphed engraving's Elbereth swap is silent and "The engraving now reads" quotes the stored text; the Bell's quest curse makes it known cursed; the stethoscope egg arm needs can_reach_floor(). (5) FOLD-IN: f327090f3's three quest achievement lines. (6) DOG_MOVE: the intrinsic bypass in dog_move() too (master's satiated "don't pick up" pet sits on the corpse). (7) TURN COUNTER: the failed-restore arm also resets svm.moves. Recorded, not asked: master's shape for " (locked)" in xname(), the bogus-word tables, the three read.c learn sites, role_init()'s race overrides; no iron-safe stethoscope arm; Elbereth checked against the full typed text in doengrave() (5.0 engraving is an occupation); folded after review as siblings: container_impact_dmg()'s stack billing (not for an unpaid stack), the "not yours" arm's turn counter, the game id in both failure arms, set_uasmon() after the failure check. | maintainer |
 | 2026-11-02 | Muse wave 2 slice rulings (Phase 2 session 285, AskUserQuestion x3, five questions, all as recommended). (1) SLICE: muse wave 2 - monster scroll of charging and the monster bearded axe disarm. (2) RANDOM WANDS OF WISHING: master's shape (80ab6d9dc, from SporkHack) - (1:1..3) and already recharged outside explore mode, so charging one blows it up, hero and monsters, Vecna's drop included; recharge()'s wishing limit back to 3 (a never-recharged wand recharges to 1..3, blessed 3) - 5.0's wish spreading (615edb1c7: (0:1), one safe one-charge recharge, the "feebly" glow) removed (BUG-2796). (3) DOOMED WANDS: a monster never picks an empty wand charging is sure to blow up (a recharged wand of wishing or death; any wand at recharged 7) and charges its next best - master always read at its pre-recharged wishing wand, against 122c9cd9f's stated goal (BUG-2802). (4) FOLD-INS (multiSelect, both): the wand of death recharge limit (master 457f5d79c / 6f4d79593, on the wiki; BUG-2795) and is_flimsy() reading the item's own material with DRAGON_HIDE (the 2026-10-19 SWEEP ruling; BUG-2797). (5) CURSED SHIELD (Plan pass): a cursed shield the axe can't pull becomes known cursed (master's silent cursed() never set bknown; BUG-2804). Not asked, recorded: the scroll is used up before the charge, both use arms return 1 for a dead reader, every monster-side line is gated on the reader being seen (BUG-2799 / 2800); the hero forgets a monster-charged item's count (reviewer MEDIUM, under the existing unseen-use rule of mzapwand(); BUG-2801); the tracker rider's mon_charge_ring() route is unreachable and not used; the vanilla whip stays inline; the explosion kills through monkilled(..., "explosion", AD_PHYS); m_stash_items() bagging empty wands stays (master). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-02 | Muse riders wave 1 slice rulings (Phase 2 session 284, AskUserQuestion x5, nine questions, all as recommended except (9)). (1) SLICE: muse riders wave 1 - restore ability, bag of tricks, figurine, remove curse, pan flute (wave 2: SCR_CHARGING, bearded axe disarm). (2) MONSTER FIGURINE: always hostile (0.9.3 live), written `if (!you) chance = 2;` - master's verbatim `!(u.uconduct.pets && you)` would make a petless hero's own figurines hostile on 5.0; the commit message's petless-only intent not taken. (3) PAN FLUTE PICKUP: satyrs only (master's `!is_satyr` was inverted). (4) FOLD-INS (multiSelect): all three - the Idol of Moloch timer arm (BUG-2783), the never-tame list in tamedog() / make_familiar() (BUG-2784 / 2785), satyr parity from master 4ac81e26f (BUG-2787 / 2788). (5) FIGURINE VS WISHING: a charged wand of wishing first (bb05452de's rule). (6) FLUTE REACH: find_offensive()'s gates - not while the hero is engulfed or in their sanctuary. (7)-(8) recorded in the plan without asking: the Idol is never selected or sought; master's figurine curse write dropped; bag of tricks sought only while charged. (9) CREATE FAMILIAR (reviewer LOW): RE-ROLL a never-tame pick (over the recommended master parity) - BUG-2789. | maintainer |
