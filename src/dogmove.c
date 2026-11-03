@@ -14,6 +14,8 @@
 staticfn void dog_starve(struct monst *);
 staticfn boolean dog_hunger(struct monst *, struct edog *);
 staticfn boolean dog_quaff_blood(struct monst *, struct edog *);
+staticfn boolean dog_too_full(struct monst *, struct edog *,
+                              struct obj *) NONNULLPTRS;
 staticfn int dog_invent(struct monst *, struct edog *, int);
 staticfn int dog_goal(struct monst *, struct edog *, int, int, int);
 staticfn int find_friends(struct monst *, struct monst *, int);
@@ -630,6 +632,8 @@ dog_eat(struct monst *mtmp,
                       Monnam(mtmp), obj_name);
         }
     } else if (vamp && obj->otyp == CORPSE) {
+        int corpsenm = obj->corpsenm;
+
         /* vampire pet drains the blood; the corpse itself remains */
         if (obj->quan > 1L) {
             if (!carried(obj)) {
@@ -656,6 +660,9 @@ dog_eat(struct monst *mtmp,
                 obj->oeaten = drain_level(obj);
             obj->odrained = 1;
         }
+        /* the blood gives what eating the corpse would have */
+        if (ismnum(corpsenm))
+            mon_givit(mtmp, &mons[corpsenm]);
     } else {
         /* It's a reward if it's DOGFOOD and the player dropped/threw it.
            We know the player had it if invlet is set. -dlc */
@@ -794,6 +801,19 @@ dog_quaff_blood(struct monst *mtmp, struct edog *edog)
     return TRUE;
 }
 
+/* a deeply satiated pet leaves food alone, unless it is a corpse that
+   would give the pet an intrinsic it lacks */
+staticfn boolean
+dog_too_full(struct monst *mtmp, struct edog *edog, struct obj *obj)
+{
+    if (edog->hungrytime < svm.moves + DOG_SATIATED)
+        return FALSE;
+    if (obj->otyp == CORPSE && ismnum(obj->corpsenm)
+        && can_give_new_mintrinsic(&mons[obj->corpsenm], mtmp))
+        return FALSE;
+    return TRUE;
+}
+
 /* do something with object (drop, pick up, eat) at current position
  * returns 1 if object eaten (since that counts as dog's move), 2 if died
  */
@@ -847,7 +867,9 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
             if ((edible <= CADAVER
                  /* starving pet is more aggressive about eating */
                  || (edog->mhpmax_penalty && edible == ACCFOOD))
-                && could_reach_item(mtmp, obj->ox, obj->oy))
+                && could_reach_item(mtmp, obj->ox, obj->oy)
+                /* a satiated pet may pick the food up instead */
+                && !dog_too_full(mtmp, edog, obj))
                 return dog_eat(mtmp, obj, omx, omy, FALSE);
 
             carryamt = can_carry(mtmp, obj);
@@ -964,7 +986,12 @@ dog_goal(
                 if (!could_reach_item(mtmp, nx, ny)
                     || !can_reach_location(mtmp, mtmp->mx, mtmp->my, nx, ny))
                     continue;
-                if (otyp < MANFOOD) {
+                /* go for acceptable food only when hungry and for any
+                   food only when not deeply satiated, so the pet doesn't
+                   stand over a meal it won't eat */
+                if (otyp < MANFOOD
+                    && (otyp < ACCFOOD || edog->hungrytime <= svm.moves)
+                    && !dog_too_full(mtmp, edog, obj)) {
                     if (otyp < gg.gtyp
                         || DDIST(nx, ny) < DDIST(gg.gx, gg.gy)) {
                         gg.gx = nx;
@@ -2056,7 +2083,11 @@ dog_move(
                 } else if (can_reach_food
                            && (otyp = dogfood(mtmp, obj)) < MANFOOD
                            && (otyp < ACCFOOD
-                               || edog->hungrytime <= svm.moves)) {
+                               || edog->hungrytime <= svm.moves)
+                           /* a deeply satiated pet still steps onto a
+                              corpse that would give it a new intrinsic,
+                              even one ordered not to pick things up */
+                           && !dog_too_full(mtmp, edog, obj)) {
                     /* Note: our dog likes the food so much that he
                      * might eat it even when it conceals a cursed object */
                     nix = nx;

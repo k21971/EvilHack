@@ -1145,6 +1145,26 @@ intrinsic_possible(int type, struct permonst *ptr)
     return res;
 }
 
+/* can a pet gain an intrinsic it lacks by eating a corpse of ptr?  Only
+   what mon_give_prop() grants counts: acid and stoning resistance are the
+   hero's alone, so a lizard or an acid blob is never a treat, and a
+   mindless pet has no mind to open up to telepathy */
+boolean
+can_give_new_mintrinsic(struct permonst *ptr, struct monst *mon)
+{
+    unsigned long have = mon->mintrinsics | mon->data->mresists;
+    int i;
+
+    /* fire, cold, sleep, disintegration, shock and poison resistance */
+    for (i = FIRE_RES; i <= POISON_RES; i++)
+        if (intrinsic_possible(i, ptr) && !(have & res_to_mr(i)))
+            return TRUE;
+    if (intrinsic_possible(TELEPAT, ptr) && !mindless(mon->data)
+        && !((have & MR2_TELEPATHY) != 0L || telepathic(r_data(mon))))
+        return TRUE;
+    return FALSE;
+}
+
 /* The "do we or do we not give the intrinsic" logic from givit(), extracted
  * into its own function. Depends on the monster's level and the type of
  * intrinsic it is trying to give you.

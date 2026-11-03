@@ -191,7 +191,9 @@ enum dogfood_types {
 };
 
 /* hungrytime offset above which a pet is "deeply satiated" and stops
-   eating; gates dog_invent's eat trigger and dog_goal's pursuit */
+   eating, except for a corpse that would give it a new intrinsic; gates
+   dogfood()'s vampire drain, dog_invent()'s eating, dog_goal()'s pursuit
+   and dog_move()'s step onto food */
 #define DOG_SATIATED 800
 
 struct edog {

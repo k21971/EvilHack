@@ -1564,11 +1564,8 @@ dogfood(struct monst *mon, struct obj *obj)
            player's is_edible() check - allow partly-eaten corpses
            that still have blood remaining. Tame vampire pets are
            selective like non-vampire pets: only drain when not
-           deeply satiated (DOG_SATIATED gate); satiated pets walk
-           past blood corpses */
-        /* TODO-EVILHACK: master lets a satiated vampire pet still
-           drain a corpse that would grant it a new intrinsic; that
-           gate ports with the pet-intrinsics subsystem */
+           deeply satiated (DOG_SATIATED gate) or to gain a new
+           intrinsic; satiated pets walk past other blood corpses */
         if (is_vampire(mptr)) {
             boolean blood_corpse =
                 (obj->otyp == CORPSE
@@ -1581,7 +1578,8 @@ dogfood(struct monst *mon, struct obj *obj)
             if (!blood_corpse)
                 return TABU;
             if (mon->mtame && !mon->isminion
-                && EDOG(mon)->hungrytime >= svm.moves + DOG_SATIATED)
+                && EDOG(mon)->hungrytime >= svm.moves + DOG_SATIATED
+                && !can_give_new_mintrinsic(fptr, mon))
                 return MANFOOD;
             return DOGFOOD;
         }
@@ -1639,8 +1637,12 @@ dogfood(struct monst *mon, struct obj *obj)
                pet will consider it for a chance to become more powerful) */
             else if (polyfood(obj) && mon->mtame > 1 && !starving)
                 return MANFOOD;
+            /* a corpse that would give the pet an intrinsic it lacks
+               is a treat */
             else if (vegan(fptr))
-                return herbi ? CADAVER : MANFOOD;
+                return herbi ? (can_give_new_mintrinsic(fptr, mon) ? DOGFOOD
+                                                                   : CADAVER)
+                             : MANFOOD;
             /* most humanoids will avoid cannibalism unless starving;
                arbitrary: elven types won't eat other elves even then */
             else if (humanoid(mptr) && same_race(mptr, fptr)
@@ -1650,7 +1652,9 @@ dogfood(struct monst *mon, struct obj *obj)
                         && !(racial_elf(mon) || racial_drow(mon)))
                        ? ACCFOOD : TABU;
             else
-                return carni ? CADAVER : MANFOOD;
+                return carni ? (can_give_new_mintrinsic(fptr, mon) ? DOGFOOD
+                                                                   : CADAVER)
+                             : MANFOOD;
         case GLOB_OF_GREEN_SLIME: /* other globs use the default case */
             /* turning into slime is preferable to starvation */
             return (starving || slimeproof(mon->data)) ? ACCFOOD : POISON;

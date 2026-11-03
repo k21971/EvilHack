@@ -1085,6 +1085,8 @@ extern int eat_brains(struct monst *, struct monst *, boolean,
                                                           int *) NONNULLARG12;
 extern void fix_petrification(void);
 extern int intrinsic_possible(int, struct permonst *) NONNULLARG2;
+extern boolean can_give_new_mintrinsic(struct permonst *,
+                                       struct monst *) NONNULLPTRS;
 extern boolean should_givit(int, struct permonst *) NONNULLARG2;
 extern void consume_oeaten(struct obj *, int) NONNULLARG1;
 extern boolean maybe_finished_meal(boolean);
@@ -1136,6 +1138,8 @@ extern void make_engr_at(coordxy, coordxy, const char *, const char *, long, int
 extern void del_engr_at(coordxy, coordxy);
 extern int freehand(void);
 extern int doengrave(void);
+extern void learn_elbereth(void);
+extern void maybe_learn_elbereth(const char *) NONNULLARG1;
 extern void sanitize_engravings(void);
 extern void forget_engravings(void);
 extern void engraving_sanity_check(void);
