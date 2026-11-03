@@ -1320,10 +1320,9 @@ select_rwep(struct monst *mtmp)
         if (!mindless(mtmp->data) && !is_animal(mtmp->data) && !mweponly
             && dist2(mtmp->mx, mtmp->my, tx, ty) <= arw->range
             && couldsee(mtmp->mx, mtmp->my)) {
-            if ((((mtmp->misc_worn_check & W_ARMS) == 0)
-                 || !objects[arw->otyp].oc_bimanual)
-                && !mon_hates_material(mtmp,
-                                       objects[arw->otyp].oc_material)) {
+            /* hated instance materials are rejected by oselect() */
+            if (((mtmp->misc_worn_check & W_ARMS) == 0)
+                || !objects[arw->otyp].oc_bimanual) {
                 /* like the rwep[] pick below, never throw a cursed
                    weapon-in-hand; the hero can't throw a welded one */
                 if ((otmp = oselect(mtmp, arw->otyp)) != 0

@@ -2806,7 +2806,7 @@ mpickgold(struct monst *mtmp)
               && !(mtmp->data == &mons[PM_BEHOLDER]
                    || mtmp->data == &mons[PM_TAL_GATH]))
              || can_levitate(mtmp))) {
-        mat_idx = objects[gold->otyp].oc_material;
+        mat_idx = gold->material;
         obj_extract_self(gold);
         add_to_minv(mtmp, gold);
         if (cansee(mtmp->mx, mtmp->my)) {

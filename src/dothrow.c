@@ -464,8 +464,7 @@ autoquiver(void)
                    /* seen rocks or known flint or known glass */
                    || (otmp->otyp == FLINT
                        && objects[otmp->otyp].oc_name_known)
-                   || (otmp->oclass == GEM_CLASS
-                       && objects[otmp->otyp].oc_material == GLASS
+                   || (is_worthless_glass(otmp)
                        && objects[otmp->otyp].oc_name_known)) {
             if (uslinging())
                 oammo = otmp;
@@ -1430,7 +1429,7 @@ harmless_missile(struct obj *obj)
     default:
         if (obj->oclass == SCROLL_CLASS) /* scrolls but not all paper objs */
             return TRUE;
-        if (objects[otyp].oc_material == CLOTH)
+        if (obj->material == CLOTH)
             return TRUE;
         break;
     }
@@ -2909,7 +2908,7 @@ gem_accept(struct monst *mon, struct obj *obj)
     /* the hero's alignment is not sgn()ed: an unaligned (A_NONE) hero
        is no unicorn's buddy */
     boolean is_buddy = (sgn(mon_aligntyp(mon)) == u.ualign.type);
-    boolean is_gem = objects[obj->otyp].oc_material == GEMSTONE;
+    boolean is_gem = obj->material == GEMSTONE;
     int ret = 0;
 
     Strcpy(buf, Monnam(mon));

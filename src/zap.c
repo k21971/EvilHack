@@ -2116,7 +2116,7 @@ polyuse(struct obj *objhdr, int mat, int minwt)
             continue;
 #endif
 
-        if (((int) objects[otmp->otyp].oc_material == mat)
+        if (((int) otmp->material == mat)
             == (rn2(minwt + 1) != 0)) {
             /* what can't be destroyed is left on the floor, unbilled */
             if (has_indestructible_contents(otmp))
@@ -2250,7 +2250,7 @@ do_osshock(struct obj *obj)
         /* some may metamorphose */
         for (i = obj->quan; i; i--)
             if (!rn2(Luck + 45)) {
-                gp.poly_zapped = objects[obj->otyp].oc_material;
+                gp.poly_zapped = obj->material;
                 break;
             }
     }

@@ -238,12 +238,12 @@ o_material(struct obj *obj, unsigned material)
     struct obj *otmp;
     struct obj *temp;
 
-    if (objects[obj->otyp].oc_material == material)
+    if (obj->material == material)
         return obj;
 
     if (Has_contents(obj)) {
         for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
-            if (objects[otmp->otyp].oc_material == material)
+            if (otmp->material == material)
                 return otmp;
             else if (Has_contents(otmp)
                      && (temp = o_material(otmp, material)) != 0)

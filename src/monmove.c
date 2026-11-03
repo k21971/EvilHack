@@ -1604,7 +1604,7 @@ mon_would_take_item(struct monst *mtmp, struct obj *otmp)
         return FALSE;
     if (mtmp->mtame && otmp->cursed)
         return FALSE; /* note: will get overridden if mtmp will eat otmp */
-    if (is_unicorn(mtmp->data) && objects[otmp->otyp].oc_material != GEMSTONE)
+    if (is_unicorn(mtmp->data) && otmp->material != GEMSTONE)
         return FALSE;
     if (!mindless(mtmp->data) && !is_animal(mtmp->data) && pctload < 75
         && searches_for_item(mtmp, otmp))
@@ -1612,7 +1612,7 @@ mon_would_take_item(struct monst *mtmp, struct obj *otmp)
     if (likes_gold(mtmp->data) && otmp->otyp == GOLD_PIECE && pctload < 95)
         return TRUE;
     if (likes_gems(mtmp->data) && otmp->oclass == GEM_CLASS
-        && objects[otmp->otyp].oc_material != MINERAL && pctload < 85)
+        && otmp->material != MINERAL && pctload < 85)
         return TRUE;
     if (likes_objs(mtmp->data) && strchr(practical, otmp->oclass)
         && pctload < 75)

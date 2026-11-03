@@ -2015,8 +2015,7 @@ hmon_hitmon_misc_obj(
         }
         break;
     default:
-        if ((objects[obj->otyp].oc_material == VEGGY ||
-             objects[obj->otyp].oc_material == PAPER) &&
+        if ((obj->material == VEGGY || obj->material == PAPER) &&
             obj->oclass != SPBOOK_CLASS) {
             /* vegetables (and similar) do no damage, because they
                aren't rigid enough; paper objects also do no damage,

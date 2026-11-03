@@ -2944,7 +2944,7 @@ oid_price_adjustment(struct obj *obj, unsigned int oid)
     int res = 0, otyp = obj->otyp;
 
     if (!(obj->dknown && objects[otyp].oc_name_known)
-        && (obj->oclass != GEM_CLASS || objects[otyp].oc_material != GLASS)) {
+        && !is_worthless_glass(obj)) {
         res = ((oid % 4) == 0); /* id%4 ==0 -> +1, ==1..3 -> 0 */
     }
     return res;

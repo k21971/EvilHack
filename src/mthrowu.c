@@ -2171,8 +2171,8 @@ hit_bars(
                          : harmless_missile(otmp) ? 2
                          : is_flimsy(otmp) ? 3
                          : (otmp->oclass == COIN_CLASS
-                            || objects[obj_type].oc_material == GOLD
-                            || objects[obj_type].oc_material == SILVER)
+                            || otmp->material == GOLD
+                            || otmp->material == SILVER)
                            ? 4
                            : SIZE(barsounds) - 1;
 
