@@ -2708,7 +2708,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       and its streak colour still read objects[].oc_material (leather
       barding streaks the iron base type's cyan), and hits_bars()' Clink
       test for gold / silver reads the base type too (mthrowu.c).
-      CLOSED 2026-11-03 (session 287; BUG-2821..2826; commit pending).
+      CLOSED 2026-11-03 (session 287; BUG-2821..2826; ad290bcc4,
+      e5f63879c, 99e8a85d5, use_stone() in ffa41b829, the guard in
+      573be2b2e; tracker 3985a711a).
       Three Explore censuses classified all 94 branch reads against
       master's 66 and vanilla. Converted to the item's own material:
       master parity - o_material(), polyuse() / poly_zapped,
@@ -2735,7 +2737,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       PASS; master M6 "Clonk!", M7 "This gold is delicious!".
 - [x] Material consumers from master's materials patch (minted and
       closed 2026-11-03, session 287, census of master's oc_material
-      reads; BUG-2827..2829; commit pending). End-of-game valuables
+      reads; BUG-2827..2829; e580867f8). End-of-game valuables
       count amulets per type and material and price them with
       material_cost() (master's matprices ratio; ga.amulets sized per
       material, non-saved); loot_xname() / sortloot_cmp() group a type
@@ -2745,8 +2747,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "3 silver amulets of ESP (worth 450 zorkmids)", POST 150 / 300 /
       600 and +600 points); master M5 / M9 match POST.
 - [x] Caveperson flint features (master e8ef39919 + 0d5a7d120; minted
-      and closed 2026-11-03, session 287; BUG-2830, 2831; commit
-      pending). The Caveperson role-arms row pointed at a "flint
+      and closed 2026-11-03, session 287; BUG-2830, 2831;
+      ffa41b829). The Caveperson role-arms row pointed at a "flint
       feature row" that never existed. Ported apply_flint() (the
       Caveperson's "Affix your flint to some arrows?"), rock banging in
       use_stone() and flint sparks, use_stone(struct obj **) with
@@ -2756,7 +2758,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Battery T3 all PASS; master M1..M3 confirm master's shape (10
       arrows refused, 6 of 10 bangs kept the rock).
 - [x] Meat armor (master 023bca49e; minted and closed 2026-11-03,
-      session 287; BUG-2832..2835; commit pending). Only the five meat
+      session 287; BUG-2832..2835; 38edbee5a, 573be2b2e, c66b49154).
+      Only the five meat
       objects and the strip of bacon had reached the branch. Ported the
       wear plumbing (is_meat_armor(), armcat_of(), wearslot(), the
       do_wear.c switches, armoroff(), canwearobj(), equip_ok(), doname,
@@ -7695,7 +7698,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the owning feature ports):
       (a) flint-sparks fear arm (master apply.c use_stone: animals/
       undead not scared while in damp terrain) - DONE 2026-11-03
-      (session 287, BUG-2830; commit pending) with the Caveperson flint
+      (session 287, BUG-2830; ffa41b829) with the Caveperson flint
       row: flint_sparks() carries the is_damp_terrain(x, y) exemption;
       battery T3 S3 a jackal on a puddle never fled (0 / 5);
       (b) master's Underwater-forcefight swap block (master
@@ -35695,7 +35698,7 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-02 | A #force that destroys a box on a shop floor bills a shattered stack for every unit: breakchestlock() charges stolen_value(), which prices get_pricing_units() (the whole stack), then useup() destroys one and leaves the rest on the floor, still for sale (5 shop potions cost 5, 4 stay). Official_nh50 b0c09c878; BUG-2805, src/lock.c | found (branch-fixed be0c0dcfc: quan held at 1 around the stolen_value() call); not sent; triage pending |
 | 2026-11-02 | The same in container_impact_dmg(): a kicked, dropped or thrown box that breaks one potion or egg of a shop's stack bills the whole stack ("You owe 5 x price"), and 4 stay for sale. An unpaid stack must keep the whole-stack charge (sub_one_frombill() would otherwise leave a used-up dummy for the rest). Official_nh50 b0c09c878; BUG-2806, src/dokick.c | found (branch-fixed be0c0dcfc: quan held at 1 for a stack that isn't unpaid); not sent; triage pending |
 | 2026-11-02 | A new game after a failed restore ("You were not healthy enough to survive restoration.", or "Saved game was not yours." outside wizard mode) keeps pieces of the save: restgamestate() puts flags and context back but not u, so u_init_misc() carries the save's u.uroleplay across its memset as if they were the config file's (blind / deaf / nudist / pauper, the bones and reroll counts); svm.moves stays the save's turn while newgame() makes the first level and the starting pet (its hungrytime is offset by it); and svn.nhuuid keeps the dead game's id (get_nhuuid() keeps a set id). Official_nh50 b0c09c878; BUG-2808, src/restore.c | found (branch-fixed 4bede6bd9: u copied before Sfi_you() and put back on failure, svm.moves 0 and nhuuid cleared in both arms); not sent; triage pending |
-| 2026-11-03 | zapyourself()'s SPE_STONE_TO_FLESH loop saves otmp->nobj before bhito(); a stone ring of levitation turned into a meat ring drops a hero levitating over lava, lava_effects() burns the saved next item (use after free), and over water emergency_disrobe() can move it to the floor so the walk continues down the floor chain. Official_nh50 b0c09c878; BUG-2835, src/zap.c | found (branch-fixed, commit pending: walk by the o_ids carried at the start); not sent; triage pending |
+| 2026-11-03 | zapyourself()'s SPE_STONE_TO_FLESH loop saves otmp->nobj before bhito(); a stone ring of levitation turned into a meat ring drops a hero levitating over lava, lava_effects() burns the saved next item (use after free), and over water emergency_disrobe() can move it to the floor so the walk continues down the floor chain. Official_nh50 b0c09c878; BUG-2835, src/zap.c | found (branch-fixed c66b49154: walk by the o_ids carried at the start); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
