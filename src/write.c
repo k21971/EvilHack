@@ -105,6 +105,9 @@ dowrite(struct obj **penp)
             You("need hands to be able to write!");
             return ECMD_OK;
         }
+    } else if (!freehand()) {
+        You("need a free %s to be able to write!", body_part(HAND));
+        return ECMD_OK;
     } else if (Glib) {
         pline("%s from your %s.", Tobjnam(pen, "slip"),
               fingers_or_gloves(FALSE));

@@ -498,6 +498,10 @@ pick_lock(
             You_cant("hold %s -- you have no hands!", doname(pick));
             return PICKLOCK_DID_NOTHING;
         }
+    } else if (!freehand()) {
+        You_cant("hold %s -- you have no %s free!",
+                 doname(pick), makeplural(body_part(HAND)));
+        return PICKLOCK_DID_NOTHING;
     } else if (u.uswallow) {
         You_cant("%sunlock %s.", (picktyp == CREDIT_CARD) ? "" : "lock or ",
                  mon_nam(u.ustuck));
@@ -975,6 +979,12 @@ doopen_indir(coordxy x, coordxy y)
         }
     }
 
+    if (!freehand()) {
+        You_cant("open anything -- you have no %s free!",
+                 makeplural(body_part(HAND)));
+        return ECMD_OK;
+    }
+
     dirprompt = NULL; /* have get_adjacent_loc() -> getdir() use default */
     if (u.utrap && u.utraptype == TT_PIT && container_at(u.ux, u.uy, FALSE))
         dirprompt = "Open where? [.>]";
@@ -1164,6 +1174,12 @@ doclose(void)
             You_cant("close anything -- you have no hands!");
             return ECMD_OK;
         }
+    }
+
+    if (!freehand()) {
+        You_cant("close anything -- you have no %s free!",
+                 makeplural(body_part(HAND)));
+        return ECMD_OK;
     }
 
     if (u.utrap && u.utraptype == TT_PIT) {

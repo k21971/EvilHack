@@ -3387,10 +3387,14 @@ dozap(void)
     struct obj *obj;
     int damage, need_dir;
 
-    if (nohands(gy.youmonst.data)) {
+    if (nohands(gy.youmonst.data)
+        && !(druid_form && !slithy(gy.youmonst.data))
+        && !(vampire_form && !is_whirly(gy.youmonst.data))) {
         You("aren't able to zap anything in your current form.");
         return ECMD_FAIL;
     }
+    if (!u_handsy())
+        return ECMD_FAIL;
     if (check_capacity((char *) 0))
         return ECMD_FAIL;
     obj = getobj("zap", zap_ok, GETOBJ_NOFLAGS);

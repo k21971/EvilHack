@@ -87,7 +87,9 @@ do_blinding_ray(struct obj *obj)
 staticfn int
 use_camera(struct obj *obj)
 {
-    if (Underwater) {
+    if (!u_handsy()) {
+        return ECMD_OK;
+    } else if (Underwater) {
         pline("Using your camera underwater would void the warranty.");
         return ECMD_OK;
     }
@@ -356,14 +358,10 @@ use_stethoscope(struct obj *obj)
     boolean interference = (u.uswallow && is_whirly(u.ustuck->data)
                             && !rn2(Role_if(PM_HEALER) ? 10 : 3));
 
-    if (nohands(gy.youmonst.data)) {
-        You("have no hands!"); /* not `body_part(HAND)' */
+    if (!u_handsy()) {
         return ECMD_OK;
     } else if (Deaf) {
         You_cant("hear anything!");
-        return ECMD_OK;
-    } else if (!freehand()) {
-        You("have no free %s.", body_part(HAND));
         return ECMD_OK;
     }
     if (!getdir((char *) 0))
@@ -541,6 +539,8 @@ use_whistle(struct obj *obj)
 {
     if (!can_blow(&gy.youmonst)) {
         You("are incapable of using the whistle.");
+    } else if (!u_handsy()) {
+        ;
     } else if (Underwater) {
         You("blow bubbles through %s.", yname(obj));
     } else {
@@ -560,6 +560,8 @@ use_magic_whistle(struct obj *obj)
 {
     if (!can_blow(&gy.youmonst)) {
         You("are incapable of using the whistle.");
+    } else if (!u_handsy()) {
+        ;
     } else if (obj->cursed && !rn2(2)) {
         You("produce a %shigh-%s.", Underwater ? "very " : "",
             Deaf ? "frequency vibration" : "pitched humming noise");
@@ -855,6 +857,8 @@ use_leash(struct obj *obj)
         You("cannot leash any more pets.");
         return ECMD_OK;
     }
+    if (!u_handsy())
+        return ECMD_OK;
 
     if (!get_adjacent_loc((char *) 0, (char *) 0, u.ux, u.uy, &cc))
         return ECMD_OK;
@@ -1093,6 +1097,8 @@ use_mirror(struct obj *obj)
     char mlet;
     boolean vis, invis_mirror, useeit, monable;
 
+    if (!u_handsy())
+        return ECMD_OK;
     if (!getdir((char *) 0))
         return ECMD_CANCEL;
     invis_mirror = Invis;
@@ -1310,6 +1316,9 @@ use_bell(struct obj **optr)
                         && invocation_pos(u.ux, u.uy)
                         && !On_stairs(u.ux, u.uy));
 
+    if (!u_handsy())
+        return;
+
     Hero_playnotes(obj_to_instr(obj), "C", 100);
     You("ring %s.", the(xname(obj)));
 
@@ -1447,6 +1456,8 @@ use_candelabrum(struct obj *obj)
         end_burn(obj, TRUE);
         return;
     }
+    if (!u_handsy())
+        return;
     if (obj->spe <= 0) {
         struct obj *otmp;
 
@@ -1776,6 +1787,8 @@ use_lamp(struct obj *obj)
         end_burn(obj, TRUE);
         return;
     }
+    if (!u_handsy())
+        return;
     if (Underwater) {
         pline("%s.",
               !Is_candle(obj) ? "This is not a diving lamp"
@@ -1915,10 +1928,14 @@ dorub(void)
 {
     struct obj *obj;
 
-    if (nohands(gy.youmonst.data)) {
+    if (nohands(gy.youmonst.data)
+        && !(druid_form && !slithy(gy.youmonst.data))
+        && !(vampire_form && !is_whirly(gy.youmonst.data))) {
         You("aren't able to rub anything without hands.");
         return ECMD_FAIL;
     }
+    if (!u_handsy())
+        return ECMD_FAIL;
     obj = getobj("rub", rub_ok, GETOBJ_NOFLAGS);
     if (!obj)
         return ECMD_CANCEL;
@@ -2390,6 +2407,8 @@ use_tinning_kit(struct obj *obj)
     /* This takes only 1 move.  If this is to be changed to take many
      * moves, we've got to deal with decaying corpses...
      */
+    if (!u_handsy())
+        return;
     if (obj->spe <= 0) {
         You("seem to be out of tins.");
         return;
@@ -2886,6 +2905,9 @@ use_grease(struct obj **objp)
 {
     struct obj *obj = *objp;
     struct obj *otmp;
+
+    if (!u_handsy())
+        return ECMD_OK;
 
     if (Glib) {
         pline("%s from your %s.", Tobjnam(obj, "slip"),
@@ -4666,6 +4688,9 @@ use_cream_pie(struct obj *obj)
     boolean wasblind = Blind;
     boolean wascreamed = u.ucreamed;
     boolean several = FALSE;
+
+    if (!u_handsy())
+        return ECMD_OK;
 
     if (obj->quan > 1L) {
         several = TRUE;

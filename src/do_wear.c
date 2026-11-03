@@ -4373,6 +4373,9 @@ doddoremarm(void)
                && !uleft && !uright && !wearing_armor()) {
         You("are not wearing anything.");
         return ECMD_OK;
+    } else if (Hidinshell) {
+        You_cant("take off worn items while hiding in your shell.");
+        return ECMD_OK;
     } else if (druid_form) {
         You_cant("take off worn items while in wildshape.");
         return ECMD_OK;
