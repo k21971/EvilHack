@@ -17,12 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-02, after session 285's muse
-  wave 2 slice: monster scroll of charging and the bearded axe disarm
-  closed the muse offense row; the wand of death limit, master's
-  random wands of wishing and the is_flimsy() material read landed with
-  no row of their own; one LOW residue row minted open):
-  630 rows closed, 59 open
+- Phase 2 status (refreshed 2026-11-02, after session 286's rumor
+  riders slice: the stethoscope egg, the Bell's quest curse, learned
+  Elbereth and the pet intrinsic preference (with master's satiation
+  gates) closed the Rumor-slice riders row; the failed-restore leak
+  and breakchestlock() billing LOWs closed with their siblings; two
+  LOW rows minted open):
+  633 rows closed, 58 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -337,7 +338,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     other hand's plain weapon no longer counts); cancellation also
     ends Stoneskin's stoning resistance, and spares a form's or
     race's reflection and vulnerabilities.
-  - 9 untagged: port gaps (Muse offense items (closed session 285,
+  - 8 untagged: port gaps (Rumor-slice riders (closed session 286,
+    BUG-2810..2820), Muse offense items (closed session 285,
     BUG-2798 / 2803), creeping mound
     meatfood(), monster chest_trap() (closed session 283, BUG-2773),
     des-placed mplayer sex, look_at_monster buffer; "pairs of" closed
@@ -347,6 +349,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 53 LOW: small parity rows, quirks and watch/record-only items.
+    Session 286 closed 2 (BUG-2805..2809): a #forced or kicked box
+    bills one shattered item, not the whole shop stack (an unpaid
+    stack is still settled whole); a new game after a failed restore
+    no longer inherits the old hero's race, roleplay options, size,
+    turn or game id. Two rows minted (the dead role's role_init()
+    edits; the slice residue).
     Session 281 closed 6 (BUG-2738..2750): a vine-held steed costs
     the turn at the stairs (ruled); the vines' cast names the
     branches over water, lava or a hole and for a monster in the air
@@ -11012,7 +11020,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (instruments, gems, oilskin, food and the tinning kit have no
       weapon skill). Plan: keep master's outcome (the race pick-axe
       gives no skill) without undoing 5.0's call order.
-- [ ] LOW: a new game after a failed restore can inherit the old
+- [x] LOW: a new game after a failed restore can inherit the old
       save's race override (NEW, minted 2026-10-09 by the init_attr()
       clamp slice's reviewer, session 202; master-shared). When
       restgamestate() fails after Sfi_you() (a save with u.uhp <= 0,
@@ -11025,6 +11033,38 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       role_init() for a new game (newgame() sets flags.pantheon = -1
       just before calling it; restore re-forces the race after
       Sfi_you()). Needs a reproduction.
+      CLOSED 2026-11-02 (session 286; BUG-2807..2809; commit pending).
+      Fixed at the producer instead of the suggested role_init() gate:
+      restgamestate() copies `u` after role_init() (like newgameflags)
+      and the u.uhp <= 0 failure arm puts it back, so newgame() sees
+      the pre-restore hero (the rc's u.uroleplay, nothing else).
+      Folded siblings: u_init_misc() kept the dead save's u.uroleplay
+      (blind / deaf / nudist / pauper / numbones, vanilla-shared,
+      upstream row); svm.moves stayed the save's turn while newgame()
+      made the first level and the pet (vanilla-shared; also the "Saved
+      game was not yours." arm, reviewer LOW); svn.nhuuid kept the dead
+      game's id (get_nhuuid() keeps a set id; both arms); set_uasmon()
+      resized the role's mons[] entry for a giant / centaur / tortle /
+      draugr / vampire save before the failure check, so a failed giant
+      restore left a human Barbarian MZ_HUGE (branch regression of the
+      race port d9da9f36e; master resizes in weight_cap()) - it now
+      runs after the check. role_init()'s overrides stay (harmless,
+      master's shape). Battery T4 R1..R7: PRE demonic / human / blind +
+      numbones 7 / moves 20000 + pet hungrytime 21000 + id kept /
+      MZ_HUGE 10 2200 / "not yours" moves 20000; POST human / dwarf /
+      sighted / 0 + 1000 + id cleared / human sizes / 0; plain restores
+      intact. Master battery M7: "You are a neutral demonic Valkyrie."
+      Follow-up row minted below (the dead role's role_init() edits).
+- [ ] LOW: a failed restore leaves the dead save's role edits in
+      mons[] / objects[] (minted 2026-11-02, session 286, Plan design
+      pass; vanilla-shared in part). restgamestate()'s role_init() runs
+      for the save's role before Sfi_you(): it flags that role's quest
+      leader, guardians and nemesis in mons[] (and EvilHack's role
+      extras: the Infidel's G_NOGEN clears, the Cleric's light-spell
+      skill) and none of it is undone when the restore fails and
+      newgame() runs role_init() for another role. Trace each write
+      role_init() makes, then decide restore-time snapshot vs undo.
+      LOW (needs a failed restore and a different role).
 - [x] HIGH: hero spell parity A PORTED 2026-10-09 (session 200;
       BUG-2231..2237; code 304c68a1f, tracker dacd48c06; minted and
       closed by the same slice). Five generated hero spells had no
@@ -22640,12 +22680,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       along; DEADMONSTER detection, the Rider-revival break and the prize
       skip over master. The hero arm in is_edible() is dead code (not
       ported). Battery T4 L1 PASS on every variant; PRE eats nothing.
-- [ ] LOW: breakchestlock() bills a whole shop stack for one shattered
+- [x] LOW: breakchestlock() bills a whole shop stack for one shattered
       item (minted 2026-11-01, session 283, census of master 6f156aa7c):
       a forced box's shattered potion stack is charged by stolen_value()
       for every unit while useup() destroys one; master billed per unit
       (quan clamped to 1 around the call). The other hunks of that commit
       are on the branch or moot (BUG-2771). Port the per-unit billing.
+      CLOSED 2026-11-02 (session 286; BUG-2805, 2806; commit pending).
+      Master's clamp ported (BUG-866's fix; a box on a shop floor holds
+      no unpaid items - stashing sells them back - so it stays
+      unconditional). Sibling sweep: container_impact_dmg() (a kicked,
+      dropped or thrown box breaking one of a stack) had the same bug on
+      master and vanilla; it clamps too, but only for a stack that isn't
+      unpaid (an unpaid stack is settled from the bill as a whole -
+      clamping would leave sub_one_frombill()'s used-up dummy for the
+      rest, billing it twice). zap.c's stone-to-flesh figurine is never a
+      stack (figurines don't merge). Battery T4: #force PRE 335 (5 x 67)
+      / POST 100 (1 x 100), kick PRE 335 / POST 133, single potion equal,
+      an unpaid stack in a thrown sack bills the whole stack on both
+      (unchanged). Master battery M6: #force 200 (1x), kick 1000 (5x).
+      Upstream rows for both sites.
 - [ ] LOW: floor-container looting residue (minted 2026-11-01, session
       283, reviewer and batteries T1 / T2 / T4; record unless a ruling
       wants a change). (a) "carefully opens ..." repeats each turn while
@@ -34154,7 +34208,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       source, all 19 oracle windows clean (max width 78, no blank
       or one-character lines, no separator leak).
       Open Phase 2 rows: 61 (61 - 1 closed + 1 minted).
-- [ ] Rumor-slice riders on unported features (minted 2026-09-17 by
+- [x] Rumor-slice riders on unported features (minted 2026-09-17 by
       the rumors slice, session 123): each held master rumor line sits
       beside the mechanic it names - port the line with the mechanic.
       (a) MONSTER FLOOR-CONTAINER LOOTING (MED; the closed 2026-08-27
@@ -34268,6 +34322,77 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       refused twice at dist2 9 with mux/muy pinned, both averting lines
       at dist2 4, stoning after 15-20 applies with a statue left;
       master 0.9.3 control printed the same three line shapes).
+      ROW CLOSED 2026-11-02 (session 286; (b), (e), (f), (g); BUG-2810..
+      2820; commits pending; the four held rumor lines are in
+      dat/rumors.tru, 480 -> 484 true lines):
+      (b) PORTED: its_dead() takes the stethoscope and has master's egg
+      arm (blessed names the egg's monster and sets egg->known, a stale
+      or monsterless egg "doesn't really make any noise at all",
+      uncursed "can't quite tell", cursed or hallucinating guesses a
+      random monster); RULED the egg needs can_reach_floor() like a
+      corpse (BUG-2820; master let a levitating hero hear it, battery M
+      M4). Master's iron-safe arm next to it not ported (safes are
+      deferred). Battery T2 S1..S7 PASS (PRE "The stairs seems healthy
+      enough.").
+      (e) PORTED: use_bell()'s invoking arm curses the Bell while
+      !u.uevent.qcompleted with master's two lines; RULED it becomes
+      known cursed (bknown + update_inventory(); master left bknown 0,
+      battery M M3); xname() adds " (locked)" while the quest isn't
+      done (master b0553523f); the rest of f327090f3 folded: "You have
+      completed the Quest", "...defeated your quest nemesis", "...defeated
+      your quest leader" in the achievement tail (game end / wizard
+      mode). Battery T2 B1..B5 PASS: "The Bell of Opening (locked) has
+      not been freed of its curse!", the invocation fails with "At least
+      one of your relics is cursed..."; PRE invokes.
+      (f) PORTED in 5.0's shape: engraving is an occupation on the
+      branch, so doengrave() checks the whole text (any engraving being
+      added to + the typed text) once, after the mix-up, and announces
+      master's swap (cannot_write[] line + "You [wipe out the message
+      and ]write W instead."; an add becomes an overwrite);
+      make_engr_at() keeps a silent backstop (outside mklev, not a
+      headstone) that swaps before the size is taken (a stand-in is up
+      to 12 characters). RULED: a polymorphed engraving that comes out
+      as Elbereth is swapped silently and "The engraving now reads"
+      quotes the stored text (BUG-2815; master printed "You write W
+      instead." after a zap and quoted Elbereth, battery M M2). Learning
+      sites: read_engr_at() (not headstones), outrumor(), outoracle(),
+      arti_speak(), gcrownu() lawful, and the read.c shirt / card /
+      wrapper texts (none can teach today; parity). Battery T1 E1..E11
+      PASS.
+      (g) PORTED with master's satiation gates (611bcd8f3, 604306b50),
+      which had no row and which master's intrinsic terms bypass:
+      can_give_new_mintrinsic() counts only what mon_give_prop() grants
+      (no acid / stoning, so lizards aren't eternal treats; RULED no
+      telepathy for a mindless pet, BUG-2813), dogfood() rates such
+      corpses DOGFOOD, dog_too_full() gates dog_invent()'s eating,
+      dog_goal()'s pursuit (with 604306b50's acceptable-food clause)
+      and dog_move()'s step-and-eat; RULED the dog_move() bypass too
+      (BUG-2811: master's satiated "don't pick up" pet sits on the
+      corpse, battery M M5); RULED a vampire pet's drain grants through
+      mon_givit() (BUG-2812). Battery T3 A0..A7 PASS.
+      Residue row minted below.
+- [ ] LOW: rumor riders slice residue (minted 2026-11-02, session 286,
+      reviewer and batteries; record unless a ruling wants a change).
+      (a) The rub-out hole (master-shared): a misspelling such as
+      "Elbeneth" can be scuffed into a working "Elbereth" after the
+      carving ends (wipe_engr_at() edits in place; 'n' -> 'r'), and
+      reading it then teaches it. (b) #wizloaddes / #wizloadlua run
+      outside level creation, so an unlearned hero gets a level
+      script's Elbereth swapped (wizard mode only). (c) make_engr_at()'s
+      conduct block counts a headstone or polymorphed text that is
+      exactly "Elbereth" outside mklev (a grave made in play, a learned
+      hero's polymorph). (d) The swap lines print while blind, and the
+      literacy livelog quotes the typed text (master). (e) " (locked)"
+      also shows on the unidentified "engraved silver bell" and reads
+      "the cursed Bell of Opening (locked) (0:1)"; a Bell cursed early
+      stays cursed once the quest is done (master). (f) Satiated pets
+      pick up and drop food they won't eat and can carry shop food; a
+      satiated vampire may pick up a no-gain blood corpse (master).
+      (g) monmove.c mon_would_consume_item()'s tame branch has no
+      satiation gate (only tame long worms reach it). (h) Battery T4
+      PRE: a thrown sack holding unpaid potions that breaks nothing
+      silently became shop goods with the bill cleared and no message
+      (not traced; check POST and master before calling it a bug).
 - [x] GATE: every level wizmode-walked (W column full) - CLOSED
       2026-08-20 with the medusa re-walk; the last three W cells were
       vecna (walked 2026-08-19), bigroom (ruled no-walk, ticked
@@ -35448,6 +35573,9 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-01 | use_offensive()'s MUSE_CAMERA arm returns 1 ("monster died") for a live monster, so mattacku() / dog_move() end its move as if it were dead. Official_nh50 b0c09c878; BUG-2766, src/muse.c | found (branch-fixed 27d126b1b); not sent; triage pending |
 | 2026-11-01 | accessory_or_armor_on() calls retouch_object() before setworn(); an artifact blast that rehumanizes the hero leaves the item worn with the old form's mask (armor the natural form can't wear). Official_nh50 b0c09c878; BUG-2768, src/do_wear.c | found (branch-fixed beffd902f); not sent; triage pending |
 | 2026-11-01 | look_at_monster() Strcat()s its clauses into a BUFSZ buffer unbounded (player-chosen names), and mhidden_description() bounds against its own eos(). Official_nh50 b0c09c878; BUG-2770, src/pager.c | found (branch-fixed beffd902f); not sent; triage pending |
+| 2026-11-02 | A #force that destroys a box on a shop floor bills a shattered stack for every unit: breakchestlock() charges stolen_value(), which prices get_pricing_units() (the whole stack), then useup() destroys one and leaves the rest on the floor, still for sale (5 shop potions cost 5, 4 stay). Official_nh50 b0c09c878; BUG-2805, src/lock.c | found (branch-fixed, commit pending: quan held at 1 around the stolen_value() call); not sent; triage pending |
+| 2026-11-02 | The same in container_impact_dmg(): a kicked, dropped or thrown box that breaks one potion or egg of a shop's stack bills the whole stack ("You owe 5 x price"), and 4 stay for sale. An unpaid stack must keep the whole-stack charge (sub_one_frombill() would otherwise leave a used-up dummy for the rest). Official_nh50 b0c09c878; BUG-2806, src/dokick.c | found (branch-fixed, commit pending: quan held at 1 for a stack that isn't unpaid); not sent; triage pending |
+| 2026-11-02 | A new game after a failed restore ("You were not healthy enough to survive restoration.", or "Saved game was not yours." outside wizard mode) keeps pieces of the save: restgamestate() puts flags and context back but not u, so u_init_misc() carries the save's u.uroleplay across its memset as if they were the config file's (blind / deaf / nudist / pauper, the bones and reroll counts); svm.moves stays the save's turn while newgame() makes the first level and the starting pet (its hungrytime is offset by it); and svn.nhuuid keeps the dead game's id (get_nhuuid() keeps a set id). Official_nh50 b0c09c878; BUG-2808, src/restore.c | found (branch-fixed, commit pending: u copied before Sfi_you() and put back on failure, svm.moves 0 and nhuuid cleared in both arms); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -35835,6 +35963,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-02 | Rumor riders + known-fix LOWs slice rulings (Phase 2 session 286, AskUserQuestion x3, eight questions, all as recommended). (1) SLICE (multiSelect): the Rumor-slice riders (b) / (e) / (f) / (g) and the known-fix LOWs (breakchestlock() billing, the failed-restore race leak); the base-material SWEEP siblings not taken. NO v3 production hot patch for BUG-2799 (master stays frozen-unfixed). (2) PET SATIATION: port master's satiation gates (611bcd8f3, 604306b50) with the intrinsic-corpse bypass. (3) VAMPIRE DRAIN: grants through the branch's mon_givit() (5.0 odds, stalker arm). (4) QUIRK FIXES, all four: a mindless pet ignores the telepathy term; a polymorphed engraving's Elbereth swap is silent and "The engraving now reads" quotes the stored text; the Bell's quest curse makes it known cursed; the stethoscope egg arm needs can_reach_floor(). (5) FOLD-IN: f327090f3's three quest achievement lines. (6) DOG_MOVE: the intrinsic bypass in dog_move() too (master's satiated "don't pick up" pet sits on the corpse). (7) TURN COUNTER: the failed-restore arm also resets svm.moves. Recorded, not asked: master's shape for " (locked)" in xname(), the bogus-word tables, the three read.c learn sites, role_init()'s race overrides; no iron-safe stethoscope arm; Elbereth checked against the full typed text in doengrave() (5.0 engraving is an occupation); folded after review as siblings: container_impact_dmg()'s stack billing (not for an unpaid stack), the "not yours" arm's turn counter, the game id in both failure arms, set_uasmon() after the failure check. | maintainer |
 | 2026-11-02 | Muse wave 2 slice rulings (Phase 2 session 285, AskUserQuestion x3, five questions, all as recommended). (1) SLICE: muse wave 2 - monster scroll of charging and the monster bearded axe disarm. (2) RANDOM WANDS OF WISHING: master's shape (80ab6d9dc, from SporkHack) - (1:1..3) and already recharged outside explore mode, so charging one blows it up, hero and monsters, Vecna's drop included; recharge()'s wishing limit back to 3 (a never-recharged wand recharges to 1..3, blessed 3) - 5.0's wish spreading (615edb1c7: (0:1), one safe one-charge recharge, the "feebly" glow) removed (BUG-2796). (3) DOOMED WANDS: a monster never picks an empty wand charging is sure to blow up (a recharged wand of wishing or death; any wand at recharged 7) and charges its next best - master always read at its pre-recharged wishing wand, against 122c9cd9f's stated goal (BUG-2802). (4) FOLD-INS (multiSelect, both): the wand of death recharge limit (master 457f5d79c / 6f4d79593, on the wiki; BUG-2795) and is_flimsy() reading the item's own material with DRAGON_HIDE (the 2026-10-19 SWEEP ruling; BUG-2797). (5) CURSED SHIELD (Plan pass): a cursed shield the axe can't pull becomes known cursed (master's silent cursed() never set bknown; BUG-2804). Not asked, recorded: the scroll is used up before the charge, both use arms return 1 for a dead reader, every monster-side line is gated on the reader being seen (BUG-2799 / 2800); the hero forgets a monster-charged item's count (reviewer MEDIUM, under the existing unseen-use rule of mzapwand(); BUG-2801); the tracker rider's mon_charge_ring() route is unreachable and not used; the vanilla whip stays inline; the explosion kills through monkilled(..., "explosion", AD_PHYS); m_stash_items() bagging empty wands stays (master). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-02 | Muse riders wave 1 slice rulings (Phase 2 session 284, AskUserQuestion x5, nine questions, all as recommended except (9)). (1) SLICE: muse riders wave 1 - restore ability, bag of tricks, figurine, remove curse, pan flute (wave 2: SCR_CHARGING, bearded axe disarm). (2) MONSTER FIGURINE: always hostile (0.9.3 live), written `if (!you) chance = 2;` - master's verbatim `!(u.uconduct.pets && you)` would make a petless hero's own figurines hostile on 5.0; the commit message's petless-only intent not taken. (3) PAN FLUTE PICKUP: satyrs only (master's `!is_satyr` was inverted). (4) FOLD-INS (multiSelect): all three - the Idol of Moloch timer arm (BUG-2783), the never-tame list in tamedog() / make_familiar() (BUG-2784 / 2785), satyr parity from master 4ac81e26f (BUG-2787 / 2788). (5) FIGURINE VS WISHING: a charged wand of wishing first (bb05452de's rule). (6) FLUTE REACH: find_offensive()'s gates - not while the hero is engulfed or in their sanctuary. (7)-(8) recorded in the plan without asking: the Idol is never selected or sought; master's figurine curse write dropped; bag of tricks sought only while charged. (9) CREATE FAMILIAR (reviewer LOW): RE-ROLL a never-tame pick (over the recommended master parity) - BUG-2789. | maintainer |
 | 2026-11-01 | Floor-container looting and monster box traps slice rulings (Phase 2 session 283, AskUserQuestion x3, seven questions plus the slice pick; all as recommended except (3)). (1) SLICE: floor-container looting + the monster chest_trap() arm. (2) SHOP: a monster's box explosion bills nobody. (3) GAS (over the recommendation): the monster gas arm mirrors the hero's - 2 in 3 master's direct dose, 1 in 3 a gas cloud over the box credited to nobody. (4) QUIRKS (multiSelect, all three): the blast wakes around the box; waslocked per box; no Wizard / Rider keyless pass on the goal side either. (5) PEACEFULS: leave boxes shut. (6) SAFES: master's split - never a goal, never unlocked, an unlocked one stood on may be looted (the reviewer's take-it-whole leak closed under this ruling, gelatinous cubes excepted). (7) FOLD-INS (multiSelect, all four): nothing opened on pool or lava; the container must be touchable; master's lost 6f156aa7c #force guards; the fire trap's max HP floor (the battery found the life-saving premise unreachable - the real path is SPFX_HPHDAM halving). Not asked, recorded: tknown / lknown follow what the hero saw; master's "erupts" wording; wake radius 400 (land mine); 5.0's Schroedinger's box refusal kept; an engulfer holding the hero opens no box; the chest trap leg is a separate function to keep vanilla's chest_trap() mergeable. | maintainer |
