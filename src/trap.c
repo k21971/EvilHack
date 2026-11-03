@@ -1434,12 +1434,14 @@ check_in_air(struct monst *mtmp, unsigned trflags)
                 && !plunged));
 }
 
-/* return TRUE if mtmp is wearing shoes made of iron (iron/kicking) */
+/* return TRUE if mtmp is wearing boots made of any metal; judged by
+   the boots' own material, so bone orcish boots don't count */
 boolean
 wearing_iron_shoes(struct monst *mtmp)
 {
     struct obj *armf = which_armor(mtmp, W_ARMF);
-    return armf && objects[armf->otyp].oc_material == IRON;
+
+    return armf && is_metallic(armf);
 }
 
 /* is trap ttmp harmless to monster mtmp? */
@@ -3077,7 +3079,7 @@ trapeffect_anti_magic(
 {
     if (wearing_iron_shoes(mtmp)) {
         struct obj *shoes = which_armor(mtmp, W_ARMF);
-        /* iron shoes protect against antimagic traps only if
+        /* metal boots protect against antimagic traps only if
            positively enchanted; the trap drains the enchantment
            rather than the wearer */
         if (shoes->spe > 0) {
@@ -3309,7 +3311,7 @@ trapeffect_landmine(
     unsigned int trflags)
 {
     int damage = rnd(16);
-    /* iron shoes protect against much of the damage from the
+    /* metal boots protect against much of the damage from the
        explosion, but you still take some damage (and wound legs)
        because they can't fully block the blast */
     if (wearing_iron_shoes(mtmp))
