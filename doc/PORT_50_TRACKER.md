@@ -11033,7 +11033,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       role_init() for a new game (newgame() sets flags.pantheon = -1
       just before calling it; restore re-forces the race after
       Sfi_you()). Needs a reproduction.
-      CLOSED 2026-11-02 (session 286; BUG-2807..2809; commit pending).
+      CLOSED 2026-11-02 (session 286; BUG-2807..2809; 4bede6bd9).
       Fixed at the producer instead of the suggested role_init() gate:
       restgamestate() copies `u` after role_init() (like newgameflags)
       and the u.uhp <= 0 failure arm puts it back, so newgame() sees
@@ -22686,7 +22686,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       for every unit while useup() destroys one; master billed per unit
       (quan clamped to 1 around the call). The other hunks of that commit
       are on the branch or moot (BUG-2771). Port the per-unit billing.
-      CLOSED 2026-11-02 (session 286; BUG-2805, 2806; commit pending).
+      CLOSED 2026-11-02 (session 286; BUG-2805, 2806; be0c0dcfc).
       Master's clamp ported (BUG-866's fix; a box on a shop floor holds
       no unpaid items - stashing sells them back - so it stays
       unconditional). Sibling sweep: container_impact_dmg() (a kicked,
@@ -34323,7 +34323,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       at dist2 4, stoning after 15-20 applies with a statue left;
       master 0.9.3 control printed the same three line shapes).
       ROW CLOSED 2026-11-02 (session 286; (b), (e), (f), (g); BUG-2810..
-      2820; commits pending; the four held rumor lines are in
+      2820; pets 600d9b606, Elbereth ce68d0a70, Bell / egg 67b9aaba1,
+      rumors 7507ae7ea, tracker 64872a73c; the four held rumor lines are in
       dat/rumors.tru, 480 -> 484 true lines):
       (b) PORTED: its_dead() takes the stethoscope and has master's egg
       arm (blessed names the egg's monster and sets egg->known, a stale
@@ -35573,9 +35574,9 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-01 | use_offensive()'s MUSE_CAMERA arm returns 1 ("monster died") for a live monster, so mattacku() / dog_move() end its move as if it were dead. Official_nh50 b0c09c878; BUG-2766, src/muse.c | found (branch-fixed 27d126b1b); not sent; triage pending |
 | 2026-11-01 | accessory_or_armor_on() calls retouch_object() before setworn(); an artifact blast that rehumanizes the hero leaves the item worn with the old form's mask (armor the natural form can't wear). Official_nh50 b0c09c878; BUG-2768, src/do_wear.c | found (branch-fixed beffd902f); not sent; triage pending |
 | 2026-11-01 | look_at_monster() Strcat()s its clauses into a BUFSZ buffer unbounded (player-chosen names), and mhidden_description() bounds against its own eos(). Official_nh50 b0c09c878; BUG-2770, src/pager.c | found (branch-fixed beffd902f); not sent; triage pending |
-| 2026-11-02 | A #force that destroys a box on a shop floor bills a shattered stack for every unit: breakchestlock() charges stolen_value(), which prices get_pricing_units() (the whole stack), then useup() destroys one and leaves the rest on the floor, still for sale (5 shop potions cost 5, 4 stay). Official_nh50 b0c09c878; BUG-2805, src/lock.c | found (branch-fixed, commit pending: quan held at 1 around the stolen_value() call); not sent; triage pending |
-| 2026-11-02 | The same in container_impact_dmg(): a kicked, dropped or thrown box that breaks one potion or egg of a shop's stack bills the whole stack ("You owe 5 x price"), and 4 stay for sale. An unpaid stack must keep the whole-stack charge (sub_one_frombill() would otherwise leave a used-up dummy for the rest). Official_nh50 b0c09c878; BUG-2806, src/dokick.c | found (branch-fixed, commit pending: quan held at 1 for a stack that isn't unpaid); not sent; triage pending |
-| 2026-11-02 | A new game after a failed restore ("You were not healthy enough to survive restoration.", or "Saved game was not yours." outside wizard mode) keeps pieces of the save: restgamestate() puts flags and context back but not u, so u_init_misc() carries the save's u.uroleplay across its memset as if they were the config file's (blind / deaf / nudist / pauper, the bones and reroll counts); svm.moves stays the save's turn while newgame() makes the first level and the starting pet (its hungrytime is offset by it); and svn.nhuuid keeps the dead game's id (get_nhuuid() keeps a set id). Official_nh50 b0c09c878; BUG-2808, src/restore.c | found (branch-fixed, commit pending: u copied before Sfi_you() and put back on failure, svm.moves 0 and nhuuid cleared in both arms); not sent; triage pending |
+| 2026-11-02 | A #force that destroys a box on a shop floor bills a shattered stack for every unit: breakchestlock() charges stolen_value(), which prices get_pricing_units() (the whole stack), then useup() destroys one and leaves the rest on the floor, still for sale (5 shop potions cost 5, 4 stay). Official_nh50 b0c09c878; BUG-2805, src/lock.c | found (branch-fixed be0c0dcfc: quan held at 1 around the stolen_value() call); not sent; triage pending |
+| 2026-11-02 | The same in container_impact_dmg(): a kicked, dropped or thrown box that breaks one potion or egg of a shop's stack bills the whole stack ("You owe 5 x price"), and 4 stay for sale. An unpaid stack must keep the whole-stack charge (sub_one_frombill() would otherwise leave a used-up dummy for the rest). Official_nh50 b0c09c878; BUG-2806, src/dokick.c | found (branch-fixed be0c0dcfc: quan held at 1 for a stack that isn't unpaid); not sent; triage pending |
+| 2026-11-02 | A new game after a failed restore ("You were not healthy enough to survive restoration.", or "Saved game was not yours." outside wizard mode) keeps pieces of the save: restgamestate() puts flags and context back but not u, so u_init_misc() carries the save's u.uroleplay across its memset as if they were the config file's (blind / deaf / nudist / pauper, the bones and reroll counts); svm.moves stays the save's turn while newgame() makes the first level and the starting pet (its hungrytime is offset by it); and svn.nhuuid keeps the dead game's id (get_nhuuid() keeps a set id). Official_nh50 b0c09c878; BUG-2808, src/restore.c | found (branch-fixed 4bede6bd9: u copied before Sfi_you() and put back on failure, svm.moves 0 and nhuuid cleared in both arms); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
