@@ -242,12 +242,22 @@ breakchestlock(struct obj *box, boolean destroyit)
             obj_extract_self(otmp);
             if (destroyed) {
                 chest_shatter_msg(otmp);
-                if (costly)
-                    loss += stolen_value(otmp, u.ux, u.uy, peaceful_shk,
-                                         TRUE);
                 if (otmp->quan == 1L) {
+                    if (costly)
+                        loss += stolen_value(otmp, u.ux, u.uy,
+                                             peaceful_shk, TRUE);
                     obfree(otmp, (struct obj *) 0);
                     continue;
+                }
+                /* only one of the stack is destroyed, but stolen_value()
+                   prices the whole stack, so bill it as a stack of one */
+                if (costly) {
+                    long save_quan = otmp->quan;
+
+                    otmp->quan = 1L;
+                    loss += stolen_value(otmp, u.ux, u.uy, peaceful_shk,
+                                         TRUE);
+                    otmp->quan = save_quan;
                 }
                 /* this works because we're sure to have at least 1 left;
                    otherwise it would fail since otmp is not in inventory */

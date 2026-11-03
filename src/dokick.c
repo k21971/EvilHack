@@ -545,8 +545,20 @@ container_impact_dmg(
             if (costly) {
                 if (frominv && !otmp->unpaid)
                     otmp->no_charge = 1;
-                loss +=
-                    stolen_value(otmp, x, y, (boolean) shkp->mpeaceful, TRUE);
+                /* only one of a stack breaks, but stolen_value() prices
+                   a shop's whole stack, so bill it as a stack of one; an
+                   unpaid stack is settled from the bill as a whole */
+                if (otmp->quan > 1L && !otmp->unpaid) {
+                    long save_quan = otmp->quan;
+
+                    otmp->quan = 1L;
+                    loss += stolen_value(otmp, x, y,
+                                         (boolean) shkp->mpeaceful, TRUE);
+                    otmp->quan = save_quan;
+                } else {
+                    loss += stolen_value(otmp, x, y,
+                                         (boolean) shkp->mpeaceful, TRUE);
+                }
             }
             if (otmp->quan > 1L) {
                 useup(otmp);
