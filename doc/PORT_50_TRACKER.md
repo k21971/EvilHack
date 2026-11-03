@@ -17,11 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-03, after session 287's
-  base-material slice: the oc_material SWEEP closed; master's material
-  consumers, Caveperson flint and meat armor minted and closed with it;
-  one MED and two LOW rows minted open):
-  637 rows closed, 60 open
+- Phase 2 status (refreshed 2026-11-03, after session 288's
+  hands-free slice: the 1ae3ddbbc gates MED and the poly_obj()
+  worn-swap LOW closed; the item-action queue row minted and closed
+  with them; one LOW residue row minted open):
+  640 rows closed, 59 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -31,9 +31,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4); master 1ae3ddbbc's hands-free gates (minted
-    session 287).
+  - 1 MED: door-material colors (an unported master feature; it
+    stays with Phase 4).
+    Session 288 closed master 1ae3ddbbc's hands-free gates
+    (BUG-2836 / 2837): a tortle hiding in its shell, or a hero whose
+    welded weapon ties up both hands, can't use most tools, open or
+    close doors, hold a key, zap, write or take armor off with 'A';
+    druid wildshapes and vampire shapes zap, rub and use a
+    stethoscope as on master. Ruled: #rub, z and the mirror refuse
+    before their prompt. It also minted and closed the item-action
+    queue row the reviewer found (BUG-2838): a command refused
+    before its object prompt no longer runs the item letter the
+    item-action menu queued as the next command.
     Session 270 closed the three crash-class MEDs the 5.0 fixes
     sessions minted (BUG-2623, 2625, 2626): a shape changer arriving
     under protection from shape changers reverts once it is placed,
@@ -355,6 +364,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 55 LOW: small parity rows, quirks and watch/record-only items.
+    Session 288 closed 1 (BUG-2839..2841: a worn item changing form
+    lands or drowns the hero only once the new form is on; the
+    enchant armor scale swap the same; water walking boots lost on
+    lava under the guard now drop the hero in) and minted 1 (the
+    slice residue).
     Session 287 minted 2 (poly_obj()'s worn-armor transition; the
     slice residue).
     Session 286 closed 2 (BUG-2805..2809): a #forced or kicked box
@@ -2774,7 +2788,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       zapyourself()'s stone-to-flesh walk no longer follows a burned
       item (BUG-2835, reviewer CRITICAL, vanilla-shared, upstream row).
       Battery T4 M1..M12 PASS; master M4 matches.
-- [ ] MED: master 1ae3ddbbc's hands-free gates (minted 2026-11-03,
+- [x] MED: master 1ae3ddbbc's hands-free gates (minted 2026-11-03,
       session 287, flint Plan pass): master's "Handle more cases when
       tortle is hiding in its shell" puts u_handsy() / freehand() gates
       on most apply.c tools (camera, whistles, tinning kit, grease,
@@ -2785,7 +2799,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       nohands() test. Census each hunk of 1ae3ddbbc (apply.c, dig.c,
       lock.c, pray.c, zap.c) against the R1 tortle shell gates, then
       port the missing ones.
-- [ ] LOW: poly_obj()'s worn-armor transition (minted 2026-11-03,
+      CLOSED 2026-11-03 (session 288; BUG-2836, 2837; commit pending).
+      Census of 1ae3ddbbc and its follow-ups (b300d88e3, a1e07bc6e,
+      f27264bc3, 982fecc00's dig.c shape, 04fc58a16's druid forms)
+      against master's final text: apply.c 11 missing (camera, both
+      whistles, leash, mirror, bell, candelabrum, lamp, tinning kit,
+      grease, cream pie) and 2 partial (stethoscope, #rub); lock.c
+      pick_lock() / doopen_indir() / doclose() freehand(); dozap()
+      u_handsy(); dowrite() freehand() (f27264bc3); 'A' Hidinshell
+      (b300d88e3). Everything else (dig, #force, #offer, the a1e07bc6e
+      sites, use_towel / candle / figurine / whip / axe / pole /
+      grapple / trap kit, wand breaking) was already in place.
+      dozap() / dorub() / use_stethoscope() also take master's druid
+      wildshape and vampire shape exceptions (5.0's bare nohands()
+      refused them). Ruled: #rub, z and the mirror refuse before
+      their prompt (master asks first, and its #rub refuses even after
+      ESC). The void tools keep master's turn cost on a refusal.
+      Battery T1 A1-A15 and T2 B1-B9 PASS; M confirmed master's lines
+      and the druid / vampire zap.
+- [x] LOW: poly_obj()'s worn-armor transition (minted 2026-11-03,
       session 287, reviewer). poly_obj() takes a worn piece off with
       remove_worn_item() before the new form goes on, so the old
       piece's off-function runs in between: a dragon-scaled stone suit
@@ -2795,6 +2827,51 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (BUG-2834) and zapyourself() survives it (BUG-2835); the landing
       itself is master / vanilla shape (an in_lava_effects-style wrap
       is one fix shape). LOW.
+      CLOSED 2026-11-03 (session 288; BUG-2839..2841; commit pending).
+      poly_obj() runs freeinv_core() and remove_worn_item() for the
+      old form under iflags.in_lava_effects, as erode_obj() does, so
+      the off-functions defer_landing() and the landing or drowning
+      runs at moveloop (before the monsters move) with the new form
+      on; the new form goes on outside the guard (the e338a46e4
+      relight revert stays immediate). Boots_off()'s guarded water
+      walking arm also defers over lava for unburnable boots (the
+      one arm that dropped the landing). Sibling: enchant armor's
+      scale swap drowned the hero with the suit unworn (BUG-2840,
+      battery PRE crash). Ruled: the merged dragon scales are lost
+      with the suit, as on master and for every polymorph. Battery T3
+      C1-C6 (PRE worn-slot insanity / a dragon in a meat suit; POST
+      clean), T4 D1-D8; master crashes on the T3 C1 staging (ASan
+      use after free, frozen-unfixed). Upstream row.
+- [x] MED: refused commands ran the item-action menu's queued item
+      letter (minted and closed 2026-11-03, session 288, reviewer of
+      the hands-free slice; BUG-2838; commit pending; ruled: sweep the
+      class). The item-action menu queues the command plus the item
+      letter; a refusal before the object prompt returned ECMD_OK, which
+      leaves the queue alone, so the letter ran as the next command
+      (and ^A repeated it). The 21 pre-prompt refusals in doapply,
+      dorub, dozap, doeat, dodrink, doread, dothrow, dotakeoff, dowear
+      and dosacrifice return ECMD_FAIL (5.0's idiom). Vanilla-shared
+      (Strangled quaff / eat, check_capacity); upstream row. Battery T2
+      B10-B12, T1 A15.
+- [ ] LOW: hands-free slice residue (minted 2026-11-03, session 288,
+      reviewer and batteries; record unless a ruling wants a change).
+      (a) dodown() / doup() say "climb down / up" in the shell where
+      master names "the stairs / ladder" (master's doup() always says
+      stairs). (b) 'A' resumes an interrupted multi-item takeoff in the
+      shell ("You continue disrobing", master b300d88e3 order). (c) The
+      there-menu open / close / dip refusals leave a queued direction
+      that only rings the bell. (d) dopay never reads the item letter
+      its item action queues, so it answers the next y/n prompt; the
+      #offer item action's floor "sacrifice it?" prompt can take its
+      letter (both vanilla; upstream row). (e) A hangup save between a
+      deferred landing's command and moveloop loses gp.pending_landing
+      (as for erode_obj()). (f) White-scaled armor coming off clears
+      water walking with no landing. (g) An off-function blast that
+      reverts a polymorphed hero under the guard skips polyman()'s pool
+      check until moveloop's per-move one. (h) Master's magic whistle
+      refusal still identifies it ("This must be a magic whistle.");
+      the branch doesn't. (i) A hiding tortle's refusal reads "You
+      have no free claw." on both trees.
 - [ ] LOW: base-material slice residue (minted 2026-11-03, session
       287, reviewer and batteries; record unless a ruling wants a
       change). (a) Stone bracers become a meat shield in W_ARMS even
@@ -35699,6 +35776,8 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-02 | The same in container_impact_dmg(): a kicked, dropped or thrown box that breaks one potion or egg of a shop's stack bills the whole stack ("You owe 5 x price"), and 4 stay for sale. An unpaid stack must keep the whole-stack charge (sub_one_frombill() would otherwise leave a used-up dummy for the rest). Official_nh50 b0c09c878; BUG-2806, src/dokick.c | found (branch-fixed be0c0dcfc: quan held at 1 for a stack that isn't unpaid); not sent; triage pending |
 | 2026-11-02 | A new game after a failed restore ("You were not healthy enough to survive restoration.", or "Saved game was not yours." outside wizard mode) keeps pieces of the save: restgamestate() puts flags and context back but not u, so u_init_misc() carries the save's u.uroleplay across its memset as if they were the config file's (blind / deaf / nudist / pauper, the bones and reroll counts); svm.moves stays the save's turn while newgame() makes the first level and the starting pet (its hungrytime is offset by it); and svn.nhuuid keeps the dead game's id (get_nhuuid() keeps a set id). Official_nh50 b0c09c878; BUG-2808, src/restore.c | found (branch-fixed 4bede6bd9: u copied before Sfi_you() and put back on failure, svm.moves 0 and nhuuid cleared in both arms); not sent; triage pending |
 | 2026-11-03 | zapyourself()'s SPE_STONE_TO_FLESH loop saves otmp->nobj before bhito(); a stone ring of levitation turned into a meat ring drops a hero levitating over lava, lava_effects() burns the saved next item (use after free), and over water emergency_disrobe() can move it to the floor so the walk continues down the floor chain. Official_nh50 b0c09c878; BUG-2835, src/zap.c | found (branch-fixed c66b49154: walk by the o_ids carried at the start); not sent; triage pending |
+| 2026-11-03 | The item-action menu (iactions.c) queues a command plus the item letter; a refusal before the object prompt returns ECMD_OK, which rhack() leaves the command queue alone for, so the letter runs as the next command (vi-keys: a step or an attack; ^A repeats it). Vanilla refusals that do it: dodrink() / doeat() while Strangled, doapply() / dozap() / doread() check_capacity(), doapply() / dozap() nohands(), dowear()'s "Don't even bother.". Also: IA_BUY_OBJ queues a letter dopay() never reads (it answers the next yn_function), and IA_SACRIFICE has no m-prefix, so floorfood()'s "sacrifice it?" can take the letter. Official_nh50 b0c09c878; BUG-2838, src/apply.c zap.c eat.c potion.c read.c do_wear.c | found (branch-fixed, commit pending: those refusals return ECMD_FAIL, 5.0's own idiom); not sent; triage pending |
+| 2026-11-03 | poly_obj() takes a worn item off with remove_worn_item() before the new form goes on; the old piece's off-function can land or drown the hero right then (levitation boots or a ring of levitation dipped over lava, a magical breathing amulet underwater), and lava_effects() burns the new form while it sits in invent unworn, then setworn() / prinv() use the freed object; over water emergency_disrobe() can drop it while it is about to be worn. Official_nh50 b0c09c878; BUG-2839, src/zap.c | found (branch-fixed, commit pending: freeinv_core() / remove_worn_item() run under iflags.in_lava_effects and the landing is deferred to moveloop); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -36087,6 +36166,7 @@ trees, different content - Phase 0 rename).
 | date | decision | by |
 |------|----------|----|
 | 2026-11-03 | Base-material sweep slice rulings (Phase 2 session 287, AskUserQuestion x3, nine questions, all as recommended except the meat-armor fold-in). (1) SLICE: the base-type oc_material SWEEP. (2) FOLD-INS (multiSelect): master's material consumers (recommended: valuables, loot sort, farlook fake object), Caveperson flint (e8ef39919) and meat armor (023bca49e; recommended as its own MED row, the maintainer folded it). (3) IRON SHOES: wearing_iron_shoes() = any metal boots (is_metallic); bone / stone orcish boots and non-metal kicking boots stop protecting. Rejected: iron only; keep the base type. (4) BARS: hit_bars()' Clink reads the item's own material (master reads the base type). (5) GEM SURCHARGE: oid_price_adjustment() keeps vanilla's meaning (unidentified real gems surcharged, glass exempt); master 03e87e1bd dropped the "!" - archived frozen-unfixed (BUG-2824). (6) FLINT QUIRKS, all fixed: the rock is used up on every bang; one flint per ten arrows; a monster that can't see isn't scared. (7) MEAT ARMOR: a wielded stone armor piece is let go (master's shape over 5.0 keeping it wielded); a meat suit obeys the body-armor fit test. (8) POLY TRAP: the any-metal rule also decides the polymorph-trap warp. (9) LOOT SORT: material sorts only once seen (dknown); master's leak frozen-unfixed. Plan-approved, not asked: the uskin guard, res = 0 for untransformed armor, the aklys gate deleted, u_handsy() in use_stone(), select_hwep() kept (BUG-487); after review: the gloves swap (BUG-2834) and the o_id walk (BUG-2835). | maintainer (1-9); session, plan-approved (rest) |
+| 2026-11-03 | Hands-free slice rulings (Phase 2 session 288, AskUserQuestion x3). (1) SLICE: master 1ae3ddbbc's hands-free gates plus the poly_obj() worn-swap LOW. (2) DRAGON SCALES: stone to flesh on a dragon-scaled stone suit loses the merged scales, as on master and for every polymorph (rejected: scales come loose; the scaled suit resists). (3) REFUSE WHEN: #rub, z and the mirror refuse before their object / direction prompt (master asks first; its #rub refuses after ESC too). (4) QUEUE ORPHAN: sweep the class this slice (every pre-prompt refusal in the item-action targets returns ECMD_FAIL), not just the two new refusals. Plan-approved, not asked: defer the swap's landing (in_lava_effects) rather than protect the new form with in_use; the void tools keep master's turn cost on a refusal; the Boots_off() lava arm; the enchant armor scale swap sibling. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-02 | Rumor riders + known-fix LOWs slice rulings (Phase 2 session 286, AskUserQuestion x3, eight questions, all as recommended). (1) SLICE (multiSelect): the Rumor-slice riders (b) / (e) / (f) / (g) and the known-fix LOWs (breakchestlock() billing, the failed-restore race leak); the base-material SWEEP siblings not taken. NO v3 production hot patch for BUG-2799 (master stays frozen-unfixed). (2) PET SATIATION: port master's satiation gates (611bcd8f3, 604306b50) with the intrinsic-corpse bypass. (3) VAMPIRE DRAIN: grants through the branch's mon_givit() (5.0 odds, stalker arm). (4) QUIRK FIXES, all four: a mindless pet ignores the telepathy term; a polymorphed engraving's Elbereth swap is silent and "The engraving now reads" quotes the stored text; the Bell's quest curse makes it known cursed; the stethoscope egg arm needs can_reach_floor(). (5) FOLD-IN: f327090f3's three quest achievement lines. (6) DOG_MOVE: the intrinsic bypass in dog_move() too (master's satiated "don't pick up" pet sits on the corpse). (7) TURN COUNTER: the failed-restore arm also resets svm.moves. Recorded, not asked: master's shape for " (locked)" in xname(), the bogus-word tables, the three read.c learn sites, role_init()'s race overrides; no iron-safe stethoscope arm; Elbereth checked against the full typed text in doengrave() (5.0 engraving is an occupation); folded after review as siblings: container_impact_dmg()'s stack billing (not for an unpaid stack), the "not yours" arm's turn counter, the game id in both failure arms, set_uasmon() after the failure check. | maintainer |
 | 2026-11-02 | Muse wave 2 slice rulings (Phase 2 session 285, AskUserQuestion x3, five questions, all as recommended). (1) SLICE: muse wave 2 - monster scroll of charging and the monster bearded axe disarm. (2) RANDOM WANDS OF WISHING: master's shape (80ab6d9dc, from SporkHack) - (1:1..3) and already recharged outside explore mode, so charging one blows it up, hero and monsters, Vecna's drop included; recharge()'s wishing limit back to 3 (a never-recharged wand recharges to 1..3, blessed 3) - 5.0's wish spreading (615edb1c7: (0:1), one safe one-charge recharge, the "feebly" glow) removed (BUG-2796). (3) DOOMED WANDS: a monster never picks an empty wand charging is sure to blow up (a recharged wand of wishing or death; any wand at recharged 7) and charges its next best - master always read at its pre-recharged wishing wand, against 122c9cd9f's stated goal (BUG-2802). (4) FOLD-INS (multiSelect, both): the wand of death recharge limit (master 457f5d79c / 6f4d79593, on the wiki; BUG-2795) and is_flimsy() reading the item's own material with DRAGON_HIDE (the 2026-10-19 SWEEP ruling; BUG-2797). (5) CURSED SHIELD (Plan pass): a cursed shield the axe can't pull becomes known cursed (master's silent cursed() never set bknown; BUG-2804). Not asked, recorded: the scroll is used up before the charge, both use arms return 1 for a dead reader, every monster-side line is gated on the reader being seen (BUG-2799 / 2800); the hero forgets a monster-charged item's count (reviewer MEDIUM, under the existing unseen-use rule of mzapwand(); BUG-2801); the tracker rider's mon_charge_ring() route is unreachable and not used; the vanilla whip stays inline; the explosion kills through monkilled(..., "explosion", AD_PHYS); m_stash_items() bagging empty wands stays (master). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-02 | Muse riders wave 1 slice rulings (Phase 2 session 284, AskUserQuestion x5, nine questions, all as recommended except (9)). (1) SLICE: muse riders wave 1 - restore ability, bag of tricks, figurine, remove curse, pan flute (wave 2: SCR_CHARGING, bearded axe disarm). (2) MONSTER FIGURINE: always hostile (0.9.3 live), written `if (!you) chance = 2;` - master's verbatim `!(u.uconduct.pets && you)` would make a petless hero's own figurines hostile on 5.0; the commit message's petless-only intent not taken. (3) PAN FLUTE PICKUP: satyrs only (master's `!is_satyr` was inverted). (4) FOLD-INS (multiSelect): all three - the Idol of Moloch timer arm (BUG-2783), the never-tame list in tamedog() / make_familiar() (BUG-2784 / 2785), satyr parity from master 4ac81e26f (BUG-2787 / 2788). (5) FIGURINE VS WISHING: a charged wand of wishing first (bb05452de's rule). (6) FLUTE REACH: find_offensive()'s gates - not while the hero is engulfed or in their sanctuary. (7)-(8) recorded in the plan without asking: the Idol is never selected or sought; master's figurine curse write dropped; bag of tricks sought only while charged. (9) CREATE FAMILIAR (reviewer LOW): RE-ROLL a never-tame pick (over the recommended master parity) - BUG-2789. | maintainer |
