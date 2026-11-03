@@ -1524,15 +1524,20 @@ seffect_enchant_armor(struct obj **sobjp)
                           dragon_scales_color(scales));
                 }
             }
-            /* unworn first, like the callers of dragon_armor_handling():
-               losing sea scales underwater drowns right here, and the
-               suit stays in hand across drown()'s emergency_disrobe() */
+            /* unworn first, like the callers of dragon_armor_handling();
+               losing sea scales underwater would drown the hero while
+               the suit is off, where water could rust it away before it
+               is worn again, so under the in_lava_effects guard the
+               drowning waits for moveloop (defer_landing()), after the
+               new scales are on */
             armor->in_use = 1;
             setnotworn(armor);
             if (Is_dragon_scaled_armor(armor)
                 && Dragon_armor_to_scales(armor) != scales->otyp) {
                 /* remove properties of old scales */
+                iflags.in_lava_effects++;
                 dragon_armor_handling(armor, FALSE, TRUE);
+                iflags.in_lava_effects--;
             }
             armor->in_use = 0;
             /* don't allow a suit of armor with an object property

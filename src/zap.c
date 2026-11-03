@@ -2536,16 +2536,29 @@ poly_obj(struct obj *obj, int id)
          * messing with the hero's inventory.  The following calls are
          * equivalent to calling freeinv() on obj and addinv_nomerge()
          * on otmp, while doing an in-place swap of the actual objects.
+         *
+         * Losing the old form can end the hero's levitation, flight,
+         * water walking or breathing (an invoked power ends as it
+         * leaves, a worn item's off-function runs below) while the new
+         * form is in invent but not yet worn. Under the in_lava_effects
+         * guard, as in erode_obj(), those ask moveloop for the landing
+         * or the drowning (defer_landing()) instead of running it here,
+         * so nothing burns, soaks or drops the new form, or changes the
+         * hero's shape, before it is on; a new form that gives back what
+         * was lost leaves no landing to make
          */
+        iflags.in_lava_effects++;
         freeinv_core(obj);
+        iflags.in_lava_effects--;
         addinv_core1(otmp);
         addinv_core2(otmp);
         /*
-         * Handle polymorph of worn item.  Stone-to-flesh cast on self can
+         * Handle polymorph of worn item. Stone-to-flesh cast on self can
          * affect multiple objects at once, but their new forms won't
-         * produce any side-effects.  A single worn item dipped into potion
-         * of polymorph can produce side-effects but those won't yield out
-         * of sequence messages because current polymorph is finished.
+         * produce any side-effects. A single worn item dipped into potion
+         * of polymorph can produce side-effects; the old form's landing
+         * waits (see above) and the new form's own effects happen as it
+         * goes on
          */
         if (old_wornmask) {
             boolean was_twohanded = bimanual(obj), was_twoweap = u.twoweap;
@@ -2565,7 +2578,12 @@ poly_obj(struct obj *obj, int id)
                shows it: the old one comes off with no line, and a change
                in sight waits for the new one (Blindf_on()) */
             gw.worn_swap_quiet = (new_wornmask & ~W_WEAPONS) != 0L;
+            /* the old form comes off under the guard (see above); the
+               new form goes on outside it, so its own effects, such as
+               a two-weapon relight, still happen at once */
+            iflags.in_lava_effects++;
             remove_worn_item(obj, TRUE);
+            iflags.in_lava_effects--;
             /* if the new form can be worn in the same slot, make it so */
             if ((new_wornmask & W_WEP) != 0L) {
                 if (was_twohanded || !bimanual(otmp)
@@ -3956,10 +3974,12 @@ zapyourself(struct obj *obj, boolean ordinary)
             learn_it = TRUE;
             fix_petrification(); /* saved! */
         }
-        /* but at a cost; an item's change can land the hero (lost
-           levitation or flight), and lava or water can then burn or
-           wash away other items, so the walk goes by the o_ids of the
-           items carried at the start and finds each one again */
+        /* but at a cost; an item's change no longer lands or drowns
+           the hero here (poly_obj() leaves that to moveloop), but a
+           carried statue or figurine coming to life leaves the pack
+           and poly_obj() swaps each changed item for a new object, so
+           the walk goes by the o_ids of the items carried at the
+           start and finds each one again */
         for (otmp = gi.invent; otmp; otmp = otmp->nobj)
             n++;
         if (n)

@@ -459,13 +459,18 @@ Boots_off(void)
                 otmp->in_use = 1;
             spoteffects(TRUE);
             otmp->in_use = was_in_use;
-        } else if (is_pool(u.ux, u.uy) && !Levitation && !Flying
+        } else if ((is_pool(u.ux, u.uy)
+                    /* over lava, boots it can burn are lava_effects()'s
+                       own, burned off a hero it is already dealing with;
+                       any others were holding the hero up */
+                    || (is_lava(u.ux, u.uy)
+                        && (!is_flammable(otmp) || otmp->oerodeproof)))
+                   && !Levitation && !Flying
                    && !(is_clinger(gy.youmonst.data) && has_ceiling(&u.uz))
                    && !svc.context.takeoff.cancelled_don
                    && iflags.in_lava_effects) {
-            /* erode_obj() is destroying the boots; sink once its caller
-               is done (lava_effects() itself never gets here, the hero
-               being on lava rather than water then) */
+            /* erode_obj() is destroying the boots or poly_obj() is
+               changing them; sink once that caller is done */
             makeknown(otyp);
             defer_landing(LANDING_SPOT);
         }
@@ -492,10 +497,11 @@ Boots_off(void)
                 (void) float_down(0L, 0L);
                 otmp->in_use = was_in_use;
             } else {
-                /* erode_obj() is destroying the boots, or lava_effects()
-                   is burning them off a hero already down in the lava;
-                   float_down() can't run under either, but the flight it
-                   would uncover must not stay blocked */
+                /* erode_obj() is destroying the boots, poly_obj() is
+                   changing them, or lava_effects() is burning them off a
+                   hero already down in the lava; float_down() can't run
+                   under any of them, but the flight it would uncover
+                   must not stay blocked */
                 float_vs_flight();
                 disp.botl = TRUE; /* status: 'Lev' Off, maybe 'Fly' On */
                 if (was_levitating && !Levitation) {
@@ -1360,9 +1366,11 @@ dragon_armor_handling(
             if (Underwater && !Breathless && !Amphibious && !Swimming) {
                 You("suddenly inhale an unhealthy amount of %s!",
                     hliquid("water"));
-                /* erode_obj() destroying the suit is still holding it,
-                   and drown() would soak (and could destroy) it again;
-                   drown once its caller is done */
+                /* erode_obj() destroying the suit, poly_obj() changing
+                   it or enchant armor swapping its scales is still
+                   holding it, and drown() would soak (and could destroy)
+                   what that caller holds; drown once that caller is
+                   done */
                 if (iflags.in_lava_effects)
                     defer_landing(LANDING_SPOT);
                 else
@@ -1467,8 +1475,9 @@ check_flight_landing(boolean was_flying)
            the bottom */
         if (u.uinwater)
             return;
-        /* erode_obj() is destroying the item, and spoteffects() can't
-           run under its guard; land once its caller is done */
+        /* erode_obj() is destroying the item or poly_obj() changing it,
+           and spoteffects() can't run under their guard; land once that
+           caller is done */
         if (iflags.in_lava_effects) {
             defer_landing(LANDING_FLY);
             return;
@@ -1867,9 +1876,10 @@ Amulet_off(void)
                 You("suddenly inhale an unhealthy amount of %s!",
                     hliquid("water"));
                 mkn = TRUE; /* in case of life-saving */
-                /* erode_obj() destroying the amulet is still holding it,
-                   and drown() would soak (and could destroy) what its
-                   caller holds; drown once that caller is done */
+                /* erode_obj() destroying the amulet or poly_obj()
+                   changing it is still holding it, and drown() would
+                   soak (and could destroy) what that caller holds; drown
+                   once that caller is done */
                 if (iflags.in_lava_effects)
                     defer_landing(LANDING_SPOT);
                 else
@@ -2186,9 +2196,10 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
         break;
     case RIN_LEVITATION:
         if (!(BLevitation & FROMOUTSIDE) && iflags.in_lava_effects) {
-            /* erode_obj() is destroying the ring, or lava_effects() is
-               burning it off a hero already down in the lava; float_down()
-               can't run under either (see Boots_off()) */
+            /* erode_obj() is destroying the ring, poly_obj() is changing
+               it, or lava_effects() is burning it off a hero already down
+               in the lava; float_down() can't run under any of them (see
+               Boots_off()) */
             float_vs_flight();
             disp.botl = TRUE; /* status: 'Lev' Off, maybe 'Fly' On */
             if (was_levitating && !Levitation) {

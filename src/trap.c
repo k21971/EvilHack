@@ -4998,7 +4998,8 @@ float_down_core(
 /* The hero stopped (or, from polymon() and polyman(), may be about to
    stop) flying or levitating where no landing can run safely: inside a
    walk over the inventory or the floor, deep in an attack, or under
-   erode_obj()'s in_lava_effects guard. land_deferred() lands the hero
+   the in_lava_effects guard of erode_obj() or poly_obj(), or of an
+   enchant armor scale swap's drowning. land_deferred() lands the hero
    at moveloop's next safe point unless spoteffects(), float_down() or
    goto_level() gets there first */
 void
