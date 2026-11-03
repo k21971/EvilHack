@@ -1091,10 +1091,14 @@ get_valuables(struct obj *list) /* inventory or container contents */
         } else if (obj->oclass == AMULET_CLASS) {
             if (Role_if(PM_INFIDEL) && obj->otyp == AMULET_OF_YENDOR)
                 continue; /* starting inventory */
-            i = obj->otyp - FIRST_AMULET;
+            /* one slot per type and material, so that a gold amulet is
+               scored and listed apart from a plain one */
+            i = (obj->otyp - FIRST_AMULET) * NUM_MATERIAL_TYPES
+                + obj->material;
             if (!ga.amulets[i].count) {
                 ga.amulets[i].count = obj->quan;
                 ga.amulets[i].typ = obj->otyp;
+                ga.amulets[i].mat = obj->material;
             } else
                 ga.amulets[i].count += obj->quan; /* always adds one */
         } else if (obj->oclass == GEM_CLASS && obj->otyp <= LAST_GLASS_GEM) {
@@ -1103,6 +1107,7 @@ get_valuables(struct obj *list) /* inventory or container contents */
             if (!gg.gems[i].count) {
                 gg.gems[i].count = obj->quan;
                 gg.gems[i].typ = obj->otyp;
+                gg.gems[i].mat = obj->material;
             } else
                 gg.gems[i].count += obj->quan;
         }
@@ -1116,7 +1121,7 @@ get_valuables(struct obj *list) /* inventory or container contents */
 staticfn void
 sort_valuables(
     struct valuable_data list[],
-    int size) /* max value is less than 20 */
+    int size) /* a few hundred at most */
 {
     int i, j;
     struct valuable_data ltmp;
@@ -1948,8 +1953,12 @@ really_done(int how)
         for (val = gv.valuables; val->list; val++)
             for (i = 0; i < val->size; i++)
                 if (val->list[i].count != 0L) {
-                    tmp = val->list[i].count
-                          * (long) objects[val->list[i].typ].oc_cost;
+                    int typ = val->list[i].typ;
+
+                    /* priced by what each one is made of */
+                    tmp = material_cost(val->list[i].count
+                                            * (long) objects[typ].oc_cost,
+                                        typ, val->list[i].mat);
                     u.urexp = nowrap_add(u.urexp, tmp);
                 }
 
@@ -1999,7 +2008,7 @@ really_done(int how)
         for (val = gv.valuables; val->list; val++) {
             sort_valuables(val->list, val->size);
             for (i = 0; i < val->size && !done_stopprint; i++) {
-                int typ = val->list[i].typ;
+                int typ = val->list[i].typ, mat = val->list[i].mat;
                 long count = val->list[i].count;
 
                 if (count == 0L)
@@ -2011,11 +2020,16 @@ really_done(int how)
                     otmp->dknown = 1; /* seen it (blindness fix) */
                     /* observe_object not necessary after discover_object */
                     otmp->known = 1;  /* for fake amulets */
+                    /* mksobj() rolled a random material; show the one
+                       the hero actually had */
+                    set_material(otmp, mat);
                     if (has_oname(otmp))
                         free_oname(otmp);
                     otmp->quan = count;
                     Sprintf(pbuf, "%8ld %s (worth %ld %s),", count,
-                            xname(otmp), count * (long) objects[typ].oc_cost,
+                            xname(otmp),
+                            material_cost(count * (long) objects[typ].oc_cost,
+                                          typ, mat),
                             currency(2L));
                     obfree(otmp, (struct obj *) 0);
                 } else {

@@ -3159,7 +3159,7 @@ shk_stat_priced(struct monst *shkp)
  * Units for this are much more poorly defined than for weights; the best
  * approximation would be something like "zorkmids per aum".
  * We only care about the ratio of two of these together */
-static const int matprices[] = {
+static const int matprices[NUM_MATERIAL_TYPES] = {
      0,
      1, /* LIQUID */
      1, /* WAX */
@@ -3186,6 +3186,18 @@ static const int matprices[] = {
    500, /* GEMSTONE */
     10  /* MINERAL */
 };
+
+/* scale 'cost', priced for an object of type 'otyp' in its base
+   material, to what it would be in material 'mat' */
+long
+material_cost(long cost, int otyp, int mat)
+{
+    int basemat = objects[otyp].oc_material;
+
+    if (mat == basemat || !matprices[basemat])
+        return cost;
+    return (cost * (long) matprices[mat]) / (long) matprices[basemat];
+}
 
 /* calculate the value that the shk will charge for [one of] an object */
 staticfn long

@@ -155,7 +155,9 @@ struct instance_globals_a {
     struct autopickup_exception *apelist;
 
     /* end.c */
-    struct valuable_data amulets[LAST_AMULET + 1 - FIRST_AMULET];
+    /* one slot per amulet type per material */
+    struct valuable_data
+        amulets[(LAST_AMULET + 1 - FIRST_AMULET) * NUM_MATERIAL_TYPES];
 
     /* mon.c */
     short *animal_list; /* list of PM values for animal monsters */

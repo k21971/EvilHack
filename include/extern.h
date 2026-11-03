@@ -3327,6 +3327,7 @@ extern void check_unpaid(struct obj *) NONNULLARG1;
 extern void costly_gold(coordxy, coordxy, long, boolean);
 extern long get_cost_of_shop_item(struct obj *, int *) NONNULLARG1;
 extern int oid_price_adjustment(struct obj *, unsigned) NONNULLARG1;
+extern long material_cost(long, int, int);
 extern boolean block_door(coordxy, coordxy);
 extern boolean block_entry(coordxy, coordxy);
 extern char *shk_your(char *, struct obj *) NONNULLPTRS;

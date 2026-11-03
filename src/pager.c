@@ -354,6 +354,9 @@ object_from_map(
                for tools and don't need to check for and delete container
                contents or extinguish lights on the temporary object */
         }
+        /* mksobj() and mkobj() roll a random material, but the map only
+           remembers an object's type */
+        set_material(otmp, objects[otmp->otyp].oc_material);
         /* even though we pass False for mksobj()'s 'init' arg, corpse-rot,
            egg-hatch, and figurine-transform timers get initialized */
         if (otmp->timed)

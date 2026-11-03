@@ -1012,6 +1012,7 @@ typedef struct {
 struct valuable_data {
     long count;
     int typ;
+    int mat; /* obj_material_types */
 };
 
 struct val_list {
