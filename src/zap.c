@@ -3937,6 +3937,8 @@ zapyourself(struct obj *obj, boolean ordinary)
     case SPE_STONE_TO_FLESH: {
         struct obj *otmp, *onxt;
         boolean didmerge;
+        unsigned *oids = 0;
+        int i, n = 0;
 
         if (u.umonnum == PM_STONE_GOLEM) {
             learn_it = TRUE;
@@ -3950,12 +3952,25 @@ zapyourself(struct obj *obj, boolean ordinary)
             learn_it = TRUE;
             fix_petrification(); /* saved! */
         }
-        /* but at a cost.. */
-        for (otmp = gi.invent; otmp; otmp = onxt) {
-            onxt = otmp->nobj;
-            if (bhito(otmp, obj))
+        /* but at a cost; an item's change can land the hero (lost
+           levitation or flight), and lava or water can then burn or
+           wash away other items, so the walk goes by the o_ids of the
+           items carried at the start and finds each one again */
+        for (otmp = gi.invent; otmp; otmp = otmp->nobj)
+            n++;
+        if (n)
+            oids = (unsigned *) alloc((unsigned) n * sizeof *oids);
+        for (i = 0, otmp = gi.invent; otmp && i < n; otmp = otmp->nobj)
+            oids[i++] = otmp->o_id;
+        for (i = 0; i < n; i++) {
+            for (otmp = gi.invent; otmp; otmp = otmp->nobj)
+                if (otmp->o_id == oids[i])
+                    break;
+            if (otmp && bhito(otmp, obj))
                 learn_it = TRUE;
         }
+        if (oids)
+            free((genericptr_t) oids);
         /*
          * It is possible that we can now merge some inventory.
          * Do a highly paranoid merge.  Restart from the beginning until
