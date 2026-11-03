@@ -2346,7 +2346,8 @@ aasimar_lose_celestial_blood(void)
     newsym(u.ux, u.uy);
     disp.botl = TRUE;
 
-    /* Permanent: re-forced as human on every restore by role_init() */
+    /* Permanent: restgamestate() re-forces the human race on every
+       restore */
     u.uevent.ufallen_aasimar = 1;
 
     /* the angelic wings are gone; come down onto the altar */

@@ -619,6 +619,7 @@ restgamestate(NHFILE *nhfp)
 #ifndef SFCTOOL
     boolean defer_perm_invent, restoring_special;
     struct obj *otmp;
+    struct you newgameu; /* the hero before the restore, if it fails */
 #endif
 
     Sfi_ulong(nhfp, &uid, "gamestate-uid");
@@ -635,6 +636,9 @@ restgamestate(NHFILE *nhfp)
             if (gc.converted_savefile_loaded)
                 gc.converted_savefile_loaded = FALSE;
         } else {
+            /* the new game that follows gets its own turn and game id */
+            svm.moves = 0L;
+            svn.nhuuid[0] = '\0';
             return FALSE;
         }
     }
@@ -683,6 +687,10 @@ restgamestate(NHFILE *nhfp)
 #ifdef AMII_GRAPHICS
     amii_setpens(amii_numcolors); /* use colors from save file */
 #endif
+    /* like flags, keep the hero as startup left it (the config file's
+       u.uroleplay, otherwise next to nothing) so that a failed restore
+       hands that, not the save's hero, to newgame() */
+    newgameu = u;
 #endif /* !SFCTOOL */
     Sfi_long(nhfp, &svw.wreserve, "wreserve");
     Sfi_int32(nhfp, &svw.wtreserved, "wtreserved");
@@ -727,13 +735,21 @@ restgamestate(NHFILE *nhfp)
     /* current time is the time to use for next urealtime.realtime update */
     urealtime.start_timing = getnow();
 
-    set_uasmon();
 #ifdef CLIPPING
     cliparound(u.ux, u.uy);
 #endif
     if (u.uhp <= 0 && (!Upolyd || u.mh <= 0)) {
         u.ux = u.uy = 0; /* affects pline() [hence You()] */
         You("were not healthy enough to survive restoration.");
+        /* revert to the pre-restore hero, turn and game id too:
+           newgame()'s role_init() would read the save's u.uevent (a
+           crowned Infidel's or a fallen aasimar's race), u_init_misc()
+           keeps u.uroleplay (the config file's roleplay options),
+           newgame() makes the first level and the starting pet before
+           the turn becomes 1, and get_nhuuid() keeps an id already set */
+        u = newgameu;
+        svm.moves = 0L;
+        svn.nhuuid[0] = '\0';
         /* wiz1_level.dlevel is used by mklev.c to see if lots of stuff is
          * uninitialized, so we only have to set it and not the other stuff.
          */
@@ -748,6 +764,9 @@ restgamestate(NHFILE *nhfp)
         gy.youmonst = cg.zeromonst;
         return FALSE;
     }
+    /* only now: a large race's set_uasmon() resizes the role's mons[]
+       entry, which would outlast a failed restore into the new game */
+    set_uasmon();
     /* in case hangup save occurred in midst of level change */
     assign_level(&u.uz0, &u.uz);
 #endif /* !SFCTOOL */
