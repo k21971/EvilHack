@@ -17,10 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-04, after session 289's
-  failed-restore role slice: the dead role's role_init() edits LOW
-  closed):
-  641 rows closed, 58 open
+- Phase 2 status (refreshed 2026-11-04, after session 290's limbo
+  survivor slice: the limbo survivor and kill-arm survivor LOWs
+  closed; the saddle-theft crash row minted and closed with them; one
+  LOW residue row minted open):
+  644 rows closed, 57 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -362,7 +363,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 54 LOW: small parity rows, quirks and watch/record-only items.
+  - 53 LOW: small parity rows, quirks and watch/record-only items.
+    Session 290 closed 3 (BUG-2844..2851): a monster sent into limbo
+    (a lava or water survivor on a full level, an engulfer through a
+    trap door) no longer acts on its way out, and a monster's steed
+    takes its rider along (the rider's next level change crashed); a
+    steed its amulet saves after a dismount into water or lava is
+    moved out at once (the guilt stays), and one with no room waits
+    in limbo instead of standing on the hero's square or being
+    deleted; a crushed rider's saved steed is crushed again and a
+    drawbridge survivor is thrown clear (named, even out of sight);
+    a monster stealing the saddle as the steed falls in no longer
+    crashes the game.
     Session 289 closed 1 (BUG-2842 / 2843): a new game after a failed
     restore no longer keeps the dead role's set-up (random agents and
     champions after an Infidel save, clerical light after a Cleric
@@ -12425,7 +12437,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mid-prayer (then melee, brain eaten) and hurled a dagger; POST
       four prayers, no pull or hurl; regression without prayer pulls
       and hurls.
-- [ ] LOW: a minliquid() survivor sent into limbo still takes its move
+- [x] LOW: a minliquid() survivor sent into limbo still takes its move
       (minted 2026-10-11, session 212, reviewer re-review; branch
       pre-existing). minliquid()'s survivor arms (lava, water, a
       life-saved drowning) do `if (!rloc(mtmp, ...))
@@ -12443,6 +12455,38 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       copy the earlier mon_offmap() test's form (a monster-ridden
       steed is MON_OFFMAP and must still act), not a bare
       mon_offmap(). Needs a reproduction.
+      CLOSED 2026-11-04 (session 290; BUG-2844..2846; commit pending).
+      movemon_singlemon() returns (movement 0) once mon_lost_in_rloc()
+      after minliquid() - the existing helper is exactly the earlier
+      test's form; m_calcdistress()'s mmove-0 arm the same. Siblings:
+      gulpmm() runs mintrap() only if the engulfer is still on <dx,dy>
+      and flags M_ATTK_AGR_DIED once it has left (a trap door or level
+      teleporter there kept it attacking; fightm() read "no hit" and
+      dochugw() ran); newcham() / new_were() after mon_break_armor(),
+      newcham()'s two separation checks, the decide_to_shapeshift()
+      return, dog_move()'s Conflict throw and quickmimic, mhurtle()'s
+      two separation checks, the castmu() / castmm() / mbhit() /
+      use_offensive() / ray caster checks and the land mine after a
+      drawbridge fall all use mon_lost_in_rloc(). New mon.c helpers:
+      rloc_or_overcrowd() (a monster-ridden steed's overcrowding goes
+      to its rider, so migrate_to_level()'s steed recursion takes the
+      pair; before, the steed went alone and the rider's next
+      migration panicked "relmon: mon not in list." - BUG-2845) and
+      mon_leaves_liquid() (the lava / water survivor tail).
+      Batteries T1 (rloc forced to fail once): L1 hell hound pup in
+      lava PRE set_apparxy() twice on the migrating pup, mux / muy
+      56 / 14 (the hero's square), never came back; POST neither ran,
+      mux / muy 0 / 3, back beside its square after ^V away and back.
+      L2 red mold PRE mon_regen() + were_change() ran in limbo (HP
+      back to full); POST nothing ran. L3 tame purple worm swallows a
+      newt on a level teleporter: PRE dog_move() returned MMOVE_DONE
+      and postmov()'s floor / web / hide block ran on the migrating
+      worm; POST MMOVE_DIED (postmov() only notice_mon()). L4 hill orc
+      on a fire-resistant pony in lava, the pony's rloc forced to fail:
+      PRE the pony alone in limbo with mux / muy = the hero's square,
+      then m_into_limbo(orc) panicked "relmon: mon not in list."; POST
+      the orc (0xc) and pony (0x5) migrated together and arrived
+      mounted. Paniclog POST clean.
 - [x] LOW: knock woke its target twice (BUG-2319) - FIXED 2026-10-13
       (session 221, commit 5a6df5eec, tracker 1ea4cada1; closure notes in
       BUGFIXES_ARCHIVE): the knock arm runs wakeup(mtmp, TRUE) and
@@ -12606,7 +12650,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       melee pre-kill anger does, so a spell kill scores like a melee
       kill; undirected spells (self-buffs) leave it peaceful.
       Plannable.
-- [ ] LOW: kill arms that may mishandle a target that survives
+- [x] LOW: kill arms that may mishandle a target that survives
       (minted 2026-10-12, session 218, the BUG-2304 census agent's
       claims, NOT verified): (a) steed.c's dismount deaths (into
       water, into lava, no room) for a steed that life-saves - it is
@@ -12617,6 +12661,70 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       `/* FIXME: still not dead?  What should we do now? */` arm on
       the crushed square, and never kills a life-saved steed again.
       Needs a trace.
+      CLOSED 2026-11-04 (session 290; BUG-2847..2850; commit pending).
+      Trace: (a) true for all three arms (master and vanilla share
+      them): the no-room survivor stays on steedcc, the hero's own
+      square ("sanity_check: you over monster"); a saved water / lava
+      steed is left where it fell and dies at its next move. (b) the
+      uniques reach e_died() only when e_survives_unique()'s rloc()
+      failed; the reachable FIXME survivor is a shifted vampire with
+      life saving (the amulet, then vamprises()); a crushed rider's
+      steed (put back on the square by separate_steed_and_rider())
+      gets no second kill. Ruled (all as recommended): a saved steed
+      is moved out at once after the hero lands (steed_leaves_liquid(),
+      the kill arms' own test; the chain dismount too, after
+      chain_set_down()); the guilt / -1 / abuse record stay; a steed
+      with no room anywhere - the no-room survivor, steedcc's no-spot
+      case, separate_steed_and_rider()'s "truly nowhere" - goes into
+      limbo instead of mongone() (BUG-2849); the crushed steed gets
+      the second kill; any survivor still on the square is thrown
+      clear ("The X is thrown clear of the drawbridge!", named before
+      the move, as now e_survives_unique()'s line too) or goes into
+      limbo, and a moat / lava fall survivor leaves like a saved
+      drowner (one now flying stays). Reviewer HIGH (the slice's own,
+      never shipped): elemental_clog()'s rloc_to() of an off-map
+      steed cleared its rider's map square; rloc_to_core() now clears
+      the old square only if the monster is on it. Batteries T2: L1 /
+      L2 centaur over a pool / lava PRE left in place, "drowns" / "burns
+      to a crisp" next move; POST moved at once (diluted juice, blank
+      scroll / boiled potions, "vanishes!"), guilt and record -1 on
+      both. L3 chain: PRE "drowns" the same move, POST moved. L4 no-room
+      (polyself, enexto forced): PRE steed on the hero's square, two
+      "you over monster" paniclog lines; POST limbo 0xc, back on its
+      square after ^V. L5 separate_steed_and_rider() with no spot: PRE
+      pony detached for good; POST limbo, orc still on its square.
+      T3 (castle): L1 PRE the saved pony alive inside the DBWALL; POST
+      "Unfortunately for the pony, it is still crushed.". L2 shifted
+      vampire lord PRE alive inside the DBWALL; POST thrown clear.
+      L3 moat fall: a vampire lord now flying stays on both; Bourbon
+      PRE left in the moat, POST moved. L4 Plane of Earth: the pony
+      placed on an obliterated elemental's square, the orc kept its
+      own. T4 the named wording (see the decisions log). Paniclogs
+      POST clean.
+- [x] LOW: a monster stealing the hero's steed's saddle crashes when
+      the forced dismount kills the steed (minted and closed
+      2026-11-04, session 290, by the design review; BUG-2851; commit
+      pending; vanilla-shared). mhitm_ad_sedu() calls
+      dismount_steed(DISMOUNT_POLY) and then extract_from_minvent()s
+      the saddle; a steed that drowns or burns there dropped it
+      (impossible + panic "add_to_minv: obj where=1, not free"), and
+      over open air mongone() freed it (use after free). Ruled: the
+      theft fails silently when the dismount killed, moved or limbo'd
+      the steed. Battery T2 L6: PRE impossible + that panic; POST no
+      theft, the saddle on the floor beside the corpse.
+- [ ] LOW: limbo / survivor slice residue (minted 2026-11-04, session
+      290, by the design and code reviews; record). (1) hack.c's two
+      swap sites (the hero displacing a pet, a monster swapping with
+      the hero) run mintrap() after minliquid(), which may have moved
+      the monster to a random spot, so a trap there is sprung (and
+      the pet guilt given); vanilla does the same for its teleporting
+      monsters. (2) The Enchantress's -15 penalty is paid twice when
+      vanilla's second drawbridge kill reaches her (only on a level
+      too full to throw her clear). (3) A unique e_survives_unique()
+      throws clear of a land mine's drawbridge still takes the mine's
+      thitm() at its new square. (4) zap.c's polymorph "falls off"
+      arm and other rider separations test only DEADMONSTER for a
+      rider a trap carried off the level.
 - [x] LOW: the hero's larva form transforms over a life-saved host
       (BUG-2287) - FIXED 2026-10-11 (session 214, commit 9ca5e1316,
       tracker 9f583e4ea; closure notes in BUGFIXES_ARCHIVE): the
@@ -35819,6 +35927,11 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-03 | The item-action menu (iactions.c) queues a command plus the item letter; a refusal before the object prompt returns ECMD_OK, which rhack() leaves the command queue alone for, so the letter runs as the next command (vi-keys: a step or an attack; ^A repeats it). Vanilla refusals that do it: dodrink() / doeat() while Strangled, doapply() / dozap() / doread() check_capacity(), doapply() / dozap() nohands(), dowear()'s "Don't even bother.". Also: IA_BUY_OBJ queues a letter dopay() never reads (it answers the next yn_function), and IA_SACRIFICE has no m-prefix, so floorfood()'s "sacrifice it?" can take the letter. Official_nh50 b0c09c878; BUG-2838, src/apply.c zap.c eat.c potion.c read.c do_wear.c | found (branch-fixed e9e6c4a5b: those refusals return ECMD_FAIL, 5.0's own idiom); not sent; triage pending |
 | 2026-11-03 | poly_obj() takes a worn item off with remove_worn_item() before the new form goes on; the old piece's off-function can land or drown the hero right then (levitation boots or a ring of levitation dipped over lava, a magical breathing amulet underwater), and lava_effects() burns the new form while it sits in invent unworn, then setworn() / prinv() use the freed object; over water emergency_disrobe() can drop it while it is about to be worn. Official_nh50 b0c09c878; BUG-2839, src/zap.c | found (branch-fixed 640dd1cfd: freeinv_core() / remove_worn_item() run under iflags.in_lava_effects and the landing is deferred to moveloop); not sent; triage pending |
 | 2026-11-04 | restgamestate() calls role_init() for the save's role before Sfi_you() and before the u.uhp <= 0 failure arm (a save made at 0 hp, or a wizard / explore save the player is no longer authorized for); on failure newgame()'s role_init() fixes up only the new role, so the dead role's edits stay in mons[] / objects[] for the whole new game: the old quest leader's and guardians' maligntyp (the dead hero's alignment * 3) and, after a Cleric save, objects[SPE_LIGHT].oc_skill = P_CLERIC_SPELL (light is a clerical spell for any new role). Official_nh50 b0c09c878; BUG-2842, src/restore.c | found (branch-fixed d047a51f8: role_init() runs after the failure arm, just before set_uasmon()); not sent; triage pending |
+| 2026-11-04 | minliquid_core()'s survivor arms (a fire-resistant monster in lava, a life-saved drowning / burning) end `if (!rloc()) deal_with_overcrowding()` and return 0, so on a full level a monster sent into limbo goes on through movemon_singlemon() to dochugw(); set_apparxy() overwrites the destination in mux / muy and losedogs() never brings it back. m_calcdistress()'s mmove-0 arm the same. Official_nh50 b0c09c878; BUG-2844, src/mon.c | found (branch-fixed, commit pending: return once mon_lost_in_rloc()); not sent; triage pending |
+| 2026-11-04 | gulpmm()'s defender-died arm flags M_ATTK_AGR_DIED only for minliquid() death or mintrap() == Trap_Killed_Mon; an engulfer put on the victim's square that a trap door or level teleporter there sends away (or that minliquid() sent into limbo) keeps attacking, fightm() returns 0 (no hit bit) and dochugw() runs on the migrating monster. Official_nh50 b0c09c878; BUG-2846, src/mhitm.c | found (branch-fixed, commit pending: mintrap() only if still on the square; AGR_DIED once mon_lost_in_rloc()); not sent; triage pending |
+| 2026-11-04 | dismount_steed(): a steed that life-saves after killed() / monkilled() in the no-room arm stays on steedcc, the hero's own square (sanity_check "you over monster"); one saved after falling into water or lava is left there and dies at its next move. Official_nh50 b0c09c878; BUG-2847 / 2848, src/steed.c | found (branch-fixed, commit pending: limbo for the no-room survivor; a saved steed is moved out once the hero lands - EvilHack ruling, the guilt kept); not sent; triage pending |
+| 2026-11-04 | e_died()'s "kill it again" (98da3a3db) leaves a monster that survives both kills - a vampshifter in a shifted form wearing life saving (lifesaved_monster(), then vamprises()) - on the crushed square at the `FIXME: still not dead?` arm, which for a raised portcullis is inside the DBWALL. Official_nh50 b0c09c878; BUG-2850, src/dbridge.c | found (branch-fixed, commit pending: a survivor is rloc()ed, or deal_with_overcrowding(); a moat / lava fall survivor leaves like minliquid()'s); not sent; triage pending |
+| 2026-11-04 | mhitm_ad_sedu() (mhitm steal) calls dismount_steed(DISMOUNT_POLY) when the item is the hero's steed's saddle, then extract_from_minvent() / add_to_minv() it; a dismount over water or lava that kills the steed has dropped the saddle (impossible "extract_from_minvent called on object not in minvent", then panic "add_to_minv: obj where=1, not free"), and over open air mongone() has freed it (use after free). Official_nh50 b0c09c878; BUG-2851, src/uhitm.c | found (branch-fixed, commit pending: the theft fails when the dismount killed or moved the steed); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -36206,6 +36319,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-04 | Limbo survivor slice rulings (Phase 2 session 290, AskUserQuestion x6 - two of them battery launch asks - all as recommended). (1) SLICE: the limbo survivor row + the kill-arm survivor row (the touch-sear residue and hit-chain anger rows not taken). (2) SAVED STEED: a steed its amulet saves after a dismount into water or lava is moved out at once, after the hero lands (gear wet / burnt, random spot, limbo if full). Rejected: master's leave-it-in. (3) GUILT: "You feel guilty.", -1 and the abuse record stay when it lives (master). (4) DRAWBRIDGE: the crushed rider's steed gets vanilla's second kill; a survivor is thrown clear ("%s is thrown clear of the drawbridge!") or goes into limbo. (5) CHAIN: the chain dismount too, once chain_set_down() is done. (6) MOAT FALL: a survivor leaves like a saved drowner, no line; one now flying stays. (7) NO ROOM: a steed with no room anywhere goes into limbo, not mongone() (dismount_steed()'s steedcc case and no-room survivor, separate_steed_and_rider()). (8) SADDLE THEFT (design-review find): fold in; the theft fails silently. (9) WORDING (battery T3 find): name the monster before the move in both thrown-clear lines, master's unique line included ("It is thrown clear..." on master when it lands out of sight). Plan-approved, not asked: rloc_or_overcrowd() routes a ridden steed's overcrowding to its rider; mon_leaves_liquid() is minliquid_core()'s tail; after review: the rloc_to_core() own-square guard, newcham() / new_were() / decide_to_shapeshift() / Conflict throw / caster checks via mon_lost_in_rloc(). | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-04 | Failed-restore role slice rulings (Phase 2 session 289, AskUserQuestion x2). (1) SLICE: the failed-restore role_init() residue LOW (recommended; the limbo survivor, touch-sear residue and hit-chain anger rows not taken). (2) DROW GODS: a drow Infidel crowned as a demon keeps the drow gods across a restore - the drow pantheon keys on the starting race (races[flags.initrace]); master's switch to the saved pantheon role's gods archived frozen-unfixed (BUG-2843). Rejected: master's shape. (3) BLOOD POTIONS: ruled "fold in" on the reviewer's premise that a crowned vampire Infidel loses random blood potions after a restore; the premise was false (restnames() reads every objclass back, oc_prob included; battery R7 20 / 5 after the restore on both builds), so no code change. Plan-approved, not asked: move role_init() after the u.uhp failure arm (master's read-u-first order) instead of a mons[] snapshot or an undo; delete restgamestate()'s two race re-force blocks (role_init() now sees the restored u.uevent). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-03 | Base-material sweep slice rulings (Phase 2 session 287, AskUserQuestion x3, nine questions, all as recommended except the meat-armor fold-in). (1) SLICE: the base-type oc_material SWEEP. (2) FOLD-INS (multiSelect): master's material consumers (recommended: valuables, loot sort, farlook fake object), Caveperson flint (e8ef39919) and meat armor (023bca49e; recommended as its own MED row, the maintainer folded it). (3) IRON SHOES: wearing_iron_shoes() = any metal boots (is_metallic); bone / stone orcish boots and non-metal kicking boots stop protecting. Rejected: iron only; keep the base type. (4) BARS: hit_bars()' Clink reads the item's own material (master reads the base type). (5) GEM SURCHARGE: oid_price_adjustment() keeps vanilla's meaning (unidentified real gems surcharged, glass exempt); master 03e87e1bd dropped the "!" - archived frozen-unfixed (BUG-2824). (6) FLINT QUIRKS, all fixed: the rock is used up on every bang; one flint per ten arrows; a monster that can't see isn't scared. (7) MEAT ARMOR: a wielded stone armor piece is let go (master's shape over 5.0 keeping it wielded); a meat suit obeys the body-armor fit test. (8) POLY TRAP: the any-metal rule also decides the polymorph-trap warp. (9) LOOT SORT: material sorts only once seen (dknown); master's leak frozen-unfixed. Plan-approved, not asked: the uskin guard, res = 0 for untransformed armor, the aklys gate deleted, u_handsy() in use_stone(), select_hwep() kept (BUG-487); after review: the gloves swap (BUG-2834) and the o_id walk (BUG-2835). | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-03 | Hands-free slice rulings (Phase 2 session 288, AskUserQuestion x3). (1) SLICE: master 1ae3ddbbc's hands-free gates plus the poly_obj() worn-swap LOW. (2) DRAGON SCALES: stone to flesh on a dragon-scaled stone suit loses the merged scales, as on master and for every polymorph (rejected: scales come loose; the scaled suit resists). (3) REFUSE WHEN: #rub, z and the mirror refuse before their object / direction prompt (master asks first; its #rub refuses after ESC too). (4) QUEUE ORPHAN: sweep the class this slice (every pre-prompt refusal in the item-action targets returns ECMD_FAIL), not just the two new refusals. Plan-approved, not asked: defer the swap's landing (in_lava_effects) rather than protect the new form with in_use; the void tools keep master's turn cost on a refusal; the Boots_off() lava arm; the enchant armor scale swap sibling. | maintainer (1-4); session, plan-approved (rest) |
