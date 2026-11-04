@@ -3072,7 +3072,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       confusion (make_confused(HConfusion + 0)); PRE printed it for
       a negative value too.
       (d) AND (f) CLOSED 2026-11-04 (session 292; BUG-2856..2858;
-      commit pending; plan
+      commits d4cc18099 / 8bd17d18b, tracker 76a923cc0; plan
       /root/.claude/plans/bugfix-sear-skin-gaps-zeroed-blow.md); the
       row stays open for (a), (b), (c) and (e), all record. (d): the
       damage half was real - hmon_hitmon_weapon_ranged() and
