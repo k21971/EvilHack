@@ -2862,8 +2862,9 @@ role_init(void)
         gu.urole.cgod = roles[flags.pantheon].cgod;
     }
     /* drow heroes worship the drow pantheon regardless of role;
-       applies to both new and restored games */
-    if (Race_if(PM_DROW)) {
+       applies to both new and restored games. Test the starting race:
+       a drow Infidel crowned as a demon keeps the drow gods */
+    if (races[flags.initrace].mnum == PM_DROW) {
         gu.urole.lgod = "_Eilistraee";
         gu.urole.ngod = "Vhaeraun";
         gu.urole.cgod = "_Lolth";

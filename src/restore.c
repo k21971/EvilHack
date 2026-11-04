@@ -683,7 +683,6 @@ restgamestate(NHFILE *nhfp)
         /* specified by save file; check authorization now. */
         set_playmode();
     }
-    role_init(); /* Reset the initial role, race, gender, and alignment */
 #ifdef AMII_GRAPHICS
     amii_setpens(amii_numcolors); /* use colors from save file */
 #endif
@@ -698,23 +697,6 @@ restgamestate(NHFILE *nhfp)
     gy.youmonst.cham = u.mcham;
 
 #ifndef SFCTOOL
-    /* role_init() ran before struct you was read, so its fallen-aasimar
-       check saw a zero bit; re-force the permanent human race now that
-       u.uevent is restored, before set_uasmon() consumes race state */
-    if (u.uevent.ufallen_aasimar)
-        gu.urace = races[0];
-    /* same for an Infidel crowned as a demon: role_init() saw
-       uhand_of_elbereth as zero, so re-force the demon race here */
-    if (u.uevent.uhand_of_elbereth == 4 && !Race_if(PM_DRAUGR)) {
-        int maxint = gu.urace.attrmax[A_INT],
-            maxwis = gu.urace.attrmax[A_WIS];
-
-        gu.urace = race_demon;
-        /* mental faculties are not changed by demonization */
-        gu.urace.attrmax[A_INT] = maxint;
-        gu.urace.attrmax[A_WIS] = maxwis;
-    }
-
     if (restoring_special && iflags.explore_error_flag) {
         /* savefile has wizard or explore mode, but player is no longer
            authorized to access either; can't downgrade mode any further, so
@@ -764,8 +746,14 @@ restgamestate(NHFILE *nhfp)
         gy.youmonst = cg.zeromonst;
         return FALSE;
     }
-    /* only now: a large race's set_uasmon() resizes the role's mons[]
-       entry, which would outlast a failed restore into the new game */
+    /* only now that the restore is going ahead: role_init() edits the
+       role's quest monsters in mons[] (the Infidel's enemies too, and
+       the Cleric's light spell in objects[]), which would outlast a
+       failed restore into the new game; run after Sfi_you(), it also
+       sees a crowned Infidel's or a fallen aasimar's u.uevent bit;
+       a large race's set_uasmon() resizes the role's mons[] entry for
+       the same reason */
+    role_init(); /* Reset the initial role, race, gender, and alignment */
     set_uasmon();
     /* in case hangup save occurred in midst of level change */
     assign_level(&u.uz0, &u.uz);
