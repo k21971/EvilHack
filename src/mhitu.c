@@ -1811,8 +1811,11 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     mhm.damage = d((int) mattk->damn, (int) mattk->damd);
     if ((is_undead(mdat) || is_vampshifter(mtmp)) && midnight())
         mhm.damage += d((int) mattk->damn, (int) mattk->damd); /* extra dmg */
-    /* worn rings of increase damage */
+    /* worn rings of increase damage; a negative ring must not leave the
+       blow below zero for the damage handlers below */
     mhm.damage += mon_ring_bonus(mtmp, RIN_INCREASE_DAMAGE);
+    if (mhm.damage < 0)
+        mhm.damage = 0;
 
     ax = mtmp->mx, ay = mtmp->my;
     mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm);
