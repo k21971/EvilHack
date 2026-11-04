@@ -17,9 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-04, after session 291's touch-sear
-  residue slice: the shapechanged-vampire silver and sear-path nit LOWs
-  closed; one LOW residue row minted open):
+- Phase 2 status (refreshed 2026-11-04, after session 292's sear skin
+  gaps slice: items (d) and (f) of the touch-sear residue LOW closed,
+  the row stays open for its record items; no rows minted):
   646 rows closed, 56 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
@@ -363,6 +363,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 52 LOW: small parity rows, quirks and watch/record-only items.
+    Session 292 closed two items of the touch-sear residue row
+    (BUG-2856..2858): a monster's bark or stone skin stops your own
+    sears from a bow, an arrow or a dart used in melee, arrows thrown
+    without a bow, and a wielded non-weapon; a hit a negative ring of
+    increase damage zeroed no longer pretends to confuse you (Yeenoghu),
+    and by ruling the same for the monk's stunning kick, energy drain
+    and AD_STUN (hero side only; monster-vs-monster unchanged).
     Session 291 closed 2 (BUG-2852..2855): a vampire in a #shapechange
     form still hates silver and blessed objects; the Druid / Vampire
     form damage bonus lands once on every physical natural hit, gear
@@ -3064,6 +3071,43 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       zeroed still prints "You are getting confused." with no
       confusion (make_confused(HConfusion + 0)); PRE printed it for
       a negative value too.
+      (d) AND (f) CLOSED 2026-11-04 (session 292; BUG-2856..2858;
+      commit pending; plan
+      /root/.claude/plans/bugfix-sear-skin-gaps-zeroed-blow.md); the
+      row stays open for (a), (b), (c) and (e), all record. (d): the
+      damage half was real - hmon_hitmon_weapon_ranged() and
+      hmon_hitmon_misc_obj()'s default arm add their own
+      rnd(sear_damage()) (f5af0ebd4's generalization of 5.0's
+      silver rnd(20) / rnd(10); master adds nothing there) and now
+      skip it for a target with bark or stone skin. The "sears line
+      prints" half was false: searmsg() returns early for a skinned
+      target on both builds, so the hated_obj-only sites (weapon
+      melee, shield bash, boulder / ball / chain, special_dmgval()'s
+      worn-item loop) show nothing and were left alone. A thrown or
+      kicked tool never reaches the misc-object arm (thitmonst()
+      sends only weapons, weptools and gems to hmon() unless the hero
+      is engulfed). (f) RULED: a ring-zeroed blow does nothing - no
+      line, no confusion, no mspec_used; the `mhm->damage > 0` test
+      goes last so RNG is unchanged for every non-zero blow. RULED
+      fold-ins (reviewer finds, same shape): hitmu()'s monk kick
+      stun ("You reel..." + make_stunned(+0)), mhitm_ad_dren()'s
+      drain_en(0) ("You feel your magical energy drain away."),
+      mhitm_ad_stun()'s make_stunned(+0) (in a bat / stalker form
+      FROMFORM keeps HStun set and make_stunned(0) printed "You feel
+      a bit steadier now."). RULED hero side only: the m-v-m AD_CONF
+      arm still confuses on a zeroed blow (binary, master).
+      Batteries (T1, T2, PRE b34132ee / POST 14081402, every leg
+      PASS, paniclogs clean): skinned Woodland-elf, wielded iron
+      arrows PRE dmg 2..8 POST 1..2, thrown arrows the same, wielded
+      tin opener PRE 3..7 POST 1; no-skin control sears ("The
+      Woodland-elf is burned by your iron arrows!") on both. Yeenoghu
+      -16 ring PRE 4 "You are getting confused." + 1 "even more" with
+      make_confused(+0), POST 24 zeroed entries silent; monk -16 ring
+      PRE 3 "You reel from Gelinnasbes the Student of Fire's powerful
+      kick!" with no stun in 60 kicks, POST none in 84; AD_DREN PRE 10
+      drain lines with u.uen unchanged, POST none; bat form AD_STUN
+      PRE 5 "You feel a bit steadier now." while still stunned, POST
+      none; ring-0 controls confuse / stun / drain on both.
 - [x] Object properties (oprops)
       PORTED + REVIEWED 2026-07-15 (subagent-ported 33 files
       +~1400, reviewer CONDITIONAL FAIL -> all findings fixed by
@@ -36405,6 +36449,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-04 | Sear skin gaps slice rulings (Phase 2 session 292, AskUserQuestion x4 - one a battery launch ask - all as recommended). (1) SLICE: touch-sear residue items (d) + (f) (the stuck-monster investigations, kill-credit LOWs and hit-chain anger row not taken). (2) ZEROED AD_CONF: a blow a negative ring of increase damage zeroed does nothing - no "You are getting confused." line, no confusion, no attacker cooldown. Rejected: confuse for at least 1 turn. (3) SIBLINGS (reviewer finds): the same rule for the monk player-monster's stunning kick, the AD_DREN and the AD_STUN hero arms. (4) SCOPE: hero side only; a zeroed m-v-m AD_CONF blow still confuses the monster (binary, never read damage; master). Plan-approved, not asked: the two hmon sear arms skip the sear for a bark- or stone-skinned target; the hated_obj-only sites stay as they are (searmsg() already gates them). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-04 | Touch-sear residue slice rulings (Phase 2 session 291, AskUserQuestion x3 - one a battery launch ask - all as recommended). (1) SLICE: the two touch-sear residue LOWs (vampire #shapechange silver + the sear-path nits; the hit-chain anger, kill-credit and limbo residue rows not taken). (2) WILD-SHAPE BONUS: master 98378821f's intent - the +2-6 lands once on every physical natural hit, gear or not (bites and the vampire forms included), thrown and kicked objects lose it, shades take none, engulfing stays without it; 0.9.3 only delivered it through a gloved / ringed / booted / helmed item roll. (3) RACE AVERSIONS IN FORM: vampire forms only (master's own "shapeshifted vampires still hate silver"); an elven Druid in #wildshape keeps 0.9.3's no-iron behavior. Folded in from the Plan pass without a ruling: mon_hates_blessings() and find_silver_recurse() for the form, missum()'s skin subject, the kick-vs-thick-hide exclusion. | maintainer |
 | 2026-11-04 | Limbo survivor slice rulings (Phase 2 session 290, AskUserQuestion x6 - two of them battery launch asks - all as recommended). (1) SLICE: the limbo survivor row + the kill-arm survivor row (the touch-sear residue and hit-chain anger rows not taken). (2) SAVED STEED: a steed its amulet saves after a dismount into water or lava is moved out at once, after the hero lands (gear wet / burnt, random spot, limbo if full). Rejected: master's leave-it-in. (3) GUILT: "You feel guilty.", -1 and the abuse record stay when it lives (master). (4) DRAWBRIDGE: the crushed rider's steed gets vanilla's second kill; a survivor is thrown clear ("%s is thrown clear of the drawbridge!") or goes into limbo. (5) CHAIN: the chain dismount too, once chain_set_down() is done. (6) MOAT FALL: a survivor leaves like a saved drowner, no line; one now flying stays. (7) NO ROOM: a steed with no room anywhere goes into limbo, not mongone() (dismount_steed()'s steedcc case and no-room survivor, separate_steed_and_rider()). (8) SADDLE THEFT (design-review find): fold in; the theft fails silently. (9) WORDING (battery T3 find): name the monster before the move in both thrown-clear lines, master's unique line included ("It is thrown clear..." on master when it lands out of sight). Plan-approved, not asked: rloc_or_overcrowd() routes a ridden steed's overcrowding to its rider; mon_leaves_liquid() is minliquid_core()'s tail; after review: the rloc_to_core() own-square guard, newcham() / new_were() / decide_to_shapeshift() / Conflict throw / caster checks via mon_lost_in_rloc(). | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-04 | Failed-restore role slice rulings (Phase 2 session 289, AskUserQuestion x2). (1) SLICE: the failed-restore role_init() residue LOW (recommended; the limbo survivor, touch-sear residue and hit-chain anger rows not taken). (2) DROW GODS: a drow Infidel crowned as a demon keeps the drow gods across a restore - the drow pantheon keys on the starting race (races[flags.initrace]); master's switch to the saved pantheon role's gods archived frozen-unfixed (BUG-2843). Rejected: master's shape. (3) BLOOD POTIONS: ruled "fold in" on the reviewer's premise that a crowned vampire Infidel loses random blood potions after a restore; the premise was false (restnames() reads every objclass back, oc_prob included; battery R7 20 / 5 after the restore on both builds), so no code change. Plan-approved, not asked: move role_init() after the u.uhp failure arm (master's read-u-first order) instead of a mons[] snapshot or an undo; delete restgamestate()'s two race re-force blocks (role_init() now sees the restored u.uevent). | maintainer (1-3); session, plan-approved (rest) |
