@@ -1884,7 +1884,11 @@ rloc_to_core(
 
         if (mtmp->wormno) {
             remove_worm(mtmp);
-        } else {
+        } else if (svl.level.monsters[oldx][oldy] == mtmp) {
+            /* a monster off the map with its old coordinates kept (a
+               steed whose rider got down with no room for it, which the
+               endgame's crowding rule then places) must not clear the
+               square of the monster standing there now */
             remove_monster(oldx, oldy);
             newsym(oldx, oldy); /* update old location */
         }

@@ -1599,8 +1599,9 @@ dog_move(
         if (Conflict && !resist_conflict(mtmp)) {
             dismount_steed(DISMOUNT_THROWN);
             /* the dismount can kill the steed outright - no landing
-               spot, or the hero standing over water or lava */
-            if (DEADMONSTER(mtmp))
+               spot, or the hero standing over water or lava - or send
+               one that life saving kept alive into limbo */
+            if (mon_lost_in_rloc(mtmp))
                 return MMOVE_DIED;
             return MMOVE_MOVED;
         }
@@ -2371,9 +2372,10 @@ quickmimic(struct monst *mtmp)
        do this before changing so that dismount refers to original shape */
     if (mtmp == u.usteed) {
         dismount_steed(DISMOUNT_POLY);
-        /* the forced dismount can kill the former steed; the mimic
-           shape must not be applied through a dead monster */
-        if (DEADMONSTER(mtmp))
+        /* the forced dismount can kill the former steed or send it into
+           limbo; the mimic shape must not be applied through a dead
+           monster or one off the level */
+        if (mon_lost_in_rloc(mtmp))
             return;
     }
 

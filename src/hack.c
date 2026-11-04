@@ -2085,6 +2085,7 @@ staticfn boolean
 chain_pulls_rider_off(boolean pick)
 {
     coord cc;
+    struct monst *steed = u.usteed;
 
     if (!chain_landing(&cc))
         return FALSE;
@@ -2095,6 +2096,10 @@ chain_pulls_rider_off(boolean pick)
         return FALSE;
     }
     chain_set_down(cc.x, cc.y, pick);
+    /* a steed life saving kept alive in the water or lava it was let go
+       over gets out, now that the hero is down */
+    if (steed)
+        (void) steed_leaves_liquid(steed);
     return TRUE;
 }
 

@@ -274,8 +274,9 @@ separate_steed_and_rider(struct monst *rider)
                 /* rider stuck at orig; find a different spot for steed */
                 place_monster(steed, cc.x, cc.y);
             } else {
-                /* truly nowhere to put the steed - dismiss it */
-                mongone(steed);
+                /* truly nowhere to put the steed; it waits in limbo,
+                   coming back if the hero leaves and returns */
+                deal_with_overcrowding(steed);
             }
             /* the steed no longer holds up a rider left over a hole */
             if (!DEADMONSTER(rider))
@@ -297,13 +298,13 @@ separate_steed_and_rider(struct monst *rider)
 
     /* rloc_to/rloc above can kill the rider via mintrap on the destination
        (collapsing tile, anti-magic field, lava, statue corpse, gas-cloud
-       region damage); mongone(steed) above can dismiss the steed. Guard
+       region damage); the steed may have gone into limbo above. Guard
        each side independently against a stale-coord deref */
     if (!DEADMONSTER(rider)) {
         update_monster_region(rider);
         newsym(rider->mx, rider->my);
     }
-    if (!DEADMONSTER(steed)) {
+    if (!mon_lost_in_rloc(steed)) {
         /* a walking steed its rider's lift kept over a hole drops
            through on its own next move */
         mon_lost_support(steed);
@@ -1375,7 +1376,7 @@ dismount_steed(
     const char *verb;
     coord cc, steedcc;
     unsigned save_utrap = u.utrap;
-    boolean ulev, ufly,
+    boolean ulev, ufly, steed_gone = FALSE,
             repair_leg_damage = (Wounded_legs != 0L),
             have_spot = landing_spot(&cc, reason, 0);
 
@@ -1493,13 +1494,17 @@ dismount_steed(
             && !enexto(&steedcc, u.ux, u.uy, &mons[PM_BAT])
             /* still no spot; last resort is any spot within bounds */
             && !enexto(&steedcc, u.ux, u.uy, &mons[PM_GHOST])) {
-            /* nowhere at all to place the steed; dismiss it so the
-               !DEADMONSTER wrapper below skips placement safely */
-            mongone(mtmp);
+            /* nowhere at all to place the steed; it waits in limbo (or
+               the endgame's crowding rule places it), so the wrapper
+               below must not place it; a steed dismounted because it
+               died stays dead */
+            if (!DEADMONSTER(mtmp))
+                deal_with_overcrowding(mtmp);
+            steed_gone = TRUE;
         }
     }
 
-    if (!DEADMONSTER(mtmp)) {
+    if (!steed_gone && !DEADMONSTER(mtmp)) {
         gi.in_steed_dismounting++;
         place_monster(mtmp, steedcc.x, steedcc.y);
         gi.in_steed_dismounting--;
@@ -1597,9 +1602,11 @@ dismount_steed(
             if (reason == DISMOUNT_CHAIN) {
                 /* the caller sets the hero down; cc is the drop the
                    steed was let go over. One that flies or floats stays
-                   up over it, and one that swims or braves lava (or was
-                   life-saved) stays in the water or lava; one still
-                   standing over open air is moved off */
+                   up over it, and one that swims or braves lava stays in
+                   the water or lava (one that was life-saved there is
+                   moved out once the hero is down, by the caller's
+                   steed_leaves_liquid()); one still standing over open
+                   air is moved off */
                 if (!DEADMONSTER(mtmp) && !mon_airborne(mtmp)
                     && is_open_air(u.ux, u.uy)) {
                     impossible("dismount_steed: chained steed survived?");
@@ -1616,8 +1623,10 @@ dismount_steed(
                     sokoban_guilt();
                 gi.in_steed_dismounting = FALSE;
 
-                /* Put your steed in your trap */
-                if (save_utrap)
+                /* a steed life saving kept alive in the water or lava
+                   gets out now that the hero has landed; otherwise put
+                   your steed in your trap */
+                if (!steed_leaves_liquid(mtmp) && save_utrap)
                     (void) mintrap(mtmp, NO_TRAP_FLAGS);
             }
 
@@ -1629,7 +1638,6 @@ dismount_steed(
 
         /* Otherwise, steed goes bye-bye. */
         } else {
-#if 1       /* original there's-no-room handling */
             if (reason == DISMOUNT_BYCHOICE) {
                 int steed_mndx = monsndx(mtmp->data);
 
@@ -1644,18 +1652,13 @@ dismount_steed(
                    damage type is just "neither AD_DGST nor -AD_RBRE" */
                 monkilled(mtmp, "", -AD_PHYS);
             }
-#else
-            /* Can't use this [yet?] because it violates monmove()'s
-             * assumption that a moving monster (engulfer) can't cause
-             * another monster (steed) to be removed from the fmon list.
-             * That other monster (steed) might be cached as the next one
-             * to move.
-             */
-            /* migrate back to this level if hero leaves and returns
-               or to next level if it is happening in the endgame */
-            mdrop_special_objs(mtmp);
-            deal_with_overcrowding(mtmp);
-#endif
+            /* one its life saving kept alive is still at steedcc, the
+               hero's own square or a spot found for a bat or a ghost;
+               there is no room for it, so it waits in limbo, coming
+               back if the hero leaves and returns (the endgame has its
+               own crowding rule) */
+            if (!DEADMONSTER(mtmp))
+                deal_with_overcrowding(mtmp);
         }
     } /* !DEADMONST(mtmp) */
 
@@ -1681,6 +1684,31 @@ dismount_steed(
        just got */
     update_inventory();
     return;
+}
+
+/* after a dismount, once the hero is down: a former steed still standing
+   in water it can't swim in, or in lava it can't brave, where
+   dismount_steed() dropped it, is alive only because something (life
+   saving) saved it, so it gets out as minliquid() lets out a monster it
+   saved; TRUE if so */
+boolean
+steed_leaves_liquid(struct monst *steed)
+{
+    struct permonst *mdat = steed->data;
+    boolean inlava;
+
+    if (DEADMONSTER(steed) || mon_offmap(steed)
+        || m_at(steed->mx, steed->my) != steed
+        || !grounded(mdat) || can_levitate(steed) || can_fly(steed))
+        return FALSE;
+    if (is_pool(steed->mx, steed->my) && !cant_drown(mdat))
+        inlava = FALSE;
+    else if (is_lava(steed->mx, steed->my) && !likes_lava(mdat))
+        inlava = TRUE;
+    else
+        return FALSE;
+    mon_leaves_liquid(steed, inlava);
+    return TRUE;
 }
 
 /* A steed can stop being tame while the hero still rides it: an amulet of

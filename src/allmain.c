@@ -457,7 +457,7 @@ moveloop_core(void)
 
             if (!monscanmove && u.umovement < NORMAL_SPEED) {
                 /* both hero and monsters are out of steam this round */
-                struct monst *mtmp;
+                struct monst *mtmp, *mtmp2;
 
                 /* set up for a new turn */
                 gw.were_changes = 0L;
@@ -808,8 +808,10 @@ moveloop_core(void)
 
                 /* make monsters that innately grudge the hero's race,
                    role, or alignment, or that a wielded or worn 'bane is
-                   against, hostile if they are tame or peaceful */
-                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                   against, hostile if they are tame or peaceful; the next
+                   monster is noted first, as throwing the hero off a steed
+                   with no room to land on can send it into limbo */
+                for (mtmp = fmon; mtmp; mtmp = mtmp2) {
                     boolean is_shkp = has_eshk(mtmp)
                                       && inhishop(mtmp);
                     boolean is_prst = has_epri(mtmp)
@@ -817,6 +819,7 @@ moveloop_core(void)
                     boolean same_align = (sgn(mon_aligntyp(mtmp))
                                           == u.ualign.type);
 
+                    mtmp2 = mtmp->nmon;
                     /* a monster killed earlier this turn stays on fmon
                        until the next dmonsfree() pass; a vault guard
                        parked at <0,0> isn't on the map at all */

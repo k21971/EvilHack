@@ -1315,8 +1315,9 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
                   mhis(mon), l_monnam(ERID(mon)->mon_steed));
         separate_steed_and_rider(mon);
         /* rloc_to/rloc inside separate_steed_and_rider may kill mon
-           via mintrap on the destination tile */
-        if (DEADMONSTER(mon))
+           via mintrap on the destination tile, or carry it off the
+           level */
+        if (mon_lost_in_rloc(mon))
             return;
     /* Is the monster being ridden? */
     } else if (mon->ridden_by) {
@@ -1327,9 +1328,9 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
                 pline("%s is knocked out from under %s rider!", Monnam(mon),
                       mhis(mon));
             separate_steed_and_rider(rider);
-            /* with nowhere to put it, the separation dismisses the
-               steed - which is the monster we are about to hurtle */
-            if (DEADMONSTER(mon))
+            /* with nowhere to put it, the separation sends the steed -
+               the monster we are about to hurtle - into limbo */
+            if (mon_lost_in_rloc(mon))
                 return;
         }
     }
