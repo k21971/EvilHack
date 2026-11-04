@@ -17,11 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-03, after session 288's
-  hands-free slice: the 1ae3ddbbc gates MED and the poly_obj()
-  worn-swap LOW closed; the item-action queue row minted and closed
-  with them; one LOW residue row minted open):
-  640 rows closed, 59 open
+- Phase 2 status (refreshed 2026-11-04, after session 289's
+  failed-restore role slice: the dead role's role_init() edits LOW
+  closed):
+  641 rows closed, 58 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -363,7 +362,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 55 LOW: small parity rows, quirks and watch/record-only items.
+  - 54 LOW: small parity rows, quirks and watch/record-only items.
+    Session 289 closed 1 (BUG-2842 / 2843): a new game after a failed
+    restore no longer keeps the dead role's set-up (random agents and
+    champions after an Infidel save, clerical light after a Cleric
+    save, the old quest leader's alignment); a drow Infidel crowned as
+    a demon keeps the drow gods after a restore.
     Session 288 closed 1 (BUG-2839..2841: a worn item changing form
     lands or drowns the hero only once the new form is on; the
     enchant armor scale swap the same; water walking boots lost on
@@ -11252,7 +11256,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sighted / 0 + 1000 + id cleared / human sizes / 0; plain restores
       intact. Master battery M7: "You are a neutral demonic Valkyrie."
       Follow-up row minted below (the dead role's role_init() edits).
-- [ ] LOW: a failed restore leaves the dead save's role edits in
+- [x] LOW: a failed restore leaves the dead save's role edits in
       mons[] / objects[] (minted 2026-11-02, session 286, Plan design
       pass; vanilla-shared in part). restgamestate()'s role_init() runs
       for the save's role before Sfi_you(): it flags that role's quest
@@ -11262,6 +11266,42 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       newgame() runs role_init() for another role. Trace each write
       role_init() makes, then decide restore-time snapshot vs undo.
       LOW (needs a failed restore and a different role).
+      CLOSED 2026-11-04 (session 289; BUG-2842, 2843; commit pending).
+      Neither snapshot nor undo: role_init() now runs after the
+      u.uhp <= 0 failure arm, just before set_uasmon(), so a failed
+      restore never sets up the dead role. Trace: of role_init()'s
+      writes only mons[] / objects[] outlived the failure (flags come
+      back from newgameflags; gu.urole / gu.urace / pl_character /
+      quest_status genders are rewritten by newgame()'s role_init()).
+      The visible leaks were the Infidel's agent / champion G_NOGEN
+      clears (random agents and champions in the new game), light as
+      a clerical spell (vanilla's Cleric edit) and the old leader's
+      and guardians' maligntyp; the leader / nemesis msound and flag
+      writes match the static data. Running after Sfi_you() (master's
+      order) the crowned-Infidel / fallen-aasimar race checks see the
+      restored u.uevent, so restgamestate()'s two re-force blocks are
+      gone. Reviewer MED (ruled): a crowned drow Infidel then lost the
+      drow gods on restore (the demon race switch runs before the drow
+      test; master does the same, BUG-2843, frozen-unfixed), so the
+      drow pantheon now keys on races[flags.initrace]. Reviewer note
+      checked and dropped: a crowned vampire Infidel keeps its blood
+      potion odds across a restore (restnames() reads every objclass
+      back; dorecover()'s Race_if(PM_VAMPIRE) re-apply is redundant,
+      left as is). Batteries: T1 F1 / F2 PRE AGENT / CHAMPION geno
+      0x803 / 0x802 (control 0xa03 / 0xa02), light "clerical" in a new
+      Valkyrie's `+` menu, ARCH_PRIEST / ACOLYTE align 3; POST every
+      probe line equals the fresh-Valkyrie control, light
+      "divination". T2 R1..R7 successful restores PRE = POST (Infidel
+      geno cleared, Cleric light clerical, crowned human Infidel
+      demonic with INT / WIS 18 / 18, fallen aasimar human, crowned
+      draugr stays draugr, crowned vampire keeps oc_prob 20 / 5). T3
+      session 286's R6a..R6c PASS on both. T4 D1 crowned drow: PRE and
+      POST2 "There is an altar to Lolth (chaotic) here.", first cut
+      "...to Susanowo" (the saved pantheon's role); D2 / D3 unchanged.
+      Master M1 / M2: geno 0x803 / 0x802 and ARCH_PRIEST / ACOLYTE
+      align -3 after a failed Infidel / chaotic Priest restore (no
+      light edit on master); M2 MD1 crowned drow ^X "opposed by
+      Ilmater ... Tymora" after the restore. Paniclogs clean.
 - [x] HIGH: hero spell parity A PORTED 2026-10-09 (session 200;
       BUG-2231..2237; code 304c68a1f, tracker dacd48c06; minted and
       closed by the same slice). Five generated hero spells had no
@@ -35778,6 +35818,7 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-03 | zapyourself()'s SPE_STONE_TO_FLESH loop saves otmp->nobj before bhito(); a stone ring of levitation turned into a meat ring drops a hero levitating over lava, lava_effects() burns the saved next item (use after free), and over water emergency_disrobe() can move it to the floor so the walk continues down the floor chain. Official_nh50 b0c09c878; BUG-2835, src/zap.c | found (branch-fixed c66b49154: walk by the o_ids carried at the start); not sent; triage pending |
 | 2026-11-03 | The item-action menu (iactions.c) queues a command plus the item letter; a refusal before the object prompt returns ECMD_OK, which rhack() leaves the command queue alone for, so the letter runs as the next command (vi-keys: a step or an attack; ^A repeats it). Vanilla refusals that do it: dodrink() / doeat() while Strangled, doapply() / dozap() / doread() check_capacity(), doapply() / dozap() nohands(), dowear()'s "Don't even bother.". Also: IA_BUY_OBJ queues a letter dopay() never reads (it answers the next yn_function), and IA_SACRIFICE has no m-prefix, so floorfood()'s "sacrifice it?" can take the letter. Official_nh50 b0c09c878; BUG-2838, src/apply.c zap.c eat.c potion.c read.c do_wear.c | found (branch-fixed e9e6c4a5b: those refusals return ECMD_FAIL, 5.0's own idiom); not sent; triage pending |
 | 2026-11-03 | poly_obj() takes a worn item off with remove_worn_item() before the new form goes on; the old piece's off-function can land or drown the hero right then (levitation boots or a ring of levitation dipped over lava, a magical breathing amulet underwater), and lava_effects() burns the new form while it sits in invent unworn, then setworn() / prinv() use the freed object; over water emergency_disrobe() can drop it while it is about to be worn. Official_nh50 b0c09c878; BUG-2839, src/zap.c | found (branch-fixed 640dd1cfd: freeinv_core() / remove_worn_item() run under iflags.in_lava_effects and the landing is deferred to moveloop); not sent; triage pending |
+| 2026-11-04 | restgamestate() calls role_init() for the save's role before Sfi_you() and before the u.uhp <= 0 failure arm (a save made at 0 hp, or a wizard / explore save the player is no longer authorized for); on failure newgame()'s role_init() fixes up only the new role, so the dead role's edits stay in mons[] / objects[] for the whole new game: the old quest leader's and guardians' maligntyp (the dead hero's alignment * 3) and, after a Cleric save, objects[SPE_LIGHT].oc_skill = P_CLERIC_SPELL (light is a clerical spell for any new role). Official_nh50 b0c09c878; BUG-2842, src/restore.c | found (branch-fixed, commit pending: role_init() runs after the failure arm, just before set_uasmon()); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -36165,6 +36206,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-04 | Failed-restore role slice rulings (Phase 2 session 289, AskUserQuestion x2). (1) SLICE: the failed-restore role_init() residue LOW (recommended; the limbo survivor, touch-sear residue and hit-chain anger rows not taken). (2) DROW GODS: a drow Infidel crowned as a demon keeps the drow gods across a restore - the drow pantheon keys on the starting race (races[flags.initrace]); master's switch to the saved pantheon role's gods archived frozen-unfixed (BUG-2843). Rejected: master's shape. (3) BLOOD POTIONS: ruled "fold in" on the reviewer's premise that a crowned vampire Infidel loses random blood potions after a restore; the premise was false (restnames() reads every objclass back, oc_prob included; battery R7 20 / 5 after the restore on both builds), so no code change. Plan-approved, not asked: move role_init() after the u.uhp failure arm (master's read-u-first order) instead of a mons[] snapshot or an undo; delete restgamestate()'s two race re-force blocks (role_init() now sees the restored u.uevent). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-03 | Base-material sweep slice rulings (Phase 2 session 287, AskUserQuestion x3, nine questions, all as recommended except the meat-armor fold-in). (1) SLICE: the base-type oc_material SWEEP. (2) FOLD-INS (multiSelect): master's material consumers (recommended: valuables, loot sort, farlook fake object), Caveperson flint (e8ef39919) and meat armor (023bca49e; recommended as its own MED row, the maintainer folded it). (3) IRON SHOES: wearing_iron_shoes() = any metal boots (is_metallic); bone / stone orcish boots and non-metal kicking boots stop protecting. Rejected: iron only; keep the base type. (4) BARS: hit_bars()' Clink reads the item's own material (master reads the base type). (5) GEM SURCHARGE: oid_price_adjustment() keeps vanilla's meaning (unidentified real gems surcharged, glass exempt); master 03e87e1bd dropped the "!" - archived frozen-unfixed (BUG-2824). (6) FLINT QUIRKS, all fixed: the rock is used up on every bang; one flint per ten arrows; a monster that can't see isn't scared. (7) MEAT ARMOR: a wielded stone armor piece is let go (master's shape over 5.0 keeping it wielded); a meat suit obeys the body-armor fit test. (8) POLY TRAP: the any-metal rule also decides the polymorph-trap warp. (9) LOOT SORT: material sorts only once seen (dknown); master's leak frozen-unfixed. Plan-approved, not asked: the uskin guard, res = 0 for untransformed armor, the aklys gate deleted, u_handsy() in use_stone(), select_hwep() kept (BUG-487); after review: the gloves swap (BUG-2834) and the o_id walk (BUG-2835). | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-03 | Hands-free slice rulings (Phase 2 session 288, AskUserQuestion x3). (1) SLICE: master 1ae3ddbbc's hands-free gates plus the poly_obj() worn-swap LOW. (2) DRAGON SCALES: stone to flesh on a dragon-scaled stone suit loses the merged scales, as on master and for every polymorph (rejected: scales come loose; the scaled suit resists). (3) REFUSE WHEN: #rub, z and the mirror refuse before their object / direction prompt (master asks first; its #rub refuses after ESC too). (4) QUEUE ORPHAN: sweep the class this slice (every pre-prompt refusal in the item-action targets returns ECMD_FAIL), not just the two new refusals. Plan-approved, not asked: defer the swap's landing (in_lava_effects) rather than protect the new form with in_use; the void tools keep master's turn cost on a refusal; the Boots_off() lava arm; the enchant armor scale swap sibling. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-02 | Rumor riders + known-fix LOWs slice rulings (Phase 2 session 286, AskUserQuestion x3, eight questions, all as recommended). (1) SLICE (multiSelect): the Rumor-slice riders (b) / (e) / (f) / (g) and the known-fix LOWs (breakchestlock() billing, the failed-restore race leak); the base-material SWEEP siblings not taken. NO v3 production hot patch for BUG-2799 (master stays frozen-unfixed). (2) PET SATIATION: port master's satiation gates (611bcd8f3, 604306b50) with the intrinsic-corpse bypass. (3) VAMPIRE DRAIN: grants through the branch's mon_givit() (5.0 odds, stalker arm). (4) QUIRK FIXES, all four: a mindless pet ignores the telepathy term; a polymorphed engraving's Elbereth swap is silent and "The engraving now reads" quotes the stored text; the Bell's quest curse makes it known cursed; the stethoscope egg arm needs can_reach_floor(). (5) FOLD-IN: f327090f3's three quest achievement lines. (6) DOG_MOVE: the intrinsic bypass in dog_move() too (master's satiated "don't pick up" pet sits on the corpse). (7) TURN COUNTER: the failed-restore arm also resets svm.moves. Recorded, not asked: master's shape for " (locked)" in xname(), the bogus-word tables, the three read.c learn sites, role_init()'s race overrides; no iron-safe stethoscope arm; Elbereth checked against the full typed text in doengrave() (5.0 engraving is an occupation); folded after review as siblings: container_impact_dmg()'s stack billing (not for an unpaid stack), the "not yours" arm's turn counter, the game id in both failure arms, set_uasmon() after the failure check. | maintainer |
