@@ -1370,10 +1370,14 @@ gulpmm(
             newsym(dx, dy);
         }
         unstuck_if_apart(magr);
-        /* aggressor moves to <dx,dy> and might encounter trouble there */
-        if (minliquid(magr)
-            || (t_at(dx, dy)
-                && mintrap(magr, NO_TRAP_FLAGS) == Trap_Killed_Mon))
+        /* aggressor moves to <dx,dy> and might encounter trouble there;
+           a trap there only matters if the liquid left it in place */
+        if (!minliquid(magr) && magr->mx == dx && magr->my == dy
+            && t_at(dx, dy))
+            (void) mintrap(magr, NO_TRAP_FLAGS);
+        /* dead, or gone from the level (a survivor sent into limbo, a
+           trap door): it can't attack any more */
+        if (mon_lost_in_rloc(magr))
             status |= M_ATTK_AGR_DIED;
     } else if (status & M_ATTK_AGR_DIED) { /* aggressor died */
         place_monster(mdef, dx, dy);

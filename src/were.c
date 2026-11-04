@@ -153,8 +153,9 @@ new_were(struct monst *mon)
     newsym(mon->mx, mon->my);
     mon_break_armor(mon, FALSE);
     /* mon_break_armor() can potentially kill if the monster
-       lands over water or lava or has nowhere to go */
-    if (DEADMONSTER(mon))
+       lands over water or lava or has nowhere to go, or send it into
+       limbo when life saving kept it alive */
+    if (mon_lost_in_rloc(mon))
         return;
     possibly_unwield(mon, FALSE);
 

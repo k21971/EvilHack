@@ -1397,17 +1397,7 @@ minliquid_core(struct monst *mtmp)
                 }
             }
             if (!DEADMONSTER(mtmp)) {
-                if (m_in_air(mtmp) || can_levitate(mtmp) || can_fly(mtmp)) {
-                    ; /* vampshifter in wolf form can revert to vampire lord
-                       * and become a flyer so not need to teleport */
-                } else if (likes_lava(mtmp->data)) {
-                    ; /* likes_lava case is hypothetical */
-                } else {
-                    (void) fire_damage_chain(mtmp->minvent, FALSE, FALSE,
-                                             mtmp->mx, mtmp->my);
-                    if (!rloc(mtmp, RLOC_MSG))
-                        deal_with_overcrowding(mtmp);
-                }
+                mon_leaves_liquid(mtmp, TRUE);
                 return 0;
             }
             return 1;
@@ -1431,8 +1421,7 @@ minliquid_core(struct monst *mtmp)
             xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
         }
         if (!DEADMONSTER(mtmp)) {
-            if (!rloc(mtmp, RLOC_NOMSG))
-                deal_with_overcrowding(mtmp);
+            (void) rloc_or_overcrowd(mtmp, RLOC_NOMSG);
             return 0;
         }
         return 1;
@@ -1470,14 +1459,7 @@ minliquid_core(struct monst *mtmp)
             else
                 xkilled(mtmp, XKILL_NOMSG);
             if (!DEADMONSTER(mtmp)) {
-                if (m_in_air(mtmp) || can_levitate(mtmp) || can_fly(mtmp)) {
-                    ; /* vampshifter in wolf form can revert to vampire lord
-                       * and become a flyer so not need to teleport */
-                } else {
-                    water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
-                    if (!rloc(mtmp, RLOC_NOMSG))
-                        deal_with_overcrowding(mtmp);
-                }
+                mon_leaves_liquid(mtmp, FALSE);
                 return 0;
             }
             return 1;
@@ -1578,7 +1560,8 @@ m_calcdistress(struct monst *mtmp)
     if (mtmp->data->mmove == 0) {
         if (gv.vision_full_recalc)
             vision_recalc(0);
-        if (minliquid(mtmp))
+        /* a survivor sent into limbo is off the level */
+        if (minliquid(mtmp) || mon_lost_in_rloc(mtmp))
             return;
     }
 
@@ -1687,10 +1670,11 @@ m_calcdistress(struct monst *mtmp)
         /* the shape change might have killed it: newcham() can strip a
            hero saddle (mon_break_armor's dismount cascade), dismiss a
            steed it can no longer carry its rider on, or petrify it on a
-           wielded cockatrice corpse (mselftouch); nothing below may run
-           on a detached monster - the msummoned wink-out would
-           m_detach() it a second time */
-        if (DEADMONSTER(mtmp))
+           wielded cockatrice corpse (mselftouch), or send it into limbo;
+           nothing below may run on a detached monster - the msummoned
+           wink-out would m_detach() it a second time - or on one off
+           the level */
+        if (mon_lost_in_rloc(mtmp))
             return;
     }
     were_change(mtmp);
@@ -1952,6 +1936,14 @@ movemon_singlemon(struct monst *mtmp)
        off at the next dismount_untamed_steed() */
     if (DEADMONSTER(mtmp) || (mtmp == u.usteed && !mtmp->mtame))
         return FALSE;
+    /* a survivor it found no spot for went into limbo, and a trapped one
+       it moved may have met a hole where it landed; either is on its
+       way off the level now, where acting would overwrite the
+       destination kept in its mux/muy */
+    if (mon_lost_in_rloc(mtmp)) {
+        mtmp->movement = 0;
+        return FALSE;
+    }
     /* a hold or lift that ended over a hole drops it before it acts */
     if (mon_unsupported_fall(mtmp))
         return FALSE;
@@ -6989,6 +6981,44 @@ deal_with_overcrowding(struct monst *mtmp)
     }
 }
 
+/* move a monster to a random spot, or deal with the overcrowding when
+   there is none; a monster's ridden steed goes with its rider, whose
+   departure takes the steed along (migrate_to_level()), rather than
+   leaving the level alone; TRUE only if rloc() placed it */
+boolean
+rloc_or_overcrowd(struct monst *mtmp, unsigned rlocflags)
+{
+    struct monst *rider;
+
+    if (rloc(mtmp, rlocflags))
+        return TRUE;
+    if (mtmp->ridden_by && (rider = get_mon_rider(mtmp)) != 0)
+        mtmp = rider;
+    deal_with_overcrowding(mtmp);
+    return FALSE;
+}
+
+/* a monster that survived falling into water or lava gets out: one now
+   in the air stays where it is, the rest lose wet or burnt gear and move
+   to a random spot */
+void
+mon_leaves_liquid(struct monst *mtmp, boolean inlava)
+{
+    if (m_in_air(mtmp) || can_levitate(mtmp) || can_fly(mtmp)) {
+        ; /* vampshifter in wolf form can revert to vampire lord
+           * and become a flyer so not need to teleport */
+    } else if (inlava && likes_lava(mtmp->data)) {
+        ; /* likes_lava case is hypothetical */
+    } else if (inlava) {
+        (void) fire_damage_chain(mtmp->minvent, FALSE, FALSE,
+                                 mtmp->mx, mtmp->my);
+        (void) rloc_or_overcrowd(mtmp, RLOC_MSG);
+    } else {
+        water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
+        (void) rloc_or_overcrowd(mtmp, RLOC_NOMSG);
+    }
+}
+
 /* like mnexto() but requires destination to be directly accessible */
 void
 maybe_mnexto(struct monst *mtmp)
@@ -8938,8 +8968,9 @@ newcham(
                   mon_nam(ERID(mtmp)->mon_steed));
         separate_steed_and_rider(mtmp);
         /* the rider is relocated to get off its steed, and that can put
-           it in a trap or hand it a turn of its own */
-        if (DEADMONSTER(mtmp))
+           it in a trap (which may kill it or carry it off the level) or
+           hand it a turn of its own */
+        if (mon_lost_in_rloc(mtmp))
             return 1;
     }
     if (mtmp->ridden_by && !mon_can_be_ridden(mtmp) && mtmp != u.usteed) {
@@ -8950,9 +8981,9 @@ newcham(
                 pline("%s falls from %s mount as %s transforms!",
                       Monnam(rider), mhis(rider), oldmhe);
             separate_steed_and_rider(rider);
-            /* with nowhere to place the steed, the separation dismisses
-               it - and the steed is mtmp */
-            if (DEADMONSTER(mtmp))
+            /* with nowhere to place the steed, the separation sends it
+               into limbo - and the steed is mtmp */
+            if (mon_lost_in_rloc(mtmp))
                 return 1;
         } else {
             /* the rider is gone but the steed is still flagged as ridden;
@@ -9075,8 +9106,9 @@ newcham(
     mon_break_armor(mtmp, polyspot);
     /* mon_break_armor() may kill the monster if it's the player's steed
        and the new form lands over pool/lava/open-air or has nowhere
-       to go (saddle-strip dismount cascade); mirror new_were() */
-    if (DEADMONSTER(mtmp))
+       to go (saddle-strip dismount cascade), or send one that life
+       saving kept alive into limbo; mirror new_were() */
+    if (mon_lost_in_rloc(mtmp))
         return 1; /* polymorph itself succeeded */
     if (!(mtmp->misc_worn_check & W_ARMG))
         mselftouch(mtmp, "No longer petrify-resistant, ",
