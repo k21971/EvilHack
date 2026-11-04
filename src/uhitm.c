@@ -3947,7 +3947,9 @@ mhitm_ad_dren(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
-        if (!negated && !rn2(4)) /* 25% chance */
+        /* 25% chance; a blow zeroed by a negative damage ring drains
+           nothing */
+        if (!negated && !rn2(4) && mhm->damage > 0)
             drain_en(mhm->damage, FALSE);
         mhm->damage = 0;
     } else {
@@ -6121,7 +6123,9 @@ mhitm_ad_conf(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
-        if (!magr->mcan && !rn2(4) && !magr->mspec_used) {
+        /* a blow zeroed by a negative damage ring doesn't confuse you */
+        if (!magr->mcan && !rn2(4) && !magr->mspec_used
+            && mhm->damage > 0) {
             magr->mspec_used = magr->mspec_used + (mhm->damage + rn2(6));
             if (Confusion)
                 You("are getting even more confused.");
@@ -7338,7 +7342,8 @@ mhitm_ad_stun(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
-        if (!magr->mcan && !rn2(4)) {
+        /* a blow zeroed by a negative damage ring doesn't stun you */
+        if (!magr->mcan && !rn2(4) && mhm->damage > 0) {
             make_stunned((HStun & TIMEOUT) + (long) mhm->damage, TRUE);
             mhm->damage /= 2;
         }
