@@ -100,7 +100,9 @@ kickdmg(struct monst *mon, boolean clumsy)
         /* a good kick exercises your dex */
         exercise(A_DEX, TRUE);
     }
-    dmg += specialdmg; /* for blessed boots or boots of a hated material */
+    /* blessed boots, boots of a hated material, or a shapechanged
+       form's own bonus */
+    dmg += specialdmg;
     if (uarmf)
         dmg += uarmf->spe;
     if (specialdmg && hated_obj)

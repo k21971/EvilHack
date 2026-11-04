@@ -559,15 +559,6 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
         }
     }
 
-    /* Druids that #wildshape into one of their allowed forms
-       enjoy a variable damage bonus */
-    if (magr == &gy.youmonst && !uwep && druid_form)
-        tmp += rn1(5, 2); /* 2-6 hp of damage */
-
-    /* same with Vampires that #shapechange */
-    if (magr == &gy.youmonst && !uwep && vampire_form)
-        tmp += rn1(5, 2); /* 2-6 hp of damage */
-
     /* Put weapon vs. monster type damage bonuses in below: */
     {
         int bonus = 0;
@@ -646,7 +637,8 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
  * a special damaging effect on mdef, and return the amount of bonus damage
  * done. The most damaging source has precedence; each source that causes
  * special damage makes its own roll for damage, and the highest roll will
- * be applied.
+ * be applied. A hero Druid or Vampire in a shapechanged form also adds
+ * the form's own bonus here, whatever is worn.
  *
  * hated_obj is set only on objects that cause material hatred; if none of
  * the applicable objects are of a hated material, it will not be set */
@@ -753,6 +745,17 @@ special_dmgval(
             }
         }
     }
+
+    /* Druids that #wildshape into one of their allowed forms, and
+       Vampires that #shapechange, hit harder with the form's own body,
+       worn gear or not; a noncorporeal foe feels none of it, nor does a
+       hide that a kick can't hurt */
+    if (youattack && !uwep && (druid_form || vampire_form)
+        && !noncorporeal(mdef->data)
+        && !(armask == W_ARMF
+             && (thick_skinned(mdef->data) || has_barkskin(mdef)
+                 || has_stoneskin(mdef))))
+        bonus += rn1(5, 2); /* 2-6 hp of damage */
     return bonus;
 }
 

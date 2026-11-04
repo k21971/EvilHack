@@ -7991,7 +7991,7 @@ int
 damageum(
     struct monst *mdef,   /* target */
     struct attack *mattk, /* hero's attack */
-    int specialdmg) /* blessed and/or silver bonus against various things */
+    int specialdmg) /* blessed, hated-material and shapechange bonuses */
 {
     struct mhitm_data mhm;
 
@@ -8959,11 +8959,12 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                 if (DEADMONSTER(mon))
                     continue;
 
-                /* blessed and/or silver bonus; as on master, no
-                   alternating right/left ring per claw or touch: a hero
-                   who knows the ring on one hand is especially effective
-                   will keep hitting with that hand, so take whichever
-                   piece of gear (or the form's own body) hurts most */
+                /* blessed and/or silver bonus, plus a shapechanged
+                   form's own; as on master, no alternating right/left
+                   ring per claw or touch: a hero who knows the ring on
+                   one hand is especially effective will keep hitting
+                   with that hand, so take whichever piece of gear (or
+                   the form's own body) hurts most */
                 specialdmg = special_dmgval(&gy.youmonst, mon,
                                             attack_contact_slots(
                                                 &gy.youmonst, mattk->aatyp,
