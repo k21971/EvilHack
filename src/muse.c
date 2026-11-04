@@ -2973,13 +2973,13 @@ mbhit(
             (*fhitm)(mtmp, obj);
             range -= 3;
         }
-        if (DEADMONSTER(mon)
+        if (mon_lost_in_rloc(mon)
             || (obj_in_minvent && !o_on(obj_id, mon->minvent)))
             break;
         if (fhito_loc(obj, gb.bhitpos.x, gb.bhitpos.y, fhito))
             range--;
         /* the same check after the objects on the square */
-        if (DEADMONSTER(mon)
+        if (mon_lost_in_rloc(mon)
             || (obj_in_minvent && !o_on(obj_id, mon->minvent)))
             break;
         ltyp = levl[gb.bhitpos.x][gb.bhitpos.y].typ;
@@ -3127,8 +3127,9 @@ mcast_immediate_spell(struct monst *caster, coordxy tx, coordxy ty,
     gm.m_using = FALSE;
 
     /* capture caster mortality before cleaning up pseudo (cleanup must
-       run regardless to avoid leaking the obj) */
-    caster_alive = !DEADMONSTER(caster);
+       run regardless to avoid leaking the obj); a caster a falling
+       drawbridge sent into limbo is gone too */
+    caster_alive = !mon_lost_in_rloc(caster);
 
     /* clean up the pseudo-object */
     pseudo->where = OBJ_FREE; /* prevent obfree complaints */
@@ -3481,8 +3482,9 @@ use_offensive(struct monst *mtmp)
         /* note: 'otmp' might have been destroyed (drawbridge destruction) */
         gm.m_using = FALSE;
         /* the zapper can die in its own beam (a knockback's landing
-           fires a trap, a drawbridge falls) */
-        if (DEADMONSTER(mtmp))
+           fires a trap, a drawbridge falls), or the falling drawbridge
+           can send it into limbo */
+        if (mon_lost_in_rloc(mtmp))
             return 1;
         return 2;
     case MUSE_SCR_EARTH: {

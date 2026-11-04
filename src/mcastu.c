@@ -565,8 +565,9 @@ castmu(
     if (!mtmp->mpeaceful)
         stop_occupation();
     /* an area spell centered on the hero can catch an adjacent caster
-       in its own blast */
-    if (DEADMONSTER(mtmp))
+       in its own blast, and a ray's falling drawbridge can send it into
+       limbo */
+    if (mon_lost_in_rloc(mtmp))
         return M_ATTK_AGR_DIED;
     return ret;
 }
@@ -3225,9 +3226,10 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
         mcast_spell(mtmp, starget, dmg, spellnum, 0, (int) mattk->adtyp);
     }
     /* an area spell centered on an adjacent target can catch the
-       caster in its own blast; fold, never overwrite - the mhitm
-       caller checks both sides as well */
-    if (DEADMONSTER(mtmp))
+       caster in its own blast, and a ray's falling drawbridge can send
+       it into limbo; fold, never overwrite - the mhitm caller checks
+       both sides as well */
+    if (mon_lost_in_rloc(mtmp))
         ret |= M_ATTK_AGR_DIED;
     return ret;
 }

@@ -3444,9 +3444,14 @@ trapeffect_landmine(
         blow_up_landmine(trap);
         trap = (struct trap *) 0;
         /* explosion might have destroyed a drawbridge; don't
-           dish out more damage if monster is already dead */
-        if (DEADMONSTER(mtmp)
-            || thitm(0, mtmp, (struct obj *) 0, damage, FALSE, youmade)) {
+           dish out more damage if monster is already dead, or if the
+           bridge's fall left it no room and sent it into limbo */
+        if (DEADMONSTER(mtmp)) {
+            trapkilled = TRUE;
+        } else if (mon_lost_in_rloc(mtmp)) {
+            ; /* off the level; the recursive fall is not for it either */
+        } else if (thitm(0, mtmp, (struct obj *) 0, damage, FALSE,
+                         youmade)) {
             trapkilled = TRUE;
         } else if (mtmp->mx == tx && mtmp->my == ty) {
             /* monsters recursively fall into new pit; not one that the
@@ -3463,8 +3468,9 @@ trapeffect_landmine(
             gm.multi = -1;
             gn.nomovemsg = "The explosion awakens you!";
         }
-        return trapkilled ? Trap_Killed_Mon : mtmp->mtrapped
-            ? Trap_Caught_Mon : Trap_Effect_Finished;
+        return trapkilled ? Trap_Killed_Mon
+               : mon_lost_in_rloc(mtmp) ? Trap_Moved_Mon
+                 : mtmp->mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
     }
     return Trap_Effect_Finished;
 }

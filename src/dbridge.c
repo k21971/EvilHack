@@ -27,6 +27,8 @@ staticfn void set_entity(coordxy, coordxy, struct entity *);
 staticfn const char *e_nam(struct entity *);
 staticfn const char *E_phrase(struct entity *, const char *);
 staticfn boolean e_survives_at(struct entity *, coordxy, coordxy);
+staticfn void e_kill_again(struct monst *, int);
+staticfn void e_survivor_leaves(struct monst *, coordxy, coordxy, int);
 staticfn void e_died(struct entity *, int, int);
 staticfn boolean automiss(struct entity *);
 staticfn boolean e_missed(struct entity *, boolean);
@@ -447,6 +449,54 @@ e_survives_at(struct entity *etmp, coordxy x, coordxy y)
     return TRUE;
 }
 
+/* e_died(): a monster that life saving (or a vampire's shifted form)
+   kept alive is killed a second time; xkill_flags already carry
+   XKILL_NOMSG | XKILL_NOCONDUCT */
+staticfn void
+e_kill_again(struct monst *mon, int xkill_flags)
+{
+    boolean seeit;
+
+    /* dead already, or off the level (a steed sent into limbo) */
+    if (mon_lost_in_rloc(mon))
+        return;
+    seeit = canspotmon(mon);
+    /* fake "digested to death" damage type suppresses the corpse */
+    if (svc.context.mon_moving)
+        monkilled(mon, "",
+                  (xkill_flags & XKILL_NOCORPSE) != 0 ? AD_DGST : AD_PHYS);
+    else /* you caused it */
+        xkilled(mon, xkill_flags);
+    if (DEADMONSTER(mon) && seeit)
+        pline("Unfortunately for %s, %s is still crushed.",
+              mon_nam(mon), mhe(mon));
+}
+
+/* e_died(): a monster still alive after the second kill, and still on
+   the square <x,y> it died on, gets off it: out of the moat or lava as
+   any monster that survives drowning or burning does, or else thrown
+   clear of the bridge (into limbo when there is no room) */
+staticfn void
+e_survivor_leaves(struct monst *mon, coordxy x, coordxy y, int how)
+{
+    char nambuf[BUFSZ];
+    boolean seeit;
+
+    if (DEADMONSTER(mon) || mon_offmap(mon) || mon->mx != x || mon->my != y)
+        return;
+    if (how == DROWNING || how == BURNING) {
+        mon_leaves_liquid(mon, (how == BURNING));
+        return;
+    }
+    /* named as it was seen on the bridge, before it lands out of sight */
+    seeit = canseemon(mon);
+    if (seeit)
+        Strcpy(nambuf, Monnam(mon));
+    if (rloc_or_overcrowd(mon, RLOC_NOMSG) && (seeit || canseemon(mon)))
+        pline("%s is thrown clear of the drawbridge!",
+              seeit ? nambuf : Monnam(mon));
+}
+
 staticfn void
 e_died(
     struct entity *etmp,
@@ -494,38 +544,36 @@ e_died(
 /* fake "digested to death" damage-type suppresses corpse */
 #define mk_message(dest) (((dest & XKILL_NOMSG) != 0) ? (char *) 0 : "")
 #define mk_corpse(dest) (((dest & XKILL_NOCORPSE) != 0) ? AD_DGST : AD_PHYS)
-        /* if monsters are moving, one of them caused the destruction */
+        /* if monsters are moving, one of them caused the destruction;
+           the rider's death puts its steed back on the square, but a
+           rider that changed form instead may have got down from its
+           steed with no room for it, sending it into limbo */
         if (svc.context.mon_moving) {
             monkilled(etmp->emon,
                       mk_message(xkill_flags), mk_corpse(xkill_flags));
-            if (steed)
+            if (steed && !mon_lost_in_rloc(steed))
                 monkilled(steed,
                           mk_message(xkill_flags), mk_corpse(xkill_flags));
         } else { /* you caused it */
             xkilled(etmp->emon, xkill_flags);
-            if (steed)
+            if (steed && !mon_lost_in_rloc(steed))
                 xkilled(steed, xkill_flags);
         }
 
         /* if etmp gets life-saved, kill it again; otherwise we might end up
-           trying to place another monster (probably a xorn) on same spot */
-        if (!DEADMONSTER(etmp->emon)) {
-            int seeit = canspotmon(etmp->emon);
-
-            xkill_flags |= XKILL_NOMSG | XKILL_NOCONDUCT;
-            if (svc.context.mon_moving)
-                monkilled(etmp->emon, "", mk_corpse(xkill_flags));
-            else /* you caused it */
-                xkilled(etmp->emon, xkill_flags);
-
-            if (DEADMONSTER(etmp->emon)) {
-                if (seeit)
-                    pline("Unfortunately for %s, %s is still crushed.",
-                          mon_nam(etmp->emon), mhe(etmp->emon));
-            } else {
-                ; /* FIXME: still not dead?  What should we do now? */
-            }
-        }
+           trying to place another monster (probably a xorn) on same spot;
+           a rider's steed, put back on the square when its rider died,
+           gets the same */
+        xkill_flags |= XKILL_NOMSG | XKILL_NOCONDUCT;
+        e_kill_again(etmp->emon, xkill_flags);
+        if (steed)
+            e_kill_again(steed, xkill_flags);
+        /* one that still lives (a vampire's shifted form that life saving
+           saved, a unique there was no room to throw clear) must not stay
+           on the square; a steed still ridden goes along with its rider */
+        e_survivor_leaves(etmp->emon, etmp->ex, etmp->ey, how);
+        if (steed && !steed->ridden_by)
+            e_survivor_leaves(steed, etmp->ex, etmp->ey, how);
         etmp->edata = (struct permonst *) 0;
 
         /* dead long worm handling */
@@ -552,6 +600,7 @@ e_survives_unique(
     const char *hit_msg) /* format string with one %s for e_nam */
 {
     struct monst *mtmp;
+    char nambuf[BUFSZ];
 
     if (is_u(etmp) || !unique_corpstat(etmp->edata)
         || etmp->edata == &mons[PM_LONG_WORM_TAIL])
@@ -563,13 +612,16 @@ e_survives_unique(
     mtmp->mhp /= 2;
     if (mtmp->mhp < 1)
         mtmp->mhp = 1;
+    /* named as it was seen on the bridge, before it lands out of sight */
+    if (e_inview)
+        Strcpy(nambuf, Monnam(mtmp));
     if (!rloc(mtmp, RLOC_NOMSG))
         return FALSE; /* can't relocate; let normal handling proceed */
     etmp->ex = mtmp->mx;
     etmp->ey = mtmp->my;
     if (e_inview || canseemon(mtmp))
         pline("%s is thrown clear of the drawbridge!",
-              Monnam(mtmp));
+              e_inview ? nambuf : Monnam(mtmp));
     return TRUE;
 }
 
