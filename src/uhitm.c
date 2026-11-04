@@ -1355,7 +1355,9 @@ hmon_hitmon_weapon_ranged(
         hmd->dmg = 0;
     else
         hmd->dmg = rnd(2);
-    if (mon_hates_material(mon, obj->material)) {
+    /* bark or stone skin keeps a hated material from searing */
+    if (mon_hates_material(mon, obj->material)
+        && !(has_barkskin(mon) || has_stoneskin(mon))) {
         hmd->hated_obj = obj;
         /* if it will already inflict dmg, make it worse */
         hmd->dmg += rnd((hmd->dmg) ? sear_damage(obj->material)
@@ -2047,8 +2049,10 @@ hmon_hitmon_misc_obj(
             hmd->dryit = (rn2(obj->spe + 1) > 0);
         }
         /* things like wands made of a hated material can arrive here
-           so we need another material check; blessed check too */
-        if (mon_hates_material(mon, obj->material)) {
+           so we need another material check (bark or stone skin stops
+           the sear, as in dmgval()); blessed check too */
+        if (mon_hates_material(mon, obj->material)
+            && !(has_barkskin(mon) || has_stoneskin(mon))) {
             hmd->dmg += rnd(sear_damage(obj->material));
             hmd->hated_obj = obj;
         }
