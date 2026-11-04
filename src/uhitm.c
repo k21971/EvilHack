@@ -7750,9 +7750,26 @@ mhitm_ad_sedu(
                 return;
             }
 
-            if (u.usteed == mdef && obj == which_armor(mdef, W_SADDLE))
+            if (u.usteed == mdef && obj == which_armor(mdef, W_SADDLE)) {
+                coordxy omx = mdef->mx, omy = mdef->my;
+
                 /* "You can no longer ride <steed>." */
                 dismount_steed(DISMOUNT_POLY);
+                /* the steed can fall into water, lava or open air as the
+                   hero is thrown off; one that dies there drops its
+                   saddle or takes it along, and one life saving keeps
+                   alive is moved out, as is a steed moved aside because
+                   the hero had nowhere to land, so the saddle is out of
+                   reach */
+                if (DEADMONSTER(mdef) || mon_offmap(mdef)
+                    || mdef->mx != omx || mdef->my != omy) {
+                    mhm->damage = 0;
+                    mhm->hitflags |= DEADMONSTER(mdef) ? M_ATTK_DEF_DIED
+                                                       : M_ATTK_AGR_DONE;
+                    mhm->done = TRUE;
+                    return;
+                }
+            }
             extract_from_minvent(mdef, obj, TRUE, FALSE);
             /* add_to_minv() might free 'obj' [if it merges] */
             if (gv.vis)
