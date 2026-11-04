@@ -17,11 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-04, after session 290's limbo
-  survivor slice: the limbo survivor and kill-arm survivor LOWs
-  closed; the saddle-theft crash row minted and closed with them; one
-  LOW residue row minted open):
-  644 rows closed, 57 open
+- Phase 2 status (refreshed 2026-11-04, after session 291's touch-sear
+  residue slice: the shapechanged-vampire silver and sear-path nit LOWs
+  closed; one LOW residue row minted open):
+  646 rows closed, 56 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -363,7 +362,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 53 LOW: small parity rows, quirks and watch/record-only items.
+  - 52 LOW: small parity rows, quirks and watch/record-only items.
+    Session 291 closed 2 (BUG-2852..2855): a vampire in a #shapechange
+    form still hates silver and blessed objects; the Druid / Vampire
+    form damage bonus lands once on every physical natural hit, gear
+    or not (it used to ride only on gloves, rings, boots or a helm,
+    and leaked onto thrown objects and shades); bark or stone skin
+    stops every hated-material sear on the hero; a monster's negative
+    ring of increase damage can no longer drive the blow below zero.
     Session 290 closed 3 (BUG-2844..2851): a monster sent into limbo
     (a lava or water survivor on a full level, an engulfer through a
     trap door) no longer acts on its way out, and a monster's steed
@@ -2961,13 +2967,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bonus fires POST only; an aasimar samurai angered by Angelslayer
       and a vampire barbarian by Sunsword POST only. Master as PRE
       (battery M3).
-- [ ] LOW: a vampire-race hero in #shapechange form hates silver
+- [x] LOW: a vampire-race hero in #shapechange form hates silver
       nowhere (minted 2026-10-20, session 244; master-shared).
       Upolyd, so raceptr() and r_data() both give the bat / fog /
       wolf form, and is_vampshifter() keys on the monster vampire
       species in ->cham, which the race's forms do not carry.
       Hate_material() and mon_hates_material() both miss it.
-- [ ] LOW: sear-path nits (minted 2026-10-20, session 244, by the
+      CLOSED 2026-11-04 (session 291; BUG-2852; commit pending; plan
+      /root/.claude/plans/bugfix-touch-sear-residue-vampire-silver-shape-bonus.md).
+      RULED (as recommended): only the vampire's forms keep the race's
+      aversion; an elven Druid in #wildshape keeps 0.9.3's no-iron
+      behavior. mon_hates_material()'s vampshifter arm and
+      mon_hates_blessings() also take the hero when vampire_form;
+      retouch_object()'s three "demons and vampires are always
+      blasted" tests, enlightenment's Barkskin / Stoneskin exception
+      and find_silver_recurse() (plus monster vampshifters, the
+      reviewer's m-v-m twin) count the form too. Battery T1 PASS: in
+      bat form PRE 0 / 0 for both predicates, POST 1 / 1; a silver
+      saber hit PRE no sear (dmgval 5-6), POST "The dwarven soldier's
+      silver saber sears your flesh!" (dmgval 5-21); 400-call dmgval
+      ranges in bat form: blessed long sword PRE 1-8, POST 2-12;
+      silver saber PRE 1-8, POST 2-28 (natural form 2-28 on both);
+      ^X "You are harmed by silver." on POST only, also under forced
+      Stoneskin; select_hwep() picks the silver saber over a long
+      sword on POST only. Paniclogs clean.
+- [x] LOW: sear-path nits (minted 2026-10-20, session 244, by the
       touch-sear slice's reviewer; master-shared). (1) dmgval()'s
       druid / vampire wild-shape bonus (magr == hero && !uwep)
       fires for each worn item special_dmgval() rolls and for
@@ -2980,6 +3004,64 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hitmu() adds a negative ring of increase damage without
       mdamagem()'s clamp at 0 (BUG-2431), so it can eat part of the
       new contact sear when the hero's AC is not negative.
+      CLOSED 2026-11-04 (session 291; BUG-2853..2855; commit
+      pending). (1) RULED intent (master 98378821f: wildshape "gains
+      bonuses to both damage output and to-hit"): the bonus moved
+      from dmgval() into special_dmgval(), once per natural hit,
+      gear or not, none vs a noncorporeal target, none on a kick vs
+      a thick / bark / stone skin (kickdmg()'s and mhitm_ad_phys()'s
+      own zeroing); thrown and kicked objects lose it. On 0.9.3 it
+      reached bites and every vampire form never. (2) The
+      throw-upward hatemat and five exercise sites (mhitm_ad_phys(),
+      thitu(), the own-face and bear-trap foot self-hits, toss_up())
+      are gated by the hero's skin; the Plan pass found missum()'s
+      deflection graze tested the monster's skin instead of the
+      hero's. (3) hitmu() clamps at 0 right after the ring bonus, in
+      BUG-2431's spot; the Plan pass found the negative blow also
+      reached AD_DRIN's mdamageu() (an impossible()), cleared or
+      shortened an existing stun, and drove an AD_CONF attacker's
+      mspec_used negative for good. A ring-zeroed blow now skips
+      passiveum() like any zero-damage blow on the hero. Batteries:
+      T2 wolf bite special_dmgval PRE 0, POST 2-6 (in-play bites up
+      to 13 vs the 2d4 max of 8); vampire bat PRE 0, POST 2-6; a
+      ringed giant hawk vs a shade PRE "You claw the shade." for
+      3-5, POST "Your attack passes harmlessly through the shade.";
+      thrown dagger dmgval PRE 3-10, POST 1-4; bootless stag kick
+      PRE 0, POST 2-6, and 0 vs a thick-hided naga hatchling. T3
+      (elf, forced Barkskin) tin opener tossed up PRE dmg 5-6 with
+      exercise(A_CON) from toss_up(), POST dmg 1, none; a soldier's
+      iron weapon hit PRE exercise from mhitm_ad_phys(), POST none;
+      an iron ring mail deflection PRE losehp 2 "touching a hated
+      material" (silent), POST none. T4 mind flayer with a -3 ring
+      PRE "mdamageu for negative damage? (-1)" x3 in the paniclog,
+      POST clean (mdamageu n=0); an ape's silver-ring sear PRE lost
+      2-4 to the negative base, POST lands whole; weapon blows with a
+      -5 ring >= 1 on both; Yeenoghu with a -16 ring PRE mspec_used
+      -4 falling to -10, POST 0-5 counting down. POST paniclogs clean.
+- [ ] LOW: touch-sear residue (minted 2026-11-04, session 291, by the
+      Plan pass, code review and batteries; record unless a ruling
+      wants a change). (a) The form bonus rides specialdmg, which only
+      AD_PHYS and the arms that delegate to it read, so an AD_DRST /
+      AD_ELEC / AD_SLEE natural hit (giant centipede, electric eel,
+      pseudodragon, scorpion's sting) rolls it and drops it, as the
+      silver and blessed bonuses already are. (b) A form holding a
+      wielded weapon gets no bonus on a weaponless claw (`!uwep`, as
+      on master). (c) missum()'s deflection graze reads only the glove
+      slot for every attack type, so a gloved hero's bootless kick
+      deflected by silver armor never sears while a booted one does
+      (master). (d) Hero-vs-monster sears ignore the target monster's
+      bark / stone skin at hmon's ranged-weapon-in-melee and non-weapon
+      object arms (damage added) and pick hated_obj anyway at two more
+      hmon sites and in special_dmgval()'s worn-item loop, so the
+      "sears" line prints with no sear damage (hmon arms from the 5.0
+      U778 port and f5af0ebd4; mhitu.c gates its own call site). (e)
+      Enlightenment says "harmed by silver" for a vampire or demon
+      under Stoneskin (the always-blasted rule) while a silver weapon
+      hit does no sear (dmgval()'s skin gate); the rule covers
+      touching only (master). (f) An AD_CONF blow a negative ring
+      zeroed still prints "You are getting confused." with no
+      confusion (make_confused(HConfusion + 0)); PRE printed it for
+      a negative value too.
 - [x] Object properties (oprops)
       PORTED + REVIEWED 2026-07-15 (subagent-ported 33 files
       +~1400, reviewer CONDITIONAL FAIL -> all findings fixed by
@@ -36321,6 +36403,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-04 | Touch-sear residue slice rulings (Phase 2 session 291, AskUserQuestion x3 - one a battery launch ask - all as recommended). (1) SLICE: the two touch-sear residue LOWs (vampire #shapechange silver + the sear-path nits; the hit-chain anger, kill-credit and limbo residue rows not taken). (2) WILD-SHAPE BONUS: master 98378821f's intent - the +2-6 lands once on every physical natural hit, gear or not (bites and the vampire forms included), thrown and kicked objects lose it, shades take none, engulfing stays without it; 0.9.3 only delivered it through a gloved / ringed / booted / helmed item roll. (3) RACE AVERSIONS IN FORM: vampire forms only (master's own "shapeshifted vampires still hate silver"); an elven Druid in #wildshape keeps 0.9.3's no-iron behavior. Folded in from the Plan pass without a ruling: mon_hates_blessings() and find_silver_recurse() for the form, missum()'s skin subject, the kick-vs-thick-hide exclusion. | maintainer |
 | 2026-11-04 | Limbo survivor slice rulings (Phase 2 session 290, AskUserQuestion x6 - two of them battery launch asks - all as recommended). (1) SLICE: the limbo survivor row + the kill-arm survivor row (the touch-sear residue and hit-chain anger rows not taken). (2) SAVED STEED: a steed its amulet saves after a dismount into water or lava is moved out at once, after the hero lands (gear wet / burnt, random spot, limbo if full). Rejected: master's leave-it-in. (3) GUILT: "You feel guilty.", -1 and the abuse record stay when it lives (master). (4) DRAWBRIDGE: the crushed rider's steed gets vanilla's second kill; a survivor is thrown clear ("%s is thrown clear of the drawbridge!") or goes into limbo. (5) CHAIN: the chain dismount too, once chain_set_down() is done. (6) MOAT FALL: a survivor leaves like a saved drowner, no line; one now flying stays. (7) NO ROOM: a steed with no room anywhere goes into limbo, not mongone() (dismount_steed()'s steedcc case and no-room survivor, separate_steed_and_rider()). (8) SADDLE THEFT (design-review find): fold in; the theft fails silently. (9) WORDING (battery T3 find): name the monster before the move in both thrown-clear lines, master's unique line included ("It is thrown clear..." on master when it lands out of sight). Plan-approved, not asked: rloc_or_overcrowd() routes a ridden steed's overcrowding to its rider; mon_leaves_liquid() is minliquid_core()'s tail; after review: the rloc_to_core() own-square guard, newcham() / new_were() / decide_to_shapeshift() / Conflict throw / caster checks via mon_lost_in_rloc(). | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-04 | Failed-restore role slice rulings (Phase 2 session 289, AskUserQuestion x2). (1) SLICE: the failed-restore role_init() residue LOW (recommended; the limbo survivor, touch-sear residue and hit-chain anger rows not taken). (2) DROW GODS: a drow Infidel crowned as a demon keeps the drow gods across a restore - the drow pantheon keys on the starting race (races[flags.initrace]); master's switch to the saved pantheon role's gods archived frozen-unfixed (BUG-2843). Rejected: master's shape. (3) BLOOD POTIONS: ruled "fold in" on the reviewer's premise that a crowned vampire Infidel loses random blood potions after a restore; the premise was false (restnames() reads every objclass back, oc_prob included; battery R7 20 / 5 after the restore on both builds), so no code change. Plan-approved, not asked: move role_init() after the u.uhp failure arm (master's read-u-first order) instead of a mons[] snapshot or an undo; delete restgamestate()'s two race re-force blocks (role_init() now sees the restored u.uevent). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-03 | Base-material sweep slice rulings (Phase 2 session 287, AskUserQuestion x3, nine questions, all as recommended except the meat-armor fold-in). (1) SLICE: the base-type oc_material SWEEP. (2) FOLD-INS (multiSelect): master's material consumers (recommended: valuables, loot sort, farlook fake object), Caveperson flint (e8ef39919) and meat armor (023bca49e; recommended as its own MED row, the maintainer folded it). (3) IRON SHOES: wearing_iron_shoes() = any metal boots (is_metallic); bone / stone orcish boots and non-metal kicking boots stop protecting. Rejected: iron only; keep the base type. (4) BARS: hit_bars()' Clink reads the item's own material (master reads the base type). (5) GEM SURCHARGE: oid_price_adjustment() keeps vanilla's meaning (unidentified real gems surcharged, glass exempt); master 03e87e1bd dropped the "!" - archived frozen-unfixed (BUG-2824). (6) FLINT QUIRKS, all fixed: the rock is used up on every bang; one flint per ten arrows; a monster that can't see isn't scared. (7) MEAT ARMOR: a wielded stone armor piece is let go (master's shape over 5.0 keeping it wielded); a meat suit obeys the body-armor fit test. (8) POLY TRAP: the any-metal rule also decides the polymorph-trap warp. (9) LOOT SORT: material sorts only once seen (dknown); master's leak frozen-unfixed. Plan-approved, not asked: the uskin guard, res = 0 for untransformed armor, the aklys gate deleted, u_handsy() in use_stone(), select_hwep() kept (BUG-487); after review: the gloves swap (BUG-2834) and the o_id walk (BUG-2835). | maintainer (1-9); session, plan-approved (rest) |
