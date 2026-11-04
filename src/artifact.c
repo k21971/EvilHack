@@ -5367,7 +5367,12 @@ retouch_object(
         char buf[BUFSZ];
         int dmg = 0;
         boolean hatemat = Hate_material(obj->material),
-                bane = bane_applies(get_artifact(obj), &gy.youmonst);
+                bane = bane_applies(get_artifact(obj), &gy.youmonst),
+                /* demons and vampires, a vampire's #shapechange form
+                   included, are always blasted by silver */
+                always_blasted = (is_demon(raceptr(&gy.youmonst))
+                                  || is_vampire(raceptr(&gy.youmonst))
+                                  || vampire_form);
 
         /* nothing else to do if hero can successfully handle this object */
         if (!hatemat && !bane)
@@ -5376,17 +5381,14 @@ retouch_object(
         /* skin changing to bark or stone allows for safe handling,
            similar to wearing gloves. demons and vampires will always
            get blasted by silver, though */
-        if ((Barkskin || Stoneskin)
-            && !bane && !(is_demon(raceptr(&gy.youmonst))
-                          || is_vampire(raceptr(&gy.youmonst))))
+        if ((Barkskin || Stoneskin) && !bane && !always_blasted)
             return 1;
 
         /* another case where nothing should happen: hero is wearing gloves
            which protect them from directly touching a weapon of a material
            they hate or wearing boots that prevent them touching a kicked
            object. demons and vampires will always get blasted, though */
-        if (!bane && !(direct || is_demon(raceptr(&gy.youmonst))
-                       || is_vampire(raceptr(&gy.youmonst))))
+        if (!bane && !(direct || always_blasted))
             return 1;
 
         /* hero can't handle this object, but didn't get touch_artifact()'s
@@ -5400,8 +5402,7 @@ retouch_object(
         }
         /* damage is somewhat arbitrary: 1d10 magical for <foo>bane,
            half of the usual damage for materials */
-        if (hatemat && (direct || is_demon(raceptr(&gy.youmonst))
-                        || is_vampire(raceptr(&gy.youmonst))))
+        if (hatemat && (direct || always_blasted))
             dmg += rnd(sear_damage(obj->material) / 2);
         if (bane)
             dmg += rnd(10);

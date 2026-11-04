@@ -647,8 +647,10 @@ mon_hates_material(struct monst *mon, int material)
         && hates_material(raceptr(mon), material))
         return TRUE;
 
-    /* extra case: shapeshifted vampires still hate silver */
-    if (material == SILVER && is_vampshifter(mon))
+    /* extra case: shapeshifted vampires still hate silver, the hero in
+       a #shapechange form included (its cham is not a vampire) */
+    if (material == SILVER
+        && (is_vampshifter(mon) || (mon == &gy.youmonst && vampire_form)))
         return TRUE;
 
     /* extra extra case: lycanthrope player (monster lycanthropes all fall
@@ -717,8 +719,10 @@ boolean
 mon_hates_blessings(struct monst *mon)
 {
     /* r_data(): a racial vampire or draugr player-monster's race entry
-       is undead even though its role monster isn't */
-    if (is_vampshifter(mon) || hates_blessings(r_data(mon)))
+       is undead even though its role monster isn't; the hero in a
+       #shapechange form is still a vampire */
+    if (is_vampshifter(mon) || hates_blessings(r_data(mon))
+        || (mon == &gy.youmonst && vampire_form))
         return TRUE;
 
     /* the unpolymorphed hero's own entry is the role's monster, which

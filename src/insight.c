@@ -2127,7 +2127,7 @@ attributes_enlightenment(
         if (Hate_material(ltmp)
             && (!(Barkskin || Stoneskin)
                 || is_demon(raceptr(&gy.youmonst))
-                || is_vampire(raceptr(&gy.youmonst)))) {
+                || is_vampire(raceptr(&gy.youmonst)) || vampire_form)) {
             Sprintf(buf, "harmed by %s", materialnm[ltmp]);
             you_are(buf, "");
         }

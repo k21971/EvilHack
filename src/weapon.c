@@ -1016,7 +1016,9 @@ find_silver_recurse(struct monst *mtmp, struct obj *start,
         }
         if (otmp->oclass == WEAPON_CLASS && is_silver(otmp)
             && !(is_ammo(otmp) || is_missile(otmp))
-            && (racial_vampire(mdef) || is_demon(raceptr(mdef)))
+            && (racial_vampire(mdef) || is_demon(raceptr(mdef))
+                || is_vampshifter(mdef)
+                || (mdef == &gy.youmonst && vampire_form))
             && ((strong && !wearing_shield)
                 || !mon_bimanual(mtmp, otmp)))
             return otmp;
