@@ -1032,7 +1032,7 @@ hitum(struct monst *mon, struct attack *uattk)
             if (dmg_wep < 0)
                 dmg_wep = 0; /* beware negative rings of increase damage */
             dmg_wep = Maybe_Half_Phys(dmg_wep);
-            if (Hate_material(uwep->material)) {
+            if (Hate_material(uwep->material) && !(Barkskin || Stoneskin)) {
                 /* dmgval() already added extra damage */
                 searmsg(&gy.youmonst, &gy.youmonst, uwep, FALSE);
                 exercise(A_CON, FALSE);
@@ -6791,7 +6791,8 @@ mhitm_ad_phys(
                 }
                 if (!mhm->damage)
                     return;
-                if (Hate_material(otmp->material)) {
+                if (Hate_material(otmp->material)
+                    && !(Barkskin || Stoneskin)) {
                     searmsg(magr, &gy.youmonst, otmp, FALSE);
                     exercise(A_CON, FALSE);
                 }
@@ -8475,7 +8476,7 @@ missum(
         /* the hero grazes a material they hate on the way past */
         if (!uwep && !uarmg
             && Hate_material(blocker->material)
-            && !(has_barkskin(mdef) || has_stoneskin(mdef))) {
+            && !(Barkskin || Stoneskin)) {
             searmsg(mdef, &gy.youmonst, blocker, FALSE);
             /* glancing blow */
             losehp(rnd(sear_damage(blocker->material) / 2),

@@ -1532,7 +1532,10 @@ toss_up(struct obj *obj, boolean hitsroof)
         hitfloor(obj, FALSE);
         gt.thrownobj = 0;
     } else { /* neither potion nor other breaking object */
-        boolean hatemat = Hate_material(obj->material),
+        /* skin turned to bark or stone feels no hated material, as in
+           dmgval() */
+        boolean hatemat = (Hate_material(obj->material)
+                           && !(Barkskin || Stoneskin)),
                 less_damage = (hard_helmet(uarmh) && !hatemat),
                 harmless = (stone_missile(obj)
                             && passes_rocks(gy.youmonst.data)),

@@ -239,7 +239,8 @@ thitu(
             potionhit(&gy.youmonst, obj, POTHIT_OTHER_THROW);
             *objp = obj = 0; /* potionhit() uses up the potion */
         } else {
-            if (obj && Hate_material(obj->material)) {
+            if (obj && Hate_material(obj->material)
+                && !(Barkskin || Stoneskin)) {
                 /* extra damage already applied by dmgval() */
                 searmsg((struct monst *) 0, &gy.youmonst, obj, FALSE);
                 exercise(A_CON, FALSE);
