@@ -2973,7 +2973,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       wolf form, and is_vampshifter() keys on the monster vampire
       species in ->cham, which the race's forms do not carry.
       Hate_material() and mon_hates_material() both miss it.
-      CLOSED 2026-11-04 (session 291; BUG-2852; commit pending; plan
+      CLOSED 2026-11-04 (session 291; BUG-2852; commit bada99fce,
+      tracker a6a8b5f3b; plan
       /root/.claude/plans/bugfix-touch-sear-residue-vampire-silver-shape-bonus.md).
       RULED (as recommended): only the vampire's forms keep the race's
       aversion; an elven Druid in #wildshape keeps 0.9.3's no-iron
@@ -3004,8 +3005,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hitmu() adds a negative ring of increase damage without
       mdamagem()'s clamp at 0 (BUG-2431), so it can eat part of the
       new contact sear when the hero's AC is not negative.
-      CLOSED 2026-11-04 (session 291; BUG-2853..2855; commit
-      pending). (1) RULED intent (master 98378821f: wildshape "gains
+      CLOSED 2026-11-04 (session 291; BUG-2853..2855; commits
+      8c037c3b3 / f00e97fac / e618aeb76, tracker a6a8b5f3b). (1)
+      RULED intent (master 98378821f: wildshape "gains
       bonuses to both damage output and to-hit"): the bonus moved
       from dmgval() into special_dmgval(), once per natural hit,
       gear or not, none vs a noncorporeal target, none on a kick vs
