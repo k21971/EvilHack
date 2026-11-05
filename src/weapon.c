@@ -1527,7 +1527,7 @@ hwep_target(struct monst *mtmp)
 boolean
 would_prefer_hwep(struct monst *mtmp, struct obj *otmp)
 {
-    struct obj *wep;
+    struct obj *wep, *mw;
     struct obj *brac;
     struct monst *mdef; /* target under certain scenarios */
     int i = 0;
@@ -1539,6 +1539,14 @@ would_prefer_hwep(struct monst *mtmp, struct obj *otmp)
 
     wep = select_hwep(mtmp);
     mdef = hwep_target(mtmp);
+
+    /* a copy of the wielded type is wanted only when it is better than
+       the copy in hand; testing against the wielded copy rather than
+       select_hwep()'s pick, which can be any copy, keeps a pet from
+       picking up and dropping copies at random */
+    mw = MON_WEP(mtmp);
+    if (mw && otmp != mw && otmp->otyp == mw->otyp)
+        return better_wielded_copy(mtmp, otmp, mw, mdef);
 
     if (wep) {
         if (wep == otmp)

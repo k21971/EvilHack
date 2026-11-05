@@ -229,6 +229,12 @@ could_use_item(struct monst *mtmp, struct obj *otmp,
                     if (is_ammo(otmp) || is_missile(otmp)
                         || throwing_weapon(otmp))
                         continue;
+                    /* nor is a better copy of a weapon a duplicate of
+                       a worse one (the foe isn't known here, so a
+                       silver copy counts) */
+                    if (better_wielded_copy(mtmp, otmp, otmp2,
+                                            (struct monst *) 0))
+                        continue;
                     if (stashing)
                         goto hero_dupe_check;
                     return FALSE;
