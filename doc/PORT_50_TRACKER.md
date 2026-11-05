@@ -14467,7 +14467,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] MED: a better copy of the wielded type is never wielded (minted
       2026-11-05, session 293, code reviewer; master-shared; reasoned
       from the code, NOT run). CLOSED 2026-11-05, session 294,
-      BUG-2861 (commit pending).
+      BUG-2861 (7e336074b).
       - mon_wield_item()'s "already wielding it" test compares otyp,
         so an artifact, a silver copy or a higher-enchantment copy of
         the wielded type is never swapped in. mon.c's I_SPECIAL
@@ -14507,12 +14507,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       copy in a sack: POST one remove, then wields it, no put /
       remove repeats; dwarf lord off-hand +3 axe promoted once on
       POST. Paniclogs clean (one PRE staging HP line).
-      FOLDED BY RULING: pets want a better copy (BUG-2862, commit
-      pending: would_prefer_hwep() judges a copy of the wielded type
+      FOLDED BY RULING: pets want a better copy (BUG-2862,
+      98a76e968: would_prefer_hwep() judges a copy of the wielded type
       against the copy in hand; could_use_item()'s duplicate check
       skips a carried copy the new one beats) and an artifact
       launcher ranks above plain copies in oselect_recurse()
-      (BUG-2863, commit pending; launchers only - select_rwep()
+      (BUG-2863, a99421cc6; launchers only - select_rwep()
       refuses an artifact throwable, so a thrown type keeps the dice;
       reviewer HIGH). BATTERY T2 (PRE / POST): a pet holding a +0 long
       sword - floor +3 copy could_use_item PRE 0 / 50, POST 50 / 50,
@@ -14591,7 +14591,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
           to a silver copy of it; bounded, silver is never given up.
 - [x] MED: pets refuse +0 weapons, weapon-tools and unknown rings
       (minted AND closed 2026-11-05, session 294, battery T2 find;
-      BRANCH-ONLY port regression; BUG-2864, commit pending).
+      BRANCH-ONLY port regression; BUG-2864, c7a426ed9).
       - Session 71's could_use_item() port used
         objects[].oc_charged in place of master's 3.6 is_chargeable()
         (read.c, gone in 5.0) for its "used charges or was
@@ -14618,8 +14618,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW: a monster moving its off-hand weapon to its main hand prints
       "(alternate weapon; not wielded)" (minted AND closed 2026-11-05,
       session 294, battery T1 find; master-shared; EvilHack-only
-      monster dual-wield, so no upstream row; BUG-2865, commit
-      pending, rides the BUG-2861 commit).
+      monster dual-wield, so no upstream row; BUG-2865, rides
+      BUG-2861's commit 7e336074b).
       - mon_wield_item() clears mw2 for the promotion but left the
         object's W_SWAPWEP bit until the final owornmask = W_WEP, so
         the wield line's doname() appended the hero's alternate-weapon
@@ -36346,7 +36346,7 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-04 | dismount_steed(): a steed that life-saves after killed() / monkilled() in the no-room arm stays on steedcc, the hero's own square (sanity_check "you over monster"); one saved after falling into water or lava is left there and dies at its next move. Official_nh50 b0c09c878; BUG-2847 / 2848, src/steed.c | found (branch-fixed a955819a1: limbo for the no-room survivor; a saved steed is moved out once the hero lands - EvilHack ruling, the guilt kept); not sent; triage pending |
 | 2026-11-04 | e_died()'s "kill it again" (98da3a3db) leaves a monster that survives both kills - a vampshifter in a shifted form wearing life saving (lifesaved_monster(), then vamprises()) - on the crushed square at the `FIXME: still not dead?` arm, which for a raised portcullis is inside the DBWALL. Official_nh50 b0c09c878; BUG-2850, src/dbridge.c | found (branch-fixed c493ead78: a survivor is rloc()ed, or deal_with_overcrowding(); a moat / lava fall survivor leaves like minliquid()'s); not sent; triage pending |
 | 2026-11-04 | mhitm_ad_sedu() (mhitm steal) calls dismount_steed(DISMOUNT_POLY) when the item is the hero's steed's saddle, then extract_from_minvent() / add_to_minv() it; a dismount over water or lava that kills the steed has dropped the saddle (impossible "extract_from_minvent called on object not in minvent", then panic "add_to_minv: obj where=1, not free"), and over open air mongone() has freed it (use after free). Official_nh50 b0c09c878; BUG-2851, src/uhitm.c | found (branch-fixed 9550a7ea2: the theft fails when the dismount killed or moved the steed); not sent; triage pending |
-| 2026-11-05 | A monster wielding a plain weapon never wields an artifact of the same type it gets later: select_hwep() prefers artifacts, but mon_wield_item() reads `mw_tmp->otyp == obj->otyp` as "already wielding it" and returns. Producer: a likes_objs monster picks up the artifact (monmove.c practical[]) and the NEED_WEAPON path calls mon_wield_item(), so a monster holding a long sword that picks up Frost Brand (unaligned, anyone can touch it) keeps the plain sword. Official_nh50 b0c09c878 (weapon.c mon_wield_item(); vanilla's oselect() takes the first copy, so only the artifact case applies there); BUG-2861, src/weapon.c | found (branch-fixed, commit pending: better_wielded_copy(); vanilla's fix would be the artifact test alone); not sent; triage pending |
+| 2026-11-05 | A monster wielding a plain weapon never wields an artifact of the same type it gets later: select_hwep() prefers artifacts, but mon_wield_item() reads `mw_tmp->otyp == obj->otyp` as "already wielding it" and returns. Producer: a likes_objs monster picks up the artifact (monmove.c practical[]) and the NEED_WEAPON path calls mon_wield_item(), so a monster holding a long sword that picks up Frost Brand (unaligned, anyone can touch it) keeps the plain sword. Official_nh50 b0c09c878 (weapon.c mon_wield_item(); vanilla's oselect() takes the first copy, so only the artifact case applies there); BUG-2861, src/weapon.c | found (branch-fixed 7e336074b: better_wielded_copy(); vanilla's fix would be the artifact test alone); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
