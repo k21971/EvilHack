@@ -17,10 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-04, after session 292's sear skin
-  gaps slice: items (d) and (f) of the touch-sear residue LOW closed,
-  the row stays open for its record items; no rows minted):
-  646 rows closed, 56 open
+- Phase 2 status (refreshed 2026-11-05, after session 293's
+  stuck-monster slice: the two LOW investigations closed as not
+  reproduced; the bagged-spare loop and master's mattacku() return
+  quirk minted and closed; one MED and one LOW residue row minted):
+  650 rows closed, 56 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -30,8 +31,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 1 MED: door-material colors (an unported master feature; it
-    stays with Phase 4).
+  - 2 MED: door-material colors (an unported master feature; it
+    stays with Phase 4); a better copy of the wielded type is never
+    wielded (minted session 293 by the code reviewer, reasoned from
+    the code: the Excalibur owner a wish summons keeps the Knight
+    kit's plain long sword; reproduce first).
     Session 288 closed master 1ae3ddbbc's hands-free gates
     (BUG-2836 / 2837): a tortle hiding in its shell, or a hero whose
     welded weapon ties up both hands, can't use most tools, open or
@@ -362,7 +366,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 52 LOW: small parity rows, quirks and watch/record-only items.
+  - 51 LOW: small parity rows, quirks and watch/record-only items.
+    Session 293 closed the two stuck-monster investigations as not
+    reproduced on either tree (an unarmed stone giant hits you every
+    turn it acts; an overloaded Uruk-hai still approaches and
+    shoots - the quiet turns were its speed rolls). It fixed the
+    loop the batteries found (BUG-2860): a monster with a spare copy
+    of its wielded weapon in a bag no longer pulls it out and puts
+    it back again and again; by ruling a dual-wielder still takes
+    the copy into an empty off hand. Master's mattacku() return
+    (BUG-2859: on 0.9.3 an attacking long worm's tail never bites
+    and taunts stop) was kept vanilla by ruling.
     Session 292 closed two items of the touch-sear residue row
     (BUG-2856..2858): a monster's bark or stone skin stops your own
     sears from a bow, an arrow or a dart used in melee, arrows thrown
@@ -14213,7 +14227,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mcansee/mblinded/mstun/mconf/wormno landed 2026-09-02;
       mwither/minsects/mbreakboulder ride the owner rows minted
       there).
-- [ ] LOW investigation: monster holding more than it can carry stops
+- [x] LOW investigation: monster holding more than it can carry stops
       acting (battery observation 2026-08-23, unadjudicated, NOT the
       mberserk slice's doing). A hostile Uruk-hai that picked up a
       418-weight large box ("The Uruk-hai picks up a large box.")
@@ -14225,6 +14239,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dochug ranged scan, and whether master's can_carry() "already
       overloaded -> 0" pre-check (mon.c) travelled - the branch's
       can_carry() tests curr + newload only.
+      CLOSED 2026-11-05 (session 293): NOT REPRODUCED on today's code
+      or on master (scratch build acb41484). Master's can_carry() has
+      no "already overloaded" pre-check either, and monster movement
+      has no load penalty on either tree. Battery T2 (Uruk-hai with a
+      wielded orcish bow and 20 arrows, 10 squares off, in line and
+      out of line): own pack 141 / 1000, a large box 530 / 1000, the
+      box plus a cursed loadstone 1030 / 1000, and the no-box control
+      again. It approached or shot in every run on both builds. Every
+      idle window had no dochug() at all: speed 7 rounds to 0 or 12
+      movement each turn (the longest gap, 8 turns, came in the
+      no-box control). Since August, mpickstuff() loots a box where
+      it stands (mopen_container()); leg U2 showed "The Uruk-hai
+      carefully opens the large box..." and then "picks up an
+      unlocked large box." for the emptied box (searches_for_item()
+      takes an unlocked container, master a4184c868). That leg found
+      the bagged-spare loop (BUG-2860, row below). Session 293's T4
+      also saw an archer lined up with a hero who walked away stand
+      still (record, residue row below); that needs the hero within
+      7 squares, so it does not explain this row's distance 10.
 - [x] LOW: the Sword of Kas and the hero's barbed needles run the
       hero poison block, and any dipped coating can wear off
       (BUG-2101, 2104, 2105) - FIXED 2026-10-02 (session 172, commit
@@ -14333,7 +14366,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       crystal two-handed sword named the Sword of Kas' power!" at
       delivery and again at wield, and can come cursed (it welded
       twice in six games).
-- [ ] LOW investigation: weaponless AT_WEAP-only monster never
+- [x] LOW investigation: weaponless AT_WEAP-only monster never
       attacked (battery observation 2026-08-23, unadjudicated, NOT
       this slice's doing - weapon selection untouched). A hostile,
       awake, adjacent stone giant with mw == 0 and an EMPTY
@@ -14348,6 +14381,129 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       upstream of mattacku - monmove/m_move fight decision is the
       first suspect. Check master with the same staging before
       diagnosing.
+      CLOSED 2026-11-05 (session 293): NOT REPRODUCED on today's code
+      or on master (scratch build acb41484). Battery T1, on both
+      builds:
+      - G1: the row's staging (stripped by gdb: mw 0, empty pack,
+        weapon_check 1).
+      - G2: a natural giant carrying gems only.
+      - G3: the club control.
+      The adjacent giant hit the hero on every turn it acted. Branch
+      G1 tracer: dochug 17, mattacku 16, hitmu 16; the extra dochug
+      was its m_move after a knockback. Master G2: dochug 15, hitmu
+      15. thrwmu() returned 0 and mon_wield_item() returned 0 on every
+      call. The multi-turn gaps were movement allocation (no dochug
+      ran), not silent turns. T1 also found master's mattacku()
+      return quirk (BUG-2859, row below).
+- [x] LOW: a monster with a spare copy of its wielded weapon in a bag
+      pulls it out and puts it back, over and over (minted AND fixed
+      2026-11-05, session 293; BUG-2860; commit pending; master-shared,
+      master f2f051a47; plan
+      /root/.claude/plans/bugfix-stuck-monster-investigations.md).
+      Cause:
+      - oselect_recurse() searches carried bags and ranks same-type
+        candidates by two random dmgval() rolls, so between two
+        identical bows the pick is a coin flip on every call.
+      - mon_wield_item() took a bagged pick out (a spent turn, "<Mon>
+        removes <obj> from <bag>.") before its "already wielding it"
+        test, which never swaps one copy of a type for another.
+      - m_stash_items() spares only that call's random picks, so the
+        loose copy went back in ("puts <obj> into his <bag>.").
+      FIX:
+      - mon_wield_item() pulls a bagged pick only when it is not the
+        wielded type, or when the monster can dual-wield, its off hand
+        is empty, the copy is an off-hand candidate and won't merge
+        into the wielded stack.
+      - The off-hand filter moved out of select_offhand_hwep() into
+        offhand_candidate(), unchanged.
+      - m_stash_items() keeps a dual-wielder's best off-hand candidate
+        out of the bag while that hand is empty.
+      RULED: keep the off-hand pull (0.9.3's result for dual-wielders).
+      Reviewer CONDITIONAL PASS; its MED (the m-v-m loop) and LOW (a
+      mergeable copy is pulled, merges, the off hand stays empty) were
+      folded by ruling.
+      Batteries T3 / T4 (PRE 14081402, POST 64eee0b1, every leg PASS,
+      paniclogs clean):
+      - Uruk-hai, spare orcish bow bagged: PRE "removes a crude bow
+        from the bag." with mw unchanged, then puts / removes; POST
+        none, the spare stays bagged.
+      - Elven lord, spare elven bow bagged: PRE 3 removes and 3 puts in
+        20 actions, POST none. Bows are two-handed here, so it cannot
+        dual-wield and the plain same-type gate applied.
+      - Dwarf lord, identical bagged dagger: PRE pulled it and it
+        merged (mw quan 2, off hand empty); POST no pull, an attack on
+        15 of 15 actions.
+      - Peaceful elven lord fighting a frozen hill orc away from the
+        hero: PRE pull / put / pull for 11 actions before "wields an
+        elven short sword in his other hand."; POST one pull, then the
+        off hand, no put (3 trials).
+      - Dwarf lord with an axe and a bagged axe: "removes an axe from
+        the bag." then "wields an axe in his other hand." on PRE, POST
+        and master.
+      - Controls (a weapon only in the bag; no bagged bow) behave the
+        same on both builds.
+- [x] Master divergence, kept vanilla: master's mattacku() reports a
+      live attacker as dead (minted AND closed 2026-11-05, session 293;
+      BUG-2859, master frozen-unfixed; found by battery T1).
+      - Master 866d8a7bd ends mattacku() with `return MM_HIT; /*
+        monster did attack */`, and master's dochug() reads any
+        non-zero as "monster died" and returns early.
+      - So on live 0.9.3 a monster that attacks the hero skips
+        wormhitu() (a long worm's tail segments next to the hero never
+        bite while the head attacks), cuss() (the Wizard's and demons'
+        taunts), quest_talk() and the Purgatory talk; dochugw()'s
+        occupation check also sees a non-zero return.
+      - The branch's mattacku() returns 0 for a live attacker (vanilla
+        5.0), so all of these happen.
+      RULED: keep the branch (the code's own "monster died" intent and
+      vanilla). No code change.
+- [ ] MED: a better copy of the wielded type is never wielded (minted
+      2026-11-05, session 293, code reviewer; master-shared; reasoned
+      from the code, NOT run).
+      - mon_wield_item()'s "already wielding it" test compares otyp,
+        so an artifact, a silver copy or a higher-enchantment copy of
+        the wielded type is never swapped in.
+      - Example: wishing for Excalibur summons its owner (objnam.c).
+        The owner wields the Knight kit's plain long sword at
+        makemon(), is then given Excalibur, and mon_wield_item()'s
+        select_hwep() picks Excalibur, but same type means it keeps
+        the plain sword (its shield also blocks the off hand).
+      - Frost Brand and Snickersnee (Samurai katana kit) look the
+        same.
+      NEXT: reproduce the Excalibur owner on both trees, then rule
+      what "better" means (artifact over plain, higher spe, silver vs
+      a silver-hater) before a fix; mon.c's I_SPECIAL re-check
+      (bestwep->otyp != mw_tmp->otyp) has the same blind spot.
+- [ ] LOW: monster weapon-pick residue (minted 2026-11-05, session 293;
+      record; master-shared unless noted).
+      (a) oselect_recurse() ranks same-type candidates by two random
+          dmgval() rolls, so a +0 can beat a +3 of the same type, and
+          would_prefer_hwep() / would_prefer_rwep() compare random
+          dmgval() rolls the same way (vanilla's shape for the pet
+          tests).
+      (b) oselect_recurse(), find_artifact_recurse() and
+          find_silver_recurse() also search locked containers and
+          cursed bags of holding, which mon_container_extract()
+          refuses: a best pick in one leaves mon_wield_item()
+          returning 0 on every call with no next-best try.
+      (c) score_artifact_weapon() rolls dice too (its own comment),
+          so two near-equal artifacts of different types can churn
+          pull / wield / stash like BUG-2860.
+      (d) BUG-2860's off-hand pull can fire although open inventory
+          could fill the off hand that call, and a cursed bag's
+          refusal skips that call's mon_wield_offhand(); both are
+          bounded, since the gate closes once mw2 is set, and match
+          0.9.3.
+      (e) dochug()'s ranged scan (master's) spends the move whenever
+          mfind_target() returns the hero lined up within 7 squares,
+          even when thrwmu() then declines to fire at a retreating
+          hero (URETREATING, odds rn2(BOLT_LIM - distance)). So an
+          archer stands still while the hero walks away along its
+          line, instead of the chase thrwmu()'s comment intends (T4
+          saw 4 still actions).
+      (f) Ammo and daggers in a carried bag are fired or thrown
+          straight from it with no extraction turn (master's;
+          obj_extract_self() keeps the bag's weight right).
 - [x] objnam.c wish tables and plural handling (NEW, minted AND closed
       2026-07-28 by the oddities the combat/AC battery reported while
       staging test gear). Phase 1's object swap ec925f41a brought
@@ -36449,6 +36605,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-05 | Stuck-monster slice rulings (Phase 2 session 293, AskUserQuestion x5 with 8 questions - two of them battery launch asks - all as recommended). (1) SLICE: the two LOW stuck-monster investigations, reproduce on both trees first (the kill-credit LOWs, hit-chain anger and touch-sear record items not taken); both not reproduced. (2) MASTER'S mattacku() RETURN (battery T1 find): keep the branch's vanilla 0 for a live attacker - long worm tails bite, cuss() / quest_talk() / Purgatory talk run while a monster fights; master's MM_HIT return archived frozen-unfixed (BUG-2859). Rejected: restore 0.9.3's skips, and a no-worm-tails hybrid. (3) THE BAGGED-SPARE LOOP (battery T2 find): trace and fix in this slice (BUG-2860). (4) OFF HAND: keep the pull for a dual-wielder with an empty off hand when the copy is an off-hand candidate (0.9.3's result). Rejected: never pull a same-type copy. (5) FOLDS (reviewer MED + LOW): m_stash_items() keeps the off-hand candidate out of the bag; no pull for a copy that would merge into the wielded stack. (6) SAME-TYPE BETTER COPY (reviewer find, the Excalibur owner): mint a MED row, reproduce first. Plan-approved, not asked: the pull gate sits in mon_wield_item() before mon_container_extract(); offhand_candidate() is select_offhand_hwep()'s filter, moved unchanged. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-04 | Sear skin gaps slice rulings (Phase 2 session 292, AskUserQuestion x4 - one a battery launch ask - all as recommended). (1) SLICE: touch-sear residue items (d) + (f) (the stuck-monster investigations, kill-credit LOWs and hit-chain anger row not taken). (2) ZEROED AD_CONF: a blow a negative ring of increase damage zeroed does nothing - no "You are getting confused." line, no confusion, no attacker cooldown. Rejected: confuse for at least 1 turn. (3) SIBLINGS (reviewer finds): the same rule for the monk player-monster's stunning kick, the AD_DREN and the AD_STUN hero arms. (4) SCOPE: hero side only; a zeroed m-v-m AD_CONF blow still confuses the monster (binary, never read damage; master). Plan-approved, not asked: the two hmon sear arms skip the sear for a bark- or stone-skinned target; the hated_obj-only sites stay as they are (searmsg() already gates them). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-04 | Touch-sear residue slice rulings (Phase 2 session 291, AskUserQuestion x3 - one a battery launch ask - all as recommended). (1) SLICE: the two touch-sear residue LOWs (vampire #shapechange silver + the sear-path nits; the hit-chain anger, kill-credit and limbo residue rows not taken). (2) WILD-SHAPE BONUS: master 98378821f's intent - the +2-6 lands once on every physical natural hit, gear or not (bites and the vampire forms included), thrown and kicked objects lose it, shades take none, engulfing stays without it; 0.9.3 only delivered it through a gloved / ringed / booted / helmed item roll. (3) RACE AVERSIONS IN FORM: vampire forms only (master's own "shapeshifted vampires still hate silver"); an elven Druid in #wildshape keeps 0.9.3's no-iron behavior. Folded in from the Plan pass without a ruling: mon_hates_blessings() and find_silver_recurse() for the form, missum()'s skin subject, the kick-vs-thick-hide exclusion. | maintainer |
 | 2026-11-04 | Limbo survivor slice rulings (Phase 2 session 290, AskUserQuestion x6 - two of them battery launch asks - all as recommended). (1) SLICE: the limbo survivor row + the kill-arm survivor row (the touch-sear residue and hit-chain anger rows not taken). (2) SAVED STEED: a steed its amulet saves after a dismount into water or lava is moved out at once, after the hero lands (gear wet / burnt, random spot, limbo if full). Rejected: master's leave-it-in. (3) GUILT: "You feel guilty.", -1 and the abuse record stay when it lives (master). (4) DRAWBRIDGE: the crushed rider's steed gets vanilla's second kill; a survivor is thrown clear ("%s is thrown clear of the drawbridge!") or goes into limbo. (5) CHAIN: the chain dismount too, once chain_set_down() is done. (6) MOAT FALL: a survivor leaves like a saved drowner, no line; one now flying stays. (7) NO ROOM: a steed with no room anywhere goes into limbo, not mongone() (dismount_steed()'s steedcc case and no-room survivor, separate_steed_and_rider()). (8) SADDLE THEFT (design-review find): fold in; the theft fails silently. (9) WORDING (battery T3 find): name the monster before the move in both thrown-clear lines, master's unique line included ("It is thrown clear..." on master when it lands out of sight). Plan-approved, not asked: rloc_or_overcrowd() routes a ridden steed's overcrowding to its rider; mon_leaves_liquid() is minliquid_core()'s tail; after review: the rloc_to_core() own-square guard, newcham() / new_were() / decide_to_shapeshift() / Conflict throw / caster checks via mon_lost_in_rloc(). | maintainer (1-9); session, plan-approved (rest) |
