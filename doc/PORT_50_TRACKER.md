@@ -17,12 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-05, after session 294's
-  better-copy slice: the better-copy MED closed with its two ruled
-  folds, BUG-2861..2863; a branch-only pet regression and a
-  hand-switch message bug minted and closed, BUG-2864 / 2865; one
-  upstream row):
-  653 rows closed, 55 open
+- Phase 2 status (refreshed 2026-11-05, after session 295's
+  held-fire slice: the weapon-pick residue row's archer item closed,
+  BUG-2866; master's unported ranged AD_SPEL / AD_CLRC casting
+  minted as a MED):
+  653 rows closed, 56 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -32,8 +31,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 1 MED: door-material colors (an unported master feature; it
-    stays with Phase 4).
+  - 2 MED: door-material colors (an unported master feature; it
+    stays with Phase 4), and master's ranged AD_SPEL / AD_CLRC
+    casting (minted session 295: master's mattacku() casts at range,
+    the branch sends every ranged AT_MAGC to buzzmu(), so those
+    casters are silent at range).
+    Session 295 closed the weapon-pick residue row's archer item
+    (BUG-2866): a weapon-only thrower that holds its fire at a hero
+    walking away now moves instead of standing still, with the same
+    odds of firing.
     Session 294 closed the better-copy MED (BUG-2861): a monster now
     swaps in a better copy of the weapon type it holds (artifact,
     silver against a vampire or demon, then enchantment, material
@@ -5291,6 +5297,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       XL30 heroes attract heavy spawn churn - stage multi-step
       m-v-m scenarios EARLY in a game, not at T:150+; a fire
       ray kills your own pet in the line (check the path).
+      CORRECTED 2026-11-05 (session 295): "directed learned spells
+      vs the HERO fire only from castmu (adjacent)" holds on the
+      branch but is NOT master parity - master's mattacku() casts
+      at range (877865d39 + 116430b36), a hunk this port left out.
+      The scan-gate half (adtyp <= AD_LOUD) is master parity. See
+      the MED row below.
+- [ ] MED: master's ranged AD_SPEL / AD_CLRC casting is unported
+      (minted 2026-11-05, session 295, by the held-fire slice's Plan
+      pass; ruled a separate row, AskUserQuestion). Master
+      877865d39 (spellbook learning, 2025-12-13) changed mattacku()'s
+      AT_MAGC arm to send only beam types (adtyp <= AD_SPC2) to
+      buzzmu() at range and AD_SPEL / AD_CLRC to castmu(); 116430b36
+      (2025-12-14) added the line-of-sight gate: at range and lined
+      up, castmu(mtmp, mattk, TRUE, foundyou) (directed spells: psi
+      bolt, curse items, destroy armor, touch of death ...); at
+      range and not lined up, castmu(mtmp, mattk, FALSE, FALSE)
+      (undirected only); adjacent unchanged. The branch's arm
+      sends every range2 AT_MAGC to buzzmu(), which returns at once
+      for a non-beam adtyp, so liches, priests, wizards and the
+      other AD_SPEL / AD_CLRC casters are silent at range on the
+      branch, while on 0.9.3 they cast from range. Port the arm;
+      check each directed spell's range assumptions on the branch's
+      castmu() (it was only reached adjacent), the mspec_used /
+      learned-spell paths and the hero-target attribution. RIDER:
+      the held-fire slice's mattacku() bookkeeping (BUG-2866) must
+      set other_ranged in the new ranged castmu() arm, or a weapon
+      user that cast at range would also move.
 - [x] Zombie/were/Draugr mechanics (zombify, binding ritual)
       PORTED + REVIEWED + COORDINATOR-FIXED 2026-07-16, COMMITTED
       2026-07-17 as 7b19b7ba8 (36 files +1094/-181; port subagent 34
@@ -14563,6 +14596,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
           archer stands still while the hero walks away along its
           line, instead of the chase thrwmu()'s comment intends (T4
           saw 4 still actions).
+          (e) CLOSED 2026-11-05 (session 295, BUG-2866, commit
+          pending; plan /root/.claude/plans/bugfix-archer-holds-
+          fire-gives-chase.md). RULED: weapon-only users, one roll
+          then move. thrwmu() sets gm.mheld_fire on the retreat
+          hold only; mattacku() clears it on entry and again at its
+          end when a weapon slot acted, another ranged arm ran
+          (gaze, breath, spit, scream, a beam AT_MAGC) or an
+          offensive item was tried. dochug()'s scan then falls
+          through to movement when the hero's last action was a
+          step (u.umoved), the monster isn't next to the real hero
+          (a displaced image can hide one) and it isn't a
+          pick-needing digger wielding a launcher (its keep-away
+          step can dig into rock, and the pick / launcher wields
+          would alternate); phase four makes no second attack.
+          Battery T1 (hill orc, 10 daggers, hero walking away)
+          PRE / MASTER STOOD 7 / 33 each, POST 0 STOOD and every
+          one of 20 held moves stepped toward the hero; throw
+          shares within noise; step-back-then-search PRE = POST
+          (u.umoved); approaching hero PRE = POST. T2: bow orc
+          holds -> m_move with the keep-away arm (appr -1) every
+          time, though m_move's item search sent 11 / 17 steps to
+          its own fired arrows; drider (spit) and dwarf with pick
+          and crossbow stand on both builds, no wield flip-flop;
+          elven lord one slot fired = no step, both held = one step
+          and no second roll. Paniclogs clean.
       (f) Ammo and daggers in a carried bag are fired or thrown
           straight from it with no extraction turn (master's;
           obj_extract_self() keeps the bag's weight right).
@@ -14589,6 +14647,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (l) mon_wield_item()'s launcher and digging-tool paths pass no
           foe, so a monster holding a plain bow or pick-axe swaps once
           to a silver copy of it; bounded, silver is never given up.
+      Added 2026-11-05, session 295 (held-fire slice; ruled, Plan
+      pass or reviewer LOWs):
+      (m) URETREATING compares against u.ux0 / u.uy0, which only a
+          step or a teleport updates, so thrwmu() keeps holding fire
+          at a hero who stepped back once and then stood (master and
+          vanilla). The u.umoved gate keeps such a monster standing.
+          Struggling in lava sets u.umoved without a step, so there
+          the monster moves.
+      (n) Ruled: a monster whose chain also tried breath, spit, gaze,
+          scream or a beam spell still stands on a declined attack
+          (Angels, Nazgul, iron golems, driders, Archons,
+          arch-devils), and so do pure spitters, breathers and
+          elemental casters (a spitter holds 1 - 1/(8-d) of the time).
+      (o) A pick-needing digger wielding a launcher keeps the
+          stand-still on a held throw (see (e)).
+      (p) After a held throw, a weapon user that also has AD_SPEL /
+          AD_CLRC may cast an undirected spell (summon, haste, cure)
+          instead of stepping, as on any non-scan move.
+      (q) A held archer with a launcher within dist2 25 takes
+          master's keep-away appr -1, but m_move()'s item search can
+          turn the step toward its own fired arrows (T2: 11 / 17);
+          the lined-up hero-first scan never let it collect them.
 - [x] MED: pets refuse +0 weapons, weapon-tools and unknown rings
       (minted AND closed 2026-11-05, session 294, battery T2 find;
       BRANCH-ONLY port regression; BUG-2864, c7a426ed9).
@@ -36734,6 +36814,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-05 | Held-fire slice rulings (Phase 2 session 295, AskUserQuestion x4 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the weapon-pick residue row's item (e), the archer standing still (kill-credit LOWs, the combined slice and the hit-chain anger row not taken). (2) SCOPE: weapon-only users - a monster whose hero-aimed ranged attempts were all weapon attacks and held fire moves instead; a chain that also tried breath, spit, gaze, scream or a beam spell keeps master's stand-still, as do pure spitters, breathers and elemental casters (rejected: every idle ranged attack moves). (3) ROLL ORDER: one roll, then move - the throw-or-move decision is made from where the archer stands with 0.9.3's odds, and no second ranged attack follows the step (rejected: move first then roll, vanilla's order; roll, move, roll again). (4) MASTER'S RANGED AD_SPEL / AD_CLRC CASTING (Plan-pass find, 877865d39 + 116430b36): mint a MED row rather than fold it in. Session calls, plan-approved: only thrwmu()'s retreat hold counts (not a lined_up() re-roll); the u.umoved, !m_next2u() and pick-needing-digger-with-a-launcher gates (Plan pass); the reviewer's three LOW folds (an exploded cursed wand counts as acting, the digger gate tests a wielded launcher, comment wording). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-05 | Better-copy slice rulings (Phase 2 session 294, AskUserQuestion x5 with 7 questions - two of them battery launch asks - all as recommended). (1) SLICE: the MED better-copy row (the archer standing still, the kill-credit LOWs and the combined slice not taken). (2) "BETTER": tiers plus fixed numbers - an artifact beats a plain copy (two same-type artifacts never swap); silver beats non-silver against select_hwep()'s silver foes, and a silver copy is never given up; otherwise enchantment + forging quality + material bonus - erosion; a tie keeps the copy in hand. Rejected: artifact only; a deterministic oselect_recurse() (it changes every weapon pick's RNG and stops session 293's off-hand pull). (3) FOLDS: pets want a better copy; an artifact launcher ranks first. (4) LAUNCHER (battery T2: the premise was false - the Longbow of Diana's owner is Orion carrying only the Longbow): keep commit 3 with a corrected message and re-test like-for-like. Rejected: drop it. (5) PET CHARGES (battery T2 find, a session 71 port regression): fix in this slice with master's is_chargeable() (BUG-2864). Rejected: mint a row for later. Plan-approved, not asked: m_stash_items() keeps a better copy out of the bag; welded and can't-touch guards; a pet's foe rolled once per wield decision; mon.c's re-check simplified; a NULL foe means "silver counts"; the reviewer HIGH fixes (launchers only in oselect_recurse(); could_use_item()'s duplicate check skips a beaten copy); the off-hand promotion line (BUG-2865, battery T1 find). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-05 | Stuck-monster slice rulings (Phase 2 session 293, AskUserQuestion x5 with 8 questions - two of them battery launch asks - all as recommended). (1) SLICE: the two LOW stuck-monster investigations, reproduce on both trees first (the kill-credit LOWs, hit-chain anger and touch-sear record items not taken); both not reproduced. (2) MASTER'S mattacku() RETURN (battery T1 find): keep the branch's vanilla 0 for a live attacker - long worm tails bite, cuss() / quest_talk() / Purgatory talk run while a monster fights; master's MM_HIT return archived frozen-unfixed (BUG-2859). Rejected: restore 0.9.3's skips, and a no-worm-tails hybrid. (3) THE BAGGED-SPARE LOOP (battery T2 find): trace and fix in this slice (BUG-2860). (4) OFF HAND: keep the pull for a dual-wielder with an empty off hand when the copy is an off-hand candidate (0.9.3's result). Rejected: never pull a same-type copy. (5) FOLDS (reviewer MED + LOW): m_stash_items() keeps the off-hand candidate out of the bag; no pull for a copy that would merge into the wielded stack. (6) SAME-TYPE BETTER COPY (reviewer find, the Excalibur owner): mint a MED row, reproduce first. Plan-approved, not asked: the pull gate sits in mon_wield_item() before mon_container_extract(); offhand_candidate() is select_offhand_hwep()'s filter, moved unchanged. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-04 | Sear skin gaps slice rulings (Phase 2 session 292, AskUserQuestion x4 - one a battery launch ask - all as recommended). (1) SLICE: touch-sear residue items (d) + (f) (the stuck-monster investigations, kill-credit LOWs and hit-chain anger row not taken). (2) ZEROED AD_CONF: a blow a negative ring of increase damage zeroed does nothing - no "You are getting confused." line, no confusion, no attacker cooldown. Rejected: confuse for at least 1 turn. (3) SIBLINGS (reviewer finds): the same rule for the monk player-monster's stunning kick, the AD_DREN and the AD_STUN hero arms. (4) SCOPE: hero side only; a zeroed m-v-m AD_CONF blow still confuses the monster (binary, never read damage; master). Plan-approved, not asked: the two hmon sear arms skip the sear for a bark- or stone-skinned target; the hated_obj-only sites stay as they are (searmsg() already gates them). | maintainer (1-4); session, plan-approved (rest) |
