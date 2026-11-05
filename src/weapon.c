@@ -12,6 +12,7 @@
 
 staticfn void give_may_advance_msg(int);
 staticfn void finish_towel_change(struct obj *obj, int) NONNULLARG1;
+staticfn int material_dmgbonus(struct obj *, boolean) NONNULLARG1;
 staticfn boolean could_advance(int);
 staticfn boolean peaked_skill(int);
 staticfn int slots_required(int);
@@ -365,6 +366,57 @@ hitval(struct monst *magr, struct obj *otmp, struct monst *mdef)
  * October 2000: It didn't.  Oh, well.
  */
 
+/* a weapon's damage adjustment for its material; with 'roll' set, a
+   steel or bronze edge rolls for steel's occasional extra point (the
+   roll is made for bronze too), otherwise only the fixed part counts */
+staticfn int
+material_dmgbonus(struct obj *otmp, boolean roll)
+{
+    int otyp = otmp->otyp, bonus = 0;
+
+    if (otmp->material == GLASS || otmp->material == GEMSTONE) {
+        /* glass and gemstone are extremely sharp */
+        if (objects[otyp].oc_dir & (PIERCE | SLASH))
+            bonus += 3;
+    } else if (otmp->material == GOLD || otmp->material == PLATINUM) {
+        /* heavy metals, but softer than stone */
+        if (objects[otyp].oc_dir & WHACK)
+            bonus += 1;
+    } else if (otmp->material == MITHRIL) {
+        /* light and sharp */
+        if (objects[otyp].oc_dir & (PIERCE | SLASH))
+            bonus += 2;
+    } else if (otmp->material == ADAMANTINE) {
+        /* also light and very sharp */
+        if (objects[otyp].oc_dir & (PIERCE | SLASH))
+            bonus += 3;
+    } else if (otmp->material == MINERAL) {
+        /* stone is heavy */
+        if (objects[otyp].oc_dir & (SLASH | WHACK))
+            bonus += 2;
+    } else if (otmp->material == PLASTIC || otmp->material == PAPER) {
+        /* just terrible weapons all around */
+        bonus -= 2;
+    } else if (otmp->material == WOOD && !is_elven_weapon(otmp)) {
+        /* poor at holding an edge */
+        if (is_blade(otmp))
+            bonus -= 1;
+    } else if (otmp->material == STEEL || otmp->material == BRONZE) {
+        /* steel/bronze has roughly the same density as iron, but
+           both are stronger and can have a finer edge on bladed
+           weapons */
+        if (objects[otyp].oc_dir & (PIERCE | SLASH)) {
+            bonus += 1;
+            /* technically steel can have a finer edge than bronze,
+               but we don't want to get too crazy with damage bonuses
+               here. Sometimes steel blades will get an extra bite */
+            if (roll && !rn2(3) && otmp->material == STEEL)
+                bonus += 1;
+        }
+    }
+    return bonus;
+}
+
 /*
  *      dmgval returns an integer representing the damage bonuses
  *      of "otmp" against the monster. magr is the attacker (the hero
@@ -483,46 +535,7 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
         }
 
         /* adjust for various materials */
-        if (otmp->material == GLASS || otmp->material == GEMSTONE) {
-            /* glass and gemstone are extremely sharp */
-            if (objects[otyp].oc_dir & (PIERCE | SLASH))
-                tmp += 3;
-        } else if (otmp->material == GOLD || otmp->material == PLATINUM) {
-            /* heavy metals, but softer than stone */
-            if (objects[otyp].oc_dir & WHACK)
-                tmp += 1;
-        } else if (otmp->material == MITHRIL) {
-            /* light and sharp */
-            if (objects[otyp].oc_dir & (PIERCE | SLASH))
-                tmp += 2;
-        } else if (otmp->material == ADAMANTINE) {
-            /* also light and very sharp */
-            if (objects[otyp].oc_dir & (PIERCE | SLASH))
-                tmp += 3;
-        } else if (otmp->material == MINERAL) {
-            /* stone is heavy */
-            if (objects[otyp].oc_dir & (SLASH | WHACK))
-                tmp += 2;
-        } else if (otmp->material == PLASTIC || otmp->material == PAPER) {
-            /* just terrible weapons all around */
-            tmp -= 2;
-        } else if (otmp->material == WOOD && !is_elven_weapon(otmp)) {
-            /* poor at holding an edge */
-            if (is_blade(otmp))
-                tmp -= 1;
-        } else if (otmp->material == STEEL || otmp->material == BRONZE) {
-            /* steel/bronze has roughly the same density as iron, but
-               both are stronger and can have a finer edge on bladed
-               weapons */
-            if (objects[otyp].oc_dir & (PIERCE | SLASH)) {
-                tmp += 1;
-                /* technically steel can have a finer edge than bronze,
-                   but we don't want to get too crazy with damage bonuses
-                   here. Sometimes steel blades will get an extra bite */
-                if (!rn2(3) && otmp->material == STEEL)
-                    tmp += 1;
-            }
-        }
+        tmp += material_dmgbonus(otmp, TRUE);
     }
 
     /* higher quality weapons can dish out a bit more damage,
@@ -909,7 +922,11 @@ staticfn struct obj *find_artifact_recurse(struct monst *, struct obj *,
 staticfn struct obj *find_silver_recurse(struct monst *, struct obj *,
                                          struct monst *, boolean, boolean);
 staticfn struct obj *find_gem_recurse(struct monst *, struct obj *);
+staticfn boolean silver_foe(struct monst *);
 staticfn struct monst *mon_melee_target(struct monst *);
+staticfn struct monst *hwep_target(struct monst *);
+staticfn struct obj *select_hwep_vs(struct monst *, struct monst *);
+staticfn int copy_quality(struct obj *) NONNULLARG1;
 staticfn boolean offhand_candidate(struct monst *, struct obj *);
 #define Oselect(x) \
     do {                                        \
@@ -996,6 +1013,15 @@ find_artifact_recurse(struct monst *mtmp, struct obj *start,
     return best;
 }
 
+/* is 'mdef' a foe select_hwep() reaches for a silver weapon against? */
+staticfn boolean
+silver_foe(struct monst *mdef)
+{
+    return (racial_vampire(mdef) || is_demon(raceptr(mdef))
+            || is_vampshifter(mdef)
+            || (mdef == &gy.youmonst && vampire_form));
+}
+
 /* recursive helper to find a silver weapon, including in containers */
 staticfn struct obj *
 find_silver_recurse(struct monst *mtmp, struct obj *start,
@@ -1020,9 +1046,7 @@ find_silver_recurse(struct monst *mtmp, struct obj *start,
         }
         if (otmp->oclass == WEAPON_CLASS && is_silver(otmp)
             && !(is_ammo(otmp) || is_missile(otmp))
-            && (racial_vampire(mdef) || is_demon(raceptr(mdef))
-                || is_vampshifter(mdef)
-                || (mdef == &gy.youmonst && vampire_form))
+            && silver_foe(mdef)
             && ((strong && !wearing_shield)
                 || !mon_bimanual(mtmp, otmp)))
             return otmp;
@@ -1101,13 +1125,7 @@ would_prefer_rwep(struct monst *mtmp, struct obj *otmp)
 
     /* score against the pet's actual hostile target when available,
        otherwise default to the player; mirrors would_prefer_hwep */
-    if (mtmp->mtame) {
-        mdef = mon_melee_target(mtmp);
-        if (!mdef)
-            mdef = &gy.youmonst;
-    } else {
-        mdef = &gy.youmonst;
-    }
+    mdef = hwep_target(mtmp);
 
     if (wep) {
         if (wep == otmp)
@@ -1494,6 +1512,18 @@ mon_melee_target(struct monst *mtmp)
     return bestmon;
 }
 
+/* the target a monster scores its weapons against: a pet's best melee
+   foe when it has one, otherwise the hero; a pet's pick rolls dice */
+staticfn struct monst *
+hwep_target(struct monst *mtmp)
+{
+    struct monst *mdef = (struct monst *) 0;
+
+    if (mtmp->mtame)
+        mdef = mon_melee_target(mtmp);
+    return mdef ? mdef : &gy.youmonst;
+}
+
 boolean
 would_prefer_hwep(struct monst *mtmp, struct obj *otmp)
 {
@@ -1508,14 +1538,7 @@ would_prefer_hwep(struct monst *mtmp, struct obj *otmp)
         return FALSE;
 
     wep = select_hwep(mtmp);
-
-    if (mtmp->mtame) {
-        mdef = mon_melee_target(mtmp);
-        if (!mdef)
-            mdef = &gy.youmonst;
-    } else {
-        mdef = &gy.youmonst;
-    }
+    mdef = hwep_target(mtmp);
 
     if (wep) {
         if (wep == otmp)
@@ -1555,19 +1578,17 @@ would_prefer_hwep(struct monst *mtmp, struct obj *otmp)
 struct obj *
 select_hwep(struct monst *mtmp)
 {
+    return select_hwep_vs(mtmp, hwep_target(mtmp));
+}
+
+/* select a hand to hand weapon for the monster to use against 'mdef' */
+staticfn struct obj *
+select_hwep_vs(struct monst *mtmp, struct monst *mdef)
+{
     struct obj *otmp;
-    struct monst *mdef; /* target under certain scenarios */
     int i;
     boolean strong = strongmonst(mtmp->data);
     boolean wearing_shield = (mtmp->misc_worn_check & W_ARMS) != 0;
-
-    if (mtmp->mtame) {
-        mdef = mon_melee_target(mtmp);
-        if (!mdef)
-            mdef = &gy.youmonst;
-    } else {
-        mdef = &gy.youmonst;
-    }
 
     /* bracers don't really count as shields */
     if (wearing_shield) {
@@ -1612,6 +1633,58 @@ select_hwep(struct monst *mtmp)
 
     /* failure */
     return (struct obj *) 0;
+}
+
+/* the fixed part of dmgval() for a copy of a weapon: enchantment,
+   material and forging quality less erosion; the dice are the same
+   for every copy of one type */
+staticfn int
+copy_quality(struct obj *otmp)
+{
+    int quality = 0;
+
+    if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+        quality += otmp->spe + material_dmgbonus(otmp, FALSE);
+    if (otmp->forged_qual == FQ_SUPERIOR)
+        quality += 1;
+    else if (otmp->forged_qual == FQ_EXCEPTIONAL)
+        quality += 2;
+    else if (otmp->forged_qual == FQ_INFERIOR)
+        quality -= 2;
+    return quality - greatest_erosion(otmp);
+}
+
+/* is weapon 'obj' better than 'mw', another copy of its type (the one
+   in hand, or one already carried)? Follows select_hwep()'s order: an
+   artifact beats a plain copy, silver beats non-silver against a foe
+   that select_hwep() picks silver for ('mdef'; NULL when the foe isn't
+   known, and then silver counts), then the better copy_quality() wins.
+   A silver copy is never given up for a plain one and a tie keeps the
+   one in hand, so the random rolls in select_hwep()'s pick can't make
+   the monster swap back and forth */
+boolean
+better_wielded_copy(struct monst *mon, struct obj *obj, struct obj *mw,
+                    struct monst *mdef)
+{
+    if (obj == mw || obj->otyp != mw->otyp
+        || (obj->oclass != WEAPON_CLASS && !is_weptool(obj)))
+        return FALSE;
+    /* can't let go of the one in hand */
+    if (mwelded(mw) && mon->data != &mons[PM_INFIDEL])
+        return FALSE;
+    /* the digging tools come from m_carrying(), which doesn't check */
+    if (!can_touch_safely(mon, obj))
+        return FALSE;
+    /* one it can no longer handle safely is always worth replacing */
+    if (!can_touch_safely(mon, mw))
+        return TRUE;
+    if (obj->oartifact || mw->oartifact)
+        return (obj->oartifact && !mw->oartifact);
+    if (is_silver(mw) && !is_silver(obj))
+        return FALSE;
+    if (is_silver(obj) && !is_silver(mw) && (!mdef || silver_foe(mdef)))
+        return TRUE;
+    return (copy_quality(obj) > copy_quality(mw));
 }
 
 /* can this monster fight with two weapons? */
@@ -1681,13 +1754,7 @@ select_offhand_hwep(struct monst *mon)
 
     /* score against the pet's hostile melee target when available;
        otherwise default to the player */
-    if (mon->mtame) {
-        mdef = mon_melee_target(mon);
-        if (!mdef)
-            mdef = &gy.youmonst;
-    } else {
-        mdef = &gy.youmonst;
-    }
+    mdef = hwep_target(mon);
 
     for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
         /* skip primary weapon */
@@ -1860,6 +1927,7 @@ int
 mon_wield_item(struct monst *mon)
 {
     struct obj *obj;
+    struct monst *mdef = (struct monst *) 0; /* melee foe, if known */
     boolean exclaim = TRUE; /* assume mon is planning to attack */
 
     /* This case actually should never happen */
@@ -1867,7 +1935,10 @@ mon_wield_item(struct monst *mon)
         return 0;
     switch (mon->weapon_check) {
     case NEED_HTH_WEAPON:
-        obj = select_hwep(mon);
+        /* pick the foe once: a pet's pick rolls dice, and the copy
+           test below must judge against the same foe */
+        mdef = hwep_target(mon);
+        obj = select_hwep_vs(mon, mdef);
         break;
     case NEED_RANGED_WEAPON:
         (void) select_rwep(mon);
@@ -1906,15 +1977,20 @@ mon_wield_item(struct monst *mon)
     }
     if (obj && obj != &hands_obj) {
         struct obj *mw_tmp = MON_WEP(mon);
-        boolean same_type = (mw_tmp && mw_tmp->otyp == obj->otyp);
+        /* another copy of the type in hand is swapped in only when it
+           is better (better_wielded_copy()); otherwise the monster
+           keeps the one it has */
+        boolean keep_mw = (mw_tmp && mw_tmp->otyp == obj->otyp
+                           && !better_wielded_copy(mon, obj, mw_tmp,
+                                                   mdef));
 
         /* if weapon is in a container, extract it first (uses turn);
-           a copy of the type already in hand is never swapped in
-           (below), so taking one out only spends the turn - unless
-           it can go in an empty off hand, and won't merge into the
-           wielded stack instead */
+           a copy that won't be swapped in (below) is taken out only
+           when it can go in an empty off hand and won't merge into
+           the wielded stack instead, since otherwise taking it out
+           only spends the turn */
         if (obj->where == OBJ_CONTAINED
-            && (!same_type
+            && (!keep_mw
                 || (can_dual_wield(mon) && !MON_WEP2(mon)
                     && offhand_candidate(mon, obj)
                     && !mergable(mw_tmp, obj)))) {
@@ -1929,8 +2005,8 @@ mon_wield_item(struct monst *mon)
             /* result==1 means already in inventory (shouldn't happen) */
         }
 
-        if (same_type) {
-            /* already wielding it */
+        if (keep_mw) {
+            /* already wielding it, or a copy as good */
             mon->weapon_check = NEED_WEAPON;
             /* still try to wield secondary weapon if capable */
             if (can_dual_wield(mon) && !MON_WEP2(mon))
@@ -1972,10 +2048,13 @@ mon_wield_item(struct monst *mon)
            place; skip setmnotwielded2 because its end_burn would
            extinguish a lit artifact only for the begin_burn below to
            immediately re-fire it, producing a duplicate "stops
-           shining"/"shines" message pair. The W_SWAPWEP bit is
-           cleared by the owornmask = W_WEP assignment further down */
-        if (obj == MON_WEP2(mon))
+           shining"/"shines" message pair. The W_SWAPWEP bit goes
+           now too, or the wield message below would describe the
+           weapon as an "alternate weapon; not wielded" */
+        if (obj == MON_WEP2(mon)) {
             MON_NOWEP2(mon);
+            obj->owornmask &= ~W_SWAPWEP;
+        }
         mon->weapon_check = NEED_WEAPON;
         if (canseemon(mon)) {
             boolean newly_welded;

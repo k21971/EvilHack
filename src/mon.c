@@ -1987,8 +1987,11 @@ movemon_singlemon(struct monst *mtmp)
                       && mtmp->data != &mons[PM_INFIDEL])
                     && !(mw_tmp && is_launcher(mw_tmp))) {
                     bestwep = select_hwep(mtmp);
-                    if (bestwep && bestwep != mw_tmp
-                        && (!mw_tmp || bestwep->otyp != mw_tmp->otyp)) {
+                    /* for another copy of the type in hand,
+                       mon_wield_item() decides whether it is worth
+                       the swap; keeping the one in hand only takes
+                       time if it fills an empty off hand */
+                    if (bestwep && bestwep != mw_tmp) {
                         mtmp->weapon_check = NEED_HTH_WEAPON;
                         if (mon_wield_item(mtmp) != 0)
                             return FALSE; /* spent the turn switching */

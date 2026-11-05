@@ -4186,6 +4186,9 @@ extern void searmsg(struct monst *, struct monst *, struct obj *,
 extern struct obj *select_rwep(struct monst *) NONNULLARG1;
 extern boolean monmightthrowwep(struct obj *) NONNULLARG1;
 extern struct obj *select_hwep(struct monst *) NONNULLARG1;
+extern boolean better_wielded_copy(struct monst *, struct obj *,
+                                   struct obj *,
+                                   struct monst *) NONNULLARG123;
 extern boolean would_prefer_rwep(struct monst *, struct obj *) NONNULLARG12;
 extern boolean would_prefer_hwep(struct monst *, struct obj *) NONNULLARG1;
 extern int mon_needs_ammo(struct monst *) NONNULLARG1;

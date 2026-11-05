@@ -4970,6 +4970,13 @@ m_stash_items(struct monst *mon, boolean creation)
             || obj->owornmask
             || obj == wep || obj == hwep || obj == rwep || obj == proj
             || obj == offwep
+            /* a copy of the wielded type that mon_wield_item() would
+               swap in; hwep is a random pick among such copies, so
+               without this, a copy taken out of the bag to be wielded
+               could go straight back in (the foe isn't known here, so
+               a silver copy counts) */
+            || (wep && obj->otyp == wep->otyp
+                && better_wielded_copy(mon, obj, wep, (struct monst *) 0))
             /* unworn at the hero's request; stashing it would hide it
                from the follow-up take order and the belay release */
             || obj->oreserved
