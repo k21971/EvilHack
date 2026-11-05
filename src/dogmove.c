@@ -24,6 +24,7 @@ staticfn boolean can_reach_location(struct monst *, coordxy, coordxy, coordxy,
                                   coordxy) NONNULLARG1;
 staticfn boolean mnum_leashable(int);
 staticfn boolean is_better_armor(struct monst *, struct obj *) NONNULLPTRS;
+staticfn boolean is_chargeable(struct obj *) NONNULLARG1;
 
 /*
  * See if this armor is better than what we're wearing.
@@ -93,6 +94,28 @@ is_better_armor(struct monst *mtmp, struct obj *otmp)
     return ((best == (struct obj *) 0)
             || (armor_bonus(otmp) + extra_pref(mtmp, otmp, 0L)
                 > armor_bonus(best) + extra_pref(mtmp, best, 0L)));
+}
+
+/* does 'obj' hold charges a pet would count, so that an empty or
+   cancelled one is useless? Wands do, and charged tools; a ring only
+   once its charge is known. Weapons and armor carry the charged flag
+   too, but their enchantment isn't a charge */
+staticfn boolean
+is_chargeable(struct obj *obj)
+{
+    if (obj->oclass == WAND_CLASS)
+        return TRUE;
+    /* known && !oc_name_known is possible after amnesia/mind flayer */
+    if (obj->oclass == RING_CLASS)
+        return (boolean) (objects[obj->otyp].oc_charged
+                          && (obj->known
+                              || (obj->dknown
+                                  && objects[obj->otyp].oc_name_known)));
+    if (is_weptool(obj)) /* specific check before general tools */
+        return FALSE;
+    if (obj->oclass == TOOL_CLASS)
+        return (boolean) objects[obj->otyp].oc_charged;
+    return FALSE;
 }
 
 /*
@@ -205,7 +228,7 @@ could_use_item(struct monst *mtmp, struct obj *otmp,
             return TRUE;
         if (otmp->oclass == ARMOR_CLASS) {
             return !check_if_better || !is_better_armor(&gy.youmonst, otmp);
-        } else if (objects[otmp->otyp].oc_charged && otmp->spe <= 0) {
+        } else if (is_chargeable(otmp) && otmp->spe <= 0) {
             return FALSE;  /* used charges or was cancelled? */
         } else if (Is_mbag(otmp) && otmp->cursed) {
             return FALSE;
