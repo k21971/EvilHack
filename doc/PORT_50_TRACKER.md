@@ -14597,7 +14597,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
           line, instead of the chase thrwmu()'s comment intends (T4
           saw 4 still actions).
           (e) CLOSED 2026-11-05 (session 295, BUG-2866, commit
-          pending; plan /root/.claude/plans/bugfix-archer-holds-
+          6339a8096, tracker 3ea694e80; plan
+          /root/.claude/plans/bugfix-archer-holds-
           fire-gives-chase.md). RULED: weapon-only users, one roll
           then move. thrwmu() sets gm.mheld_fire on the retreat
           hold only; mattacku() clears it on entry and again at its
