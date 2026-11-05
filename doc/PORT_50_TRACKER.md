@@ -14397,7 +14397,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       return quirk (BUG-2859, row below).
 - [x] LOW: a monster with a spare copy of its wielded weapon in a bag
       pulls it out and puts it back, over and over (minted AND fixed
-      2026-11-05, session 293; BUG-2860; commit pending; master-shared,
+      2026-11-05, session 293; BUG-2860; commit 59324b2f4, tracker
+      a3db9f249; master-shared,
       master f2f051a47; plan
       /root/.claude/plans/bugfix-stuck-monster-investigations.md).
       Cause:
