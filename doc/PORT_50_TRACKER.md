@@ -17,11 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-05, after session 293's
-  stuck-monster slice: the two LOW investigations closed as not
-  reproduced; the bagged-spare loop and master's mattacku() return
-  quirk minted and closed; one MED and one LOW residue row minted):
-  650 rows closed, 56 open
+- Phase 2 status (refreshed 2026-11-05, after session 294's
+  better-copy slice: the better-copy MED closed with its two ruled
+  folds, BUG-2861..2863; a branch-only pet regression and a
+  hand-switch message bug minted and closed, BUG-2864 / 2865; one
+  upstream row):
+  653 rows closed, 55 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -31,11 +32,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4); a better copy of the wielded type is never
-    wielded (minted session 293 by the code reviewer, reasoned from
-    the code: the Excalibur owner a wish summons keeps the Knight
-    kit's plain long sword; reproduce first).
+  - 1 MED: door-material colors (an unported master feature; it
+    stays with Phase 4).
+    Session 294 closed the better-copy MED (BUG-2861): a monster now
+    swaps in a better copy of the weapon type it holds (artifact,
+    silver against a vampire or demon, then enchantment, material
+    and forging less erosion; ties keep), pets want one (BUG-2862)
+    and an artifact launcher ranks first (BUG-2863). Its battery
+    found a session 71 port regression, minted and closed as a MED
+    (BUG-2864): pets refused every +0 weapon, weapon-tool and unknown
+    ring.
     Session 288 closed master 1ae3ddbbc's hands-free gates
     (BUG-2836 / 2837): a tortle hiding in its shell, or a hero whose
     welded weapon ties up both hands, can't use most tools, open or
@@ -14458,30 +14464,85 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         5.0), so all of these happen.
       RULED: keep the branch (the code's own "monster died" intent and
       vanilla). No code change.
-- [ ] MED: a better copy of the wielded type is never wielded (minted
+- [x] MED: a better copy of the wielded type is never wielded (minted
       2026-11-05, session 293, code reviewer; master-shared; reasoned
-      from the code, NOT run).
+      from the code, NOT run). CLOSED 2026-11-05, session 294,
+      BUG-2861 (commit pending).
       - mon_wield_item()'s "already wielding it" test compares otyp,
         so an artifact, a silver copy or a higher-enchantment copy of
-        the wielded type is never swapped in.
-      - Example: wishing for Excalibur summons its owner (objnam.c).
-        The owner wields the Knight kit's plain long sword at
-        makemon(), is then given Excalibur, and mon_wield_item()'s
-        select_hwep() picks Excalibur, but same type means it keeps
-        the plain sword (its shield also blocks the off hand).
-      - Frost Brand and Snickersnee (Samurai katana kit) look the
-        same.
-      NEXT: reproduce the Excalibur owner on both trees, then rule
-      what "better" means (artifact over plain, higher spe, silver vs
-      a silver-hater) before a fix; mon.c's I_SPECIAL re-check
-      (bestwep->otyp != mw_tmp->otyp) has the same blind spot.
+        the wielded type is never swapped in. mon.c's I_SPECIAL
+        re-check had the same test.
+      - The minted example was FALSE: a new monster starts at
+        weapon_check 0 (NO_WEAPON_WANTED), so makemon()'s
+        mon_wield_item() calls return at once and the owner a wish
+        summons wields Excalibur directly. The bug needs a monster
+        that already wields a plain copy and then picks up, catches or
+        is handed a better one; PRE and master knights that dual-wield
+        put Excalibur in the OFF hand at best.
+      FIX (ruled 2026-11-05): better_wielded_copy() decides, no RNG:
+      an artifact beats a plain copy (two same-type artifacts never
+      swap); silver beats non-silver against select_hwep()'s silver
+      foes and a silver copy is never given up; otherwise
+      copy_quality() (spe + dmgval()'s fixed material bonus + forged
+      quality - erosion) must be strictly higher. A welded copy in
+      hand never swaps; a copy it can't touch safely is never picked
+      and one in hand it can't touch is always replaced.
+      mon_wield_item() rolls a pet's target once (hwep_target() /
+      select_hwep_vs()) and judges with that foe; other callers pass
+      NULL ("foe unknown: silver counts"). m_stash_items() keeps a
+      better copy out of the bag; mon.c's re-check calls
+      mon_wield_item() whenever select_hwep()'s pick isn't the
+      wielded object. Folded: the off-hand-to-main-hand wield line
+      lost its "(alternate weapon; not wielded)" (BUG-2865, below).
+      BATTERY T1 (PRE 64eee0b1 / POST 96a7dafd / MASTER acb41484, main
+      hand graded): Excalibur handed to a knight holding a +0 long
+      sword - PRE and MASTER keep the plain sword in hand 30 / 31
+      actions (Excalibur to the off hand), POST "Thrun the Paladin
+      wields a long sword named Excalibur!" once, stable 30; +3 and
+      mithril copies swap once on POST only (better_wielded_copy
+      200 / 200), -1 and blessed-only copies never swap on any build
+      (0 / 200); vampire hero: +0 silver over +2 iron swaps once on
+      POST, a human hero keeps the iron, a silver copy in hand stays
+      against +5 iron; a cursed welded +0 stays silent on both; a +3
+      copy in a sack: POST one remove, then wields it, no put /
+      remove repeats; dwarf lord off-hand +3 axe promoted once on
+      POST. Paniclogs clean (one PRE staging HP line).
+      FOLDED BY RULING: pets want a better copy (BUG-2862, commit
+      pending: would_prefer_hwep() judges a copy of the wielded type
+      against the copy in hand; could_use_item()'s duplicate check
+      skips a carried copy the new one beats) and an artifact
+      launcher ranks above plain copies in oselect_recurse()
+      (BUG-2863, commit pending; launchers only - select_rwep()
+      refuses an artifact throwable, so a thrown type keeps the dice;
+      reviewer HIGH). BATTERY T2 (PRE / POST): a pet holding a +0 long
+      sword - floor +3 copy could_use_item PRE 0 / 50, POST 50 / 50,
+      POST picks it up and wields it, PRE only off-hands a random
+      apport pickup; a +1 Excalibur thrown at it - PRE "The long sword
+      named Excalibur hits Theladina the Paladin!" (tameness 5 -> 2
+      over three throws), POST catches and wields it 3 / 3; a hill orc
+      with Grimtooth and plain orcish daggers throws only plain ones on
+      both. The Longbow owner leg was void: the Longbow of Diana is the
+      Ranger quest artifact, so a wish summons Orion carrying only it.
+      BATTERY T3 (PRE / POST 45882be3): a +0 Excalibur thrown at a pet
+      holding a +0 long sword - PRE hits the pet twice, POST catches
+      and wields it twice; a ranger holding a plain +1 wooden bow and
+      the +0 Longbow of Diana - mon_wield_item() wields the plain bow
+      on PRE and the Longbow on POST ("Orboth the Marksman wields a
+      bow named the Longbow of Diana!"), select_rwep() x100 plain /
+      Longbow PRE 76 / 24, POST 0 / 100, all 30 POST arrows fired
+      from the Longbow. Paniclogs clean.
 - [ ] LOW: monster weapon-pick residue (minted 2026-11-05, session 293;
       record; master-shared unless noted).
       (a) oselect_recurse() ranks same-type candidates by two random
           dmgval() rolls, so a +0 can beat a +3 of the same type, and
           would_prefer_hwep() / would_prefer_rwep() compare random
           dmgval() rolls the same way (vanilla's shape for the pet
-          tests).
+          tests). Since session 294 the wield decision itself is
+          deterministic (better_wielded_copy(), BUG-2861), an
+          artifact launcher ranks first (BUG-2863) and
+          would_prefer_hwep() judges a copy of the wielded type
+          deterministically (BUG-2862); the pick among copies and
+          would_prefer_rwep() still roll.
       (b) oselect_recurse(), find_artifact_recurse() and
           find_silver_recurse() also search locked containers and
           cursed bags of holding, which mon_container_extract()
@@ -14505,6 +14566,72 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (f) Ammo and daggers in a carried bag are fired or thrown
           straight from it with no extraction turn (master's;
           obj_extract_self() keeps the bag's weight right).
+      Added 2026-11-05, session 294 (better-copy slice; ruled
+      ignored, or reviewer LOWs):
+      (g) better_wielded_copy() ignores target-dependent damage other
+          than silver: blessed vs a blessing-hater, other hated
+          materials (an iron copy against an elf), and object
+          properties (dmgval() and select_hwep() ignore oprops too).
+      (h) A silver copy in hand is never given up for a plain one,
+          even a much better one against a foe that doesn't hate
+          silver (a +0 silver sword stays over +5 iron). Ruled, to
+          keep pets whose foe changes from swapping back and forth.
+      (i) Two artifacts of one type never swap (score_artifact_
+          weapon() rolls dice).
+      (j) A pet decides what to drop with its real foe
+          (would_prefer_hwep()) but what to stash with no foe (silver
+          counts), so a pet whose foe isn't a silver-hater may drop a
+          weaker silver copy it would have kept out of a bag; no loop,
+          since picking it back up needs a silver foe.
+      (k) A weaker silver copy thrown at a pet now passes the pet
+          catch's first could_use_item() test (silver counts with no
+          foe) and then "misses" instead of hitting the pet.
+      (l) mon_wield_item()'s launcher and digging-tool paths pass no
+          foe, so a monster holding a plain bow or pick-axe swaps once
+          to a silver copy of it; bounded, silver is never given up.
+- [x] MED: pets refuse +0 weapons, weapon-tools and unknown rings
+      (minted AND closed 2026-11-05, session 294, battery T2 find;
+      BRANCH-ONLY port regression; BUG-2864, commit pending).
+      - Session 71's could_use_item() port used
+        objects[].oc_charged in place of master's 3.6 is_chargeable()
+        (read.c, gone in 5.0) for its "used charges or was
+        cancelled?" test. Weapons, projectiles, bows and weapon-tools
+        all set the charged bit, and so does every chargeable ring,
+        so branch pets wouldn't pick up, catch or keep a weapon at +0
+        or less, a +0 unicorn horn or pick-axe, or a +0 ring whose
+        charge they couldn't know. It also blocked BUG-2862 for a
+        +0 better copy.
+      - FIX (ruled): master's is_chargeable() restored as a dogmove.c
+        static (wands; rings of known charge; weapon-tools never;
+        other tools by the bit; weapons and armor never). As on
+        master, pets again take +0 daggers and arrows through
+        mon_wants_ammo(), and an unknown ring's charge no longer
+        shows by a pet refusing it.
+      - BATTERY T3, could_use_item() x20 on a tame knight, PRE / POST
+        / MASTER: +0 long sword 0 / 20 / 20, -1 long sword 0 / 19 /
+        18 (the weapon test's dice), +0 unicorn horn 0 / 20 / 20,
+        unknown +0 ring of protection 0 / 20 / 20, the same ring
+        known 0 / 0 / 0, empty wand of striking 0 / 0 / 0. In play
+        the PRE pet stood on a +0 long sword twice and left it; POST
+        "Nemolea the Dame picks up a long sword.  Nemolea the Dame
+        wields a long sword!". Paniclogs clean on all three.
+- [x] LOW: a monster moving its off-hand weapon to its main hand prints
+      "(alternate weapon; not wielded)" (minted AND closed 2026-11-05,
+      session 294, battery T1 find; master-shared; EvilHack-only
+      monster dual-wield, so no upstream row; BUG-2865, commit
+      pending, rides the BUG-2861 commit).
+      - mon_wield_item() clears mw2 for the promotion but left the
+        object's W_SWAPWEP bit until the final owornmask = W_WEP, so
+        the wield line's doname() appended the hero's alternate-weapon
+        suffix ("The dwarf lord wields an axe (alternate weapon; not
+        wielded)!"). Reached before by a different-type promotion;
+        BUG-2861 makes it routine, since a better copy usually goes to
+        the off hand first.
+      - FIX: the promotion clears W_SWAPWEP with mw2.
+      - BATTERY T3: a dwarf lord holding a dagger with an axe in its
+        off hand - PRE "The dwarf lord wields an axe (alternate
+        weapon; not wielded)!", POST "The dwarf lord wields an axe!"
+        (2 trials each), then the dagger to the off hand on both.
 - [x] objnam.c wish tables and plural handling (NEW, minted AND closed
       2026-07-28 by the oddities the combat/AC battery reported while
       staging test gear). Phase 1's object swap ec925f41a brought
@@ -36219,6 +36346,7 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-04 | dismount_steed(): a steed that life-saves after killed() / monkilled() in the no-room arm stays on steedcc, the hero's own square (sanity_check "you over monster"); one saved after falling into water or lava is left there and dies at its next move. Official_nh50 b0c09c878; BUG-2847 / 2848, src/steed.c | found (branch-fixed a955819a1: limbo for the no-room survivor; a saved steed is moved out once the hero lands - EvilHack ruling, the guilt kept); not sent; triage pending |
 | 2026-11-04 | e_died()'s "kill it again" (98da3a3db) leaves a monster that survives both kills - a vampshifter in a shifted form wearing life saving (lifesaved_monster(), then vamprises()) - on the crushed square at the `FIXME: still not dead?` arm, which for a raised portcullis is inside the DBWALL. Official_nh50 b0c09c878; BUG-2850, src/dbridge.c | found (branch-fixed c493ead78: a survivor is rloc()ed, or deal_with_overcrowding(); a moat / lava fall survivor leaves like minliquid()'s); not sent; triage pending |
 | 2026-11-04 | mhitm_ad_sedu() (mhitm steal) calls dismount_steed(DISMOUNT_POLY) when the item is the hero's steed's saddle, then extract_from_minvent() / add_to_minv() it; a dismount over water or lava that kills the steed has dropped the saddle (impossible "extract_from_minvent called on object not in minvent", then panic "add_to_minv: obj where=1, not free"), and over open air mongone() has freed it (use after free). Official_nh50 b0c09c878; BUG-2851, src/uhitm.c | found (branch-fixed 9550a7ea2: the theft fails when the dismount killed or moved the steed); not sent; triage pending |
+| 2026-11-05 | A monster wielding a plain weapon never wields an artifact of the same type it gets later: select_hwep() prefers artifacts, but mon_wield_item() reads `mw_tmp->otyp == obj->otyp` as "already wielding it" and returns. Producer: a likes_objs monster picks up the artifact (monmove.c practical[]) and the NEED_WEAPON path calls mon_wield_item(), so a monster holding a long sword that picks up Frost Brand (unaligned, anyone can touch it) keeps the plain sword. Official_nh50 b0c09c878 (weapon.c mon_wield_item(); vanilla's oselect() takes the first copy, so only the artifact case applies there); BUG-2861, src/weapon.c | found (branch-fixed, commit pending: better_wielded_copy(); vanilla's fix would be the artifact test alone); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -36606,6 +36734,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-05 | Better-copy slice rulings (Phase 2 session 294, AskUserQuestion x5 with 7 questions - two of them battery launch asks - all as recommended). (1) SLICE: the MED better-copy row (the archer standing still, the kill-credit LOWs and the combined slice not taken). (2) "BETTER": tiers plus fixed numbers - an artifact beats a plain copy (two same-type artifacts never swap); silver beats non-silver against select_hwep()'s silver foes, and a silver copy is never given up; otherwise enchantment + forging quality + material bonus - erosion; a tie keeps the copy in hand. Rejected: artifact only; a deterministic oselect_recurse() (it changes every weapon pick's RNG and stops session 293's off-hand pull). (3) FOLDS: pets want a better copy; an artifact launcher ranks first. (4) LAUNCHER (battery T2: the premise was false - the Longbow of Diana's owner is Orion carrying only the Longbow): keep commit 3 with a corrected message and re-test like-for-like. Rejected: drop it. (5) PET CHARGES (battery T2 find, a session 71 port regression): fix in this slice with master's is_chargeable() (BUG-2864). Rejected: mint a row for later. Plan-approved, not asked: m_stash_items() keeps a better copy out of the bag; welded and can't-touch guards; a pet's foe rolled once per wield decision; mon.c's re-check simplified; a NULL foe means "silver counts"; the reviewer HIGH fixes (launchers only in oselect_recurse(); could_use_item()'s duplicate check skips a beaten copy); the off-hand promotion line (BUG-2865, battery T1 find). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-05 | Stuck-monster slice rulings (Phase 2 session 293, AskUserQuestion x5 with 8 questions - two of them battery launch asks - all as recommended). (1) SLICE: the two LOW stuck-monster investigations, reproduce on both trees first (the kill-credit LOWs, hit-chain anger and touch-sear record items not taken); both not reproduced. (2) MASTER'S mattacku() RETURN (battery T1 find): keep the branch's vanilla 0 for a live attacker - long worm tails bite, cuss() / quest_talk() / Purgatory talk run while a monster fights; master's MM_HIT return archived frozen-unfixed (BUG-2859). Rejected: restore 0.9.3's skips, and a no-worm-tails hybrid. (3) THE BAGGED-SPARE LOOP (battery T2 find): trace and fix in this slice (BUG-2860). (4) OFF HAND: keep the pull for a dual-wielder with an empty off hand when the copy is an off-hand candidate (0.9.3's result). Rejected: never pull a same-type copy. (5) FOLDS (reviewer MED + LOW): m_stash_items() keeps the off-hand candidate out of the bag; no pull for a copy that would merge into the wielded stack. (6) SAME-TYPE BETTER COPY (reviewer find, the Excalibur owner): mint a MED row, reproduce first. Plan-approved, not asked: the pull gate sits in mon_wield_item() before mon_container_extract(); offhand_candidate() is select_offhand_hwep()'s filter, moved unchanged. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-04 | Sear skin gaps slice rulings (Phase 2 session 292, AskUserQuestion x4 - one a battery launch ask - all as recommended). (1) SLICE: touch-sear residue items (d) + (f) (the stuck-monster investigations, kill-credit LOWs and hit-chain anger row not taken). (2) ZEROED AD_CONF: a blow a negative ring of increase damage zeroed does nothing - no "You are getting confused." line, no confusion, no attacker cooldown. Rejected: confuse for at least 1 turn. (3) SIBLINGS (reviewer finds): the same rule for the monk player-monster's stunning kick, the AD_DREN and the AD_STUN hero arms. (4) SCOPE: hero side only; a zeroed m-v-m AD_CONF blow still confuses the monster (binary, never read damage; master). Plan-approved, not asked: the two hmon sear arms skip the sear for a bark- or stone-skinned target; the hated_obj-only sites stay as they are (searmsg() already gates them). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-04 | Touch-sear residue slice rulings (Phase 2 session 291, AskUserQuestion x3 - one a battery launch ask - all as recommended). (1) SLICE: the two touch-sear residue LOWs (vampire #shapechange silver + the sear-path nits; the hit-chain anger, kill-credit and limbo residue rows not taken). (2) WILD-SHAPE BONUS: master 98378821f's intent - the +2-6 lands once on every physical natural hit, gear or not (bites and the vampire forms included), thrown and kicked objects lose it, shades take none, engulfing stays without it; 0.9.3 only delivered it through a gloved / ringed / booted / helmed item roll. (3) RACE AVERSIONS IN FORM: vampire forms only (master's own "shapeshifted vampires still hate silver"); an elven Druid in #wildshape keeps 0.9.3's no-iron behavior. Folded in from the Plan pass without a ruling: mon_hates_blessings() and find_silver_recurse() for the form, missum()'s skin subject, the kick-vs-thick-hide exclusion. | maintainer |
