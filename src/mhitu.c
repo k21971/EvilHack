@@ -1534,9 +1534,25 @@ mattacku(struct monst *mtmp)
             }
             break;
         case AT_MAGC:
-            if (range2) {
+            if (range2 && (mattk->adtyp == AD_SPEL
+                           || mattk->adtyp == AD_CLRC)) {
+                /* a spell list caster casts from a distance too: a
+                   directed spell needs it lined up with where it
+                   thinks you are, otherwise only an undirected one
+                   will do */
+                boolean off_cooldown = !mtmp->mspec_used;
+
+                if (lined_up(mtmp))
+                    sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
+                else
+                    sum[i] = castmu(mtmp, mattk, FALSE, FALSE);
+                /* a try on cooldown is only a curse; it doesn't
+                   count as this move's ranged attack */
+                if (off_cooldown)
+                    other_ranged = TRUE;
+            } else if (range2) {
                 sum[i] = buzzmu(mtmp, mattk);
-                /* buzzmu() does nothing for AD_SPEL and AD_CLRC */
+                /* buzzmu() only acts for a beam type */
                 if (BZ_VALID_ADTYP(mattk->adtyp))
                     other_ranged = TRUE;
             } else {
