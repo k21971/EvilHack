@@ -88,6 +88,8 @@ staticfn void mcast_confuse_you(struct monst *, struct monst *);
 staticfn void mcast_spell(struct monst *, struct monst *, int, int, short,
                           int);
 staticfn boolean is_undirected_spell(struct monst *, int);
+staticfn boolean mcast_out_of_reach(struct monst *, struct monst *, int);
+staticfn boolean mcast_barred_at_hero(struct monst *, struct monst *, int);
 staticfn boolean spell_would_be_useless(struct monst *, struct monst *,
                                         int);
 
@@ -255,6 +257,16 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
             if (candidate < 0)
                 continue;
         }
+        /* a close-range spell picked against a distant target goes
+           back to the caller as it is: the caller's re-roll loop
+           draws a fresh level, and a single undirected try just
+           fails, rather than the pick sliding down to a lower rung;
+           a spell the caster would never cast at the hero anyway
+           (peaceful caster, hero out of sight) slides down as it
+           does next to the hero */
+        if (mcast_out_of_reach(mtmp, mdef, candidate)
+            && !mcast_barred_at_hero(mtmp, mdef, candidate))
+            return candidate;
         if (!spell_would_be_useless(mtmp, mdef, candidate))
             break;
         candidate = -1;
@@ -2505,6 +2517,46 @@ is_undirected_spell(struct monst *mtmp, int spellnum)
     return FALSE;
 }
 
+/* a monster caster saves its close-range spells (MCF_MELEE) for a
+   target next to it; mdef is the hero or the monster target, and the
+   hero casting as a monster is not limited */
+staticfn boolean
+mcast_out_of_reach(struct monst *mtmp, struct monst *mdef, int spellnum)
+{
+    coordxy tx, ty;
+
+    if (mtmp == &gy.youmonst
+        || (mcast_data[spellnum].flags & MCF_MELEE) == 0)
+        return FALSE;
+    if (mdef == &gy.youmonst) {
+        tx = u.ux, ty = u.uy;
+    } else if (mdef && !DEADMONSTER(mdef)) {
+        tx = mdef->mx, ty = mdef->my;
+    } else {
+        return FALSE;
+    }
+    return (distmin(mtmp->mx, mtmp->my, tx, ty) > 1);
+}
+
+/* the mpeaceful and could-see-hero pre-checks are hero-relative: a
+   peaceful caster never casts a hostile-only spell at the hero, and a
+   sight-needing spell needs the caster in the hero's line of sight;
+   tame and peaceful casters may still use the innate lists against
+   monster targets (per-spell clauses in spell_would_be_useless() keep
+   summons and other hero-facing effects off that path) */
+staticfn boolean
+mcast_barred_at_hero(struct monst *mtmp, struct monst *mdef, int spellnum)
+{
+    if (mdef != &gy.youmonst)
+        return FALSE;
+    if ((mcast_data[spellnum].flags & MCF_HOSTILE) != 0 && mtmp->mpeaceful)
+        return TRUE;
+    if ((mcast_data[spellnum].flags & MCF_SIGHT) != 0
+        && !couldsee(mtmp->mx, mtmp->my))
+        return TRUE;
+    return FALSE;
+}
+
 /* Some spells are useless under some circumstances. */
 staticfn boolean
 spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
@@ -2527,24 +2579,13 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
     if (!youdefend && (!mdef || DEADMONSTER(mdef)))
         return TRUE;
 
-    /* the mpeaceful and could-see-hero pre-checks are hero-relative;
-       tame and peaceful casters may still use the innate lists against
-       monster targets (per-spell clauses below keep summons and other
-       hero-facing effects off that path) */
+    /* close-range spells wait until the target is adjacent */
+    if (mcast_out_of_reach(mtmp, mdef, spellnum))
+        return TRUE;
 
-    /* spell is only cast by hostile monsters */
-    if (youdefend && (mcast_data[spellnum].flags & MCF_HOSTILE) != 0) {
-        if (mtmp->mpeaceful)
-            return TRUE;
-    }
-
-    /* spell needs the monster to see hero */
-    if (youdefend && (mcast_data[spellnum].flags & MCF_SIGHT) != 0) {
-        boolean mcouldseeu = couldsee(mtmp->mx, mtmp->my);
-
-        if (!mcouldseeu)
-            return TRUE;
-    }
+    /* hostile-only and sight-needing spells at the hero */
+    if (mcast_barred_at_hero(mtmp, mdef, spellnum))
+        return TRUE;
 
     switch (spellnum) {
     case MCAST_LEARNED_SPELL:
@@ -2643,11 +2684,8 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
            so monster-target casts are rejected outright */
         if (!youdefend)
             return TRUE;
-        /* melee-range spell; tame casters never summon reinforcements
-           against their own side, and prayer invulnerability holds
-           the summons off */
-        if (distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 1)
-            return TRUE;
+        /* tame casters never summon reinforcements against their own
+           side, and prayer invulnerability holds the summons off */
         if (mtmp->mtame || u.uinvulnerable)
             return TRUE;
         break;
@@ -2778,17 +2816,9 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
         /* no reinforcements from the hero's own side */
         if (mtmp->mtame || mtmp->mpeaceful)
             return TRUE;
-        /* melee-range spell; prayer invulnerability holds the
-           summons off */
-        if (youdefend) {
-            if (distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 1)
-                return TRUE;
-            if (u.uinvulnerable)
-                return TRUE;
-        } else {
-            if (distmin(mtmp->mx, mtmp->my, mdef->mx, mdef->my) > 1)
-                return TRUE;
-        }
+        /* prayer invulnerability holds the summons off */
+        if (youdefend && u.uinvulnerable)
+            return TRUE;
         break;
     case MCAST_BLIND_YOU:
         if (youdefend) {
@@ -2800,16 +2830,14 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
         }
         break;
     case MCAST_DESTRY_ARMR:
-        /* melee-range spell; also pointless when the target wears no
-           armor */
+        /* pointless when the target wears no armor; the hero casting
+           as a monster keeps it for an adjacent target too (monster
+           casters get that from the close-range gate above) */
         if (youdefend) {
-            if (distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 1)
-                return TRUE;
             if (!wearing_armor())
                 return TRUE;
         } else {
-            if (distmin(yours ? u.ux : mtmp->mx, yours ? u.uy : mtmp->my,
-                        mdef->mx, mdef->my) > 1)
+            if (yours && distmin(u.ux, u.uy, mdef->mx, mdef->my) > 1)
                 return TRUE;
             if (!(mdef->misc_worn_check & W_ARMOR))
                 return TRUE;
