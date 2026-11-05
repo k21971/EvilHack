@@ -1904,11 +1904,14 @@ thrwmu(struct monst *mtmp)
      * going away, you are probably hurt or running.  Give
      * chase, but if you are getting too far away, throw.
      */
-    if (!lined_up(mtmp)
-        || (URETREATING(x, y)
-            && (!always_toss
-                && rn2(BOLT_LIM - distmin(x, y, mtmp->mux, mtmp->muy)))))
+    if (!lined_up(mtmp))
         return FALSE;
+    if (URETREATING(x, y) && !always_toss
+        && rn2(BOLT_LIM - distmin(x, y, mtmp->mux, mtmp->muy))) {
+        /* held its fire; dochug()'s ranged scan moves it instead */
+        gm.mheld_fire = TRUE;
+        return FALSE;
+    }
 
     mwep = MON_WEP(mtmp); /* wielded weapon */
     monshoot(mtmp, otmp, mwep); /* multishot shooting or throwing */

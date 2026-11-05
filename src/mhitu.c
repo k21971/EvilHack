@@ -888,7 +888,11 @@ mattacku(struct monst *mtmp)
      */
     boolean ranged, range2, foundyou, firstfoundyou, youseeit,
             was_unfindable, skipnonmagc = FALSE;
+    /* for dochug()'s ranged scan: a weapon attack at range acted, or
+       another kind of ranged attack was tried */
+    boolean fired = FALSE, other_ranged = FALSE;
 
+    gm.mheld_fire = FALSE; /* thrwmu() sets it when it holds fire */
     calc_mattacku_vars(mtmp, &ranged, &range2, &foundyou, &youseeit);
 
     if (!ranged)
@@ -1224,6 +1228,8 @@ mattacku(struct monst *mtmp)
 
         if (offended != 0)
             return (offended == 1);
+        /* a cursed wand that blew up in its hands still acted */
+        other_ranged = TRUE;
     }
 
     gs.skipdrin = FALSE; /* [see mattackm(mhitm.c)] */
@@ -1370,8 +1376,10 @@ mattacku(struct monst *mtmp)
         case AT_GAZE: /* can affect you either ranged or not */
             /* Medusa gaze already operated through m_respond in
                dochug(); don't gaze more than once per round. */
-            if (mdat != &mons[PM_MEDUSA])
+            if (mdat != &mons[PM_MEDUSA]) {
                 sum[i] = gazemu(mtmp, mattk);
+                other_ranged = TRUE;
+            }
             break;
 
         case AT_EXPL: /* automatic hit if next to, and aimed at you */
@@ -1426,19 +1434,23 @@ mattacku(struct monst *mtmp)
             }
             break;
         case AT_BREA:
-            if (range2)
+            if (range2) {
                 sum[i] = breamu(mtmp, mattk);
+                other_ranged = TRUE;
+            }
             /* Note: breamu takes care of displacement */
             break;
         case AT_SPIT:
-            if (range2)
+            if (range2) {
                 sum[i] = spitmu(mtmp, mattk);
+                other_ranged = TRUE;
+            }
             /* Note: spitmu takes care of displacement */
             break;
         case AT_WEAP:
             if (range2) {
-                if (!Is_rogue_level(&u.uz))
-                    thrwmu(mtmp);
+                if (!Is_rogue_level(&u.uz) && thrwmu(mtmp))
+                    fired = TRUE;
                 weap_attk_idx++;
             } else {
                 int hittmp = 0;
@@ -1522,15 +1534,21 @@ mattacku(struct monst *mtmp)
             }
             break;
         case AT_MAGC:
-            if (range2)
+            if (range2) {
                 sum[i] = buzzmu(mtmp, mattk);
-            else
+                /* buzzmu() does nothing for AD_SPEL and AD_CLRC */
+                if (BZ_VALID_ADTYP(mattk->adtyp))
+                    other_ranged = TRUE;
+            } else {
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
+            }
             break;
 
         case AT_SCRE:
-            if (ranged || !rn2(5)) /* sometimes right next to our hero */
+            if (ranged || !rn2(5)) { /* sometimes right next to our hero */
                 sum[i] = screamu(mtmp, mattk);
+                other_ranged = TRUE;
+            }
             break;
 
         default: /* no attack */
@@ -1551,6 +1569,9 @@ mattacku(struct monst *mtmp)
             break; /* attacker teleported, no more attacks */
         /* sum[i] == 0: unsuccessful attack */
     }
+    /* a held throw only counts when nothing else happened at range */
+    if (fired || other_ranged)
+        gm.mheld_fire = FALSE;
     return 0;
 }
 

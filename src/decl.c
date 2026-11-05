@@ -532,6 +532,7 @@ static const struct instance_globals_m g_init_m = {
     UNDEFINED_PTR, /* mswallower */
     /* mhitu.c */
     UNDEFINED_VALUE, /* mhitu_dieroll */
+    FALSE, /* mheld_fire */
     /* mklev.c */
     FALSE, /* made_branch */
     /* mkmap.c */

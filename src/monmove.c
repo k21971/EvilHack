@@ -1025,6 +1025,7 @@ dochug(struct monst *mtmp)
     int inrange, nearby, scared, res;
     struct obj *otmp;
     boolean panicattk = FALSE;
+    boolean held_fire = FALSE; /* the ranged scan held its fire at you */
 
     /*
      * PHASE ONE: Pre-movement adjustments
@@ -1402,7 +1403,17 @@ dochug(struct monst *mtmp)
             if (res & M_ATTK_AGR_DIED)
                 return 1; /* oops */
 
-            return 0; /* that was our move for the round */
+            /* a thrower that held its fire at a hero walking away moves
+               instead; that was its ranged attack for the move */
+            if (mtmp2 == &gy.youmonst && gm.mheld_fire && u.umoved
+                && !m_next2u(mtmp)
+                /* a digger holding a launcher that steps into rock would
+                   swap pick and launcher every move */
+                && !(racial_tunnels(mtmp) && racial_needspick(mtmp)
+                     && MON_WEP(mtmp) && is_launcher(MON_WEP(mtmp))))
+                held_fire = TRUE;
+            else
+                return 0; /* that was our move for the round */
         }
     }
 
@@ -1548,6 +1559,8 @@ dochug(struct monst *mtmp)
               && (!m_flees_with_amulet(mtmp) || engulfing_u(mtmp)))
              || panicattk)
             && !noattacks(mdat)
+            /* the ranged scan already had this move's attack */
+            && !held_fire
             /* [is this hp check really needed?] */
             && (Upolyd ? u.mh : u.uhp) > 0) {
             if (mattacku(mtmp))

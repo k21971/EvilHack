@@ -642,6 +642,8 @@ struct instance_globals_m {
 
     /* mhitu.c */
     int mhitu_dieroll;
+    boolean mheld_fire; /* mattacku(): its weapon attacks held their fire
+                         * at a retreating hero and nothing else acted */
 
     /* mklev.c */
     boolean made_branch; /* used only during level creation */
