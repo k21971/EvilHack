@@ -935,9 +935,12 @@ staticfn boolean offhand_candidate(struct monst *, struct obj *);
     } while (0)
 
 /* recursive helper to find the best weapon of type 'type', looking
-   into carried containers as well as open inventory; 'obest' carries
-   the running best across the recursion, pass NULL on the initial
-   call */
+   into carried containers as well as open inventory; copies compare
+   by a dmgval() roll each, except that an artifact launcher ranks
+   above plain ones (a launcher is only ever wielded; a thrown pick
+   must stay a plain copy, select_rwep() won't throw an artifact);
+   'obest' carries the running best across the recursion, pass NULL
+   on the initial call */
 staticfn struct obj *
 oselect_recurse(struct monst *mtmp, struct obj *start, int type,
                 struct obj *obest)
@@ -965,10 +968,16 @@ oselect_recurse(struct monst *mtmp, struct obj *start, int type,
             && (is_pierce(otmp) || is_slash(otmp)
                 || (is_launcher(otmp) && otmp->otyp != SLING)))
             continue;
-        if (!obest
-            || dmgval(mtmp, otmp, &gy.youmonst)
-                   > dmgval(mtmp, obest, &gy.youmonst))
+        if (!obest) {
             obest = otmp;
+        } else if (is_launcher(otmp)
+                   && !otmp->oartifact != !obest->oartifact) {
+            if (otmp->oartifact)
+                obest = otmp;
+        } else if (dmgval(mtmp, otmp, &gy.youmonst)
+                   > dmgval(mtmp, obest, &gy.youmonst)) {
+            obest = otmp;
+        }
     }
     return obest;
 }
