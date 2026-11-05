@@ -17,11 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-05, after session 295's
-  held-fire slice: the weapon-pick residue row's archer item closed,
-  BUG-2866; master's unported ranged AD_SPEL / AD_CLRC casting
-  minted as a MED):
-  653 rows closed, 56 open
+- Phase 2 status (refreshed 2026-11-05, after session 296's
+  ranged-casting slice: the MED closed, BUG-2867..2869, two LOW rows
+  minted):
+  654 rows closed, 57 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -31,11 +30,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4), and master's ranged AD_SPEL / AD_CLRC
-    casting (minted session 295: master's mattacku() casts at range,
-    the branch sends every ranged AT_MAGC to buzzmu(), so those
-    casters are silent at range).
+  - 1 MED: door-material colors (an unported master feature; it
+    stays with Phase 4).
+    Session 296 closed the ranged-casting MED (BUG-2867..2869):
+    spell-list casters cast directed spells at you from range again
+    when lined up, as on 0.9.3; master's list of close-range spells
+    (summons, curses, stun, touch of death ...) is ported for every
+    monster caster, so nothing summons from across the room any
+    more; and a learned power word kill can no longer reach you
+    through a wall, a boulder or your displaced image.
     Session 295 closed the weapon-pick residue row's archer item
     (BUG-2866): a weapon-only thrower that holds its fire at a hero
     walking away now moves instead of standing still, with the same
@@ -378,7 +381,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 51 LOW: small parity rows, quirks and watch/record-only items.
+  - 53 LOW: small parity rows, quirks and watch/record-only items.
+    Session 296 minted two: master BUG-373's pre-attack
+    set_apparxy() refresh, and master's attack phase after a
+    successful undirected cast.
     Session 293 closed the two stuck-monster investigations as not
     reproduced on either tree (an unarmed stone giant hits you every
     turn it acts; an overloaded Uruk-hai still approaches and
@@ -4784,6 +4790,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "fix" backwards); master's melee-range lists for STUN/WEAKEN/
       CURSE/CONFUSE/PARALYZE/BLIND not re-added (castmm only ever
       called adjacent via the mhitm monnear gate).
+      CORRECTED 2026-11-05 (session 296): that premise was false -
+      mattackm() calls castmm() for AD_SPEL / AD_CLRC at any range
+      on both trees, and dochug()'s undirected loop calls
+      castmu(FALSE, FALSE) out to dist2 <= 49. Master's whole
+      "don't cast these spells at range" list (13 spells) is now
+      ported as MCF_MELEE (BUG-2868); see the closed ranged-casting
+      MED row.
       MASTER-PARITY WARTS KEPT: vulntext[0] "chartreuse polka-dot"
       is dead text (rnd(4), no case 0); choose_bolt_spell reads the
       HERO's Antimagic/Hallucination even on m-v-m picks (master
@@ -5303,7 +5316,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       at range (877865d39 + 116430b36), a hunk this port left out.
       The scan-gate half (adtyp <= AD_LOUD) is master parity. See
       the MED row below.
-- [ ] MED: master's ranged AD_SPEL / AD_CLRC casting is unported
+- [x] MED: master's ranged AD_SPEL / AD_CLRC casting is unported
       (minted 2026-11-05, session 295, by the held-fire slice's Plan
       pass; ruled a separate row, AskUserQuestion). Master
       877865d39 (spellbook learning, 2025-12-13) changed mattacku()'s
@@ -5324,6 +5337,101 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the held-fire slice's mattacku() bookkeeping (BUG-2866) must
       set other_ranged in the new ranged castmu() arm, or a weapon
       user that cast at range would also move.
+      ROW CORRECTION (session 296): curse items, destroy armor and
+      touch of death are NOT cast at range on master - its
+      do_spell_would_be_useless() range-gates them (see below).
+      CLOSED 2026-11-05 (session 296; plan
+      /root/.claude/plans/bugfix-ranged-spell-casting.md; commits
+      pending). Three fixes:
+      - BUG-2867 (port regression, mhitu.c): mattacku()'s AT_MAGC
+        arm casts AD_SPEL / AD_CLRC at range, master's shape:
+        lined_up() -> castmu(TRUE, foundyou), else castmu(FALSE,
+        FALSE); beam types keep buzzmu(). RIDER done, by ruling:
+        other_ranged only when the caster was off cooldown before
+        the call (a cooldown try is only a curse line).
+      - BUG-2868 (port regression, mcastu.h / mcastu.c): master's
+        "don't cast these spells at range" list as a new MCF_MELEE
+        flag on 13 spells (confuse, stun, paralyze, blind, weaken,
+        destroy armor, curse items, aggravate, summon nasties,
+        clone, touch of death, summon minion, call undead), for
+        every monster caster at hero or monster targets
+        (mcast_out_of_reach(); the hero casting as a monster is
+        exempt, as on master). The branch had kept only the last
+        three, so it summoned / aggravated from up to 7 squares and
+        m-v-m casters stunned / cursed at range. RULED re-roll:
+        choose_monster_spell() hands a range-blocked rung back for
+        the caller's re-roll instead of sliding down (simulated
+        level-25 wizard ladder at range: acid blast 27% on the
+        slide vs master's 12.6%, re-roll within about a point of
+        master). Reviewer HIGH fold: a rung the hostile-only /
+        sight pre-checks bar (mcast_barred_at_hero(), shared with
+        spell_would_be_useless()) still slides down, so pets,
+        peacefuls and out-of-sight casters keep their self-buffs
+        at range.
+      - BUG-2869 (master-shared, frozen-unfixed on master,
+        mcastu.c): castmu() resolved the learned-spell meta's
+        directedness from "knows a useful self-buff" and then
+        picked from the whole repertoire, so an undirected-only,
+        out-of-sight (boulder line-up) or displaced-image cast
+        could land power word kill (no LOS check in
+        mcast_nodir_spell()). Now the learned spell is picked right
+        after the can't-cast gate, self-buffs only on those casts
+        (mpick_learned_spell()'s new selfbuff_only), a 0 pick is a
+        silent MISS with no cooldown, and the thin-air check reads
+        the resolved spell.
+      Plan stress test found the range list, the ladder slide, the
+      boulder route, the cooldown rider and the repair-armor rn2
+      disagreement; reviewer CONDITIONAL PASS (HIGH folded as
+      above; LOW comment wording folded; LOW record: a demon's
+      SUMMON_MINION rung now re-rolls at range where master casts
+      fire pillar there - master converts before its range check).
+      Batteries (PRE 3b1a5fa8 = session 295, POST 70063bec, MASTER
+      acb41484; every paniclog clean): T1 lich lined up at range:
+      PRE 0 directed casts from 42 castmu tries (all from the
+      undirected loop) and a summon nasties at range; MASTER 26 /
+      POST 24 attack-path tries with directed casts (psi bolt,
+      cancellation); POST no close-range spell at distmin >= 2,
+      all of them still cast adjacent; off-line both MASTER and
+      POST thinks=0 only; hill giant shaman POST 8 directed casts
+      (open wounds, geyser, fire pillar), PRE 0. T2 (lich taught
+      power word kill + burning hands, direct castmu calls):
+      undirected PRE 13 / 30 PWK, POST 0; boulder PRE 17,
+      MASTER 15, POST 0; displaced image PRE 10 and MASTER 17 PWK
+      on the real hero, POST 17 "casts a spell at thin air!".
+      T3: probes at distmin 3 STUN / WEAKEN / CURSE / DEATH_TOUCH
+      useless on POST only; 40 direct castmm casts PRE 23
+      close-range, POST 0; choose_monster_spell() for a peaceful
+      or out-of-sight caster at range 81-84% self-buffs on both
+      builds; the drow cleric rider as in the weapon-pick residue
+      row's (p).
+      RECORDS: master flags OPEN_WOUNDS undirected, the branch and
+      5.0 directed (master's undirected try can waste a 0-damage
+      open wounds); the ladder's slide for other useless rungs
+      stays (5.0 architecture; buffs-up level-25 residual psi bolt
+      17.6% vs master's 7.7%); a caster can call castmu() twice in
+      one move (the undirected loop fumbles or picks a directed
+      spell, then the attack phase), master parity.
+- [ ] LOW: master BUG-373's set_apparxy() refresh before the attack
+      phase is unported (minted 2026-11-05, session 296, ruled a
+      row). Master 4635613aa refreshes mux / muy in dochug() just
+      before phase four, so a monster that cured its own blindness
+      with a unicorn horn or potion in use_defensive() and skipped
+      its move (adjacent) doesn't attack a stale displaced guess
+      and hit wildmiss()'s impossible("attacks you without knowing
+      your location?"). The branch has no such refresh;
+      mattacku()'s was_unfindable logic only covers changes between
+      attacks. Reproduce first (blind adjacent caster or fighter
+      with a unicorn horn, cure it via use_defensive()).
+- [ ] LOW: master's attack phase after a successful undirected cast
+      (minted 2026-11-05, session 296, ruled a row). Master's
+      dochug() sets tmp = 3 on a successful castmu(FALSE, FALSE)
+      and then `else tmp = 0`, so a non-skittish caster skips its
+      move but still gets phase four (since master 4cfa1aada, the
+      SporkHack M3_SKITTISH import); the branch, like vanilla 5.0,
+      sets MMOVE_DONE and ends the move. With ranged casting
+      (BUG-2867) master's phase four can be a second cast or a
+      cooldown curse line in the same move. Decide master's shape
+      vs 5.0's; quantify casts per move first.
 - [x] Zombie/were/Draugr mechanics (zombify, binding ritual)
       PORTED + REVIEWED + COORDINATOR-FIXED 2026-07-16, COMMITTED
       2026-07-17 as 7b19b7ba8 (36 files +1094/-181; port subagent 34
@@ -14666,6 +14774,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (p) After a held throw, a weapon user that also has AD_SPEL /
           AD_CLRC may cast an undirected spell (summon, haste, cure)
           instead of stepping, as on any non-scan move.
+          (p) SUPERSEDED 2026-11-05 (session 296, BUG-2867): the
+          ranged castmu() arm now runs in the same chain; off
+          cooldown it counts as the ranged attack (no fall-through),
+          and on cooldown it only curses, the fall-through runs and
+          dochug()'s undirected loop is skipped (mspec_used > 0), so
+          the monster steps. T3 drow cleric with a crossbow: POST
+          held + off cooldown stood 15 / 15, held + on cooldown
+          stepped 13 / 13; PRE stepped on most holds but cast an
+          undirected spell instead on 5 of 22 (this item).
       (q) A held archer with a launcher within dist2 25 takes
           master's keep-away appr -1, but m_move()'s item search can
           turn the step toward its own fired arrows (T2: 11 / 17);
@@ -15486,7 +15603,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       BUG-1619 (stun message only when mechanics ran). DEFERRED
       with owners: master's remaining melee-only spell list
       (STUN_YOU/WEAKEN_YOU/CURSE_ITEMS etc.) -> monster-spells
-      follow-up; celestial scales missing from the AD_ELEC
+      follow-up [never got a row; CLOSED 2026-11-05, session 296,
+      BUG-2868, with the ranged-casting MED]; celestial scales missing from the AD_ELEC
       defends() arm (master has BLUE || CELESTIAL) + the AD_STUN
       -> SHIMMERING arm -> dragon-armor row; pager
       attacktypes[]/damagetypes[] belong to the unported
@@ -36815,6 +36933,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-05 | Ranged-casting slice rulings (Phase 2 session 296, AskUserQuestion x5 with 10 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the ranged AD_SPEL / AD_CLRC MED (kill-credit LOWs, hit-chain anger and other LOWs not taken). (2) RANGE LIST: master's "don't cast these spells at range" list for every monster caster, hero and monster targets, attack-phase and undirected casts; the hero casting as a monster exempt (rejected: only the new ranged arm). (3) LEARNED LEAK: fold it in (rejected: a separate MED row). (4) CURSE LINES: keep master's cooldown "points at you, then curses" at range (rejected: silence at range). (5) BUG-373 refresh: mint a LOW row (rejected: fold in). (6) RANGE RE-ROLL: a range-blocked rung goes back to the caller for a re-roll, as master's re-roll does (rejected: slide down the ladder). (7) COOLDOWN STEP: the ranged spell try counts as the ranged attack only when off cooldown (rejected: any try counts). (8) POST-CAST PHASE FOUR: mint a LOW row (rejected: fold in). Session calls, plan-approved: the explicit AD_SPEL / AD_CLRC test over master's adtyp <= AD_SPC2; the boulder / out-of-sight and repair-armor folds in BUG-2869 (Plan pass); the reviewer HIGH fold (hostile-only / sight-barred rungs still slide down, read as rule 6's "other useless rungs keep the drop-down"). | maintainer (1-8); session, plan-approved (rest) |
 | 2026-11-05 | Held-fire slice rulings (Phase 2 session 295, AskUserQuestion x4 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the weapon-pick residue row's item (e), the archer standing still (kill-credit LOWs, the combined slice and the hit-chain anger row not taken). (2) SCOPE: weapon-only users - a monster whose hero-aimed ranged attempts were all weapon attacks and held fire moves instead; a chain that also tried breath, spit, gaze, scream or a beam spell keeps master's stand-still, as do pure spitters, breathers and elemental casters (rejected: every idle ranged attack moves). (3) ROLL ORDER: one roll, then move - the throw-or-move decision is made from where the archer stands with 0.9.3's odds, and no second ranged attack follows the step (rejected: move first then roll, vanilla's order; roll, move, roll again). (4) MASTER'S RANGED AD_SPEL / AD_CLRC CASTING (Plan-pass find, 877865d39 + 116430b36): mint a MED row rather than fold it in. Session calls, plan-approved: only thrwmu()'s retreat hold counts (not a lined_up() re-roll); the u.umoved, !m_next2u() and pick-needing-digger-with-a-launcher gates (Plan pass); the reviewer's three LOW folds (an exploded cursed wand counts as acting, the digger gate tests a wielded launcher, comment wording). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-05 | Better-copy slice rulings (Phase 2 session 294, AskUserQuestion x5 with 7 questions - two of them battery launch asks - all as recommended). (1) SLICE: the MED better-copy row (the archer standing still, the kill-credit LOWs and the combined slice not taken). (2) "BETTER": tiers plus fixed numbers - an artifact beats a plain copy (two same-type artifacts never swap); silver beats non-silver against select_hwep()'s silver foes, and a silver copy is never given up; otherwise enchantment + forging quality + material bonus - erosion; a tie keeps the copy in hand. Rejected: artifact only; a deterministic oselect_recurse() (it changes every weapon pick's RNG and stops session 293's off-hand pull). (3) FOLDS: pets want a better copy; an artifact launcher ranks first. (4) LAUNCHER (battery T2: the premise was false - the Longbow of Diana's owner is Orion carrying only the Longbow): keep commit 3 with a corrected message and re-test like-for-like. Rejected: drop it. (5) PET CHARGES (battery T2 find, a session 71 port regression): fix in this slice with master's is_chargeable() (BUG-2864). Rejected: mint a row for later. Plan-approved, not asked: m_stash_items() keeps a better copy out of the bag; welded and can't-touch guards; a pet's foe rolled once per wield decision; mon.c's re-check simplified; a NULL foe means "silver counts"; the reviewer HIGH fixes (launchers only in oselect_recurse(); could_use_item()'s duplicate check skips a beaten copy); the off-hand promotion line (BUG-2865, battery T1 find). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-05 | Stuck-monster slice rulings (Phase 2 session 293, AskUserQuestion x5 with 8 questions - two of them battery launch asks - all as recommended). (1) SLICE: the two LOW stuck-monster investigations, reproduce on both trees first (the kill-credit LOWs, hit-chain anger and touch-sear record items not taken); both not reproduced. (2) MASTER'S mattacku() RETURN (battery T1 find): keep the branch's vanilla 0 for a live attacker - long worm tails bite, cuss() / quest_talk() / Purgatory talk run while a monster fights; master's MM_HIT return archived frozen-unfixed (BUG-2859). Rejected: restore 0.9.3's skips, and a no-worm-tails hybrid. (3) THE BAGGED-SPARE LOOP (battery T2 find): trace and fix in this slice (BUG-2860). (4) OFF HAND: keep the pull for a dual-wielder with an empty off hand when the copy is an off-hand candidate (0.9.3's result). Rejected: never pull a same-type copy. (5) FOLDS (reviewer MED + LOW): m_stash_items() keeps the off-hand candidate out of the bag; no pull for a copy that would merge into the wielded stack. (6) SAME-TYPE BETTER COPY (reviewer find, the Excalibur owner): mint a MED row, reproduce first. Plan-approved, not asked: the pull gate sits in mon_wield_item() before mon_container_extract(); offhand_candidate() is select_offhand_hwep()'s filter, moved unchanged. | maintainer (1-6); session, plan-approved (rest) |
