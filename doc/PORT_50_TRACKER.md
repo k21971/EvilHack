@@ -5342,7 +5342,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       do_spell_would_be_useless() range-gates them (see below).
       CLOSED 2026-11-05 (session 296; plan
       /root/.claude/plans/bugfix-ranged-spell-casting.md; commits
-      pending). Three fixes:
+      baafb195b BUG-2868, 5ec6577fc BUG-2869, cd1259475 BUG-2867,
+      tracker f70a660d6). Three fixes:
       - BUG-2867 (port regression, mhitu.c): mattacku()'s AT_MAGC
         arm casts AD_SPEL / AD_CLRC at range, master's shape:
         lined_up() -> castmu(TRUE, foundyou), else castmu(FALSE,
@@ -14774,7 +14775,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (p) After a held throw, a weapon user that also has AD_SPEL /
           AD_CLRC may cast an undirected spell (summon, haste, cure)
           instead of stepping, as on any non-scan move.
-          (p) SUPERSEDED 2026-11-05 (session 296, BUG-2867): the
+          (p) SUPERSEDED 2026-11-05 (session 296, BUG-2867,
+          cd1259475): the
           ranged castmu() arm now runs in the same chain; off
           cooldown it counts as the ranged attack (no fall-through),
           and on cooldown it only curses, the fall-through runs and
