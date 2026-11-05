@@ -52,7 +52,7 @@ staticfn int choose_bolt_spell(struct monst *);
 staticfn int choose_monster_spell(struct monst *, struct monst *, int);
 staticfn struct monst *find_adjacent_pet(struct monst *);
 staticfn void do_untame_pet(struct monst *, struct monst *);
-staticfn short mpick_learned_spell(struct monst *, struct monst *);
+staticfn short mpick_learned_spell(struct monst *, struct monst *, boolean);
 staticfn int cast_learned_spell(struct monst *, struct monst *, short);
 staticfn boolean target_resists_learned_spell(struct monst *,
                                               struct monst *, short);
@@ -372,6 +372,29 @@ castmu(
 
     debugpline3("castmu:%s,lvl:%i,spell:%i", noit_Monnam(mtmp), ml, spellnum);
 
+    /* the learned-spell meta doesn't decide which spell is cast until
+       cast_learned_spell() runs; resolve it now, before the cooldown,
+       so the wrong-spot check and the casting message both go by the
+       spell actually cast (self-buff vs directed), and hand the same
+       spell to cast_learned_spell(). A caster on an undirected try,
+       out of the hero's line of sight, or facing a hero made
+       invulnerable by prayer gets only a self-buff - the cases in
+       which the undirected check above and spell_would_be_useless()
+       let it pick the meta for a self-buff alone */
+    if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC)
+        && spellnum == MCAST_LEARNED_SPELL) {
+        learned_otyp = mpick_learned_spell(mtmp, &gy.youmonst,
+                                           !thinks_it_foundyou
+                                           || !couldsee(mtmp->mx, mtmp->my)
+                                           || u.uinvulnerable);
+        /* nothing castable after all (the usefulness checks can
+           disagree on a random armor pick): no spell, no cooldown */
+        if (!learned_otyp)
+            return M_ATTK_MISS;
+    }
+    undirected = learned_otyp ? IS_SELFBUFF_SPELL(learned_otyp)
+                              : is_undirected_spell(mtmp, spellnum);
+
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
         /* monst->m_lev is unsigned (uchar), monst->mspec_used is int */
         mtmp->mspec_used = 4 - (int) mtmp->m_lev;
@@ -399,8 +422,7 @@ castmu(
      *  even when the caster has targeted the wrong spot?  Likewise
      *  for fire mis-aimed at ice.
      */
-    if (!foundyou && thinks_it_foundyou
-        && !is_undirected_spell(mtmp, spellnum)) {
+    if (!foundyou && thinks_it_foundyou && !undirected) {
         pline_mon(mtmp, "%s casts a spell at %s!",
                  canseemon(mtmp) ? Monnam(mtmp) : "Something",
                  is_waterwall(mtmp->mux, mtmp->muy) ? "empty water"
@@ -419,18 +441,6 @@ castmu(
             stop_occupation();
         return M_ATTK_MISS;
     }
-    /* the learned-spell meta doesn't decide which spell is cast until
-       cast_learned_spell() runs; resolve it now so the casting message
-       matches the spell actually cast (self-buff vs directed) instead
-       of guessing from whether a useful self-buff merely exists; the
-       same spell is handed to cast_learned_spell() so the message and
-       the effect cannot diverge */
-    if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC)
-        && spellnum == MCAST_LEARNED_SPELL)
-        learned_otyp = mpick_learned_spell(mtmp, &gy.youmonst);
-    undirected = is_undirected_spell(mtmp, spellnum);
-    if (learned_otyp)
-        undirected = IS_SELFBUFF_SPELL(learned_otyp);
 
     if (canspotmon(mtmp) || !undirected) {
         pline_mon(mtmp, "%s casts a spell%s!",
@@ -3109,7 +3119,7 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
        mdef); the same spell is reused below so message and effect
        cannot diverge */
     if (spellnum == MCAST_LEARNED_SPELL)
-        learned_otyp = mpick_learned_spell(mtmp, mdef);
+        learned_otyp = mpick_learned_spell(mtmp, mdef, FALSE);
     undirected = elemental ? FALSE : is_undirected_spell(mtmp, spellnum);
     if (learned_otyp)
         undirected = IS_SELFBUFF_SPELL(learned_otyp);
@@ -3475,12 +3485,13 @@ mlearn_spell(struct monst *mtmp, struct obj *book)
    same target/peaceful filtering cast_learned_spell() uses; pulled out
    so the casting message can reflect the spell actually chosen rather
    than a heuristic guess; returns the spell otyp, or 0 if none is
-   castable */
+   castable. selfbuff_only limits the pick to self-buffs for a caller
+   that may only cast an undirected spell */
 staticfn short
-mpick_learned_spell(struct monst *caster, struct monst *target)
+mpick_learned_spell(struct monst *caster, struct monst *target,
+                    boolean selfbuff_only)
 {
     boolean youdefend = (target == &gy.youmonst);
-    boolean selfbuff_only;
     coordxy tx, ty;
 
     /* target coordinates gate terrain-specific spells (entangle needs
@@ -3495,15 +3506,15 @@ mpick_learned_spell(struct monst *caster, struct monst *target)
         return 0;
     }
 
-    /* Only restrict to self-buffs if:
+    /* Also restrict to self-buffs if:
        - caster is a monster (not the player)
        - caster is peaceful
        - target is the player
        This allows tame pets to attack hostile monsters with offensive
        spells, while preventing peaceful spellcasters from attacking
        the player */
-    selfbuff_only = (caster != &gy.youmonst && caster->mpeaceful
-                     && youdefend);
+    if (caster != &gy.youmonst && caster->mpeaceful && youdefend)
+        selfbuff_only = TRUE;
 
     return mchoose_learned_spell(caster, target, tx, ty, selfbuff_only);
 }
@@ -3535,7 +3546,7 @@ cast_learned_spell(struct monst *caster, struct monst *target,
     }
 
     if (spell_otyp == 0)
-        spell_otyp = mpick_learned_spell(caster, target);
+        spell_otyp = mpick_learned_spell(caster, target, FALSE);
 
     if (spell_otyp == 0)
         return 0; /* no castable spell available */
