@@ -4913,6 +4913,7 @@ m_stash_items(struct monst *mon, boolean creation)
     struct obj *obj, *nobj, *bag = (struct obj *) 0;
     struct obj *wep = (struct obj *) 0, *hwep = (struct obj *) 0;
     struct obj *rwep = (struct obj *) 0, *proj = (struct obj *) 0;
+    struct obj *offwep = (struct obj *) 0;
 
     /* hard to use a bag without hands */
     if (nohands(mon->data))
@@ -4955,6 +4956,11 @@ m_stash_items(struct monst *mon, boolean creation)
         hwep = select_hwep(mon);
         proj = select_rwep(mon);
         rwep = gp.propellor;
+        /* keep what would go in an empty off hand; a copy of the
+           wielded type pulled out of the bag for that hand would
+           otherwise go straight back in */
+        if (!creation && can_dual_wield(mon) && !MON_WEP2(mon))
+            offwep = select_offhand_hwep(mon);
     }
 
     for (obj = mon->minvent; obj; obj = nobj) {
@@ -4963,6 +4969,7 @@ m_stash_items(struct monst *mon, boolean creation)
         if (obj == bag
             || obj->owornmask
             || obj == wep || obj == hwep || obj == rwep || obj == proj
+            || obj == offwep
             /* unworn at the hero's request; stashing it would hide it
                from the follow-up take order and the belay release */
             || obj->oreserved

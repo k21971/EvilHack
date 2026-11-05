@@ -910,6 +910,7 @@ staticfn struct obj *find_silver_recurse(struct monst *, struct obj *,
                                          struct monst *, boolean, boolean);
 staticfn struct obj *find_gem_recurse(struct monst *, struct obj *);
 staticfn struct monst *mon_melee_target(struct monst *);
+staticfn boolean offhand_candidate(struct monst *, struct obj *);
 #define Oselect(x) \
     do {                                        \
         if ((otmp = oselect(mtmp, x)) != 0)     \
@@ -1639,6 +1640,35 @@ can_dual_wield(struct monst *mon)
     return TRUE;
 }
 
+/* per-object filter for a monster's off-hand weapon */
+staticfn boolean
+offhand_candidate(struct monst *mon, struct obj *otmp)
+{
+    /* must be a weapon or weapon-tool */
+    if (otmp->oclass != WEAPON_CLASS && !is_weptool(otmp))
+        return FALSE;
+    /* must be one-handed (giants one-hand non-launchers) */
+    if (mon_bimanual(mon, otmp))
+        return FALSE;
+    /* skip launchers (even one-handed ones) */
+    if (is_launcher(otmp))
+        return FALSE;
+    /* skip ammunition (arrows, bolts, sling ammo) */
+    if (is_ammo(otmp))
+        return FALSE;
+    /* skip thrown missiles (shuriken, darts, boomerangs); these
+       are meant to be thrown, not held as a melee off-hand weapon */
+    if (is_missile(otmp))
+        return FALSE;
+    /* skip hated materials */
+    if (mon_hates_material(mon, otmp->material))
+        return FALSE;
+    /* skip artifacts that would reject the wielder */
+    if (otmp->oartifact && !touch_artifact(otmp, mon))
+        return FALSE;
+    return TRUE;
+}
+
 /* Select a secondary hand-to-hand weapon for dual-wielding.
    Similar to select_hwep() but skips the primary weapon, requires
    one-handed, and uses simpler scoring */
@@ -1666,27 +1696,7 @@ select_offhand_hwep(struct monst *mon)
         /* skip worn/wielded items (but allow current mw2) */
         if (otmp->owornmask && otmp != MON_WEP2(mon))
             continue;
-        /* must be a weapon or weapon-tool */
-        if (otmp->oclass != WEAPON_CLASS && !is_weptool(otmp))
-            continue;
-        /* must be one-handed (giants one-hand non-launchers) */
-        if (mon_bimanual(mon, otmp))
-            continue;
-        /* skip launchers (even one-handed ones) */
-        if (is_launcher(otmp))
-            continue;
-        /* skip ammunition (arrows, bolts, sling ammo) */
-        if (is_ammo(otmp))
-            continue;
-        /* skip thrown missiles (shuriken, darts, boomerangs); these
-           are meant to be thrown, not held as a melee off-hand weapon */
-        if (is_missile(otmp))
-            continue;
-        /* skip hated materials */
-        if (mon_hates_material(mon, otmp->material))
-            continue;
-        /* skip artifacts that would reject the wielder */
-        if (otmp->oartifact && !touch_artifact(otmp, mon))
+        if (!offhand_candidate(mon, otmp))
             continue;
 
         /* score: artifact bonus + enchantment + base damage; pick the
@@ -1896,9 +1906,18 @@ mon_wield_item(struct monst *mon)
     }
     if (obj && obj != &hands_obj) {
         struct obj *mw_tmp = MON_WEP(mon);
+        boolean same_type = (mw_tmp && mw_tmp->otyp == obj->otyp);
 
-        /* if weapon is in a container, extract it first (uses turn) */
-        if (obj->where == OBJ_CONTAINED) {
+        /* if weapon is in a container, extract it first (uses turn);
+           a copy of the type already in hand is never swapped in
+           (below), so taking one out only spends the turn - unless
+           it can go in an empty off hand, and won't merge into the
+           wielded stack instead */
+        if (obj->where == OBJ_CONTAINED
+            && (!same_type
+                || (can_dual_wield(mon) && !MON_WEP2(mon)
+                    && offhand_candidate(mon, obj)
+                    && !mergable(mw_tmp, obj)))) {
             int result = mon_container_extract(mon, obj);
 
             if (result != 1) { /* 0=failed, 2=used turn for extraction */
@@ -1910,7 +1929,7 @@ mon_wield_item(struct monst *mon)
             /* result==1 means already in inventory (shouldn't happen) */
         }
 
-        if (mw_tmp && mw_tmp->otyp == obj->otyp) {
+        if (same_type) {
             /* already wielding it */
             mon->weapon_check = NEED_WEAPON;
             /* still try to wield secondary weapon if capable */
