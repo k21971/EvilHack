@@ -7119,6 +7119,12 @@ mhitm_ad_phys(
                               s_suffix(Monnam(magr)), xname(mwep));
                 }
             }
+        } else if (mattk->aatyp == AT_ENGL && pa == &mons[PM_FOG_CLOUD]
+                   && (breathless(pd) || amphibious(pd)) && !flaming(pd)) {
+            /* a fog cloud's moisture can't choke a victim that needs no
+               air or breathes water; gulpmu() and gulpum() spare the
+               same ones */
+            mhm->damage = 0;
         } else if (pa == &mons[PM_PURPLE_WORM] && pd == &mons[PM_SHRIEKER]) {
             /* hack to enhance mm_aggression(); we don't want purple
                worm's bite attack to kill a shrieker because then it
