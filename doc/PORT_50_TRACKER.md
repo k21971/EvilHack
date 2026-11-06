@@ -17,10 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-05, after session 296's
-  ranged-casting slice: the MED closed, BUG-2867..2869, two LOW rows
-  minted):
-  654 rows closed, 57 open
+- Phase 2 status (refreshed 2026-11-06, after session 297's
+  dochug() pair slice: two LOW rows closed, BUG-2870 / 2871):
+  656 rows closed, 55 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -381,10 +380,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 53 LOW: small parity rows, quirks and watch/record-only items.
-    Session 296 minted two: master BUG-373's pre-attack
-    set_apparxy() refresh, and master's attack phase after a
-    successful undirected cast.
+  - 51 LOW: small parity rows, quirks and watch/record-only items.
+    Session 297 closed the two session 296 minted (BUG-2870 / 2871):
+    a monster that gets its sight back or changes form during its
+    move now goes by your real square when it can see you plainly
+    (master's every-move refresh ported only in that roll-free case,
+    by ruling, so invisible and displaced heroes keep their odds),
+    with range and Elbereth checked against that square; and a
+    successful undirected cast still ends the caster's move (ruled:
+    master's cast-then-attack came in by accident with a 2020 steed
+    rewrite).
     Session 293 closed the two stuck-monster investigations as not
     reproduced on either tree (an unarmed stone giant hits you every
     turn it acts; an overloaded Uruk-hai still approaches and
@@ -5412,7 +5417,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       17.6% vs master's 7.7%); a caster can call castmu() twice in
       one move (the undirected loop fumbles or picks a directed
       spell, then the attack phase), master parity.
-- [ ] LOW: master BUG-373's set_apparxy() refresh before the attack
+- [x] LOW: master BUG-373's set_apparxy() refresh before the attack
       phase is unported (minted 2026-11-05, session 296, ruled a
       row). Master 4635613aa refreshes mux / muy in dochug() just
       before phase four, so a monster that cured its own blindness
@@ -5423,7 +5428,55 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mattacku()'s was_unfindable logic only covers changes between
       attacks. Reproduce first (blind adjacent caster or fighter
       with a unicorn horn, cure it via use_defensive()).
-- [ ] LOW: master's attack phase after a successful undirected cast
+      ROW CORRECTION (session 297): the named producer can't happen
+      on either tree - use_defensive()'s blindness cures return 2
+      and dochug() returns at once. Master's likely real producer:
+      a blind learned caster casts cure blindness through phase
+      three's undirected loop, then the next row's `else tmp = 0`
+      attacks on the stale guess. No branch producer was found
+      for the stand-still path; the MMOVE_MOVED path is reachable
+      (a polymorph trap or polymorph food turns the monster into a
+      see-invisible form after m_move()'s guess).
+      CLOSED 2026-11-06 (session 297; plan
+      /root/.claude/plans/bugfix-dochug-pre-attack-refresh.md;
+      commit `Fix: a monster that can see you aims at where you
+      are.` = (hash pending) BUG-2870, include/extern.h src/mhitu.c
+      src/monmove.c). RULED (AskUserQuestion, as recommended):
+      refresh only when the monster can now see the hero plainly,
+      a roll-free placement - master's every-move refresh is one
+      more find roll (simulated adjacent find chance per move:
+      invisible 41.8% -> 66.0%, displaced 28.0% -> 48.0%; master's
+      own BUG-821 fix avoided that re-roll). New
+      mon_unsure_of_hero() (mhitu.c; also used by mattacku()'s
+      transition re-roll and wildmiss()'s impossible() test).
+      Placement differs from master's, from the Plan stress test:
+      master refreshes after distfleeck() set inrange / nearby /
+      scared from the old guess, so on the MOVED path its monster
+      could melee right after moving and skip the Elbereth check.
+      The branch refreshes just before the post-move distfleeck()
+      recalc, and in a new else arm for a monster that stood its
+      ground (refresh + distfleeck() only when the guess is
+      stale). Reviewer PASS; LOW folds: dochug() refreshes its
+      cached mdat after m_move() (grounded() and noattacks() read
+      the old form after a mid-move polymorph, master the same), a
+      set_apparxy() comment naming the helper; LOW record: the
+      named producer above. Batteries (PRE 70063bec, POST 0562be3f
+      = the pre-fold cut, MASTER acb41484; installed 5795aa03 = the
+      committed code): T1 stand-still lever (blind wolf next to the
+      hero given its sight after the top guess): PRE 32 wildmiss()
+      impossibles, POST 0 with every attack on the real square,
+      MASTER 0; hero on Elbereth: POST scared on 19 / 19 firings,
+      MASTER bit through Elbereth on 11 / 11. T2 moved lever (blind
+      hill orc archer given its sight before the post-move recalc):
+      POST never attacked after ending next to the hero (6 / 6,
+      also 5 / 5 scared on Elbereth), every volley at the real
+      square; PRE aimed at the stale guess. T3 invisible hero
+      stepping between two squares next to a trapped wolf, ~100
+      attack moves each: found PRE 46.5%, POST 42.2%, MASTER 66.0%;
+      the new sites never called set_apparxy() while invisible and
+      made 0 rn2 calls when visible. Every paniclog clean except
+      PRE's expected T1 lines.
+- [x] LOW: master's attack phase after a successful undirected cast
       (minted 2026-11-05, session 296, ruled a row). Master's
       dochug() sets tmp = 3 on a successful castmu(FALSE, FALSE)
       and then `else tmp = 0`, so a non-skittish caster skips its
@@ -5433,6 +5486,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (BUG-2867) master's phase four can be a second cast or a
       cooldown curse line in the same move. Decide master's shape
       vs 5.0's; quantify casts per move first.
+      CLOSED 2026-11-06 (session 297, record, BUG-2871, master
+      frozen-unfixed; no code). RULED (AskUserQuestion, as
+      recommended): a successful undirected cast still ends the
+      move (5.0's shape). History: 3.6.5 vanilla's unconditional
+      m_move() overwrote the cast's tmp = 3; 4cfa1aada (2018) set
+      `tmp = is_skittish ? 0 : 3` (skittish casters keep moving,
+      the rest do nothing else); ec85d708a (2018) added `else tmp
+      = 0` for ridden monsters; b6a7de54c (2020 steed rewrite, a
+      TODO) made it `if (!tmp && !rider_id) ... else tmp = 0`,
+      which turned the cast's 3 into "can still attack". Quantified
+      for the ruling: on master most casters' spell slot is still
+      on cooldown in that attack phase (a curse line), but boss
+      casters (is_boss_caster(): demon lords and princes, the
+      Wizard, Vecna, Talgath, quest leaders and nemeses, the
+      Oracle, the High Priest, both Kathryns) skip the cooldown
+      half the time and cast again - up to 1 + spell slots per move
+      (the Wizard 3, the branch 2) - and casters with a weapon,
+      gaze or melee attack add those (44 of 73 caster species have
+      AT_WEAP). The branch comment at the cast site already reads
+      "skittish casters keep moving after a successful cast;
+      others stop here".
 - [x] Zombie/were/Draugr mechanics (zombify, binding ritual)
       PORTED + REVIEWED + COORDINATOR-FIXED 2026-07-16, COMMITTED
       2026-07-17 as 7b19b7ba8 (36 files +1094/-181; port subagent 34
@@ -36935,6 +37009,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-06 | dochug() pair slice rulings (Phase 2 session 297, AskUserQuestion x4 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the two dochug() LOWs session 296 minted (rejected: the kill-credit pair, set_apparxy() only, the pet mummy wrapping). (2) POST-CAST ATTACK: a successful undirected cast still ends the move, 5.0's shape and master's 2018 intent (rejected: master's cast-then-attack, an accident of the 2020 steed rewrite) - BUG-2871 record. (3) REFRESH FORM: refresh the guess only when the monster can now see the hero plainly, roll-free (rejected: master's every-move refresh, invisible 42% -> 66% found per move; record only) - BUG-2870. (4) STALE mdat after m_move(): fold it in (rejected: mint a LOW row). Session calls, plan-approved: the placement before distfleeck() (two sites, the stand-still arm re-running distfleeck() only on a stale guess) from the Plan stress test, over master's single pre-attack refresh; the shared mon_unsure_of_hero() helper; the set_apparxy() cross-reference comment (reviewer LOW). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-05 | Ranged-casting slice rulings (Phase 2 session 296, AskUserQuestion x5 with 10 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the ranged AD_SPEL / AD_CLRC MED (kill-credit LOWs, hit-chain anger and other LOWs not taken). (2) RANGE LIST: master's "don't cast these spells at range" list for every monster caster, hero and monster targets, attack-phase and undirected casts; the hero casting as a monster exempt (rejected: only the new ranged arm). (3) LEARNED LEAK: fold it in (rejected: a separate MED row). (4) CURSE LINES: keep master's cooldown "points at you, then curses" at range (rejected: silence at range). (5) BUG-373 refresh: mint a LOW row (rejected: fold in). (6) RANGE RE-ROLL: a range-blocked rung goes back to the caller for a re-roll, as master's re-roll does (rejected: slide down the ladder). (7) COOLDOWN STEP: the ranged spell try counts as the ranged attack only when off cooldown (rejected: any try counts). (8) POST-CAST PHASE FOUR: mint a LOW row (rejected: fold in). Session calls, plan-approved: the explicit AD_SPEL / AD_CLRC test over master's adtyp <= AD_SPC2; the boulder / out-of-sight and repair-armor folds in BUG-2869 (Plan pass); the reviewer HIGH fold (hostile-only / sight-barred rungs still slide down, read as rule 6's "other useless rungs keep the drop-down"). | maintainer (1-8); session, plan-approved (rest) |
 | 2026-11-05 | Held-fire slice rulings (Phase 2 session 295, AskUserQuestion x4 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the weapon-pick residue row's item (e), the archer standing still (kill-credit LOWs, the combined slice and the hit-chain anger row not taken). (2) SCOPE: weapon-only users - a monster whose hero-aimed ranged attempts were all weapon attacks and held fire moves instead; a chain that also tried breath, spit, gaze, scream or a beam spell keeps master's stand-still, as do pure spitters, breathers and elemental casters (rejected: every idle ranged attack moves). (3) ROLL ORDER: one roll, then move - the throw-or-move decision is made from where the archer stands with 0.9.3's odds, and no second ranged attack follows the step (rejected: move first then roll, vanilla's order; roll, move, roll again). (4) MASTER'S RANGED AD_SPEL / AD_CLRC CASTING (Plan-pass find, 877865d39 + 116430b36): mint a MED row rather than fold it in. Session calls, plan-approved: only thrwmu()'s retreat hold counts (not a lined_up() re-roll); the u.umoved, !m_next2u() and pick-needing-digger-with-a-launcher gates (Plan pass); the reviewer's three LOW folds (an exploded cursed wand counts as acting, the digger gate tests a wielded launcher, comment wording). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-05 | Better-copy slice rulings (Phase 2 session 294, AskUserQuestion x5 with 7 questions - two of them battery launch asks - all as recommended). (1) SLICE: the MED better-copy row (the archer standing still, the kill-credit LOWs and the combined slice not taken). (2) "BETTER": tiers plus fixed numbers - an artifact beats a plain copy (two same-type artifacts never swap); silver beats non-silver against select_hwep()'s silver foes, and a silver copy is never given up; otherwise enchantment + forging quality + material bonus - erosion; a tie keeps the copy in hand. Rejected: artifact only; a deterministic oselect_recurse() (it changes every weapon pick's RNG and stops session 293's off-hand pull). (3) FOLDS: pets want a better copy; an artifact launcher ranks first. (4) LAUNCHER (battery T2: the premise was false - the Longbow of Diana's owner is Orion carrying only the Longbow): keep commit 3 with a corrected message and re-test like-for-like. Rejected: drop it. (5) PET CHARGES (battery T2 find, a session 71 port regression): fix in this slice with master's is_chargeable() (BUG-2864). Rejected: mint a row for later. Plan-approved, not asked: m_stash_items() keeps a better copy out of the bag; welded and can't-touch guards; a pet's foe rolled once per wield decision; mon.c's re-check simplified; a NULL foe means "silver counts"; the reviewer HIGH fixes (launchers only in oselect_recurse(); could_use_item()'s duplicate check skips a beaten copy); the off-hand promotion line (BUG-2865, battery T1 find). | maintainer (1-5); session, plan-approved (rest) |
