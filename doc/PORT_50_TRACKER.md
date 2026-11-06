@@ -20863,7 +20863,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       that waits on telling the two causes apart. LOW.
       CLOSED 2026-11-06 (session 298; plan
       /root/.claude/plans/bugfix-kill-credit-pair.md; commit `Fix:
-      the strangle death blames the right thing.` = (hash pending)
+      the strangle death blames the right thing.` = c7f1d7e9b
       BUG-2873..2876, include/extern.h src/mhitu.c src/polyself.c
       src/timeout.c src/insight.c src/mon.c; master frozen-unfixed).
       RULED (AskUserQuestion, as recommended): inside a suffocating
@@ -33358,7 +33358,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       CLOSED 2026-11-06 (session 298; plan
       /root/.claude/plans/bugfix-kill-credit-pair.md; commit `Fix: a
       pet whose fire drowns a monster in melted ice gets the kill.`
-      = (hash pending) BUG-2872, src/zap.c). RULED (AskUserQuestion,
+      = dac204aab BUG-2872, src/zap.c). RULED (AskUserQuestion,
       as recommended): every pet beam or blast that changes the
       floor, not just the fire pillar. dobuzz() and explode() run
       zap_over_floor() BEFORE their hit on each square, so a tame
