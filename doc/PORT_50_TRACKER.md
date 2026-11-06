@@ -17,9 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-06, after session 300's
-  strangle residue slice: items fixed inside one LOW record row,
-  which stays open, so the counts are unchanged):
+- Phase 2 status (refreshed 2026-11-06, after session 301's
+  strangle residue rest: more items fixed inside the same LOW
+  record row, which stays open, so the counts are unchanged):
   659 rows closed, 53 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
@@ -20952,6 +20952,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
           makeknown. Still open: a #wizintrinsic grant of magical
           breathing, gulpmu()'s can-breathe arm, and the scales
           clearing an amulet's clock.
+          REST FIXED 2026-11-06 (session 301, cccc34bcd):
+          nh_timeout() now ends an engulfer's clock each turn, before
+          the choke lines, once the hero can breathe inside ("You can
+          breathe again."; never a choking amulet's clock), covering
+          #wizintrinsic and bare sea dragon scales in the cloak slot
+          (Cloak_on() does nothing for them, and their breathing
+          starts with the 5-turn don), BUG-2883. Sea dragon-scaled
+          armor no longer clears an amulet of strangulation's clock
+          (magical breathing never stops strangling; master's clear
+          dates from when the scales were a suit), BUG-2884.
       (b) Amulet_off() inside an AD_WRAP engulfer the hero can't
           breathe in zeroes the engulfer's clock with "You can
           breathe more easily!"; the next gulpmu() restarts it at 4
@@ -21008,14 +21018,50 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (j) Taking off magical breathing (amulet or sea dragon scales)
           inside an AD_WRAP engulfer the hero then can't breathe in:
           the next gulpmu() starts the clock silently (old_uswallow).
+          (i) + (j) FIXED 2026-11-06 (session 301, cccc34bcd,
+          BUG-2882): gulpmu() says "It's impossible to breathe in
+          here!" every time it starts the clock, not only on the first
+          engulf; the prayer cure itself is unchanged (ruled). An
+          attack after which gulpmu()'s tail expels the hero (swallow
+          time out, a huge form, a petrifying one) starts no clock, so
+          the release no longer says "You can breathe again." for a
+          clock started on that attack. A life-save is not a restart
+          route (savelife() always expels).
       (k) check_strangling()'s on arm resets the clock to 6 whenever
           the worn amulet can choke the new form, so polymorphing
           inside a cube stretches an engulfer clock of 2 to 6.
+          FIXED 2026-11-06 (session 301, cccc34bcd, BUG-2885):
+          inside an engulfer the hero can't breathe in, a running
+          clock keeps its count - "You still can't breathe!" with no
+          amulet, the amulet's "still constricts" line with one (6
+          only when the clock is 0 or above 6). The no-amulet arm
+          reset to 6 too (master the same); a stopped clock still
+          starts at 6 with "You can't breathe in here!". The amulet's
+          vanilla reset to 6 outside an engulfer stays.
       (l) A monster fog cloud engulfing a monster (mhitm_ad_phys())
           spares no breathless or amphibious victim; gulpmu() and
           gulpum() do (the AD_PHYS sibling of (c)).
+          FIXED 2026-11-06 (session 301, f8ec51851, BUG-2886):
+          no damage to a breathless or amphibious victim that isn't
+          flaming, gulpum()'s test; silent.
       (m) Racial tortle / racial zombie monsters are not spared by a
           monster-side engulf (data-level test, as in minliquid()).
+      Added 2026-11-06 by session 301 (Plan stress test, reviewer;
+      record):
+      (n) A mindless form that needs no air can't be strangled, but
+          when it gains that state outside an engulfer while wearing
+          the amulet (bare sea dragon scales, #wizintrinsic), the
+          amulet's clock runs on to a "strangulation" death: only
+          check_strangling() re-tests the amulet. Master-shared.
+      (o) Inside an AD_WRAP engulfer the hero can breathe in,
+          nh_timeout()'s new clear takes any clock that isn't a
+          choking amulet's for the engulfer's, so a #wizintrinsic
+          STRANGLED grant is wiped the next turn (wizard-only; the
+          same assumption as end_engulf_suffocation()'s FIXME).
+      Folded, branch-only (BUG-2887, cccc34bcd): end_engulf_suffocation() now
+      sets disp.botl. Its branch-added newcham() caller (an engulfer
+      turning into one that doesn't suffocate) had no status refresh
+      after it, so "Strngl" stayed on the status line for turns.
       SESSION 300 BATTERIES (every paniclog empty; PRE 2e5ac1a4,
       POST 55f21de6 then 43f69b09 after the BUG-2879 fold, MASTER
       acb41484): T1 engulf-first take-off PRE / MASTER "You can
@@ -21038,6 +21084,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Side note: master says "swallows" / "regurgitated" for the
       enfolding engulfers where the branch has 5.0's "encloses" /
       "released" (5.0 wording, kept).
+      SESSION 301 BATTERIES (every paniclog empty; PRE 43f69b09,
+      POST 47eeb3c6, MASTER acb41484): T1 prayer cure inside a cube,
+      then the next attack: PRE / MASTER silent restart at 4, POST
+      "It's impossible to breathe in here!"; magical breathing amulet
+      off: PRE silent, POST the line; expel gate (u.uswldtim 1): PRE
+      "You get released!" with a clock of 4 at the release, then "You
+      can breathe again.", POST the release line only, clock 0; bare
+      sea dragon scales donned inside, and #wizintrinsic magical
+      breathing: PRE died "suffocated by a gelatinous cube" while
+      Breathless, POST "You can breathe again." that turn, clock 0.
+      T2 scales merged by enchant armor with the amulet on: PRE /
+      MASTER "You can suddenly breathe again!", clock 0 for 10+
+      turns; POST no line, death "strangulation"; the scaled jacket
+      put on inside a water elemental clears on every build; amulet +
+      jacket inside a cube keeps the clock on POST. T3 polymorph
+      inside: no amulet PRE 2 -> 6 "You can't breathe in here!", POST
+      3 -> 3 "You still can't breathe!"; amulet PRE 3 -> 6, POST 3 ->
+      3; controls (amulet outside 4 -> 6, breathless -> breathing 0
+      -> 6) the same on both; the elemental zapped into a fog cloud:
+      PRE "Strngl" stayed 4+ turns after "You can breathe again.",
+      POST gone at once. T4 fog cloud vs zombie / crocodile: PRE and
+      MASTER 1-6 per round, POST 0; hill orc and flaming sphere
+      damaged everywhere.
 - [x] LOW: "nothing left" deaths still leave a corpse (minted
       2026-10-06, session 186, by the direct-death slice's reviewer;
       master-shared). really_done()'s no-corpse list covers BURNING,
@@ -37261,6 +37330,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-06 | Strangle residue rest slice (Phase 2 session 301, AskUserQuestion x5 with 9 questions - one a battery launch ask - all as recommended). (1) SLICE: the strangle residue row's items (a) rest, (i), (j), (k), (l) (the underwater-view toggle, the pet mummy wrapping and the hit-chain anger rows not taken). (2) SCALES: an amulet of strangulation keeps choking through sea dragon-scaled armor; the scales clear only another clock (rejected: master's clear of any clock). (3) POLYMORPH: a running clock inside a choking engulfer keeps its count, "You still can't breathe!" with no amulet, the amulet's "still constricts" line with one and 6 only when the clock is 0 or above 6 (rejected: the same silently; master's reset). (4) RESTART: "It's impossible to breathe in here!" on every start of the clock; no immediate start at take-off; the prayer cure unchanged (rejected: also start at take-off). (5) CLEAR LINE: "You can breathe again." (rejected: "You can suddenly breathe again!"). (6) CATCH-ALL PLACE (Plan stress-test re-ask: bare scales in the cloak slot are a normal-play route, not only #wizintrinsic): nh_timeout() each turn before the choke lines (rejected: gulpmu()'s next attack; both). (7) EXPEL TURN (Plan stress-test re-ask): an attack that is about to expel the hero starts no clock (rejected: ungated). Session calls, plan-approved: end_engulf_suffocation() sets disp.botl (branch-only newcham() caller); the reviewer's LOW folds (the expel gate covers all three of gulpmu()'s tail expels - swallow time, a huge form, a petrifying one - as ruling 7 asks; comment wording). Commits cccc34bcd and f8ec51851; BUG-2882..2887. | maintainer (1-7); session, plan-approved (rest) |
 | 2026-11-06 | Strangle residue slice (Phase 2 session 300, AskUserQuestion x6 with 9 questions - one a battery launch ask). (1) SLICE: the strangle residue row's items (b) + (c), as recommended (the underwater-view toggle, the pet mummy wrapping and the hit-chain anger rows not taken). (2) (b) TAKE-OFF LINE: "You still can't breathe!" (rejected: silent, the recommendation). (3) (c) HERO ENGULF LINE: "The X can still breathe in the water.", as recommended. (4) "brushes against" dropped for engulfs (master's shape), as recommended. (5) Plan stress test: fold item (a)'s amulet half, as recommended (rejected: gulpmu()'s arm; record only). (6) Its line "You can suddenly breathe again!", as recommended. (7) Reviewer found master's Amulet_on() arm for magical breathing lost in the 5.0 tree adoption: MASTER'S UNCONDITIONAL FORM, as recommended (rejected: engulfer-owned clocks only). (8) Battery T1 found 5.0's silent strangulation put-on inside a running clock: MASTER'S SHAPE, folded into C1, as recommended (rejected: keep 5.0's, record). Commits 71cb80414 and 171d1dc39; BUG-2877..2881. |
 | 2026-11-06 | Wish-letter trace slice (Phase 2 session 299, AskUserQuestion x2 - the slice and a battery launch ask - both as recommended). (1) SLICE: the "Q - 20 rocks." wish-letter row (the strangle residue's items (b) + (c), the underwater-view toggle row and the pet mummy wrapping row not taken); (2) launch a reproduce-and-trace battery on POST and the scratch master build. Outcome: the row closed as NOT A BUG - the game, its raw output and the screen hold the lowercase letter on both builds; the uppercase letter was the test agents misreading their own tool output. No code change, no BUG id. |
 | 2026-11-06 | Kill-credit pair slice rulings (Phase 2 session 298, AskUserQuestion x3 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the two kill-credit LOWs (a tame castmm caster's fire-pillar drowning gets no pet credit; the STRANGLED timeout blames an engulfer), over the wrong-capital wish letter trace, the underwater-view toggle row and the pet mummy wrapping row. (2) PET CREDIT SCOPE: every pet beam or blast that changes the floor (fire breath, fire wand or horn, ray spell, fire blast, fire pillar) through one bracket in zap_over_floor() (rejected: the fire pillar only). (3) AMULET + SUFFOCATING ENGULFER: the engulfer is blamed and credited, as on master (rejected: the amulet owns its clock whenever worn); a hero who can breathe in there and wears an amulet that can choke them is the amulet's death. (4) SIBLINGS: fold both - check_strangling()'s amphibious test and polyman()'s missing stop check (rejected: a LOW row); the stress-test and reviewer siblings (end_engulf_suffocation()'s can't-choke amulet, newcham()'s non-suffocating new form, the survival tail) were folded under the same ruling. |
