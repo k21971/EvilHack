@@ -17,10 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-06, after session 298's
-  kill-credit pair slice: two LOW rows closed, BUG-2872..2876, one
-  LOW record row minted):
-  658 rows closed, 54 open
+- Phase 2 status (refreshed 2026-11-06, after session 299's
+  wish-letter trace: one LOW row closed as not a bug, no code
+  change):
+  659 rows closed, 53 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -381,7 +381,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 50 LOW: small parity rows, quirks and watch/record-only items.
+  - 49 LOW: small parity rows, quirks and watch/record-only items.
+    Session 299 closed the "Q - 20 rocks." wish-letter row as not a
+    bug: the game, the bytes it writes and the screen all carry the
+    lowercase letter on both builds; the uppercase letter in all
+    seven sightings was the test agents misreading their own tool
+    output.
     Session 298 closed the two kill-credit rows (BUG-2872..2876): a
     pet whose fire melts ice or boils a pool under a monster gets
     the kill when it drowns or falls into the new pit (every pet
@@ -1074,7 +1079,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     The curses term_gone row needs a reproduction. The wish-invlet
     row (seen a third and fourth time in session 165, and a fifth in
     session 207 with a candidate on-demand recipe) now needs a
-    trace. Session 157 minted three: the
+    trace (closed session 299: not a bug, a test-agent reading
+    artifact). Session 157 minted three: the
     accessory_or_armor_on() touch-before-wear row (seen live),
     break_armor()'s cached form, and cloak_simple_name()'s
     dragon-scales name. Session 158 minted the hero hug's doubled
@@ -30229,8 +30235,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       imitation (staged by gdb mksobj_at); the helmet appearance is
       shuffled per game; Infidels start wearing the real Amulet on
       both trees. NEW ROW: the LOW wish-invlet case row below.
-- [ ] LOW: a wish printed "Q - a leather armor." for an item whose
-      invlet is 'q' (minted 2026-09-24, session 137, battery
+- [x] LOW: a wish printed "Q - a leather armor." for an item whose
+      invlet is 'q' - NOT A BUG, CLOSED 2026-11-06 (session 299, no
+      code change; closure notes at the end of this row)
+      (minted 2026-09-24, session 137, battery
       observation, not reproduced). On both PRE and POST (master not
       tried), wishing "blessed leather armor of excellence" printed an
       uppercase "Q -" while gdb read invlet 'q', the W prompt offered
@@ -30284,6 +30292,39 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       rocks." while the letter was 'q'; typing Q at the drop prompt gave
       "You don't have that object.". Reproduced on PRE and POST alike,
       so it predates that slice.
+      CLOSED 2026-11-06 (session 299): NOT A BUG - a reading artifact
+      in the test agents, not the game. A reproduce-and-trace battery
+      (one tester, POST 2e5ac1a4 and the scratch master build
+      acb41484) compared three sources after every wish: the tmux
+      pane, the raw bytes the game wrote (tmux pipe-pane) and a
+      read-only gdb tracer on prinv() / xprname() / assigninvlet() /
+      tty_putstr() / update_topl() / redotoplin(). The tester "saw"
+      the uppercase letter three times - "Q - a figurine of an
+      arch-lich." (POST elven Wizard, wish 3), "Z - a mummified hand
+      named the Hand of Vecna." (POST lawful human Knight with the
+      wizkit, XL 30, first wish) and "Q - a staff." (MASTER elven
+      Wizard, wish 4) - and every source held the lowercase letter
+      each time: raw stream `ESC[H` then "q - a figurine ..." with
+      nothing written to that row afterwards; saved capture files
+      0x71 / 0x7a (checked again with od in the main session);
+      prinv() invlet 'q' (lastinvnr 16) / 'z' (lastinvnr 25); every
+      traced top-line string lowercase; `i` and ^P lowercase. The
+      same capture file printed twice in one tool call came back
+      once as "Q - a staff." and once as "q - a staff.", with od
+      showing 71. The misreading hit only the first line of a tool
+      result starting with "q - " or "z - " (3 of 3), never the 20+
+      first lines starting with other letters. The tester then typed
+      the uppercase letter it believed it saw, which is where every
+      sighting's "You don't have that object." came from; session
+      222's gdb read of 'Q' is the same misreading. assigninvlet()
+      handed out the next free lowercase letter every time (q after
+      a..p, z after the Knight's 25 items a..y). Master behaves the
+      same. Side notes from the battery, nothing new: the "(N in
+      total)" suffix is absent on a ^W wish that merges because
+      wiz_wish() turns flags.verbose off (master the same); "welcome
+      to NetHack!" is the known re-brand row. Battery lore: when an
+      inventory letter's case matters, read it from bytes (od,
+      Python repr), not from a tool result's first line.
 - [x] HIGH: polyself.c set_uasmon() lacks master's race and form
       properties - PORTED 2026-09-23 (session 135, commits `Fix: forms
       and races lost master's granted properties.` = 408713be5
@@ -37150,6 +37191,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-06 | Wish-letter trace slice (Phase 2 session 299, AskUserQuestion x2 - the slice and a battery launch ask - both as recommended). (1) SLICE: the "Q - 20 rocks." wish-letter row (the strangle residue's items (b) + (c), the underwater-view toggle row and the pet mummy wrapping row not taken); (2) launch a reproduce-and-trace battery on POST and the scratch master build. Outcome: the row closed as NOT A BUG - the game, its raw output and the screen hold the lowercase letter on both builds; the uppercase letter was the test agents misreading their own tool output. No code change, no BUG id. |
 | 2026-11-06 | Kill-credit pair slice rulings (Phase 2 session 298, AskUserQuestion x3 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the two kill-credit LOWs (a tame castmm caster's fire-pillar drowning gets no pet credit; the STRANGLED timeout blames an engulfer), over the wrong-capital wish letter trace, the underwater-view toggle row and the pet mummy wrapping row. (2) PET CREDIT SCOPE: every pet beam or blast that changes the floor (fire breath, fire wand or horn, ray spell, fire blast, fire pillar) through one bracket in zap_over_floor() (rejected: the fire pillar only). (3) AMULET + SUFFOCATING ENGULFER: the engulfer is blamed and credited, as on master (rejected: the amulet owns its clock whenever worn); a hero who can breathe in there and wears an amulet that can choke them is the amulet's death. (4) SIBLINGS: fold both - check_strangling()'s amphibious test and polyman()'s missing stop check (rejected: a LOW row); the stress-test and reviewer siblings (end_engulf_suffocation()'s can't-choke amulet, newcham()'s non-suffocating new form, the survival tail) were folded under the same ruling. |
 | 2026-11-06 | dochug() pair slice rulings (Phase 2 session 297, AskUserQuestion x4 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the two dochug() LOWs session 296 minted (rejected: the kill-credit pair, set_apparxy() only, the pet mummy wrapping). (2) POST-CAST ATTACK: a successful undirected cast still ends the move, 5.0's shape and master's 2018 intent (rejected: master's cast-then-attack, an accident of the 2020 steed rewrite) - BUG-2871 record. (3) REFRESH FORM: refresh the guess only when the monster can now see the hero plainly, roll-free (rejected: master's every-move refresh, invisible 42% -> 66% found per move; record only) - BUG-2870. (4) STALE mdat after m_move(): fold it in (rejected: mint a LOW row). Session calls, plan-approved: the placement before distfleeck() (two sites, the stand-still arm re-running distfleeck() only on a stale guess) from the Plan stress test, over master's single pre-attack refresh; the shared mon_unsure_of_hero() helper; the set_apparxy() cross-reference comment (reviewer LOW). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-05 | Ranged-casting slice rulings (Phase 2 session 296, AskUserQuestion x5 with 10 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the ranged AD_SPEL / AD_CLRC MED (kill-credit LOWs, hit-chain anger and other LOWs not taken). (2) RANGE LIST: master's "don't cast these spells at range" list for every monster caster, hero and monster targets, attack-phase and undirected casts; the hero casting as a monster exempt (rejected: only the new ranged arm). (3) LEARNED LEAK: fold it in (rejected: a separate MED row). (4) CURSE LINES: keep master's cooldown "points at you, then curses" at range (rejected: silence at range). (5) BUG-373 refresh: mint a LOW row (rejected: fold in). (6) RANGE RE-ROLL: a range-blocked rung goes back to the caller for a re-roll, as master's re-roll does (rejected: slide down the ladder). (7) COOLDOWN STEP: the ranged spell try counts as the ranged attack only when off cooldown (rejected: any try counts). (8) POST-CAST PHASE FOUR: mint a LOW row (rejected: fold in). Session calls, plan-approved: the explicit AD_SPEL / AD_CLRC test over master's adtyp <= AD_SPC2; the boulder / out-of-sight and repair-armor folds in BUG-2869 (Plan pass); the reviewer HIGH fold (hostile-only / sight-barred rungs still slide down, read as rule 6's "other useless rungs keep the drop-down"). | maintainer (1-8); session, plan-approved (rest) |
