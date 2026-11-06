@@ -5438,44 +5438,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (a polymorph trap or polymorph food turns the monster into a
       see-invisible form after m_move()'s guess).
       CLOSED 2026-11-06 (session 297; plan
-      /root/.claude/plans/bugfix-dochug-pre-attack-refresh.md;
-      commit `Fix: a monster that can see you aims at where you
-      are.` = (hash pending) BUG-2870, include/extern.h src/mhitu.c
-      src/monmove.c). RULED (AskUserQuestion, as recommended):
-      refresh only when the monster can now see the hero plainly,
-      a roll-free placement - master's every-move refresh is one
-      more find roll (simulated adjacent find chance per move:
-      invisible 41.8% -> 66.0%, displaced 28.0% -> 48.0%; master's
-      own BUG-821 fix avoided that re-roll). New
-      mon_unsure_of_hero() (mhitu.c; also used by mattacku()'s
-      transition re-roll and wildmiss()'s impossible() test).
-      Placement differs from master's, from the Plan stress test:
-      master refreshes after distfleeck() set inrange / nearby /
-      scared from the old guess, so on the MOVED path its monster
-      could melee right after moving and skip the Elbereth check.
-      The branch refreshes just before the post-move distfleeck()
-      recalc, and in a new else arm for a monster that stood its
-      ground (refresh + distfleeck() only when the guess is
-      stale). Reviewer PASS; LOW folds: dochug() refreshes its
-      cached mdat after m_move() (grounded() and noattacks() read
-      the old form after a mid-move polymorph, master the same), a
-      set_apparxy() comment naming the helper; LOW record: the
-      named producer above. Batteries (PRE 70063bec, POST 0562be3f
-      = the pre-fold cut, MASTER acb41484; installed 5795aa03 = the
-      committed code): T1 stand-still lever (blind wolf next to the
-      hero given its sight after the top guess): PRE 32 wildmiss()
-      impossibles, POST 0 with every attack on the real square,
-      MASTER 0; hero on Elbereth: POST scared on 19 / 19 firings,
-      MASTER bit through Elbereth on 11 / 11. T2 moved lever (blind
-      hill orc archer given its sight before the post-move recalc):
-      POST never attacked after ending next to the hero (6 / 6,
-      also 5 / 5 scared on Elbereth), every volley at the real
-      square; PRE aimed at the stale guess. T3 invisible hero
-      stepping between two squares next to a trapped wolf, ~100
-      attack moves each: found PRE 46.5%, POST 42.2%, MASTER 66.0%;
-      the new sites never called set_apparxy() while invisible and
-      made 0 rn2 calls when visible. Every paniclog clean except
-      PRE's expected T1 lines.
+      /root/.claude/plans/bugfix-dochug-pre-attack-refresh.md; commit
+      `Fix: a monster that can see you aims at where you are.` =
+      0f009ffaa BUG-2870, include/extern.h src/mhitu.c src/monmove.c;
+      tracker df11d5cd0). RULED (AskUserQuestion, as recommended):
+      refresh only when the monster can now see the hero plainly, a
+      roll-free placement - master's every-move refresh is one more find
+      roll (simulated adjacent find chance per move: invisible 41.8% ->
+      66.0%, displaced 28.0% -> 48.0%; master's own BUG-821 fix avoided
+      that re-roll). New mon_unsure_of_hero() (mhitu.c; also used by
+      mattacku()'s transition re-roll and wildmiss()'s impossible()
+      test). Placement differs from master's, from the Plan stress test:
+      master refreshes after distfleeck() set inrange / nearby / scared
+      from the old guess, so on the MOVED path its monster could melee
+      right after moving and skip the Elbereth check. The branch
+      refreshes just before the post-move distfleeck() recalc, and in a
+      new else arm for a monster that stood its ground (refresh +
+      distfleeck() only when the guess is stale). Reviewer PASS; LOW
+      folds: dochug() refreshes its cached mdat after m_move()
+      (grounded() and noattacks() read the old form after a mid-move
+      polymorph, master the same), a set_apparxy() comment naming the
+      helper; LOW record: the named producer above. Batteries (PRE
+      70063bec, POST 0562be3f = the pre-fold cut, MASTER acb41484;
+      installed 5795aa03 = the committed code): T1 stand-still lever
+      (blind wolf next to the hero given its sight after the top guess):
+      PRE 32 wildmiss() impossibles, POST 0 with every attack on the
+      real square, MASTER 0; hero on Elbereth: POST scared on 19 / 19
+      firings, MASTER bit through Elbereth on 11 / 11. T2 moved lever
+      (blind hill orc archer given its sight before the post-move
+      recalc): POST never attacked after ending next to the hero (6 / 6,
+      also 5 / 5 scared on Elbereth), every volley at the real square;
+      PRE aimed at the stale guess. T3 invisible hero stepping between
+      two squares next to a trapped wolf, ~100 attack moves each: found
+      PRE 46.5%, POST 42.2%, MASTER 66.0%; the new sites never called
+      set_apparxy() while invisible and made 0 rn2 calls when visible.
+      Every paniclog clean except PRE's expected T1 lines.
 - [x] LOW: master's attack phase after a successful undirected cast
       (minted 2026-11-05, session 296, ruled a row). Master's
       dochug() sets tmp = 3 on a successful castmu(FALSE, FALSE)
@@ -5487,26 +5484,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cooldown curse line in the same move. Decide master's shape
       vs 5.0's; quantify casts per move first.
       CLOSED 2026-11-06 (session 297, record, BUG-2871, master
-      frozen-unfixed; no code). RULED (AskUserQuestion, as
-      recommended): a successful undirected cast still ends the
-      move (5.0's shape). History: 3.6.5 vanilla's unconditional
-      m_move() overwrote the cast's tmp = 3; 4cfa1aada (2018) set
-      `tmp = is_skittish ? 0 : 3` (skittish casters keep moving,
-      the rest do nothing else); ec85d708a (2018) added `else tmp
-      = 0` for ridden monsters; b6a7de54c (2020 steed rewrite, a
-      TODO) made it `if (!tmp && !rider_id) ... else tmp = 0`,
-      which turned the cast's 3 into "can still attack". Quantified
-      for the ruling: on master most casters' spell slot is still
-      on cooldown in that attack phase (a curse line), but boss
-      casters (is_boss_caster(): demon lords and princes, the
-      Wizard, Vecna, Talgath, quest leaders and nemeses, the
-      Oracle, the High Priest, both Kathryns) skip the cooldown
-      half the time and cast again - up to 1 + spell slots per move
-      (the Wizard 3, the branch 2) - and casters with a weapon,
-      gaze or melee attack add those (44 of 73 caster species have
-      AT_WEAP). The branch comment at the cast site already reads
-      "skittish casters keep moving after a successful cast;
-      others stop here".
+      frozen-unfixed; no code; tracker df11d5cd0). RULED
+      (AskUserQuestion, as recommended): a successful undirected cast
+      still ends the move (5.0's shape). History: 3.6.5 vanilla's
+      unconditional m_move() overwrote the cast's tmp = 3; 4cfa1aada
+      (2018) set `tmp = is_skittish ? 0 : 3` (skittish casters keep
+      moving, the rest do nothing else); ec85d708a (2018) added `else
+      tmp = 0` for ridden monsters; b6a7de54c (2020 steed rewrite, a
+      TODO) made it `if (!tmp && !rider_id) ... else tmp = 0`, which
+      turned the cast's 3 into "can still attack". Quantified for the
+      ruling: on master most casters' spell slot is still on cooldown in
+      that attack phase (a curse line), but boss casters
+      (is_boss_caster(): demon lords and princes, the Wizard, Vecna,
+      Talgath, quest leaders and nemeses, the Oracle, the High Priest,
+      both Kathryns) skip the cooldown half the time and cast again - up
+      to 1 + spell slots per move (the Wizard 3, the branch 2) - and
+      casters with a weapon, gaze or melee attack add those (44 of 73
+      caster species have AT_WEAP). The branch comment at the cast site
+      already reads "skittish casters keep moving after a successful
+      cast; others stop here".
 - [x] Zombie/were/Draugr mechanics (zombify, binding ritual)
       PORTED + REVIEWED + COORDINATOR-FIXED 2026-07-16, COMMITTED
       2026-07-17 as 7b19b7ba8 (36 files +1094/-181; port subagent 34
