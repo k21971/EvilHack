@@ -72,6 +72,8 @@ staticfn boolean m_slips_free(struct monst *, struct monst *,
 staticfn void start_engulf(struct monst *) NONNULLARG1;
 staticfn void end_engulf(void);
 staticfn int gulpum(struct monst *, struct attack *) NONNULLPTRS;
+staticfn boolean mon_engulf_air_ok(struct permonst *,
+                                   struct permonst *) NONNULLPTRS;
 staticfn boolean submitted_since(struct monst *, unsigned) NONNULLARG1;
 staticfn boolean hmonas(struct monst *, int, boolean) NONNULLARG1;
 staticfn int enchant_skill_dice(void);
@@ -5527,6 +5529,19 @@ mhitm_ad_stck(
     }
 }
 
+/* True if a monster can breathe inside an engulfer of type 'engulfer': a
+   suffocating (AD_WRAP) engulf spares one that needs no air, and an
+   amphibious one inside a water elemental or sea dragon; the hero's
+   counterpart is engulf_air_ok() */
+staticfn boolean
+mon_engulf_air_ok(struct permonst *engulfer, struct permonst *victim)
+{
+    return (breathless(victim)
+            || (amphibious(victim)
+                && (engulfer == &mons[PM_WATER_ELEMENTAL]
+                    || engulfer == &mons[PM_SEA_DRAGON])));
+}
+
 void
 mhitm_ad_wrap(
     struct monst *magr, struct attack *mattk,
@@ -5798,10 +5813,11 @@ mhitm_ad_wrap(
             mhm->damage = 0;
     } else {
         /* mhitm */
-        /* suffocation attack: negate damage for breathless; this
-           isn't affected by cancellation */
+        /* suffocation attack: negate damage for a victim that can
+           breathe in there (breathless, or amphibious inside a watery
+           engulfer); this isn't affected by cancellation */
         if (magr->mcan
-            || (attacktype_fordmg(pa, AT_ENGL, AD_WRAP) && breathless(pd)))
+            || (mattk->aatyp == AT_ENGL && mon_engulf_air_ok(pa, pd)))
             mhm->damage = 0;
 
         if (pa == &mons[PM_MIND_FLAYER_LARVA] && can_become_flayer(pd)) {
@@ -5831,7 +5847,9 @@ mhitm_ad_wrap(
                     mhm->damage = mdef->mhp;
                 }
             }
-        } else if (!mhm->damage && (canseemon(magr) || canseemon(mdef))) {
+        } else if (!mhm->damage && mattk->aatyp != AT_ENGL
+                   /* gulpmm() shows an engulf and its end itself */
+                   && (canseemon(magr) || canseemon(mdef))) {
             pline("%s brushes against %s.",
                   Some_Monnam(magr), some_mon_nam(mdef));
         }
@@ -8341,9 +8359,14 @@ gulpum(struct monst *mdef, struct attack *mattk)
                 }
                 break;
             case AD_WRAP:
-                /* suffocation attack; negate damage if breathless */
+                /* suffocation attack; negate damage if breathless, or
+                   amphibious inside a watery form */
                 if (breathless(pd)) {
                     pline("%s doesn't appear to need air to breathe.",
+                          Monnam(mdef));
+                    dam = 0;
+                } else if (mon_engulf_air_ok(gy.youmonst.data, pd)) {
+                    pline("%s can still breathe in the water.",
                           Monnam(mdef));
                     dam = 0;
                 } else {
