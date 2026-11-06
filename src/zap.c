@@ -28,6 +28,7 @@ staticfn void skiprange(int, int *, int *) NONNULLPTRS;
 staticfn void maybe_explode_trap(struct trap *, struct obj *,
                                boolean *) NONNULLARG3;
 staticfn void zap_map(coordxy, coordxy, struct obj *) NONNULLARG3;
+staticfn struct monst *floor_zap_pet(void);
 staticfn void bounce_dir(coordxy, coordxy, int *, int *, int) NO_NNARGS;
 staticfn int zap_hit(int, int, boolean);
 staticfn void disintegrate_mon(struct monst *, int, const char *) NONNULLARG1;
@@ -7076,6 +7077,24 @@ melt_ice_away(anything *arg, long timeout UNUSED)
     svc.context.mon_moving = save_mon_moving;
 }
 
+/* the tame monster whose blast (ge.exploder) or beam (gb.buzzer) is
+   changing the floor, to be credited with a kill that the change causes
+   (a drowning in melted ice, a fall into a boiled-away pool's pit), as
+   the beam's and blast's own kills are; only during monster movement,
+   since the hero's own zaps get minliquid()'s xkilled() credit */
+staticfn struct monst *
+floor_zap_pet(void)
+{
+    struct monst *culprit;
+
+    if (!svc.context.mon_moving)
+        return (struct monst *) 0;
+    culprit = ge.exploder ? ge.exploder : gb.buzzer;
+    if (!culprit || culprit == &gy.youmonst || !culprit->mtame)
+        return (struct monst *) 0;
+    return culprit;
+}
+
 /* Burn floor scrolls, evaporate pools, etc... in a single square.
  * Used both for normal bolts of fire, cold, etc... and for fireballs.
  * Sets shopdamage to TRUE if a shop door is destroyed, and returns the
@@ -7092,7 +7111,7 @@ zap_over_floor(
                                * when a lit potion of oil explodes */
 {
     const char *zapverb;
-    struct monst *mon;
+    struct monst *mon, *pet_zapper;
     struct trap *t;
     struct rm *lev = &levl[x][y];
     boolean see_it = cansee(x, y), yourzap;
@@ -7106,6 +7125,11 @@ zap_over_floor(
 
     switch (damgtype) {
     case ZT_FIRE:
+        /* a pet's fire that drowns or drops a monster here gets the kill,
+           cleared after each call since that may kill nothing; not on the
+           hero's square, where a drowning hero's escape can land on a trap
+           that kills some other monster first */
+        pet_zapper = u_at(x, y) ? (struct monst *) 0 : floor_zap_pet();
         t = t_at(x, y);
         if (t && t->ttyp == WEB) {
             /* a burning web is too flimsy to notice if you can't see it */
@@ -7116,7 +7140,11 @@ zap_over_floor(
                 newsym(x, y);
         }
         if (is_ice(x, y)) {
+            if (pet_zapper)
+                set_pet_killer(pet_zapper);
             melt_ice(x, y, (char *) 0);
+            if (pet_zapper)
+                set_pet_killer((struct monst *) 0);
         } else if (is_pool(x, y)) {
             boolean on_water_level = Is_waterlevel(&u.uz), msggiven = FALSE;
             const char *msgtxt = (!Deaf)
@@ -7170,10 +7198,15 @@ zap_over_floor(
                     /* if water walking/swimming/magical breathing, maybe fall
                        into the new pit (after the water evaporation message);
                        if flying or levitating, nothing will happen */
-                    if (u_at(x, y))
+                    if (u_at(x, y)) {
                         dotrap(t, NO_TRAP_FLAGS);
-                    else if (mon)
+                    } else if (mon) {
+                        if (pet_zapper)
+                            set_pet_killer(pet_zapper);
                         mintrap(mon, NO_TRAP_FLAGS);
+                        if (pet_zapper)
+                            set_pet_killer((struct monst *) 0);
+                    }
                 }
             }
         } else if (IS_FOUNTAIN(lev->typ)) {
@@ -7588,9 +7621,9 @@ zap_over_floor(
 /* monster has cast flames or frost at target on <x,y>; called by mcastu() */
 void
 mon_spell_hits_spot(
-    struct monst *caster UNUSED,
+    struct monst *caster, /* credited with a kill the floor change causes */
     int adtyp, /* canonical damage type */
-    coordxy x, coordxy y) /* so far, only used for targeting <u.ux,u.uy> */
+    coordxy x, coordxy y) /* the hero's spot, or a monster target's */
 {
     /* "shower of missiles" or [hypothetical] "acid rain" attack:
        thoroughly clobber an engraving (unless its type makes it be
@@ -7613,8 +7646,14 @@ mon_spell_hits_spot(
                                     * is non-negative (hero's fault) */
         int zt_typ = BZ_OFS_AD(adtyp),     /* convert AD_xxxx to ZT_xxxx */
             zapdmgtyp = -ZT_SPELL(zt_typ); /* damage is from monster spell */
+        struct monst *save_buzzer = gb.buzzer;
 
+        /* a monster caster stands in as the beam's buzzer, so a pet's
+           spell that drowns its target in melted ice gets the kill */
+        if (caster != &gy.youmonst)
+            gb.buzzer = caster;
         (void) zap_over_floor(x, y, zapdmgtyp, &shopdummy, TRUE, 0);
+        gb.buzzer = save_buzzer;
     } else {
         impossible("Unsupported damage type (%d) for mon_spell_hits_spot.",
                    adtyp);
