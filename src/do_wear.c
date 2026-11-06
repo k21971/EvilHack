@@ -1354,7 +1354,12 @@ dragon_armor_handling(
         break;
     case SEA_DRAGON_SCALES:
         if (puton) {
-            if (Strangled) {
+            /* magical breathing ends a suffocating engulfer's countdown,
+               never the choking of an amulet of strangulation that can
+               strangle this form */
+            if (Strangled
+                && !(uamul && uamul->otyp == AMULET_OF_STRANGULATION
+                     && can_be_strangled(&gy.youmonst))) {
                 Strangled = 0L;
                 disp.botl = TRUE;
                 You("can suddenly breathe again!");

@@ -343,21 +343,30 @@ check_strangling(boolean on, boolean noisy)
     /* on -- maybe resume strangling */
     if (on) {
         boolean was_strangled = (Strangled != 0L);
+        /* a suffocating engulfer the hero can't breathe inside owns a
+           countdown that a change of form doesn't restart */
+        boolean engulf_chokes = (from_mon && !engulf_air_ok(u.ustuck));
 
         /* when Strangled is already set, polymorphing from one
-           vulnerable form into another causes the counter to be reset */
+           vulnerable form into another causes the counter to be reset,
+           except that a choking engulfer's shorter count runs on */
         if (from_amul && can_be_strangled(&gy.youmonst)) {
-            Strangled = 6L;
+            if (!engulf_chokes || !Strangled || Strangled > 6L)
+                Strangled = 6L;
             disp.botl = TRUE;
             Your("%s %s your %s!", simpleonames(uamul),
                  was_strangled ? "still constricts" : "begins constricting",
                  body_part(NECK)); /* "throat" */
             makeknown(AMULET_OF_STRANGULATION);
-        } else if (from_mon && !engulf_air_ok(u.ustuck)) {
-            Strangled = 6L;
-            disp.botl = TRUE;
-            if (noisy)
-                You("can't breathe in here!");
+        } else if (engulf_chokes) {
+            if (!Strangled) {
+                Strangled = 6L;
+                disp.botl = TRUE;
+                if (noisy)
+                    You("can't breathe in here!");
+            } else if (noisy) {
+                You("still can't breathe!");
+            }
         }
 
     /* off -- maybe block strangling */

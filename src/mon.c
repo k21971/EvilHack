@@ -6253,6 +6253,7 @@ end_engulf_suffocation(void)
         /* FIXME: What if the hero was being strangled by some other
            source that isn't the amulet? */
         Strangled = 0L;
+        disp.botl = TRUE;
         You("can breathe again.");
     }
 }

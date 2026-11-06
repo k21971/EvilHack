@@ -2275,8 +2275,9 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
            aosdict for xNetHack (see git commit ee808b): AD_WRAP is used
            because there's no specific suffocation attack, but it's used
            for other suffocation-y things like drowning attacks.
-           Generally, only give a message if this is the first engulf, not
-           a subsequent attack when already engulfed */
+           Generally, only give a message if this is the first engulf or
+           a restart of the countdown, not a subsequent attack when
+           already engulfed */
         if (engulf_air_ok(mtmp)) {
             if (!old_uswallow) {
                 if (!(HMagical_breathing || EMagical_breathing)) {
@@ -2294,12 +2295,26 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
             }
             tmp = 0;
         } else if (!Strangled) {
-            if (!old_uswallow)
+            /* the first engulf, or a start while already inside after
+               the countdown ended or never ran (prayer, magical
+               breathing that has since come off or run out, the
+               engulfer changing shape); an attack after which the tail
+               below expels the hero starts none (this arm changes none
+               of the tail's tests) */
+            boolean expelling = (!u.uswldtim
+                                 || gy.youmonst.data->msize >= MZ_HUGE
+                                 || (touch_petrifies(gy.youmonst.data)
+                                     && !(resists_ston(mtmp)
+                                          || defended(mtmp, AD_STON))));
+
+            if (!expelling) {
                 pline("It's impossible to breathe in here!");
-            /* xNetHack sets this timer for 5, GruntHack had it for 3;
-               we'll meet in the middle. nh_timeout()'s choke_dialogue()
-               narrates the countdown from the second text onward */
-            Strangled = 4L;
+                /* xNetHack sets this timer for 5, GruntHack had it for 3;
+                   we'll meet in the middle. nh_timeout()'s
+                   choke_dialogue() narrates the countdown from the
+                   second text onward */
+                Strangled = 4L;
+            }
             tmp = 0;
         }
         if (mtmp->data == &mons[PM_WATER_ELEMENTAL]

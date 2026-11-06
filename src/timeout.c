@@ -716,6 +716,15 @@ nh_timeout(void)
         slime_dialogue();
     if (Vomiting)
         vomiting_dialogue();
+    /* breathing gained inside a suffocating engulfer some way that
+       didn't end its countdown (sea dragon scales put on in the cloak
+       slot, #wizintrinsic) ends it before any choke line; a choking
+       amulet of strangulation keeps its own */
+    if (Strangled && engulf_owns_strangling() && engulf_air_ok(u.ustuck)) {
+        Strangled = 0L;
+        disp.botl = TRUE;
+        You("can breathe again.");
+    }
     if (Strangled)
         choke_dialogue();
     if (Sick)
