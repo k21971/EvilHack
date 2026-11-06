@@ -17,9 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-06, after session 297's
-  dochug() pair slice: two LOW rows closed, BUG-2870 / 2871):
-  656 rows closed, 55 open
+- Phase 2 status (refreshed 2026-11-06, after session 298's
+  kill-credit pair slice: two LOW rows closed, BUG-2872..2876, one
+  LOW record row minted):
+  658 rows closed, 54 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -380,7 +381,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 51 LOW: small parity rows, quirks and watch/record-only items.
+  - 50 LOW: small parity rows, quirks and watch/record-only items.
+    Session 298 closed the two kill-credit rows (BUG-2872..2876): a
+    pet whose fire melts ice or boils a pool under a monster gets
+    the kill when it drowns or falls into the new pit (every pet
+    beam and blast, by ruling); a strangle death inside an engulfer
+    blames it only when it suffocates (water elemental, sea dragon,
+    gelatinous cube, creeping mound) and credits it as the killer,
+    the amulet otherwise; folded clock fixes for amphibious forms,
+    the return to your own form, being let out with an amulet that
+    can't choke you, and a shapeshifter turning into an engulfer
+    that doesn't suffocate. It minted one record row of residue.
     Session 297 closed the two session 296 minted (BUG-2870 / 2871):
     a monster that gets its sight back or changes form during its
     move now goes by your real square when it can see you plainly
@@ -20842,7 +20853,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "disintegrated by a blast of disintegration exhaled by a black
       dragon"; the hero's own bounce reads "... zapped by herself"
       (battery B1-B4 PASS; every other ray text unchanged).
-- [ ] LOW: the STRANGLED timeout blames an engulfer for any
+- [x] LOW: the STRANGLED timeout blames an engulfer for any
       strangulation while engulfed (minted 2026-10-06, session 186,
       census; master-shared). timeout.c's STRANGLED arm writes
       "suffocated by <u.ustuck>" whenever u.uswallow, even when an
@@ -20850,6 +20861,107 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       say, a purple worm. An engulfer-suffocation kill (gulpmu()
       AD_WRAP sets Strangled) is also uncredited and raises nothing;
       that waits on telling the two causes apart. LOW.
+      CLOSED 2026-11-06 (session 298; plan
+      /root/.claude/plans/bugfix-kill-credit-pair.md; commit `Fix:
+      the strangle death blames the right thing.` = (hash pending)
+      BUG-2873..2876, include/extern.h src/mhitu.c src/polyself.c
+      src/timeout.c src/insight.c src/mon.c; master frozen-unfixed).
+      RULED (AskUserQuestion, as recommended): inside a suffocating
+      engulfer with an amulet of strangulation worn the engulfer is
+      blamed, as on master (no stored source says which clock
+      started first); fold the two clock siblings the trace found.
+      New engulf_air_ok() (gulpmu()'s can-breathe test: Breathless,
+      or Amphibious inside a water elemental / sea dragon) and
+      engulf_owns_strangling() (an AT_ENGL AD_WRAP engulfer holds
+      the hero, unless the hero can breathe in there AND wears an
+      amulet that can choke the current form). BUG-2873: the
+      STRANGLED arm blames the engulfer only then, names it with
+      mon_killer_name() (master's "a water elemental"; 5.0's x_monnam()
+      gave "the"; a given name drops, as in the other BUG-2150
+      reasons) and credits it with set_monster_killer(u.ustuck, TRUE)
+      (bones loot; XL22+ spectre); insight.c's final line says
+      " You died from suffocation." for it; reviewer HIGH folded: any
+      survival (declined, life saved, risen) now ends in a shared
+      tail that removes a worn amulet and zeroes the clock as prayer
+      does - set_monster_killer() made sentient_arise() reachable
+      here, and a spectre rise's polymon() re-armed the amulet clock
+      after the vanish. BUG-2874: check_strangling() uses
+      engulf_air_ok() on both arms (an amphibious form inside a water
+      elemental started a clock gulpmu() says can't happen) and its
+      off arm keeps an amulet clock the new form still suffers
+      ("still constricts", not "begins constricting"; stress-test
+      fold). BUG-2875: polyman() runs check_strangling(FALSE) before
+      TRUE, as polymon() does, so a draugr, vampire or tortle going
+      back to its own form inside a suffocating engulfer stops the
+      poly form's clock. BUG-2876: end_engulf_suffocation() keeps the
+      clock only for an amulet that can choke the current form
+      (stress-test sibling), and newcham() ends the clock when a
+      holding engulfer's new form can't suffocate the hero (reviewer
+      MED sibling). PREMISE CORRECTION (reviewer): a draugr hero CAN
+      be strangled by the amulet in its own form - can_be_strangled()
+      reads the role monster, never mindless - so S2's amulet half
+      was dropped. Stress test CONDITIONAL PASS, reviewer CONDITIONAL
+      PASS then fold re-review PASS. Batteries (PRE 5795aa03, POST
+      2e5ac1a4, MASTER acb41484; paniclogs clean): T2 amulet + fog
+      cloud PRE "suffocated by the fog cloud", MASTER "... a fog
+      cloud", POST "strangulation" + "Your amulet vanishes!" on n;
+      water elemental at XL22 POST "suffocated by a water elemental",
+      gu.ukiller the elemental, ugrave_arise 419 (spectre), both
+      cleared on survival (PRE / MASTER unset); vampire + amulet in a
+      water elemental POST "strangulation" (PRE engulfer); human +
+      amulet POST engulfer + vanish on n; disclosure POST " You died
+      from suffocation." (PRE "strangulation"); forced spectre rise
+      POST clock 0, amulet gone, no death in 12 turns. T3 electric
+      eel in a water elemental PRE / MASTER "You can't breathe in
+      here!" clock 6, POST none; tortle return PRE restart, POST 0;
+      draugr return PRE clock ran on to "You suffocate" (killer
+      "suffocated by the water elemental"), POST 0; draugr + amulet
+      identical on both (no regression); magical breathing + amulet
+      then dwarf lord PRE "begins", POST "still constricts"; floating
+      eye + amulet expelled from a gelatinous cube POST "You can
+      breathe again." (PRE clock kept); chameleon water elemental ->
+      purple worm POST "You can breathe again." (PRE died "suffocated
+      by the purple worm"), with the amulet worn the clock is kept on
+      both. Residue in the session 298 strangle residue row.
+- [ ] LOW: strangle and kill-credit residue (minted 2026-11-06,
+      session 298, by the Plan stress test, the code review and the
+      batteries; record; master-shared unless noted).
+      (a) Gaining magical breathing (an amulet, #wizintrinsic) while
+          an engulfer's clock runs never stops it: gulpmu()'s
+          can-breathe arm doesn't clear it. Sea dragon scales clear
+          any clock, an amulet's included (master the same).
+      (b) Amulet_off() inside an AD_WRAP engulfer the hero can't
+          breathe in zeroes the engulfer's clock with "You can
+          breathe more easily!"; the next gulpmu() restarts it at 4
+          silently (a free reprieve and a false message).
+      (c) uhitm.c's monster-vs-monster AD_WRAP engulf spares only
+          breathless(pd), without engulf_air_ok()'s amphibious
+          exemption inside a water elemental or sea dragon (master
+          mhitm.c the same).
+      (d) insight.c's live line says "being strangled" for an
+          engulfer's clock too; only the final line tells them
+          apart. After a draugr revival's savelife() expels the hero
+          and the final death follows, u.uswallow is 0, so the final
+          line says strangulation while the killer reads "suffocated
+          by"; a draugr's last revival also wipes the death credit
+          at every set_monster_killer() site (savelife() first).
+      (e) Drawbridge kills from a pet's wand of striking or a tame
+          caster's force bolt (gb.buzzer set, muse.c's drawbridge
+          arm) go through dbridge.c's monkilled() with no pet credit.
+      (f) A booby-trapped door's blast (monmove.c: explode() with
+          ZT_FIRE and TRAPPED_DOOR) passes a positive type, so
+          explode()'s inside_engulfer is TRUE whenever the hero is
+          engulfed anywhere on the level and the whole blast is
+          skipped, the door opener's damage included (master's
+          monmove.c / explode.c the same shape).
+      (g) doc/claude/EVILHACK_MECHANICS.md (wiki snapshot) says a
+          draugr can't be strangled; in its own form the amulet
+          strangles it (can_be_strangled() reads the role monster).
+      (h) Cosmetic ordering: a spectre rise prints "Your amulet of
+          strangulation still constricts your neck!" just before
+          "Your amulet vanishes!"; newcham()'s "You can breathe
+          again." prints before its "X turns into Y!" line (as its
+          expel / unstuck arms already do). Branch-only.
 - [x] LOW: "nothing left" deaths still leave a corpse (minted
       2026-10-06, session 186, by the direct-death slice's reviewer;
       master-shared). really_done()'s no-corpse list covers BURNING,
@@ -33230,7 +33342,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ice gave "The hill orc drowns.  The hill orc is killed!", deaths
       +2 and an "m_detach: ... already detached?" impossible(). POST
       drowned it once. Numbers are in the archive entries.
-- [ ] LOW: a tame castmm caster's fire pillar gets no pet-kill credit
+- [x] LOW: a tame castmm caster's fire pillar gets no pet-kill credit
       for a drowning (minted 2026-09-27, session 151, BUG-1980
       reviewer). The monster-target fire pillar's spot effects can
       drown the target: minliquid() -> mondied() (mon_moving). The
@@ -33243,6 +33355,39 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       then clear it after the call if the target lived). The same
       shape applies to any pet-caused drowning through zap_over_floor().
       LOW (gameplay: pet kill credit / conduct attribution).
+      CLOSED 2026-11-06 (session 298; plan
+      /root/.claude/plans/bugfix-kill-credit-pair.md; commit `Fix: a
+      pet whose fire drowns a monster in melted ice gets the kill.`
+      = (hash pending) BUG-2872, src/zap.c). RULED (AskUserQuestion,
+      as recommended): every pet beam or blast that changes the
+      floor, not just the fire pillar. dobuzz() and explode() run
+      zap_over_floor() BEFORE their hit on each square, so a tame
+      dragon's fire breath, a pet's fire wand or horn, a castmm ray
+      spell and a fire blast all drowned an iced target uncredited
+      though gb.buzzer / ge.exploder named the pet (the beam arms are
+      master-shared: master's buzz runs the floor first too, battery
+      leg F; the pillar's floor effect is 5.0-only). Pet credit feeds
+      only logdeadmon()'s unique / achievement livelog lines. New
+      floor_zap_pet() (the tame ge.exploder, else gb.buzzer, during
+      mon_moving only); zap_over_floor()'s fire arm brackets
+      melt_ice() and the boiled pool's new-pit mintrap() with
+      set_pet_killer(pet) / set_pet_killer(NULL), never on the
+      hero's square (Plan stress test: a drowning hero's escape can
+      land on a trap that kills another monster first);
+      mon_spell_hits_spot() saves gb.buzzer and names its monster
+      caster around its zap_over_floor() call. Reviewer PASS for this
+      commit; NIT folded (the stale x,y comment). A booby-trapped
+      door's blast credits the pet that opened it with a drowning,
+      as explode.c already does for the blast's own kill. Battery T1
+      (PRE 5795aa03, POST 2e5ac1a4, MASTER acb41484; tame hell hound
+      pup, jackals with mhp 3000 on ICE): fire pillar 3 / 3, beam
+      3 / 3, blast 2 / 2, boiled-pool pit fall 2 / 2 - PRE
+      pet_credit NULL every time, POST the pet, pet_killer NULL
+      after every POST call; controls: a hostile caster no credit,
+      the hero's own pillar via xkilled() (was_player_kill 1), a
+      raven over the melt lives with the credit cleared, a melt on
+      the hero's square sets no credit; MASTER beam 2 / 2 no credit.
+      Paniclogs clean.
 - [x] HIGH: the scroll of magic detection has NO read effect - PORTED
       2026-09-27 (session 148, commit `Port the scroll of magic
       detection.` = 4b51d244a (BUG-1957..1960), tracker 57c7a9718;
@@ -37005,6 +37150,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-06 | Kill-credit pair slice rulings (Phase 2 session 298, AskUserQuestion x3 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the two kill-credit LOWs (a tame castmm caster's fire-pillar drowning gets no pet credit; the STRANGLED timeout blames an engulfer), over the wrong-capital wish letter trace, the underwater-view toggle row and the pet mummy wrapping row. (2) PET CREDIT SCOPE: every pet beam or blast that changes the floor (fire breath, fire wand or horn, ray spell, fire blast, fire pillar) through one bracket in zap_over_floor() (rejected: the fire pillar only). (3) AMULET + SUFFOCATING ENGULFER: the engulfer is blamed and credited, as on master (rejected: the amulet owns its clock whenever worn); a hero who can breathe in there and wears an amulet that can choke them is the amulet's death. (4) SIBLINGS: fold both - check_strangling()'s amphibious test and polyman()'s missing stop check (rejected: a LOW row); the stress-test and reviewer siblings (end_engulf_suffocation()'s can't-choke amulet, newcham()'s non-suffocating new form, the survival tail) were folded under the same ruling. |
 | 2026-11-06 | dochug() pair slice rulings (Phase 2 session 297, AskUserQuestion x4 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the two dochug() LOWs session 296 minted (rejected: the kill-credit pair, set_apparxy() only, the pet mummy wrapping). (2) POST-CAST ATTACK: a successful undirected cast still ends the move, 5.0's shape and master's 2018 intent (rejected: master's cast-then-attack, an accident of the 2020 steed rewrite) - BUG-2871 record. (3) REFRESH FORM: refresh the guess only when the monster can now see the hero plainly, roll-free (rejected: master's every-move refresh, invisible 42% -> 66% found per move; record only) - BUG-2870. (4) STALE mdat after m_move(): fold it in (rejected: mint a LOW row). Session calls, plan-approved: the placement before distfleeck() (two sites, the stand-still arm re-running distfleeck() only on a stale guess) from the Plan stress test, over master's single pre-attack refresh; the shared mon_unsure_of_hero() helper; the set_apparxy() cross-reference comment (reviewer LOW). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-05 | Ranged-casting slice rulings (Phase 2 session 296, AskUserQuestion x5 with 10 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the ranged AD_SPEL / AD_CLRC MED (kill-credit LOWs, hit-chain anger and other LOWs not taken). (2) RANGE LIST: master's "don't cast these spells at range" list for every monster caster, hero and monster targets, attack-phase and undirected casts; the hero casting as a monster exempt (rejected: only the new ranged arm). (3) LEARNED LEAK: fold it in (rejected: a separate MED row). (4) CURSE LINES: keep master's cooldown "points at you, then curses" at range (rejected: silence at range). (5) BUG-373 refresh: mint a LOW row (rejected: fold in). (6) RANGE RE-ROLL: a range-blocked rung goes back to the caller for a re-roll, as master's re-roll does (rejected: slide down the ladder). (7) COOLDOWN STEP: the ranged spell try counts as the ranged attack only when off cooldown (rejected: any try counts). (8) POST-CAST PHASE FOUR: mint a LOW row (rejected: fold in). Session calls, plan-approved: the explicit AD_SPEL / AD_CLRC test over master's adtyp <= AD_SPC2; the boulder / out-of-sight and repair-armor folds in BUG-2869 (Plan pass); the reviewer HIGH fold (hostile-only / sight-barred rungs still slide down, read as rule 6's "other useless rungs keep the drop-down"). | maintainer (1-8); session, plan-approved (rest) |
 | 2026-11-05 | Held-fire slice rulings (Phase 2 session 295, AskUserQuestion x4 with 5 questions - one of them a battery launch ask - all as recommended). (1) SLICE: the weapon-pick residue row's item (e), the archer standing still (kill-credit LOWs, the combined slice and the hit-chain anger row not taken). (2) SCOPE: weapon-only users - a monster whose hero-aimed ranged attempts were all weapon attacks and held fire moves instead; a chain that also tried breath, spit, gaze, scream or a beam spell keeps master's stand-still, as do pure spitters, breathers and elemental casters (rejected: every idle ranged attack moves). (3) ROLL ORDER: one roll, then move - the throw-or-move decision is made from where the archer stands with 0.9.3's odds, and no second ranged attack follows the step (rejected: move first then roll, vanilla's order; roll, move, roll again). (4) MASTER'S RANGED AD_SPEL / AD_CLRC CASTING (Plan-pass find, 877865d39 + 116430b36): mint a MED row rather than fold it in. Session calls, plan-approved: only thrwmu()'s retreat hold counts (not a lined_up() re-roll); the u.umoved, !m_next2u() and pick-needing-digger-with-a-launcher gates (Plan pass); the reviewer's three LOW folds (an exploded cursed wand counts as acting, the digger gate tests a wielded launcher, comment wording). | maintainer (1-4); session, plan-approved (rest) |
