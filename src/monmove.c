@@ -1486,6 +1486,9 @@ dochug(struct monst *mtmp)
 
         if (!status)
             status = m_move(mtmp, 0);
+        /* a polymorph trap or polymorph food during the move can
+           change the monster's form; refresh the cached permonst */
+        mdat = mtmp->data;
         /* drag a monster steed along to wherever its rider ended up */
         update_monsteed(mtmp);
         /* a steed carrying a monster rider is off the map on purpose */
@@ -1497,6 +1500,12 @@ dochug(struct monst *mtmp)
                 mon_adjust_speed(mtmp, -2, (struct obj *) 0);
             else
                 mon_adjust_speed(mtmp, 3, (struct obj *) 0);
+            /* a monster that can now see the hero plainly (it changed
+               form or got its sight back during the move) goes by the
+               hero's real spot, not an earlier guess; there is no
+               random roll in that case */
+            if (!mon_unsure_of_hero(mtmp))
+                set_apparxy(mtmp);
             distfleeck(mtmp, &inrange, &nearby, &scared); /* recalc */
         }
 
@@ -1543,6 +1552,11 @@ dochug(struct monst *mtmp)
         case MMOVE_DIED: /* monster died */
             return 1;
         }
+    } else if (!mon_unsure_of_hero(mtmp) && !u_at(mtmp->mux, mtmp->muy)) {
+        /* as above, for a monster that stood its ground; only a stale
+           guess redoes the range and fear checks */
+        set_apparxy(mtmp);
+        distfleeck(mtmp, &inrange, &nearby, &scared);
     }
 
     /*
@@ -3503,6 +3517,8 @@ set_apparxy(struct monst *mtmp)
     } else {
         displ = 0;
     }
+    /* mon_unsure_of_hero() promises an exact, roll-free placement
+       whenever none of the states above holds; keep the two in step */
     if (!displ) {
         mtmp->mux = u.ux;
         mtmp->muy = u.uy;

@@ -518,6 +518,16 @@ u_slow_down(void)
     exercise(A_DEX, FALSE);
 }
 
+/* the states that can leave a monster wrong about where the hero is -
+   wildmiss()'s expected reasons; while none of them holds,
+   set_apparxy() places the hero exactly, with no random roll */
+boolean
+mon_unsure_of_hero(struct monst *mtmp)
+{
+    return (!mtmp->mcansee || (Invis && !mon_prop(mtmp, SEE_INVIS))
+            || Displaced || Underwater);
+}
+
 /* monster attacked wrong location due to monster blindness, hero
    invisibility, hero displacement, or hero being underwater */
 staticfn void
@@ -532,7 +542,7 @@ wildmiss(struct monst *mtmp, struct attack *mattk)
 
     /* the reasons for wildmiss end up getting checked twice so that the
        impossible can be given, if warranted, before the early returns */
-    if (!unotseen && !unotthere && !usubmerged) {
+    if (!mon_unsure_of_hero(mtmp)) {
         /* this used to be the 'else' case below */
         impossible("%s attacks you without knowing your location?",
                    Some_Monnam(mtmp));
@@ -1238,9 +1248,7 @@ mattacku(struct monst *mtmp)
        mid-chain transition out of all of them (burnt-away cloak of
        invisibility, lost displacement) refreshes the monster's guess
        instead of leaving mux/muy stale and wildmiss() unexplained */
-    was_unfindable = (!mtmp->mcansee
-                      || (Invis && !mon_prop(mtmp, SEE_INVIS))
-                      || Displaced || Underwater);
+    was_unfindable = mon_unsure_of_hero(mtmp);
 
     for (i = 0; i < NATTK; i++) {
         sum[i] = M_ATTK_MISS;
@@ -1248,10 +1256,7 @@ mattacku(struct monst *mtmp)
         if (DEADMONSTER(mtmp))
             return 1;
         if (i > 0) {
-            boolean now_unfindable = (!mtmp->mcansee
-                                      || (Invis
-                                          && !mon_prop(mtmp, SEE_INVIS))
-                                      || Displaced || Underwater);
+            boolean now_unfindable = mon_unsure_of_hero(mtmp);
 
             /* a counter-effect of attack [i-1] can end the state that
                was hiding the hero; refresh the guess only on that
