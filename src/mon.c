@@ -6243,12 +6243,13 @@ set_ustuck(struct monst *mtmp)
 
 /* a swallow that was suffocating the hero has just ended (expelled, the
    engulfer died or changed shape, a teleport out); an amulet of
-   strangulation keeps its own countdown */
+   strangulation that can choke the current form keeps its own countdown */
 void
 end_engulf_suffocation(void)
 {
     if (Strangled
-        && !(uamul && uamul->otyp == AMULET_OF_STRANGULATION)) {
+        && !(uamul && uamul->otyp == AMULET_OF_STRANGULATION
+             && can_be_strangled(&gy.youmonst))) {
         /* FIXME: What if the hero was being strangled by some other
            source that isn't the amulet? */
         Strangled = 0L;
@@ -9040,6 +9041,11 @@ newcham(
             } else {
                 /* update swallow glyphs for new monster */
                 swallowed(0);
+                /* a new form that can't suffocate the hero ends the old
+                   form's countdown (a choking amulet keeps its own) */
+                if (!attacktype_fordmg(mdat, AT_ENGL, AD_WRAP)
+                    || engulf_air_ok(mtmp))
+                    end_engulf_suffocation();
             }
         } else if ((!sticks(mdat) && !sticks(gy.youmonst.data))
                    /* sticky hero can't continue to hold mtmp if it has

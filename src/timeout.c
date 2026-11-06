@@ -1055,26 +1055,32 @@ nh_timeout(void)
                 }
                 break;
             case STRANGLED:
-                if (u.uswallow) {
-                    /* an engulfer's suffocation attack ran out the clock */
+                if (engulf_owns_strangling()) {
+                    char kbuf[BUFSZ];
+
+                    /* a suffocating engulfer ran out the clock; it is that
+                       monster's kill, as its melee kill would be */
                     svk.killer.format = NO_KILLER_PREFIX;
                     Sprintf(svk.killer.name, "suffocated by %s",
-                            x_monnam(u.ustuck, ARTICLE_A, (char *) 0,
-                                     (SUPPRESS_IT | SUPPRESS_HALLUCINATION),
-                                     FALSE));
+                            mon_killer_name(kbuf, u.ustuck));
+                    set_monster_killer(u.ustuck, TRUE);
                     done_timeout(DIED, STRANGLED);
                 } else {
                     svk.killer.format = KILLED_BY;
                     Strcpy(svk.killer.name,
                            (u.uburied) ? "suffocation" : "strangulation");
                     done_timeout(DIED, STRANGLED);
-                    /* must be declining to die in explore|wizard mode;
-                       treat like being cured of strangulation by prayer */
-                    if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
-                        Your("amulet vanishes!");
-                        useup(uamul);
-                    }
                 }
+                /* survived (declined in explore|wizard mode, life saved,
+                   or risen in a new form); treat like being cured of
+                   strangulation by prayer, amulet and clock both, since
+                   a rise's polymorph can restart the amulet's clock */
+                if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
+                    Your("amulet vanishes!");
+                    useup(uamul);
+                }
+                Strangled = 0L;
+                disp.botl = TRUE;
                 break;
             case FUMBLING:
                 /* call this only when a move took place.  */

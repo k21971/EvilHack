@@ -1733,6 +1733,8 @@ boolean diseasemu(struct monst *) NONNULLARG1;
 boolean u_slip_free(struct monst *, struct attack *) NONNULLARG12;
 extern int magic_negation(struct monst *) NONNULLARG1;
 extern boolean gulp_blnd_check(void);
+extern boolean engulf_air_ok(struct monst *) NONNULLARG1;
+extern boolean engulf_owns_strangling(void);
 extern int gazemu(struct monst *, struct attack *) NONNULLARG12;
 extern void mdamageu(struct monst *, int) NONNULLARG1;
 extern int could_seduce(struct monst *, struct monst *, struct attack *) NONNULLARG12;

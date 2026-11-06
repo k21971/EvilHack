@@ -1075,7 +1075,10 @@ status_enlightenment(int mode, int final)
             you_are("buried", "");
         } else {
             if (final && (Strangled & I_SPECIAL)) {
-                enlght_out(" You died from strangulation.");
+                /* the engulfer is still holding the hero at disclosure */
+                enlght_out(engulf_owns_strangling()
+                               ? " You died from suffocation."
+                               : " You died from strangulation.");
             } else {
                 Strcpy(buf, "being strangled");
                 if (wizard)

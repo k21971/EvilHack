@@ -333,7 +333,8 @@ check_strangling(boolean on, boolean noisy)
     /* suffocating due to being engulfed by something with a suffocation
        attack, versus due to wearing an amulet of strangulation; we assume
        that suffocation isn't actually strangulation, and the hero is OK
-       if breathless */
+       if it can breathe in there (breathless, or amphibious inside a
+       watery engulfer) */
     boolean from_mon = (u.uswallow && u.ustuck
                         && attacktype_fordmg(u.ustuck->data,
                                              AT_ENGL, AD_WRAP));
@@ -352,7 +353,7 @@ check_strangling(boolean on, boolean noisy)
                  was_strangled ? "still constricts" : "begins constricting",
                  body_part(NECK)); /* "throat" */
             makeknown(AMULET_OF_STRANGULATION);
-        } else if (from_mon && !Breathless) {
+        } else if (from_mon && !engulf_air_ok(u.ustuck)) {
             Strangled = 6L;
             disp.botl = TRUE;
             if (noisy)
@@ -361,7 +362,10 @@ check_strangling(boolean on, boolean noisy)
 
     /* off -- maybe block strangling */
     } else if (Strangled) {
-        if (from_mon && Breathless) {
+        /* an amulet that can still choke the new form keeps its clock
+           running, so the on arm says it "still constricts" */
+        if (from_mon && engulf_air_ok(u.ustuck)
+            && !(from_amul && can_be_strangled(&gy.youmonst))) {
             Strangled = 0L;
             disp.botl = TRUE;
             if (noisy)
@@ -473,6 +477,10 @@ polyman(const char *fmt, const char *arg)
         set_itimeout(&HBlinded, 1L);
         make_blinded(0L, TRUE); /* remove blindness */
     }
+    /* as polymon() does: the normal form may need no air inside a
+       suffocating engulfer (a draugr, a vampire, a tortle in a watery
+       one), so stop first, then maybe resume */
+    check_strangling(FALSE, FALSE); /* maybe stop strangling */
     check_strangling(TRUE, TRUE);
 
     if (!Levitation && !u.ustuck && is_pool_or_lava(u.ux, u.uy))

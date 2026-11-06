@@ -2058,6 +2058,31 @@ gulp_blnd_check(void)
     return FALSE;
 }
 
+/* True if the hero can breathe inside 'engulfer': a suffocating (AD_WRAP)
+   engulf spares a hero who needs no air, and an amphibious one inside a
+   water elemental or sea dragon */
+boolean
+engulf_air_ok(struct monst *engulfer)
+{
+    return (Breathless
+            || (Amphibious
+                && (engulfer->data == &mons[PM_WATER_ELEMENTAL]
+                    || engulfer->data == &mons[PM_SEA_DRAGON])));
+}
+
+/* True if the STRANGLED countdown is the hero's engulfer's doing: it
+   suffocates (AD_WRAP), unless the hero can breathe in there anyway and
+   wears an amulet of strangulation that can choke the current form */
+boolean
+engulf_owns_strangling(void)
+{
+    return (u.uswallow && u.ustuck
+            && attacktype_fordmg(u.ustuck->data, AT_ENGL, AD_WRAP)
+            && !(uamul && uamul->otyp == AMULET_OF_STRANGULATION
+                 && can_be_strangled(&gy.youmonst)
+                 && engulf_air_ok(u.ustuck)));
+}
+
 /* monster swallows you, or damage if already swallowed (u.uswallow != 0) */
 staticfn int
 gulpmu(struct monst *mtmp, struct attack *mattk)
@@ -2252,9 +2277,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
            for other suffocation-y things like drowning attacks.
            Generally, only give a message if this is the first engulf, not
            a subsequent attack when already engulfed */
-        if (Breathless
-            || (Amphibious && (mtmp->data == &mons[PM_WATER_ELEMENTAL]
-                               || mtmp->data == &mons[PM_SEA_DRAGON]))) {
+        if (engulf_air_ok(mtmp)) {
             if (!old_uswallow) {
                 if (!(HMagical_breathing || EMagical_breathing)) {
                     /* test this one first, in case breathless and also
