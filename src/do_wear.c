@@ -1712,6 +1712,18 @@ Amulet_on(struct obj *amul)
             on_msg_done = TRUE;
             You("are no longer bothered by the poison gas.");
         }
+        /* any countdown here is a suffocating engulfer's (or some other
+           non-amulet source): an amulet of strangulation would hold the
+           slot, and only its strangling ignores magical breathing */
+        if (Strangled) {
+            makeknown(AMULET_OF_MAGICAL_BREATHING);
+            if (!on_msg_done)
+                on_msg(uamul);
+            on_msg_done = TRUE;
+            Strangled = 0L;
+            disp.botl = TRUE;
+            You("can suddenly breathe again!");
+        }
         /* no need to check for becoming able to breathe underwater;
            if we are underwater, we already can or we would have drowned */
         break;
@@ -1757,10 +1769,12 @@ Amulet_on(struct obj *amul)
         break;
     }
     case AMULET_OF_STRANGULATION:
-        /* note: might already be Strangled (via #wizintrinsic) */
-        if (can_be_strangled(&gy.youmonst) && !Strangled) {
+        if (can_be_strangled(&gy.youmonst)) {
             makeknown(AMULET_OF_STRANGULATION);
-            Strangled = 6L;
+            /* a countdown already running (a suffocating engulfer's, or
+               #wizintrinsic) keeps its count when that is shorter */
+            if (!Strangled || Strangled > 6L)
+                Strangled = 6L;
             disp.botl = TRUE;
             if (!on_msg_done)
                 on_msg(uamul);
@@ -1899,13 +1913,26 @@ Amulet_off(void)
         early_off_msg = TRUE;
 
         if (Strangled) {
-            Strangled = 0L;
-            disp.botl = TRUE;
-            if (Breathless)
-                Your("%s is no longer constricted!", body_part(NECK));
-            else
-                You("can breathe more easily!");
-            mkn = TRUE;
+            /* a suffocating engulfer the hero can't breathe inside owns
+               the countdown; it goes on without the amulet (a quiet
+               poly_obj() swap puts the new form on next, which can end
+               it, so "still" waits for a real take-off) */
+            if (u.uswallow && u.ustuck
+                && attacktype_fordmg(u.ustuck->data, AT_ENGL, AD_WRAP)
+                && !engulf_air_ok(u.ustuck)) {
+                if (!quiet) {
+                    You("still can't breathe!");
+                    mkn = TRUE;
+                }
+            } else {
+                Strangled = 0L;
+                disp.botl = TRUE;
+                if (Breathless)
+                    Your("%s is no longer constricted!", body_part(NECK));
+                else
+                    You("can breathe more easily!");
+                mkn = TRUE;
+            }
         }
         break;
     case AMULET_OF_RESTFUL_SLEEP:
