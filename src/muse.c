@@ -55,6 +55,7 @@ staticfn boolean muse_unslime(struct monst *, struct obj *, struct trap *,
                             boolean);
 staticfn int cures_sliming(struct monst *, struct obj *);
 staticfn boolean green_mon(struct monst *);
+staticfn struct obj *mwish_armor(struct monst *, int) NONNULLARG1;
 
 /* generic item finder framework: the find_* selectors scan monster
    inventory including the contents of carried containers by handing
@@ -5662,9 +5663,25 @@ green_mon(struct monst *mon)
 #endif
 }
 
+/* make the armor a wishing monster asks for, or return NULL when it
+   would not put that piece on; m_can_wear_armor() reads the material
+   mksobj() rolled, so the piece is made first */
+staticfn struct obj *
+mwish_armor(struct monst *mon, int otyp)
+{
+    struct obj *otmp = mksobj(otyp, FALSE, FALSE);
+
+    if (!m_can_wear_armor(mon, otmp)) {
+        dealloc_obj(otmp); /* fresh: no contents, timers or light */
+        otmp = (struct obj *) 0;
+    }
+    return otmp;
+}
+
 /* a monster makes a wish (a wand of wishing, a grateful djinni, or one
    that keeps the hero's wish); it asks for something it can use, falling
-   back to a lesser item when its body can't wear the first choice */
+   back to a lesser item when it would not wear the first choice
+   (m_dowear()'s own rule, asked through m_can_wear_armor()) */
 void
 mmake_wish(struct monst *mon)
 {
@@ -5704,8 +5721,8 @@ mmake_wish(struct monst *mon)
         wearable = TRUE;
         break;
     case 4:
-        if (!has_displacement(mon) && !cantweararm(mon)) {
-            otmp = mksobj(CLOAK_OF_DISPLACEMENT, FALSE, FALSE);
+        if (!has_displacement(mon)
+            && (otmp = mwish_armor(mon, CLOAK_OF_DISPLACEMENT)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;
@@ -5715,8 +5732,7 @@ mmake_wish(struct monst *mon)
         }
         break;
     case 5:
-        if (!nohands(mon->data)) {
-            otmp = mksobj(GAUNTLETS_OF_DEXTERITY, FALSE, FALSE);
+        if ((otmp = mwish_armor(mon, GAUNTLETS_OF_DEXTERITY)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;
@@ -5728,9 +5744,7 @@ mmake_wish(struct monst *mon)
         break;
     case 6:
         if (!(resists_magm(mon) || defended(mon, AD_MAGM))) {
-            if (!cantweararm(mon))
-                otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
-            else
+            if ((otmp = mwish_armor(mon, CLOAK_OF_MAGIC_RESISTANCE)) == 0)
                 otmp = mksobj(AMULET_OF_MAGIC_RESISTANCE, FALSE, FALSE);
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
@@ -5742,8 +5756,7 @@ mmake_wish(struct monst *mon)
         }
         break;
     case 7:
-        if (!cantweararm(mon)) {
-            otmp = mksobj(CRYSTAL_PLATE_MAIL, FALSE, FALSE);
+        if ((otmp = mwish_armor(mon, CRYSTAL_PLATE_MAIL)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;
@@ -5766,8 +5779,8 @@ mmake_wish(struct monst *mon)
         }
         break;
     case 9:
-        if (!can_wwalk(mon) && !sliparm(mon)) {
-            otmp = mksobj(WATER_WALKING_BOOTS, FALSE, FALSE);
+        if (!can_wwalk(mon)
+            && (otmp = mwish_armor(mon, WATER_WALKING_BOOTS)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;
@@ -5781,9 +5794,7 @@ mmake_wish(struct monst *mon)
         break;
     case 10:
         if (!mon_reflects(mon, (char *) 0)) {
-            if (humanoid(mon->data))
-                otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
-            else
+            if ((otmp = mwish_armor(mon, SHIELD_OF_REFLECTION)) == 0)
                 otmp = mksobj(AMULET_OF_REFLECTION, FALSE, FALSE);
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
@@ -5795,8 +5806,8 @@ mmake_wish(struct monst *mon)
         }
         break;
     case 11:
-        if (!nohands(mon->data) && !strongmonst(mon->data)) {
-            otmp = mksobj(GAUNTLETS_OF_POWER, FALSE, FALSE);
+        if (!strongmonst(mon->data)
+            && (otmp = mwish_armor(mon, GAUNTLETS_OF_POWER)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;
@@ -5807,8 +5818,8 @@ mmake_wish(struct monst *mon)
         }
         break;
     case 12:
-        if (mon->mspeed != MFAST && !sliparm(mon)) {
-            otmp = mksobj(SPEED_BOOTS, FALSE, FALSE);
+        if (mon->mspeed != MFAST
+            && (otmp = mwish_armor(mon, SPEED_BOOTS)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;
@@ -5819,9 +5830,8 @@ mmake_wish(struct monst *mon)
         }
         break;
     case 13:
-        if (!has_telepathy(mon) && !sliparm(mon)
-            && !has_horns(mon->data)) {
-            otmp = mksobj(HELM_OF_TELEPATHY, FALSE, FALSE);
+        if (!has_telepathy(mon)
+            && (otmp = mwish_armor(mon, HELM_OF_TELEPATHY)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;
@@ -5832,8 +5842,7 @@ mmake_wish(struct monst *mon)
         }
         break;
     case 14:
-        if (!sliparm(mon) && !has_horns(mon->data)) {
-            otmp = mksobj(HELM_OF_BRILLIANCE, FALSE, FALSE);
+        if ((otmp = mwish_armor(mon, HELM_OF_BRILLIANCE)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;
@@ -5846,8 +5855,7 @@ mmake_wish(struct monst *mon)
         }
         break;
     case 15:
-        if (!cantweararm(mon)) {
-            otmp = mksobj(CLOAK_OF_PROTECTION, FALSE, FALSE);
+        if ((otmp = mwish_armor(mon, CLOAK_OF_PROTECTION)) != 0) {
             bless(otmp);
             (void) maybe_erodeproof(otmp, TRUE);
             otmp->spe = rn2(3) + 1;

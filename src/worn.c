@@ -1353,7 +1353,8 @@ m_dowear(struct monst *mon, boolean creation)
 /* m_dowear()'s per-slot test: can this body take anything in slot 'flag'?
    (the helmet, shield and glove slots are open to any body m_dowear()
    dresses at all, and the suit slot's limit is the RACE_EXCEPTION choice
-   its callers make; m_can_wear_armor() asks the same for a pet) */
+   its callers make; m_can_wear_armor() asks the same for a pet or a
+   wishing monster) */
 staticfn boolean
 m_slot_usable(struct monst *mon, long flag)
 {
@@ -1380,7 +1381,8 @@ m_slot_usable(struct monst *mon, long flag)
 /* could 'mon' ever put on armor 'obj', whatever it wears now? m_dowear()'s
    own refusals and per-slot tests, then the item tests that
    find_best_armor_recurse() makes outside creation; a pet asks before it
-   seeks or keeps armor (dogmove.c's is_better_armor()). Two of those item
+   seeks or keeps armor (dogmove.c's is_better_armor()), and a wishing
+   monster before it takes a piece (muse.c's mmake_wish()). Two of those item
    tests read the moment: no shield beside a two-handed weapon, and no
    mummy wrapping on an invisible monster the hero can't see. For monsters
    only (the hero's test is u_can_wear_armor()); find_best_armor_recurse()'s
