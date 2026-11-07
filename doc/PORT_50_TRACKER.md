@@ -17,9 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-07, after session 303's
-  Phasing slice: the Phasing status condition row closed, one
-  Phase 4 row minted):
+- Phase 2 status (refreshed 2026-11-07, after session 304's
+  master hardening slice, which closed two Phase 6 rows and minted
+  one, so the Phase 2 counts are unchanged since session 303's
+  Phasing slice):
   662 rows closed, 53 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
@@ -382,6 +383,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 49 LOW: small parity rows, quirks and watch/record-only items.
+    Session 304 closed no Phase 2 row; in Phase 6 it closed the
+    master 3ce940b8c privilege-drop row and the set_whereisfile()
+    BUG-603 row (BUG-2895..2905): every privilege drop is checked
+    (plus report.c's missing one), the seed counts as strong only
+    after a full read (master d83039c54), and the rest of master's
+    5a17e1fd7 files.c review is in. It minted a Phase 6 LOW for the
+    sfctool build residue.
     Session 303 closed the Phasing row (BUG-2892..2894): master's
     "Phasing" status condition is back, in the slot of 5.0's
     never-set "Iron" condition (all 32 mask bits were taken), with
@@ -36693,8 +36701,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       Setting the flag in that branch looks safe (it only forces the
       structlevel save path and blocks saving / checkpointing until
       unixmain clears it) but needs a staged repro. LOW.
-- [ ] LOW: master 3ce940b8c privilege-drop hardening never ported
-      (minted 2026-10-25). Master checks setgid(getgid()) /
+- [x] LOW: master 3ce940b8c privilege-drop hardening never ported -
+      PORTED 2026-11-07 (session 304, commit `Fix: check that dropping
+      privileges works.` = dd41bab70, plus the files.c site in `Port
+      the rest of master's files.c review.` = 6a964ccda; BUG-2895 /
+      2896; closure notes at the end of this row; minted
+      2026-10-25). Master checks setgid(getgid()) /
       setuid(getuid()) and exits on failure at four sites, while the
       branch still discards the results: src/files.c (child before
       exec), sys/unix/unixmain.c (main), sys/unix/unixunix.c (child
@@ -36703,7 +36715,38 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       sys/share/unixtty.c; the branch's are unchecked too. Its hints
       hunk (-O2, -Wstringop-truncation) does not apply to 5.0's hints.
       LOW (hardening).
-- [ ] LOW: recovery parity gaps (minted 2026-10-25). VMS defines no
+      CLOSURE (session 304; rulings 2026-11-07, decisions log). The
+      whole-commit census took all of 3ce940b8c: the four drops, the
+      unixtty.c write()s and unixunix.c's chdir(HOME), which keeps
+      5.0's NULL-HOME guard. It also found master d83039c54 (the
+      next day, no row): sys_random_seed() sets has_strong_rngseed
+      only when fread() returns 1, where the branch marked a short
+      read's seed 0 strong (BUG-2896). Ruled siblings with the same
+      flaw: pline.c's message-handler child (master left it
+      unchecked), sys/libnh/libnhmain.c chdirx() and its fread() copy
+      (not compiled here; syntax-probed), util/sfctool.c chdirx(), and
+      report.c's crash-report child, which execve()d the browser
+      opener with no drop at all (found by the Plan stress test).
+      Master's block (perror "Failed to drop privileges" +
+      nh_terminate(EXIT_FAILURE)) at the game sites, where each
+      child's exec failure and early_options() already exit through
+      nh_terminate(). exit() is used in report.c (mid-panic, as its
+      exec failure does) and in recover / sfctool. A fortified -O2
+      probe (`-O2 -D_FORTIFY_SOURCE=2`) of the touched files went from
+      14 -Wunused-result warnings to 0; the branch builds at -O0.
+      Battery T1 (shim SP/shim/shim.so makes setgid / setuid fail;
+      PRE 7ac61036, POST 712df543; paniclogs empty): POST `-d` start
+      and recover -d print the drop line and exit 1 (both the gid and
+      the uid arm), PRE start the game / say "Cannot open level 0";
+      POST save leaves an uncompressed 0wizard behind a --More-- and
+      restores, PRE compresses; POST `!`, the message handler (one
+      line per message) and #bugreport print the drop line and the
+      game goes on, while PRE runs bash, /bin/true and execve()s the
+      missing xdg-open ("Can't start /usr/bin/xdg-open"). Seed with
+      /dev/urandom bind-mounted to /dev/null (unshare -m):
+      has_strong_rngseed POST 0, PRE 1, control 1.
+      Found, not fixed: report.c's popen(gdb) panictrace keeps the
+      game's privileges by design (gdb must attach to the game). VMS defines no
       CHECK_PANIC_SAVE (master offered panic-save recovery on every
       non-MICRO port) and vanilla macOS.500 defines no SELF_RECOVER
       (no getlock "Recover [r]"; master linked recover.o on every Unix
@@ -36733,14 +36776,75 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       install-to-chroot.sh now installs COMPRESSBIN (/bin/gzip, which
       the hints' COMPRESS runs for every save and bones file) and its
       libraries into the chroot (TNNT ee1334741 ported).
-- [ ] LOW: set_whereisfile() lacks master's BUG-603 hardening
-      (minted 2026-10-04, session 177, merge audit). The branch has
+- [x] LOW: set_whereisfile() lacks master's BUG-603 hardening -
+      PORTED 2026-11-07 (session 304, commit `Port the rest of
+      master's files.c review.` = 6a964ccda; BUG-2897..2905; closure
+      notes at the end of this row; minted 2026-10-04, session 177,
+      merge audit). The branch has
       the NetHack50 fork's version: it builds the expanded name in an
       alloc'd buffer and copies it back with an unbounded
       `Sprintf(whereis_file, "%s", ...)` into the 255-byte array;
       master's 5a17e1fd7 bounds the prefix, the regularized name and
       the tail. Port master's shape (and offer the fork the same
       fix). LOW (needs a very long plname or WHEREIS_FILE).
+      CLOSURE (session 304; rulings 2026-11-07, decisions log). The
+      row named one hunk of master 5a17e1fd7; the whole-commit census
+      found six more never ported, all taken (ruled). Already on the
+      branch in 5.0's own form: parse_sym_line()'s tmpsp guard
+      (BUG-602, symbols.c), copy_bytes()'s read < 0 check (hacklib.c),
+      the livelog realtime cast. Gone from 5.0: the AMIGA DRIPENS
+      (BUG-606) and PATH lines.
+      - set_whereisfile() (BUG-2897): master's intent, not its
+        verbatim body (its last strncat() draws -Wstringop-truncation
+        at -O2): copynchars() + regularize() on a local copy, one
+        Snprintf() of prefix / name / tail into a local buffer, copied
+        back. write_whereis() builds its line with one bounded
+        Snprintf(), byte-identical output (score hoisted: no directive
+        inside a function-like macro's arguments).
+      - A '%' left in the player name could spell a new "%n" and
+        re-expand on every write (BUG-2898, code reviewer; master and
+        fork share it): it becomes '_'.
+      - docompress_file()'s args[10] clamp (BUG-2899, BUG-605's
+        shape); the zlib arm checks gzread() < 0 (BUG-2900).
+      - recover_savefile() checks the one-byte level header write
+        (BUG-2901, BUG-604 part 1) and on failure does what the
+        copy_bytes() arm does (no `goto cleanup`: gnhfp is already
+        closed there).
+      - check_recordfile() `fd < 0` (BUG-2902, BUG-607).
+      - Terminators after the cfgfiles.c strncpy()s (NAME, DOGNAME,
+        CATNAME, WIZKIT, MICRO HACKDIR / SAVE) and the WIZKIT env copy;
+        MICRO SAVE keeps room for append_slash()'s '/' (BUG-2903;
+        hardening, not reachable on Unix).
+      - parse_conf_buf() looks back through ep[-1] and never forms a
+        pointer in front of inbuf, in the continuation test or the
+        trim loop (BUG-2904); behaviour identical (the reviewer ran
+        97,656 line shapes against HEAD's logic, 0 differences).
+        Master's own version of this hunk stopped trimming: on master
+        a CRLF rc turns every blank line into "Not a config
+        statement", MENUCOLOR fails with "Unknown color 'green\r'"
+        and CATNAME keeps its '\r' (BUG-2905, master-only,
+        frozen-unfixed; battery T3 M leg).
+      Battery T2 (PRE 7ac61036, POST 712df543): whereis line
+      byte-identical PRE / POST through start, ^V, save; name
+      `a.b c%n` POST one file a_b_c_n.whereis, PRE re-expands to
+      a_b_ca_b_c%n.whereis and leaves a stale playing=1 file after
+      #quit; 240-character template + 31-character name POST strlen
+      254, PRE 279 with lockfd overwritten (0x61616161); a failed
+      level-header write (gdb `return (long) -1` on that write())
+      POST prints "Error writing save/0wizard; recovery failed (level
+      header).", no save, level files kept, while PRE "recovers" a
+      save one byte short that then fails ("This is level -1, not
+      52!", trickery paniclog line). T3: the CRLF rc parses the same
+      on PRE and POST (no config errors; dogname 62, plname 31,
+      catname "Whiskers"; both menucolors; MSGTYPE).
+- [ ] LOW: sfctool build residue (minted 2026-11-07, session 304).
+      `make sfctool` warns that files.c's static whereis_file is
+      unused under SFCTOOL (the fork's WHEREIS_FILE code), and at -O2
+      vanilla sfctool.c calls close_nhfile() on the NULL that a
+      failed create_dstfile() returned (-Wnonnull, then a NULL
+      dereference). The first is ours (guard the definition with
+      !SFCTOOL); the second is vanilla 5.0 (upstream candidate).
+      LOW (optional tool).
 - [ ] Fuzzer harness re-target (paths, randomkey hook)
 - [ ] LOW: branding follow-up (minted 2026-09-27, session 148). Several
       rows defer re-brand gaps to a "branding follow-up" that had no
@@ -37136,6 +37240,9 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-04 | e_died()'s "kill it again" (98da3a3db) leaves a monster that survives both kills - a vampshifter in a shifted form wearing life saving (lifesaved_monster(), then vamprises()) - on the crushed square at the `FIXME: still not dead?` arm, which for a raised portcullis is inside the DBWALL. Official_nh50 b0c09c878; BUG-2850, src/dbridge.c | found (branch-fixed c493ead78: a survivor is rloc()ed, or deal_with_overcrowding(); a moat / lava fall survivor leaves like minliquid()'s); not sent; triage pending |
 | 2026-11-04 | mhitm_ad_sedu() (mhitm steal) calls dismount_steed(DISMOUNT_POLY) when the item is the hero's steed's saddle, then extract_from_minvent() / add_to_minv() it; a dismount over water or lava that kills the steed has dropped the saddle (impossible "extract_from_minvent called on object not in minvent", then panic "add_to_minv: obj where=1, not free"), and over open air mongone() has freed it (use after free). Official_nh50 b0c09c878; BUG-2851, src/uhitm.c | found (branch-fixed 9550a7ea2: the theft fails when the dismount killed or moved the steed); not sent; triage pending |
 | 2026-11-05 | A monster wielding a plain weapon never wields an artifact of the same type it gets later: select_hwep() prefers artifacts, but mon_wield_item() reads `mw_tmp->otyp == obj->otyp` as "already wielding it" and returns. Producer: a likes_objs monster picks up the artifact (monmove.c practical[]) and the NEED_WEAPON path calls mon_wield_item(), so a monster holding a long sword that picks up Frost Brand (unaligned, anyone can touch it) keeps the plain sword. Official_nh50 b0c09c878 (weapon.c mon_wield_item(); vanilla's oselect() takes the first copy, so only the artifact case applies there); BUG-2861, src/weapon.c | found (branch-fixed 7e336074b: better_wielded_copy(); vanilla's fix would be the artifact test alone); not sent; triage pending |
+| 2026-11-07 | Privilege drops ignore their result: setgid(getgid()) / setuid(getuid()) are cast to (void) in files.c docompress_file()'s child, pline.c execplinehandler()'s child, unixmain.c and libnhmain.c chdirx(), unixunix.c child(), recover.c -d and sfctool.c chdirx(), so a failed drop runs the compressor, message handler, shell or mail reader with the game's set-id rights; report.c's crash-report child execve()s CRASHREPORT with no drop at all. Also sys_random_seed() (unixmain.c, libnhmain.c) sets has_strong_rngseed after an unchecked fread(), so a short read marks seed 0 strong. Official_nh50 b0c09c878; BUG-2895 / 2896 | found (branch-fixed dd41bab70, files.c site 6a964ccda); not sent; triage pending |
+| 2026-11-07 | files.c / cfgfiles.c hardening (from EvilHack master's 5a17e1fd7 review): docompress_file() can write past args[10] with many COMPRESS_OPTIONS words; the ZLIB_COMP arm compares an unsigned gzread() result with (unsigned) -1; recover_savefile() ignores the per-level header write(), so a short write yields a save one byte short that fails to restore, after the level files were deleted; check_recordfile() treats fd 0 as failure; cfgfiles.c strncpy()s of NAME / DOGNAME / CATNAME / WIZKIT (and the WIZKIT env copy) are not terminated, and MICRO SAVE leaves append_slash() no room; parse_conf_buf() forms pointers in front of inbuf (`--p->ep` on an empty line, the trim loop's post-decrement on an all-blank line). Official_nh50 b0c09c878; BUG-2899..2904 | found (branch-fixed 6a964ccda); not sent; triage pending |
+| 2026-11-07 | sfctool.c: when create_dstfile() fails it calls close_nhfile() on the NULL it returned (close_nhfile() dereferences it; gcc -O2 -Wnonnull flags the call). Official_nh50 b0c09c878; no BUG id (Phase 6 sfctool residue row) | found; not fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -37523,6 +37630,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
 | 2026-11-07 | Phasing status slice (Phase 2 session 303, AskUserQuestion x4 with 7 questions - one a battery launch ask - all as recommended). (1) SLICE: master's Phasing status condition (the pet mummy wrapping, the master hardening pair and the session 302 record pair not taken). (2) MASK ROOM: Phasing takes the in-place slot of 5.0's never-set elf_iron condition; the iron hilite name and cond_iron option go (rejected: widen the mask to 64 bits across the window interface, now a Phase 4 row; take the opt-in Bare slot). (3) GROUPS: master's exactly - movement = Lev Fly Ride Slow Phasing, Slow out of minor_troubles (rejected: Slow in both; Phasing only). (4) NAMES: Phasing / Phase / Ph (rejected: Phas). (5) RANK 11, after Slow (re-asked after a wrong rendering in question 4; rejected: rank 10, alphabetical). (6) REFRESHES at the invoke, the prayer fallback and the timer expiry (rejected: master's shape). (7) Battery: launch all three testers. Session calls, plan-approved: the reviewer's text-dumplog fold (do_statusline2() Phasing, plus the Slow it never had - BUG-2893). Commit ee66ebc71; BUG-2892..2894. | maintainer (1-7); session, plan-approved (rest) |
 | 2026-11-06 | Underwater-view slice (Phase 2 session 302, AskUserQuestion x3 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the See_underwater toggle row (the pet mummy wrapping, hit-chain anger and strangle record items not taken). (2) RARE ROUTES: per-site checks at region_safety()'s grant and the MAGICAL_BREATHING expiry, no per-turn catch-all (rejected: a moveloop check against the state the tables were built for; both); #wizintrinsic timed swimming / breathing stays uncovered (wizard only). Polymorph: the compare moves into polymon() / polyman() and the five caller wrappers go. (3) SEWAGE SNATCH: folded in (rejected: its own row) - a worn item comes off through remove_worn_item() under the in_lava_effects guard before the muck takes it; uskin and a worn Hand of Vecna get the "tries to grab ... but cannot!" line. (4) Battery: launch all four testers. | maintainer |
 | 2026-11-06 | Strangle residue rest slice (Phase 2 session 301, AskUserQuestion x5 with 9 questions - one a battery launch ask - all as recommended). (1) SLICE: the strangle residue row's items (a) rest, (i), (j), (k), (l) (the underwater-view toggle, the pet mummy wrapping and the hit-chain anger rows not taken). (2) SCALES: an amulet of strangulation keeps choking through sea dragon-scaled armor; the scales clear only another clock (rejected: master's clear of any clock). (3) POLYMORPH: a running clock inside a choking engulfer keeps its count, "You still can't breathe!" with no amulet, the amulet's "still constricts" line with one and 6 only when the clock is 0 or above 6 (rejected: the same silently; master's reset). (4) RESTART: "It's impossible to breathe in here!" on every start of the clock; no immediate start at take-off; the prayer cure unchanged (rejected: also start at take-off). (5) CLEAR LINE: "You can breathe again." (rejected: "You can suddenly breathe again!"). (6) CATCH-ALL PLACE (Plan stress-test re-ask: bare scales in the cloak slot are a normal-play route, not only #wizintrinsic): nh_timeout() each turn before the choke lines (rejected: gulpmu()'s next attack; both). (7) EXPEL TURN (Plan stress-test re-ask): an attack that is about to expel the hero starts no clock (rejected: ungated). Session calls, plan-approved: end_engulf_suffocation() sets disp.botl (branch-only newcham() caller); the reviewer's LOW folds (the expel gate covers all three of gulpmu()'s tail expels - swallow time, a huge form, a petrifying one - as ruling 7 asks; comment wording). Commits cccc34bcd and f8ec51851; BUG-2882..2887. | maintainer (1-7); session, plan-approved (rest) |
