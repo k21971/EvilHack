@@ -17,10 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-07, after session 305's
-  pet-armor slice, which closed one Phase 2 LOW row and minted
+- Phase 2 status (refreshed 2026-11-07, after session 306's
+  monster-wish slice, which closed one Phase 2 LOW row and minted
   one):
-  663 rows closed, 53 open
+  664 rows closed, 53 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -382,6 +382,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 49 LOW: small parity rows, quirks and watch/record-only items.
+    Session 306 closed the monster-wish armor row (BUG-2911..2913):
+    a monster's wish asks for armor only when it would put it on
+    (cloaks, helms and boots for gnome lords, hobbits, kobold lords
+    and tengu; the shield of reflection for umber hulks and xorns;
+    no boots for centaurs, driders, mariliths or tortles, no crystal
+    plate mail for winged bodies, no gloves or shield for tiny ones,
+    no shield beside a two-hander, no iron or silver for a monster
+    that hates it) and takes master's fallback otherwise. It minted
+    a LOW record row for the residue (tiny wishers' amulets and
+    rings, case 16's armor artifacts, worn gear in the slot).
     Session 305 closed the pet mummy wrapping row (BUG-2906..2910):
     a pet now wants exactly the armor m_dowear() would put on it
     (helmets, gloves, boots and shields for gnomes, ogres, giants and
@@ -3878,12 +3888,77 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       refusal (silver for a silver-hating hero, bane artifacts) sits
       outside canwearobj(), so the hero test ignores it; the Purity
       gauntlets test carries !wizard (code read only).
-- [ ] LOW: muse.c's monster wish code has its own armor rules (minted
-      2026-11-07, session 305, Plan stress test). mmake_wish()'s armor
+- [x] LOW: muse.c's monster wish code has its own armor rules - FIXED
+      2026-11-07 (session 306, commit `Fix: monsters wish for the armor
+      they would actually wear.` = bbec1411e; BUG-2911..2913; closure
+      notes at the end of this row; minted 2026-11-07, session 305,
+      Plan stress test). mmake_wish()'s armor
       picks (cantweararm() / sliparm() tests) refuse helmets to small
       monsters that m_dowear() would dress, and their boot choices
       ignore slithy / centaur / drider / tortle bodies. Candidate: ask
       m_can_wear_armor() (worn.c) per pick. Master-shaped. LOW.
+      CLOSURE (session 306; rulings 2026-11-07, decisions log). The
+      eleven armor wishes (master's, ported session 282, BUG-2767)
+      used cantweararm() / sliparm() / nohands() / has_horns() /
+      humanoid(), which disagree with m_dowear() both ways. Too
+      strict: small handed bodies (gnome lords, hobbits, kobold lords,
+      tengu, quasits) never got cloaks, helms or boots; non-humanoid
+      handed bodies (umber hulks, xorns, tengu) got the amulet of
+      reflection, not the shield. Too loose: boots for centaurs,
+      driders, mariliths, tortles; crystal plate mail for big-winged
+      humanoids (erinyes, Angels, incubi / succubi); gauntlets and the
+      shield for tiny handed bodies (imps, homunculi, leprechauns); the
+      shield beside a wielded two-hander; and any piece whose rolled
+      material the monster hates (mksobj() rolls it even with init
+      FALSE, after the old test: iron about 65% for gauntlets of power
+      and the helm of telepathy, silver about 70% for the shield).
+      Fix (ruled full match, re-confirmed after the Plan stress test):
+      new staticfn mwish_armor() makes the piece, asks
+      m_can_wear_armor() and frees an unfit piece with dealloc_obj();
+      each case keeps its "already has it" test (run first) and its
+      master fallback. Consequences spelled out in the ruling: elves
+      and drow take the cursed gain level fallback on most gauntlets
+      of power wishes; silver-haters still get a non-silver shield.
+      Batteries (PRE cd0b551c, POST 1552e7db; the committed build
+      b85742da adds only the reviewer's comment fold; all six
+      paniclogs empty; 300 wishes per monster from gdb with the hero
+      blind, census by m_can_wear_armor()): T1 gnome noble, hobbit,
+      kobold noble PRE none of the seven cloak / helm / boot wishes,
+      POST all seven `fit 1` and their fallbacks gone; tengu PRE
+      amulet 14, POST shield 14 plus cloaks / helms / boots; umber
+      hulk PRE amulet 19, POST shield 19; live wand leg: POST gnome
+      lord wished for and put on a helm of brilliance, cloak of magic
+      resistance and water walking boots, PRE wished none. T2 forest
+      centaur / drider / marilith PRE boots `fit 0`, POST none;
+      erinys / Angel PRE crystal plate mail `fit 0`, POST bag of
+      holding; Woodland-elf PRE iron gauntlets 9 / iron helms 9
+      `fit 0`, POST no iron (steel, bronze, copper, wooden `fit 1`);
+      drider iron helms 9 -> 0; marilith / erinys silver shields
+      14 / 9 `fit 0` -> 0, amulets 0 -> 14 / 18. T3 leprechaun PRE 56
+      armor pieces `fit 0`, POST none; soldier with a two-handed sword
+      PRE shields 20 `fit 0`, POST none (amulets 18); nurse and soldier
+      controls the same item sets, every piece `fit 1`. Every POST
+      armor line on every cell `fit 1`. MASTER: m_dowear() /
+      m_dowear_type() have the same slot and item gates (static read),
+      so all three are master-shared.
+- [ ] LOW, record: monster wish residue (minted 2026-11-07, session
+      306, Plan stress test and code reviewer; master-shared). (a)
+      find_misc() refuses handless bodies before the item scan but
+      not tiny ones, so an imp, homunculus or leprechaun zapping a
+      wand of wishing gets amulets and rings (life saving, magic
+      resistance, flying, reflection, slow digestion, protection) that
+      m_dowear()'s r_verysmall() return never puts on; a silver-hater's
+      silver amulet of reflection (shiny_materials, 20%) is never worn
+      either; life saving has no fallback today, so any change needs a
+      design. (b) The artifact wish (mk_artifact()) can be armor the
+      wisher can't wear; it stays loot. (c) What is already worn in
+      the slot still decides: a cursed piece (m_dowear_type()'s
+      old->cursed return) or one at least as good by armor_bonus() +
+      extra_pref() leaves the wish unworn (a +0 dwarvish iron helm
+      ties a +1 helm of telepathy); m_can_wear_armor() ignores worn
+      gear by design, and is_better_armor() checks the cursed slot on
+      its own. (d) The two-hander test reads the weapon at wish time,
+      m_dowear() at wear time. Record only unless ruled. LOW.
 - [ ] LOW watch: Racial monsters live-coverage residue (minted
       2026-10-19 by the umbrella audit; static and reviewer checks
       only): drow temple darkening, gnome Int / nymph Cha quotes and
@@ -37716,6 +37791,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
 | 2026-11-07 | Phasing status slice (Phase 2 session 303, AskUserQuestion x4 with 7 questions - one a battery launch ask - all as recommended). (1) SLICE: master's Phasing status condition (the pet mummy wrapping, the master hardening pair and the session 302 record pair not taken). (2) MASK ROOM: Phasing takes the in-place slot of 5.0's never-set elf_iron condition; the iron hilite name and cond_iron option go (rejected: widen the mask to 64 bits across the window interface, now a Phase 4 row; take the opt-in Bare slot). (3) GROUPS: master's exactly - movement = Lev Fly Ride Slow Phasing, Slow out of minor_troubles (rejected: Slow in both; Phasing only). (4) NAMES: Phasing / Phase / Ph (rejected: Phas). (5) RANK 11, after Slow (re-asked after a wrong rendering in question 4; rejected: rank 10, alphabetical). (6) REFRESHES at the invoke, the prayer fallback and the timer expiry (rejected: master's shape). (7) Battery: launch all three testers. Session calls, plan-approved: the reviewer's text-dumplog fold (do_statusline2() Phasing, plus the Slow it never had - BUG-2893). Commit ee66ebc71; BUG-2892..2894. | maintainer (1-7); session, plan-approved (rest) |
