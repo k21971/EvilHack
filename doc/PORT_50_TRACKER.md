@@ -17,10 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-06, after session 301's
-  strangle residue rest: more items fixed inside the same LOW
-  record row, which stays open, so the counts are unchanged):
-  659 rows closed, 53 open
+- Phase 2 status (refreshed 2026-11-06, after session 302's
+  underwater-view slice: the See_underwater toggle row closed, the
+  sewage snatch row minted and closed, two record LOWs minted):
+  661 rows closed, 54 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -381,7 +381,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 49 LOW: small parity rows, quirks and watch/record-only items.
+  - 50 LOW: small parity rows, quirks and watch/record-only items.
+    Session 302 closed the See_underwater toggle row (BUG-2888 /
+    2889): every form change (polymon(), polyman()), prayer's
+    poison-cloud breathing and its expiry now redraw a submerged
+    hero's view when underwater sight starts or stops. It also
+    fixed the sewage snatch (BUG-2890 / 2891): a worn item is taken
+    off properly before the muck takes it (ring bonuses, a
+    strangulation amulet's clock, a blindfold), and embedded dragon
+    scales or a worn Hand of Vecna can't be taken (the scales were
+    freed under the hero, a crash). Two record LOWs minted:
+    does_block() blocking sewage / puddle for a tiny submerged hero,
+    and worn-weapon useups that skip uwepgone().
     Session 300 fixed items (b) and (c) and the amulet half of (a)
     in the strangle residue row (BUG-2877..2881): taking off a
     strangulation amulet inside a suffocating engulfer keeps the
@@ -24826,9 +24837,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       consecutive correct exits, magic mapping then #terrain twice,
       the static read 0 after an exit, plain magical-breathing hero
       unchanged.
-- [ ] LOW: See_underwater flips with no toggle site (minted 2026-09-18
+- [x] LOW: See_underwater flips with no toggle site - FIXED 2026-11-06
+      (session 302, commit `Fix: a submerged hero's view keeps up with
+      a change of form.` = 374427423, plus the eyewear route by `Fix: the
+      muck takes worn things off before it takes them.` = 4bd1e4567;
+      BUG-2888 / 2889 branch-only, BUG-2890 master-shared; closure
+      notes at the end of this row; minted 2026-09-18
       by the submerged-sight slice, session 127: design check +
-      reviewer, each site verified on the bodies; master-shared).
+      reviewer, each site verified on the bodies; "master-shared" was
+      wrong, see the closure).
       (Underwater && See_underwater) can change while the hero is
       submerged without reaching a vision_reset() + docrt(): polymon()
       callers outside the four old_uwvis wrappers (you_were(), the
@@ -24845,6 +24862,91 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the next rebuild - the BUG-1424 family. Candidate: move the
       old_uwvis compare into polymon() itself and add it to the two
       timeout/region sites and setnotworn()'s eyewear arm. LOW.
+      CLOSURE (session 302; rulings 2026-11-06, decisions log: per-site
+      checks, no per-turn catch-all; fold in the sewage snatch). The
+      compare now lives in the two form-change funnels, polymon()
+      (ahead of see_monsters() / retouch_equipment(), so a recursive
+      stone-golem call handles its own change) and polyman(); the five
+      caller wrappers (druid_wildshape, vampire_shapechange, polyself,
+      rehumanize, slimed_to_death) are gone. region_safety()'s grant
+      compares around set_itimeout(); the MAGICAL_BREATHING expiry
+      rebuilds on `Underwater && HSwimming && !See_underwater` (exact).
+      #wizintrinsic timed swimming / breathing stays uncovered
+      (wizard only, ruled). The eyewear route: canletgo() blocks give /
+      drag, every destruction path goes through remove_worn_item(),
+      and the one bypass was dodip()'s sewage snatch, reachable while
+      submerged only by a tiny hero under sewage or a puddle (hack.c's
+      shallow_water && verysmall() arm) - fixed with the snatch (row
+      below). NOT master-shared after all: master's per-turn block
+      runs docrt() every submerged turn, no-sight arm included, and
+      its bare does_block() clause blocks dry land whatever the sight,
+      so master repaints each turn and its tables never depend on
+      See_underwater; the branch has 5.0's update-frequency shape
+      (891a20f56, under_water(0) only) and session 127's refined
+      clause. Plan stress test CONDITIONAL PASS (M1 the sewage route,
+      M2 the in_lava_effects guard, M3 / M4 battery staging), code
+      reviewer PASS (one comment fold). BATTERY (four testers, every
+      paniclog empty but T4's expected PRE / MASTER obfree lines):
+      T1 tortle lycanthrope, real moveloop you_were() route after a
+      water-to-water step: PRE 5 water squares outside the 3x3 after
+      "You turn into a werewolf!" and a turn later, sweep 360
+      mismatches; POST 3x3 at once, sweep 0; MASTER 3x3 (immune);
+      rehumanize control full view on both. T2 python form: breathing
+      expiry PRE stale view, sweep 370; POST 3x3 on the expiry turn,
+      sweep 0; prayer grant (levers: a never-expiring cloud,
+      safe_teleds() returning 0 inside region_safety()) PRE a pool
+      across a dry square drawn, sweep 367; POST not drawn, sweep 0.
+      T4 C1 tiny giant ant under sewage loses goggles: PRE sweep 258,
+      POST 0.
+- [x] LOW: the sewage snatch deleted worn items without taking them
+      off - FIXED 2026-11-06 (session 302, commit `Fix: the muck takes
+      worn things off before it takes them.` = 4bd1e4567; BUG-2890 /
+      2891, master-shared, frozen-unfixed; minted and closed the same
+      session by the See_underwater census). dodip()'s sewage arm
+      ("a creature hiding in the muck snatches away your X!") called
+      useupall() on any uncursed item, worn ones too: ring bonuses
+      stayed for good (an exploit), an amulet of strangulation kept
+      choking, a blindfold's blind map stayed until a move,
+      uwepgone() was skipped, a worn Hand of Vecna (cursed bit 0) was
+      taken with no Gloves_off(), and embedded dragon scales (uskin,
+      dip_ok() lets it through, not in worn[]) were freed under the
+      uskin pointer. FIX: a worn item goes through
+      remove_worn_item(obj, FALSE) under iflags.in_lava_effects++/--
+      (erode_obj()'s shape - Amulet_off() / sea dragon scales defer
+      their drown() and check_flight_landing() its landing to
+      maybe_land_deferred()); uskin and a worn Hand of Vecna get
+      "tries to grab your X, but cannot!". BATTERY T3: rings PRE /
+      MASTER abon 3 and udaminc 3 kept, POST 0; strangulation PRE /
+      MASTER died "strangulation", POST "You can breathe more
+      easily!" clock 0; blindfold POST "You can see again." at once;
+      sword POST unweapon 1. T4: uskin PRE rehumanize SIGSEGV in
+      armor_bonus(), MASTER ASan heap-use-after-free in skinback(),
+      POST cannot; Vecna PRE snatched (St 25 -> 18/02 silently), POST
+      cannot; amulet of magical breathing under sewage POST inhale +
+      drown after the dip (LANDING_SPOT), amulet of flying POST
+      "You land." after the dip (LANDING_FLY). Not taken (reviewer
+      LOW, noted): under the guard a levitator held by a trap over
+      sewage loses float_down()'s "no longer trying to float up"
+      line, as in erode_obj().
+- [ ] LOW, record: does_block()'s submerged clause blocks PUDDLE and
+      SEWAGE squares for a tiny hero submerged in them (minted
+      2026-11-06, session 302, stress test L5; master-shared - master's
+      bare clause does the same). IS_POOL() covers POOL..DRAWBRIDGE_UP
+      only, so a giant ant under sewage with goggles had does_block()
+      true on every square (battery T4 entry sweep: 1659 of 1659) and
+      sees nothing beyond its own square, while vision_recalc()'s
+      no-sight arm uses is_damp_terrain(). Candidate: test
+      is_damp_terrain() (or IS_PUDDLE / IS_SEWAGE) in the clause.
+      Record only unless ruled.
+- [ ] LOW, record: worn-weapon useups that skip uwepgone() leave
+      gu.unweapon stale (minted 2026-11-06, session 302, stress test
+      L3; master / vanilla-shaped). dipsink() useup() of a wielded
+      potion (src/fountain.c), the Excalibur fountain dip's useup(),
+      potion.c's mixing / explosion useups (dip_potion_explosion(),
+      potion_dip()'s useup(potion) and default useupall()) and
+      pot_acid_damage()'s setnotworn() + delobj() (src/trap.c). Only
+      the "You begin bashing ..." bookkeeping is lost (setnotworn()
+      clears uwep). Record only.
 - [x] LOW: vision_recalc() Blind arm lacks master's
       do_light_sources() call PORTED 2026-09-18 (session 128, commit
       `Fix: a blind hero's surroundings ignored carried light and
@@ -37330,6 +37432,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-06 | Underwater-view slice (Phase 2 session 302, AskUserQuestion x3 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the See_underwater toggle row (the pet mummy wrapping, hit-chain anger and strangle record items not taken). (2) RARE ROUTES: per-site checks at region_safety()'s grant and the MAGICAL_BREATHING expiry, no per-turn catch-all (rejected: a moveloop check against the state the tables were built for; both); #wizintrinsic timed swimming / breathing stays uncovered (wizard only). Polymorph: the compare moves into polymon() / polyman() and the five caller wrappers go. (3) SEWAGE SNATCH: folded in (rejected: its own row) - a worn item comes off through remove_worn_item() under the in_lava_effects guard before the muck takes it; uskin and a worn Hand of Vecna get the "tries to grab ... but cannot!" line. (4) Battery: launch all four testers. | maintainer |
 | 2026-11-06 | Strangle residue rest slice (Phase 2 session 301, AskUserQuestion x5 with 9 questions - one a battery launch ask - all as recommended). (1) SLICE: the strangle residue row's items (a) rest, (i), (j), (k), (l) (the underwater-view toggle, the pet mummy wrapping and the hit-chain anger rows not taken). (2) SCALES: an amulet of strangulation keeps choking through sea dragon-scaled armor; the scales clear only another clock (rejected: master's clear of any clock). (3) POLYMORPH: a running clock inside a choking engulfer keeps its count, "You still can't breathe!" with no amulet, the amulet's "still constricts" line with one and 6 only when the clock is 0 or above 6 (rejected: the same silently; master's reset). (4) RESTART: "It's impossible to breathe in here!" on every start of the clock; no immediate start at take-off; the prayer cure unchanged (rejected: also start at take-off). (5) CLEAR LINE: "You can breathe again." (rejected: "You can suddenly breathe again!"). (6) CATCH-ALL PLACE (Plan stress-test re-ask: bare scales in the cloak slot are a normal-play route, not only #wizintrinsic): nh_timeout() each turn before the choke lines (rejected: gulpmu()'s next attack; both). (7) EXPEL TURN (Plan stress-test re-ask): an attack that is about to expel the hero starts no clock (rejected: ungated). Session calls, plan-approved: end_engulf_suffocation() sets disp.botl (branch-only newcham() caller); the reviewer's LOW folds (the expel gate covers all three of gulpmu()'s tail expels - swallow time, a huge form, a petrifying one - as ruling 7 asks; comment wording). Commits cccc34bcd and f8ec51851; BUG-2882..2887. | maintainer (1-7); session, plan-approved (rest) |
 | 2026-11-06 | Strangle residue slice (Phase 2 session 300, AskUserQuestion x6 with 9 questions - one a battery launch ask). (1) SLICE: the strangle residue row's items (b) + (c), as recommended (the underwater-view toggle, the pet mummy wrapping and the hit-chain anger rows not taken). (2) (b) TAKE-OFF LINE: "You still can't breathe!" (rejected: silent, the recommendation). (3) (c) HERO ENGULF LINE: "The X can still breathe in the water.", as recommended. (4) "brushes against" dropped for engulfs (master's shape), as recommended. (5) Plan stress test: fold item (a)'s amulet half, as recommended (rejected: gulpmu()'s arm; record only). (6) Its line "You can suddenly breathe again!", as recommended. (7) Reviewer found master's Amulet_on() arm for magical breathing lost in the 5.0 tree adoption: MASTER'S UNCONDITIONAL FORM, as recommended (rejected: engulfer-owned clocks only). (8) Battery T1 found 5.0's silent strangulation put-on inside a running clock: MASTER'S SHAPE, folded into C1, as recommended (rejected: keep 5.0's, record). Commits 71cb80414 and 171d1dc39; BUG-2877..2881. |
 | 2026-11-06 | Wish-letter trace slice (Phase 2 session 299, AskUserQuestion x2 - the slice and a battery launch ask - both as recommended). (1) SLICE: the "Q - 20 rocks." wish-letter row (the strangle residue's items (b) + (c), the underwater-view toggle row and the pet mummy wrapping row not taken); (2) launch a reproduce-and-trace battery on POST and the scratch master build. Outcome: the row closed as NOT A BUG - the game, its raw output and the screen hold the lowercase letter on both builds; the uppercase letter was the test agents misreading their own tool output. No code change, no BUG id. |
