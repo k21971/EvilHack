@@ -44,6 +44,7 @@ staticfn int armor_or_accessory_off(struct obj *);
 staticfn int accessory_or_armor_on(struct obj *);
 staticfn void already_wearing(const char *);
 staticfn void already_wearing2(const char *, const char *);
+staticfn boolean u_body_armor_misfit(struct obj *) NONNULLARG1;
 staticfn int equip_ok(struct obj *, boolean, boolean);
 staticfn int puton_ok(struct obj *);
 staticfn int remove_ok(struct obj *);
@@ -2942,12 +2943,36 @@ will_touch_skin(long mask)
     return TRUE;
 }
 
+/* a suit, shirt or cloak that won't fit the hero's current body:
+   canwearobj()'s test for a form that can't wear body armor, with its
+   exceptions; u_can_wear_armor() asks it too */
+staticfn boolean
+u_body_armor_misfit(struct obj *otmp)
+{
+    return (cantweararm(&gy.youmonst)
+            /* same exception for cloaks as used in m_slot_usable() and
+               m_armor_candidate() */
+            && (!is_cloak(otmp)
+                || ((otmp->otyp != MUMMY_WRAPPING)
+                    ? gy.youmonst.data->msize != MZ_SMALL
+                    : !WrappingAllowed(gy.youmonst.data)))
+            && (racial_exception(&gy.youmonst, otmp) < 1)
+            /* giant heroes have a few outsized armor options */
+            && !(Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
+                 && otmp->otyp == LARGE_SPLINT_MAIL)
+            && !(Race_if(PM_GIANT)
+                 && otmp->otyp == CHROMATIC_DRAGON_SCALES));
+}
+
 /*
  * canwearobj checks to see whether the player can wear a piece of armor
  *
  * inputs: otmp (the piece of armor)
  *         noisy (if TRUE give error messages, otherwise be quiet about it)
  * output: mask (otmp's armor type)
+ *
+ * u_can_wear_armor() repeats the limits here that last (form, horns, feet,
+ * the pious gauntlets); keep the two in step
  */
 int
 canwearobj(struct obj *otmp, long *mask, boolean noisy)
@@ -2973,19 +2998,7 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             : is_shirt(otmp) ? c_shirt
               : (is_suit(otmp) || otmp->otyp == MEAT_SUIT) ? c_suit
                 : 0;
-    if (which && cantweararm(&gy.youmonst)
-        /* same exception for cloaks as used in m_dowear() and
-           find_best_armor_recurse() */
-        && (which != c_cloak
-            || ((otmp->otyp != MUMMY_WRAPPING)
-                ? gy.youmonst.data->msize != MZ_SMALL
-                : !WrappingAllowed(gy.youmonst.data)))
-        && (racial_exception(&gy.youmonst, otmp) < 1)
-        /* giant heroes have a few outsized armor options */
-        && !(Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
-             && otmp->otyp == LARGE_SPLINT_MAIL)
-        && !(Race_if(PM_GIANT)
-             && otmp->otyp == CHROMATIC_DRAGON_SCALES)) {
+    if (which && u_body_armor_misfit(otmp)) {
         if (noisy)
             pline_The("%s will not fit on your body.", which);
         return 0;
@@ -3196,6 +3209,45 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
         }
      */
     return !err;
+}
+
+/* could the hero's current body wear armor 'otmp' at all? canwearobj()'s
+   lasting limits only (keep the two in step): what is worn or wielded
+   now, a shell, slippery fingers and traps all pass; a pet asks, so that
+   it leaves the hero's upgrades alone (dogmove.c's is_better_armor()) */
+boolean
+u_can_wear_armor(struct obj *otmp)
+{
+    if (otmp->oclass != ARMOR_CLASS)
+        return FALSE;
+    /* a druid's wildshape and a vampire's shift form keep the worn gear
+       merged until the hero changes back, so the form itself doesn't
+       rule armor out (as sliparm() and breakarm() reckon it) */
+    if (!(druid_form || vampire_form)
+        && (verysmall(gy.youmonst.data) || nohands(gy.youmonst.data)
+            || is_ent(gy.youmonst.data) || is_plant(gy.youmonst.data)))
+        return FALSE;
+    if ((is_cloak(otmp) || is_shirt(otmp) || is_suit(otmp))
+        && u_body_armor_misfit(otmp))
+        return FALSE;
+    if (is_helmet(otmp))
+        return !(Upolyd && has_horns(gy.youmonst.data) && !is_flimsy(otmp));
+    if (is_boots(otmp))
+        return !((Upolyd && slithy(gy.youmonst.data))
+                 || (Upolyd && (gy.youmonst.data->mlet == S_CENTAUR
+                                || gy.youmonst.data == &mons[PM_DRIDER]
+                                || gy.youmonst.data == &mons[PM_SATYR]))
+                 || (!Upolyd && Race_if(PM_CENTAUR))
+                 || racial_tortle(&gy.youmonst));
+    if (is_gloves(otmp))
+        return !((!wizard && is_art(otmp, ART_GAUNTLETS_OF_PURITY)
+                  && (u.ualign.record < 20 || Role_if(PM_INFIDEL)))
+                 || (is_art(otmp, ART_HAND_OF_VECNA)
+                     && racial_aasimar(&gy.youmonst)));
+    if (is_suit(otmp))
+        return !(gy.youmonst.data->msize < MZ_HUGE
+                 && otmp->otyp == LARGE_SPLINT_MAIL);
+    return TRUE;
 }
 
 staticfn int

@@ -9,6 +9,9 @@ staticfn void m_lose_armor(struct monst *, struct obj *, boolean) NONNULLPTRS;
 staticfn void clear_bypass(struct obj *) NO_NNARGS;
 staticfn void m_dowear_type(struct monst *, long, boolean, boolean)
                                                                   NONNULLARG1;
+staticfn boolean m_slot_usable(struct monst *, long) NONNULLARG1;
+staticfn boolean m_armor_candidate(struct monst *, struct obj *, long,
+                                   boolean, boolean) NONNULLARG12;
 staticfn struct obj *find_best_armor_recurse(struct monst *, struct obj *,
                                              struct obj *, long, boolean,
                                              boolean) NONNULLARG1;
@@ -1290,6 +1293,8 @@ m_dowear(struct monst *mon, boolean creation)
     /* Note the restrictions here are the same as in dowear in do_wear.c
      * except for the additional restriction on intelligence.  (Players
      * are always intelligent, even if polymorphed).
+     * m_can_wear_armor() repeats them outside creation; keep the two in
+     * step.
      */
     if (r_verysmall(mon) || nohands(mon->data) || is_animal(mon->data)
         || is_ent(mon->data) || is_plant(mon->data))
@@ -1302,16 +1307,11 @@ m_dowear(struct monst *mon, boolean creation)
         return;
 
     m_dowear_type(mon, W_AMUL, creation, FALSE);
-    can_wear_armor = !cantweararm(mon); /* for suit, cloak, shirt */
+    can_wear_armor = !cantweararm(mon); /* for the suit */
     /* can't put on shirt if already wearing suit */
-    if (can_wear_armor && !(mon->misc_worn_check & W_ARM))
+    if (m_slot_usable(mon, W_ARMU) && !(mon->misc_worn_check & W_ARM))
         m_dowear_type(mon, W_ARMU, creation, FALSE);
-    /* treating small as a special case allows hobbits, gnomes, kobolds
-       and other small monsters with hands to wear all cloaks;
-       WrappingAllowed() lets giants and such wear mummy wrappings but
-       not other cloaks (find_best_armor_recurse() sorts out which) */
-    if (can_wear_armor || r_data(mon)->msize == MZ_SMALL
-        || WrappingAllowed(r_data(mon)))
+    if (m_slot_usable(mon, W_ARMC))
         m_dowear_type(mon, W_ARMC, creation, FALSE);
     m_dowear_type(mon, W_ARMH, creation, FALSE);
     /* bracers fill the shield slot but leave the hands free, so the
@@ -1342,13 +1342,149 @@ m_dowear(struct monst *mon, boolean creation)
     }
 
     m_dowear_type(mon, W_ARMG, creation, FALSE);
-    if (!slithy(mon->data) && !racial_centaur(mon)
-        && mon->data != &mons[PM_DRIDER] && !racial_tortle(mon))
+    if (m_slot_usable(mon, W_ARMF))
         m_dowear_type(mon, W_ARMF, creation, FALSE);
     if (can_wear_armor)
         m_dowear_type(mon, W_ARM, creation, FALSE);
     else
         m_dowear_type(mon, W_ARM, creation, RACE_EXCEPTION);
+}
+
+/* m_dowear()'s per-slot test: can this body take anything in slot 'flag'?
+   (the helmet, shield and glove slots are open to any body m_dowear()
+   dresses at all, and the suit slot's limit is the RACE_EXCEPTION choice
+   its callers make; m_can_wear_armor() asks the same for a pet) */
+staticfn boolean
+m_slot_usable(struct monst *mon, long flag)
+{
+    switch (flag) {
+    case W_ARMU:
+        return !cantweararm(mon);
+    case W_ARMC:
+        /* treating small as a special case allows hobbits, gnomes,
+           kobolds and other small monsters with hands to wear all
+           cloaks; WrappingAllowed() lets giants and such wear mummy
+           wrappings but not other cloaks (m_armor_candidate() sorts
+           out which) */
+        return (!cantweararm(mon) || r_data(mon)->msize == MZ_SMALL
+                || WrappingAllowed(r_data(mon)));
+    case W_ARMF:
+        return (!slithy(mon->data) && !racial_centaur(mon)
+                && mon->data != &mons[PM_DRIDER] && !racial_tortle(mon));
+    default:
+        break;
+    }
+    return TRUE;
+}
+
+/* could 'mon' ever put on armor 'obj', whatever it wears now? m_dowear()'s
+   own refusals and per-slot tests, then the item tests that
+   find_best_armor_recurse() makes outside creation; a pet asks before it
+   seeks or keeps armor (dogmove.c's is_better_armor()). Two of those item
+   tests read the moment: no shield beside a two-handed weapon, and no
+   mummy wrapping on an invisible monster the hero can't see. For monsters
+   only (the hero's test is u_can_wear_armor()); find_best_armor_recurse()'s
+   oreserved skip, a hero's request, is left to the callers */
+boolean
+m_can_wear_armor(struct monst *mon, struct obj *obj)
+{
+    long flag;
+
+    if (obj->oclass != ARMOR_CLASS)
+        return FALSE;
+    if (r_verysmall(mon) || nohands(mon->data) || is_animal(mon->data)
+        || is_ent(mon->data) || is_plant(mon->data) || mindless(mon->data))
+        return FALSE;
+    if (mon_hates_material(mon, obj->material))
+        return FALSE;
+    flag = armcat_to_wornmask(armcat_of(obj));
+    if (!m_slot_usable(mon, flag))
+        return FALSE;
+    /* a body that can't wear suits takes only its race's exceptions */
+    return m_armor_candidate(mon, obj, flag, FALSE,
+                             (flag == W_ARM && cantweararm(mon)));
+}
+
+/* find_best_armor_recurse()'s item tests: is armor 'obj' one that 'mon'
+   would put on in slot 'flag'? m_dowear() has already ruled on the slot
+   itself (m_slot_usable()) */
+staticfn boolean
+m_armor_candidate(
+    struct monst *mon,
+    struct obj *obj,
+    long flag,               /* wornmask value */
+    boolean creation,        /* mon is being created */
+    boolean racialexception) /* small monsters that are allowed for player
+                              * races (gnomes) can wear suits */
+{
+    switch (flag) {
+    case W_ARMU:
+        if (!is_shirt(obj))
+            return FALSE;
+        break;
+    case W_ARMC:
+        if (!is_cloak(obj))
+            return FALSE;
+        /* the hero's rule in canwearobj() (u_body_armor_misfit()): a
+           monster that can't wear body armor fits an ordinary cloak only
+           when small, and a mummy wrapping as WrappingAllowed() says; the
+           race's size counts, and a centaur or drider wears any cloak */
+        if (cantweararm(mon)
+            && ((obj->otyp != MUMMY_WRAPPING)
+                    ? r_data(mon)->msize != MZ_SMALL
+                    : !WrappingAllowed(r_data(mon))))
+            return FALSE;
+        /* avoid mummy wrapping if it will allow hero to see mon (unless
+           this is a new mummy; an invisible one is feasible via ^G) */
+        if (mon->minvis && w_blocks(obj, W_ARMC) == INVIS
+            && !See_invisible && !creation)
+            return FALSE;
+        break;
+    case W_ARMH:
+        if (!is_helmet(obj))
+            return FALSE;
+        /* changing alignment is not implemented for monsters;
+           priests and minions could change alignment but wouldn't
+           want to, so they reject helms of opposite alignment */
+        if (obj->otyp == HELM_OF_OPPOSITE_ALIGNMENT
+            && (mon->ispriest || mon->isminion))
+            return FALSE;
+        /* (flimsy exception matches polyself handling) */
+        if (has_horns(mon->data) && !is_flimsy(obj))
+            return FALSE;
+        break;
+    case W_ARMS:
+        if (!(is_shield(obj) || is_bracer(obj)))
+            return FALSE;
+        /* bracers leave the hands free; a proper shield can't be
+           used together with a two-handed weapon */
+        if (!is_bracer(obj)
+            && MON_WEP(mon) && mon_bimanual(mon, MON_WEP(mon)))
+            return FALSE;
+        break;
+    case W_ARMG:
+        if (!is_gloves(obj) || obj->otyp == MUMMIFIED_HAND)
+            return FALSE;
+        break;
+    case W_ARMF:
+        if (!is_boots(obj))
+            return FALSE;
+        break;
+    case W_ARM:
+        if (!is_suit(obj))
+            return FALSE;
+        if (racialexception && (racial_exception(mon, obj) < 1))
+            return FALSE;
+        /* wings must fit through the armor; dragon-scaled armor
+           and jackets accommodate them */
+        if (big_wings(mon->data) && !Is_dragon_scales(obj)
+            && obj->otyp != JACKET)
+            return FALSE;
+        break;
+    default:
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /* recursive helper to find the best wearable item, including in
@@ -1410,66 +1546,14 @@ find_best_armor_recurse(
             }
             continue; /* skip post-switch armor handling */
         case W_ARMU:
-            if (!is_shirt(obj))
-                continue;
-            break;
         case W_ARMC:
-            if (!is_cloak(obj))
-                continue;
-            /* the hero's rule in canwearobj(): a monster that can't wear
-               body armor fits an ordinary cloak only when small, and a
-               mummy wrapping as WrappingAllowed() says; the race's size
-               counts, and a centaur or drider wears any cloak */
-            if (cantweararm(mon)
-                && ((obj->otyp != MUMMY_WRAPPING)
-                        ? r_data(mon)->msize != MZ_SMALL
-                        : !WrappingAllowed(r_data(mon))))
-                continue;
-            /* avoid mummy wrapping if it will allow hero to see mon (unless
-               this is a new mummy; an invisible one is feasible via ^G) */
-            if (mon->minvis && w_blocks(obj, W_ARMC) == INVIS
-                && !See_invisible && !creation)
-                continue;
-            break;
         case W_ARMH:
-            if (!is_helmet(obj))
-                continue;
-            /* changing alignment is not implemented for monsters;
-               priests and minions could change alignment but wouldn't
-               want to, so they reject helms of opposite alignment */
-            if (obj->otyp == HELM_OF_OPPOSITE_ALIGNMENT
-                && (mon->ispriest || mon->isminion))
-                continue;
-            /* (flimsy exception matches polyself handling) */
-            if (has_horns(mon->data) && !is_flimsy(obj))
-                continue;
-            break;
         case W_ARMS:
-            if (!(is_shield(obj) || is_bracer(obj)))
-                continue;
-            /* bracers leave the hands free; a proper shield can't be
-               used together with a two-handed weapon */
-            if (!is_bracer(obj)
-                && MON_WEP(mon) && mon_bimanual(mon, MON_WEP(mon)))
-                continue;
-            break;
         case W_ARMG:
-            if (!is_gloves(obj) || obj->otyp == MUMMIFIED_HAND)
-                continue;
-            break;
         case W_ARMF:
-            if (!is_boots(obj))
-                continue;
-            break;
         case W_ARM:
-            if (!is_suit(obj))
-                continue;
-            if (racialexception && (racial_exception(mon, obj) < 1))
-                continue;
-            /* wings must fit through the armor; dragon-scaled armor
-               and jackets accommodate them */
-            if (big_wings(mon->data) && !Is_dragon_scales(obj)
-                && obj->otyp != JACKET)
+            if (!m_armor_candidate(mon, obj, flag, creation,
+                                   racialexception))
                 continue;
             break;
         case W_RINGL:

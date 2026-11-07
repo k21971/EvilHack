@@ -854,6 +854,7 @@ extern int cursed(struct obj *, boolean);
 extern int armoroff(struct obj *);
 extern boolean will_touch_skin(long);
 extern int canwearobj(struct obj *, long *, boolean) NONNULLPTRS;
+extern boolean u_can_wear_armor(struct obj *) NONNULLARG1;
 /* designate_altshield() accepts NULL: clear the mark without setting one */
 extern void designate_altshield(struct obj *) NO_NNARGS;
 extern int doshield(void);
@@ -4460,6 +4461,7 @@ extern boolean worn_gear_grants(struct monst *, int, struct obj *) NONNULLARG1;
 extern struct obj *armor_blocker(struct monst *, int *, int) NONNULLPTRS;
 extern int find_mac(struct monst *) NONNULLARG1;
 extern void m_dowear(struct monst *, boolean) NONNULLARG1;
+extern boolean m_can_wear_armor(struct monst *, struct obj *) NONNULLARG12;
 extern struct obj *which_armor(struct monst *, long) NONNULLARG1;
 extern void mon_break_armor(struct monst *, boolean) NONNULLARG1;
 extern void bypass_obj(struct obj *) NONNULLARG1;

@@ -32,36 +32,33 @@ staticfn boolean is_chargeable(struct obj *) NONNULLARG1;
 staticfn boolean
 is_better_armor(struct monst *mtmp, struct obj *otmp)
 {
-    struct obj *obj;
+    struct obj *obj, *old;
     struct obj *best = (struct obj *) 0;
 
     if (otmp->oclass != ARMOR_CLASS)
         return FALSE;
 
-    if (cantweararm(mtmp)
-        && !(is_cloak(otmp) && mtmp->data->msize == MZ_SMALL))
-        return FALSE;
-
-    if (is_shirt(otmp) && (mtmp->misc_worn_check & W_ARM))
-        return FALSE;
-
-    if (is_shield(otmp)
-        && ((mtmp == &gy.youmonst)
-               ? (uwep && bimanual(uwep))
-               : (MON_WEP(mtmp) && mon_bimanual(mtmp, MON_WEP(mtmp)))))
-        return FALSE;
-
-    if (is_gloves(otmp) && nohands(mtmp->data))
-        return FALSE;
-
-    if (is_boots(otmp)
-        && (slithy(mtmp->data) || mtmp->data->mlet == S_CENTAUR))
-        return FALSE;
-
-    if (is_helmet(otmp)
-        && !is_flimsy(otmp)
-        && num_horns(mtmp->data) > 0)
-        return FALSE;
+    if (mtmp == &gy.youmonst) {
+        /* the hero's own wear rules */
+        if (!u_can_wear_armor(otmp))
+            return FALSE;
+        /* as canwearobj(): no shield beside a two-handed weapon or two
+           weapons; bracers leave the hands free */
+        if (is_shield(otmp) && !is_bracer(otmp)
+            && ((uwep && bimanual(uwep)) || u.twoweap))
+            return FALSE;
+    } else {
+        /* armor m_dowear() will never put on is no use to the pet */
+        if (!m_can_wear_armor(mtmp, otmp))
+            return FALSE;
+        /* nor will it put a shirt on under a worn suit, or take off a
+           cursed item to make room */
+        if (is_shirt(otmp) && (mtmp->misc_worn_check & W_ARM))
+            return FALSE;
+        old = which_armor(mtmp, armcat_to_wornmask(armcat_of(otmp)));
+        if (old && old->cursed)
+            return FALSE;
+    }
 
     obj = (mtmp == &gy.youmonst) ? gi.invent : mtmp->minvent;
 
