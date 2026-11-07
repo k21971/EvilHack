@@ -2924,13 +2924,27 @@ dodip(void)
                         You("see something moving under the surface and"
                             " abruptly pull away your %s.", xname(obj));
                     } else if (obj_resists(obj, 0, 0) || obj == uball
-                               || (is_worn(obj) && obj->cursed)) {
+                               || (is_worn(obj) && obj->cursed)
+                               /* embedded scales and the merged Hand of
+                                  Vecna can't be taken off */
+                               || obj == uskin
+                               || (obj == uarmg
+                                   && is_art(obj, ART_HAND_OF_VECNA))) {
                         obj->pickup_prev = 0;
                         pline("A creature hiding under the surface tries"
                               " to grab your %s, but cannot!", xname(obj));
                     } else {
                         pline("Without warning, a creature hiding in the"
                               " muck snatches away your %s!", xname(obj));
+                        if (obj->owornmask) {
+                            /* take it off properly first; that can drown
+                               a submerged hero or land a flying one while
+                               this is still held, so either waits until
+                               it is gone */
+                            iflags.in_lava_effects++;
+                            remove_worn_item(obj, FALSE);
+                            iflags.in_lava_effects--;
+                        }
                         useupall(obj);
                     }
                 } else if (is_hands || obj == uarmg) {
