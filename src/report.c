@@ -419,6 +419,13 @@ printf("ShellExecute returned: %p\n",rv);   // >32 is ok
         extern char **environ;
         if (pid == 0) {
             char err[400];
+
+            /* run the browser opener without the game's privileges;
+               checked before stderr can be closed below */
+            if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+                perror("Failed to drop privileges");
+                exit(1);
+            }
 #  ifdef CRASHREPORT_EXEC_NOSTDERR
             int devnull;
                 /* Keep the output clean - firefox spews useless errors on

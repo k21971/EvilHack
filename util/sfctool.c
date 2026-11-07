@@ -813,8 +813,11 @@ chdirx(const char *dir, boolean wr UNUSED)
 {
     if (dir) {
 #ifdef SECURE
-        (void) setgid(getgid());
-        (void) setuid(getuid()); /* Ron Wessels */
+        /* Ron Wessels */
+        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+            perror("Failed to drop privileges");
+            exit(EXIT_FAILURE);
+        }
 #endif
     } else {
         /* non-default data files is a sign that scores may not be

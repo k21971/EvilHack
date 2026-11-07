@@ -467,8 +467,11 @@ chdirx(const char *dir, boolean wr)
 #endif
         ) {
 #ifdef SECURE
-        (void) setgid(getgid());
-        (void) setuid(getuid()); /* Ron Wessels */
+        /* Ron Wessels */
+        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+            perror("Failed to drop privileges");
+            nh_terminate(EXIT_FAILURE);
+        }
 #endif
     } else {
         /* non-default data files is a sign that scores may not be
@@ -748,9 +751,11 @@ sys_random_seed(void)
 
     fptr = fopen(DEV_RANDOM, "r");
     if (fptr) {
-        fread(&seed, sizeof (long), 1, fptr);
-        has_strong_rngseed = TRUE;  /* decl.c */
-        no_seed = FALSE;
+        /* a short read leaves the weak seed below in charge */
+        if (fread(&seed, sizeof (long), 1, fptr) == 1) {
+            has_strong_rngseed = TRUE;  /* decl.c */
+            no_seed = FALSE;
+        }
         (void) fclose(fptr);
     } else {
         /* leaves clue, doesn't exit */

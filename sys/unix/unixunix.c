@@ -368,11 +368,14 @@ child(int wt)
 #ifdef CHDIR
         const char *home = getenv("HOME");
 #endif
-        (void) setgid(getgid());
-        (void) setuid(getuid());
+        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+            perror("Failed to drop privileges");
+            nh_terminate(EXIT_FAILURE);
+        }
 #ifdef CHDIR
-        if (home)
-            (void) chdir(home);
+        if (home && chdir(home) == -1) {
+            /* not fatal: the child starts in the playground */
+        }
 #endif
         return 1;
     }
