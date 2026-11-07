@@ -201,6 +201,8 @@ do_statusline2(void)
         Sprintf(nb = eos(nb), " %s", hu_stat[u.uhs]);
     if ((cap = near_capacity()) > UNENCUMBERED)
         Sprintf(nb = eos(nb), " %s", enc_stat[cap]);
+    if (Slow)
+        Strcpy(nb = eos(nb), " Slow");
     if (Blind)
         Strcpy(nb = eos(nb), " Blind");
     if (Deaf)
@@ -218,6 +220,8 @@ do_statusline2(void)
         Strcpy(nb = eos(nb), " Fly");
     if (u.usteed)
         Strcpy(nb = eos(nb), " Ride");
+    if (Passes_walls)
+        Strcpy(nb = eos(nb), " Phasing");
     cln = strlen(cond);
 
     /* version on status line, with leading space */
@@ -979,7 +983,7 @@ static struct istat_s initblstats[MAXBLSTATS] = {
 static const struct condmap condition_aliases[] = {
     { "strangled",      BL_MASK_STRNGL },
     { "all",            BL_MASK_BAREH | BL_MASK_BLIND | BL_MASK_BUSY
-                        | BL_MASK_CONF | BL_MASK_DEAF | BL_MASK_ELF_IRON
+                        | BL_MASK_CONF | BL_MASK_DEAF | BL_MASK_PHASING
                         | BL_MASK_FLY | BL_MASK_FOODPOIS | BL_MASK_GLOWHANDS
                         | BL_MASK_GRAB | BL_MASK_HALLU | BL_MASK_HELD
                         | BL_MASK_ICY | BL_MASK_INLAVA | BL_MASK_LEV
@@ -995,8 +999,9 @@ static const struct condmap condition_aliases[] = {
                         | BL_MASK_TERMILL | BL_MASK_WITHER },
     { "minor_troubles", BL_MASK_BLIND | BL_MASK_CONF | BL_MASK_DEAF
                         | BL_MASK_HALLU | BL_MASK_PARLYZ | BL_MASK_SUBMERGED
-                        | BL_MASK_STUN | BL_MASK_SLOW },
-    { "movement",       BL_MASK_LEV | BL_MASK_FLY | BL_MASK_RIDE },
+                        | BL_MASK_STUN },
+    { "movement",       BL_MASK_LEV | BL_MASK_FLY | BL_MASK_RIDE
+                        | BL_MASK_SLOW | BL_MASK_PHASING },
     { "opt_in",         BL_MASK_BAREH | BL_MASK_BUSY | BL_MASK_GLOWHANDS
                         | BL_MASK_HELD | BL_MASK_ICY | BL_MASK_PARLYZ
                         | BL_MASK_SLEEPING | BL_MASK_SLIPPERY
@@ -1016,7 +1021,7 @@ const struct conditions_t conditions[] = {
     { 20, BL_MASK_BUSY,      bl_busy,      { "Busy",     "Bsy",   "By"  } },
     { 10, BL_MASK_CONF,      bl_conf,      { "Conf",     "Cnf",   "Cf"  } },
     { 10, BL_MASK_DEAF,      bl_deaf,      { "Deaf",     "Def",   "Df"  } },
-    { 15, BL_MASK_ELF_IRON,  bl_elf_iron,  { "Iron",     "Irn",   "Fe"  } },
+    { 11, BL_MASK_PHASING,   bl_phasing,   { "Phasing",  "Phase", "Ph"  } },
     { 10, BL_MASK_FLY,       bl_fly,       { "Fly",      "Fly",   "Fl"  } },
     {  6, BL_MASK_FOODPOIS,  bl_foodpois,  { "FoodPois", "Fpois", "Poi" } },
     { 20, BL_MASK_GLOWHANDS, bl_glowhands, { "Glow",     "Glo",   "Gl"  } },
@@ -1055,7 +1060,7 @@ struct condtests_t condtests[CONDITION_COUNT] = {
     { bl_busy,      "busy",        opt_in,  FALSE, FALSE, FALSE },
     { bl_conf,      "conf",        opt_out, TRUE,  FALSE, FALSE },
     { bl_deaf,      "deaf",        opt_out, TRUE,  FALSE, FALSE },
-    { bl_elf_iron,  "iron",        opt_out, TRUE,  FALSE, FALSE },
+    { bl_phasing,   "phasing",     opt_out, TRUE,  FALSE, FALSE },
     { bl_fly,       "fly",         opt_out, TRUE,  FALSE, FALSE },
     { bl_foodpois,  "foodPois",    opt_out, TRUE,  FALSE, FALSE },
     { bl_glowhands, "glowhands",   opt_in,  FALSE, FALSE, FALSE },
@@ -1459,6 +1464,7 @@ bot_via_windowport(void)
     condtests[bl_glowhands].test = (u.umconf) ? TRUE : FALSE;
     condtests[bl_hallu].test     = (Hallucination) ? TRUE : FALSE;
     condtests[bl_lev].test       = (Levitation) ? TRUE : FALSE;
+    condtests[bl_phasing].test   = (Passes_walls) ? TRUE : FALSE;
     condtests[bl_ride].test      = (u.usteed) ? TRUE : FALSE;
     condtests[bl_slime].test     = (Slimed) ? TRUE : FALSE;
     condtests[bl_stone].test     = (Stoned) ? TRUE : FALSE;
@@ -1467,7 +1473,6 @@ bot_via_windowport(void)
     condtests[bl_stun].test      = (Stunned) ? TRUE : FALSE;
     condtests[bl_submerged].test = (Underwater) ? TRUE : FALSE;
     condtests[bl_wither].test    = (Withering) ? TRUE : FALSE;
-    test_if_enabled(bl_elf_iron) = (FALSE);
     test_if_enabled(bl_bareh)    = (!uarmg && !uwep);
     test_if_enabled(bl_icy)      = (levl[u.ux][u.uy].typ == ICE);
     test_if_enabled(bl_slippery) = (Glib) ? TRUE : FALSE;

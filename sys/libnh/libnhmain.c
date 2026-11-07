@@ -1041,7 +1041,7 @@ void js_constants_init() {
     SET_CONSTANT("CONDITION", BL_MASK_BUSY);
     SET_CONSTANT("CONDITION", BL_MASK_CONF);
     SET_CONSTANT("CONDITION", BL_MASK_DEAF);
-    SET_CONSTANT("CONDITION", BL_MASK_ELF_IRON);
+    SET_CONSTANT("CONDITION", BL_MASK_PHASING);
     SET_CONSTANT("CONDITION", BL_MASK_FLY);
     SET_CONSTANT("CONDITION", BL_MASK_FOODPOIS);
     SET_CONSTANT("CONDITION", BL_MASK_GLOWHANDS);
@@ -1134,7 +1134,7 @@ void js_constants_init() {
     SET_CONSTANT("BL_MASK", BL_MASK_BUSY);
     SET_CONSTANT("BL_MASK", BL_MASK_CONF);
     SET_CONSTANT("BL_MASK", BL_MASK_DEAF);
-    SET_CONSTANT("BL_MASK", BL_MASK_ELF_IRON);
+    SET_CONSTANT("BL_MASK", BL_MASK_PHASING);
     SET_CONSTANT("BL_MASK", BL_MASK_FLY);
     SET_CONSTANT("BL_MASK", BL_MASK_FOODPOIS);
     SET_CONSTANT("BL_MASK", BL_MASK_GLOWHANDS);
@@ -1179,7 +1179,7 @@ void js_constants_init() {
     SET_CONSTANT("blconditions", bl_busy);
     SET_CONSTANT("blconditions", bl_conf);
     SET_CONSTANT("blconditions", bl_deaf);
-    SET_CONSTANT("blconditions", bl_elf_iron);
+    SET_CONSTANT("blconditions", bl_phasing);
     SET_CONSTANT("blconditions", bl_fly);
     SET_CONSTANT("blconditions", bl_foodpois);
     SET_CONSTANT("blconditions", bl_glowhands);

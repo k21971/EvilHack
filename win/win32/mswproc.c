@@ -2867,7 +2867,7 @@ static mswin_condition_field _condition_fields[CONDITION_COUNT] = {
     { BL_MASK_BUSY,      "Busy", 0 },
     { BL_MASK_CONF,      "Conf", 0 },
     { BL_MASK_DEAF,      "Deaf", 0 },
-    { BL_MASK_ELF_IRON,  "Iron", 0 },
+    { BL_MASK_PHASING,   "Phasing", 0 },
     { BL_MASK_FLY,       "Fly", 0 },
     { BL_MASK_FOODPOIS,  "FoodPois", 0 },
     { BL_MASK_GLOWHANDS, "Glow", 0 },

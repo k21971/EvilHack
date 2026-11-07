@@ -4425,7 +4425,7 @@ tty_status_enablefield(
  *               BL_MASK_BUSY         0x00000004L
  *               BL_MASK_CONF         0x00000008L
  *               BL_MASK_DEAF         0x00000010L
- *               BL_MASK_ELF_IRON     0x00000020L
+ *               BL_MASK_PHASING      0x00000020L
  *               BL_MASK_FLY          0x00000040L
  *               BL_MASK_FOODPOIS     0x00000080L
  *               BL_MASK_GLOWHANDS    0x00000100L

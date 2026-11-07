@@ -17,8 +17,9 @@
  * longest practical second status line at the moment is
 Astral Plane \GXXXXNNNN:123456 HP:1234(1234) Pw:1234(1234) AC:-127
  MC:3 TH:-99 Xp:30/123456789 T:123456  Stone Slime Strngl FoodPois
- TermIll Wither Satiated Overloaded Blind Deaf Stun Conf Hallu Lev Ride
- * -- or about 205 characters, plus the version when 'showvers' is set.
+ TermIll Wither Satiated Overloaded Slow Blind Deaf Stun Conf Hallu Lev
+ Ride Phasing
+ * -- or about 216 characters, plus the version when 'showvers' is set.
  * '$' gets encoded even when it could be used as-is. The first five
  * status conditions are fatal so it's rare to have more than one at
  * a time.
@@ -75,7 +76,9 @@ enum blconditions {
     bl_busy,
     bl_conf,
     bl_deaf,
-    bl_elf_iron,
+    /* in the slot of 5.0's elf_iron, which nothing ever set: all 32 bits
+       of the condition mask are taken and a bit is 1 << its enum value */
+    bl_phasing,
     bl_fly,
     bl_foodpois,
     bl_glowhands,
@@ -114,7 +117,7 @@ enum blconditions {
 #define BL_MASK_BUSY         0x00000004L
 #define BL_MASK_CONF         0x00000008L
 #define BL_MASK_DEAF         0x00000010L
-#define BL_MASK_ELF_IRON     0x00000020L
+#define BL_MASK_PHASING      0x00000020L
 #define BL_MASK_FLY          0x00000040L
 #define BL_MASK_FOODPOIS     0x00000080L
 #define BL_MASK_GLOWHANDS    0x00000100L

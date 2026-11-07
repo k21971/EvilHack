@@ -105,7 +105,7 @@
 #define F_PARALYZED 49
 #define F_SLEEPING 50
 #define F_UNCONSCIOUS 51
-#define F_IRON     52
+#define F_PHASING  52
 #define F_SLIPPERY 53
 #define F_SUBMERGED 54
 #define F_WOUNDEDL 55
@@ -463,7 +463,7 @@ X11_status_update_fancy(
         { BL_MASK_PARLYZ, F_PARALYZED },
         { BL_MASK_SLEEPING, F_SLEEPING },
         { BL_MASK_UNCONSC, F_UNCONSCIOUS },
-        { BL_MASK_ELF_IRON, F_IRON },
+        { BL_MASK_PHASING, F_PHASING },
         { BL_MASK_SLIPPERY, F_SLIPPERY },
         { BL_MASK_SUBMERGED, F_SUBMERGED },
         { BL_MASK_WOUNDEDL, F_WOUNDEDL },
@@ -1447,7 +1447,7 @@ static struct X_status_value shown_stats[NUM_STATS] = {
     { "Paralyzed",    SV_NAME,  W0,   0L, 0, FALSE, TRUE,  FALSE, P0, 0, 0 },
     { "Sleeping",     SV_NAME,  W0,   0L, 0, FALSE, TRUE,  FALSE, P0, 0, 0 },
     { "Unconsc",      SV_NAME,  W0,   0L, 0, FALSE, TRUE,  FALSE, P0, 0, 0 },
-    { "ElfIron",      SV_NAME,  W0,   0L, 0, FALSE, TRUE,  FALSE, P0, 0, 0 },
+    { "Phasing",      SV_NAME,  W0,   0L, 0, FALSE, TRUE,  FALSE, P0, 0, 0 },
     { "Slippery",     SV_NAME,  W0,   0L, 0, FALSE, TRUE,  FALSE, P0, 0, 0 },
     { "Submerged",    SV_NAME,  W0,   0L, 0, FALSE, TRUE,  FALSE, P0, 0, 0 },
     { "HurtLegs",     SV_NAME,  W0,   0L, 0, FALSE, TRUE,  FALSE, P0, 0, 0 },
@@ -1458,7 +1458,6 @@ static struct X_status_value shown_stats[NUM_STATS] = {
  * The following are supported by the core but not yet handled here:
  *  bareh      'bare handed' (no weapon and no gloves)
  *  busy       involved in some multi-turn activity, possibly involuntarily
- *  elf_iron   elf being harmed by contact with iron (not implemented)
  *  glowhands  'glowing hands' (inflict confuse monster for next N melee hits)
  *  icy        on or above ice terrain (temporary fumbling; might melt)
  *  parlyz     paralyzed (can't move)
@@ -2003,8 +2002,8 @@ update_fancy_status_field(int i, const char *valstr, int color, int attributes)
         case F_UNCONSCIOUS:
             condmask = BL_MASK_UNCONSC;
             break;
-        case F_IRON:
-            condmask = BL_MASK_ELF_IRON;
+        case F_PHASING:
+            condmask = BL_MASK_PHASING;
             break;
         case F_SLIPPERY:
             condmask = BL_MASK_SLIPPERY;
@@ -2220,7 +2219,7 @@ width_string(int sv_index)
     case F_PARALYZED:
     case F_SLEEPING:
     case F_UNCONSCIOUS:
-    case F_IRON:
+    case F_PHASING:
     case F_SLIPPERY:
     case F_SUBMERGED:
     case F_WOUNDEDL:
@@ -2454,7 +2453,7 @@ init_column(
  Gold         [Score]       Wisdom        Flying       Food-Pois   Confused
   <>          [Time]        Charisma      Riding       Term-Ill    Hallucinat
  BareHands     <>            <>           HurtLegs     Sinking     GlowHands
- Weapon       Armor         Terrain       Elf-Iron     Busy        Icy
+ Weapon       Armor         Terrain       Phasing      Busy        Icy
   <>           <>            <>           Slippery     Submerged       Version
  *
  * A seventh column is going to be needed to fit in more conditions.
@@ -2467,7 +2466,7 @@ init_column(
    updated, that shouldn't matter */
 static int status_indices[][13] = {
     { F_DUMMY, F_HUNGER, F_ENCUMBER, F_TRAPPED,
-      F_LEV, F_FLY, F_RIDE, F_WOUNDEDL, F_IRON, F_SLIPPERY,
+      F_LEV, F_FLY, F_RIDE, F_WOUNDEDL, F_PHASING, F_SLIPPERY,
       -1, 0, 0 },
     { F_DUMMY, F_GRABBED, F_STONE, F_SLIME, F_STRNGL,
       F_FOODPOIS, F_TERMILL, F_IN_LAVA, F_BUSY, F_SUBMERGED,

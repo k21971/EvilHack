@@ -523,6 +523,7 @@ fix_worst_trouble(int trouble)
                stuck in an infinite loop trying to fix STUCK_IN_WALL
                and repeatedly failing. */
             set_itimeout(&HPasses_walls, (long) (d(4, 4) + 4)); /* 8..20 */
+            disp.botl = TRUE; /* show the Phasing status condition */
             /* how else could you move between packed rocks or among
                lattice forming "solid" rock? */
             You_feel("much slimmer.");

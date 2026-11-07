@@ -4530,6 +4530,7 @@ invoke_phasing(struct obj *obj)
     else
         You_feel("one with the spirit world.");
     incr_itimeout(&HPasses_walls, 50 + rnd(100));
+    disp.botl = TRUE; /* show the Phasing status condition */
     obj->age += HPasses_walls; /* time begins after phasing ends */
     if (u.uswallow) {
         struct monst *mon = u.ustuck;

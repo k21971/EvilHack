@@ -60,7 +60,7 @@ const struct propname propertynames[] = {
     { DISPLACED, "displaced" },
     /* timed pass-walls is a potential prayer result if surrounded by stone
        with nowhere to be safely teleported to */
-    { PASSES_WALLS, "pass thru walls" },
+    { PASSES_WALLS, "phasing" },
     /* likewise for magical breathing vs poison gas regions */
     { MAGICAL_BREATHING, "magical breathing" },
     /* timed fire resistance and water walking are possible in explore mode
@@ -1042,6 +1042,9 @@ nh_timeout(void)
                 }
                 break;
             case PASSES_WALLS:
+                /* an earlier expiry's pline this turn may have spent the
+                   status refresh while phasing was still on */
+                disp.botl = TRUE;
                 if (!Passes_walls) {
                     if (stuck_in_wall())
                         You_feel("hemmed in again.");
