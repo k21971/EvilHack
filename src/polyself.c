@@ -400,7 +400,9 @@ polyman(const char *fmt, const char *arg)
     boolean sticking = (sticks(gy.youmonst.data) && u.ustuck && !u.uswallow),
             was_mimicking = (U_AP_TYPE != M_AP_NOTHING);
     boolean was_blind = !!Blind,
-            had_see_invis = !!See_invisible;
+            had_see_invis = !!See_invisible,
+            /* the normal form can start or stop underwater vision */
+            old_uwvis = (Underwater && See_underwater);
     /* the form's wings while polymorphed, else the normal body's */
     boolean had_wings = u_big_wings(), wings_news;
 
@@ -495,6 +497,11 @@ polyman(const char *fmt, const char *arg)
     if (!Levitation && !u.ustuck && is_pool_or_lava(u.ux, u.uy))
         spoteffects(TRUE);
 
+    /* as in polymon(): redraw for a change in underwater sight */
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
     see_monsters();
 }
 
@@ -718,8 +725,6 @@ druid_wildshape(void)
                      : (u.ualign.abuse < 30) ? 500
                        : (u.ualign.abuse < 50) ? 1000
                          : 2000);
-    /* a form change can start or stop underwater vision */
-    boolean old_uwvis = (Underwater && See_underwater);
 
     if (Unchanging) {
         You("fail to transform!");
@@ -779,11 +784,6 @@ druid_wildshape(void)
         /* player hit ESC/did not make a selection */
         return;
     }
-
-    if (old_uwvis != (Underwater && See_underwater)) {
-        vision_reset();
-        docrt();
-    }
     return;
 }
 
@@ -804,8 +804,6 @@ vampire_shapechange(void)
                      : (u.ualign.abuse < 30) ? 500
                        : (u.ualign.abuse < 50) ? 1000
                          : 2000);
-    /* a form change can start or stop underwater vision */
-    boolean old_uwvis = (Underwater && See_underwater);
 
     if (Unchanging) {
         You("fail to transform!");
@@ -849,10 +847,6 @@ vampire_shapechange(void)
         return;
     }
 
-    if (old_uwvis != (Underwater && See_underwater)) {
-        vision_reset();
-        docrt();
-    }
     /* only remove racial flying if we're polymorphed and the new form
        can't fly, but preserve it for vampires that naturally gain
        flying at level twelve */
@@ -885,9 +879,7 @@ polyself(int psflags)
             isvamp = (is_vampire(gy.youmonst.data)
                       || is_vampshifter(&gy.youmonst)
                       || (!Upolyd && Race_if(PM_VAMPIRE))),
-            controllable_poly = Polymorph_control && !(Stunned || Unaware),
-            /* a form change can start or stop underwater vision */
-            old_uwvis = (Underwater && See_underwater);
+            controllable_poly = Polymorph_control && !(Stunned || Unaware);
 
     if (Unchanging) {
         You("fail to transform!");
@@ -1156,10 +1148,6 @@ polyself(int psflags)
     gs.sex_change_ok--; /* reset */
 
  made_change:
-    if (old_uwvis != (Underwater && See_underwater)) {
-        vision_reset();
-        docrt();
-    }
     new_light = emits_light(gy.youmonst.data);
     if (old_light != new_light) {
         if (old_light)
@@ -1206,7 +1194,9 @@ polymon(int mntmp)
     char buf[BUFSZ], ustuckNam[BUFSZ];
     boolean sticking = sticks(gy.youmonst.data) && u.ustuck && !u.uswallow,
             was_blind = !!Blind, dochange = FALSE, was_expelled = FALSE,
-            was_hiding_under = u.uundetected && hides_under(gy.youmonst.data);
+            was_hiding_under = u.uundetected && hides_under(gy.youmonst.data),
+            /* a form change can start or stop underwater vision */
+            old_uwvis = (Underwater && See_underwater);
     int mlvl, newMaxStr;
 
     if (svm.mvitals[mntmp].mvflags & G_GENOD) { /* allow G_EXTINCT */
@@ -1574,6 +1564,13 @@ polymon(int mntmp)
 
     disp.botl = TRUE;
     gv.vision_full_recalc = 1;
+    /* gaining or losing underwater sight switches the map between the
+       submerged three-by-three and the ordinary view; a recursive call
+       below redraws for its own change */
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
     see_monsters();
     encumber_msg();
 
@@ -2081,8 +2078,6 @@ rehumanize(void)
 {
     boolean was_flying = (Flying != 0),
             was_not_flying = !was_flying;
-    /* a form change can start or stop underwater vision */
-    boolean old_uwvis = (Underwater && See_underwater);
 
     /* You can't revert back while unchanging */
     if (Unchanging) {
@@ -2150,10 +2145,6 @@ rehumanize(void)
 
     disp.botl = TRUE;
     gv.vision_full_recalc = 1;
-    if (old_uwvis != (Underwater && See_underwater)) {
-        vision_reset();
-        docrt();
-    }
     encumber_msg();
     update_inventory();
     /* if the original form had intrinsic flying, give it back; the

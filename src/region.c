@@ -1414,9 +1414,16 @@ region_safety(void)
         /* maybe there's no safe place available; must get hero out of danger
            or prayer's "fix all troubles" result will get stuck in a loop */
         if (region_danger()) {
+            /* timed breathing lets a swimming hero see while submerged */
+            boolean old_uwvis = (Underwater && See_underwater);
+
             set_itimeout(&HMagical_breathing, (long) (d(4, 4) + 4));
             /* not already Breathless or wouldn't be in region danger */
             You_feel("able to breathe.");
+            if (old_uwvis != (Underwater && See_underwater)) {
+                vision_reset();
+                docrt();
+            }
         }
     } else if (r) {
         remove_region(r);

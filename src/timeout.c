@@ -501,8 +501,6 @@ staticfn void
 slimed_to_death(struct kinfo *kptr)
 {
     uchar save_mvflags;
-    /* a form change can start or stop underwater vision */
-    boolean old_uwvis = (Underwater && See_underwater);
 
     /* redundant: polymon() cures sliming when polying into green slime */
     if (Upolyd && gy.youmonst.data == &mons[PM_GREEN_SLIME]) {
@@ -538,10 +536,6 @@ slimed_to_death(struct kinfo *kptr)
     /* become a green slime; also resets youmonst.m_ap_type+.mappearance */
     (void) polymon(PM_GREEN_SLIME);
     svm.mvitals[PM_GREEN_SLIME].mvflags = save_mvflags;
-    if (old_uwvis != (Underwater && See_underwater)) {
-        vision_reset();
-        docrt();
-    }
     done_timeout(TURNED_SLIME, SLIMED);
 
     /* life-saved; even so, hero still has turned into green slime;
@@ -1061,6 +1055,12 @@ nh_timeout(void)
                     if (region_danger())
                         You("cough%s",
                             Poison_resistance ? "." : " and spit blood!");
+                }
+                /* the timed breathing was what let a swimming hero see
+                   while submerged; with it gone, so is that sight */
+                if (Underwater && HSwimming && !See_underwater) {
+                    vision_reset();
+                    docrt();
                 }
                 break;
             case STRANGLED:
