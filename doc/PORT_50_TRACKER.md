@@ -17,11 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-07, after session 304's
-  master hardening slice, which closed two Phase 6 rows and minted
-  one, so the Phase 2 counts are unchanged since session 303's
-  Phasing slice):
-  662 rows closed, 53 open
+- Phase 2 status (refreshed 2026-11-07, after session 305's
+  pet-armor slice, which closed one Phase 2 LOW row and minted
+  one):
+  663 rows closed, 53 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -383,6 +382,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 49 LOW: small parity rows, quirks and watch/record-only items.
+    Session 305 closed the pet mummy wrapping row (BUG-2906..2910):
+    a pet now wants exactly the armor m_dowear() would put on it
+    (helmets, gloves, boots and shields for gnomes, ogres, giants and
+    the like; a giant's mummy wrapping; a racially small pet's cloak;
+    a hobbit's elven mail) and no longer hoards armor it can't wear,
+    and the "leave it for the hero" test follows canwearobj(). It
+    minted a LOW for mmake_wish()'s own armor rules.
     Session 304 closed no Phase 2 row; in Phase 6 it closed the
     master 3ce940b8c privilege-drop row and the set_whereisfile()
     BUG-603 row (BUG-2895..2905): every privilege drop is checked
@@ -3796,8 +3802,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       wild-shaped wolf a hill giant PRE put on ring mail
       (breakarm 0), POST refused (breakarm 1), natural form both
       refuse.
-- [ ] LOW: a pet never counts a mummy wrapping as better armor (minted
-      2026-10-30, session 276, the code reviewer's LOW; master's shape,
+- [x] LOW: a pet never counts a mummy wrapping as better armor -
+      FIXED 2026-11-07 (session 305, commit `Fix: pets want the armor
+      they would actually wear.` = COMMIT_C1; BUG-2906..2910; closure
+      notes at the end of this row; minted 2026-10-30, session 276,
+      the code reviewer's LOW; master's shape,
       record). dogmove.c is_better_armor() turns down any armor for a
       cantweararm() pet unless it is a cloak and the pet's own
       data->msize is MZ_SMALL - master's test, with no race and no
@@ -3805,6 +3814,76 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mummy wrapping that m_dowear() would put on it (5.0's wrapping,
       kept 2026-09-29). Align it with find_best_armor_recurse()'s rule
       if it matters in play.
+      CLOSURE (session 305; rulings 2026-11-07, decisions log). The
+      gate (GruntHack import 5a95ce355, 2019; 1e835fae5 made
+      cantweararm() race-aware but left the size read on mtmp->data)
+      disagreed with m_dowear() / find_best_armor_recurse() in both
+      directions. Too strict: it refused EVERY slot to a pet that
+      can't wear body armor (gnomes, hobbits, kobolds, goblins, ogres,
+      trolls, giants never sought helmets, gloves, boots or shields),
+      read the base monster's size (a gnome-race soldier never wanted
+      a cloak), had no wrapping arm and no RACE_EXCEPTION suit (a
+      hobbit never wanted elven chain mail). Too loose: it wanted, and
+      droppables() then kept, armor m_dowear() never wears - hated
+      material, big-wing suits, drider / centaur-race boots, the
+      mummified hand, HoOA for minions, a wrapping on an invisible pet
+      the hero can't see, an upgrade for a slot a cursed item holds -
+      and refused bracers beside a two-hander. The hero arm (pets
+      leave the hero's upgrades) used the same gate, so a giant or
+      tortle hero's non-greedy pets claimed helmets, gloves, shields,
+      boots and wrappings the hero could wear, while a centaur hero's
+      pets left boots the hero can't.
+      Fix (ruled full match + canwearobj()): worn.c m_slot_usable()
+      (m_dowear()'s slot gates) and m_armor_candidate()
+      (find_best_armor_recurse()'s item tests) are shared, with no
+      change in what monsters wear; new m_can_wear_armor() asks them
+      for a pet (plus hated material and m_dowear()'s refusals);
+      do_wear.c u_body_armor_misfit() is shared with canwearobj() and
+      new u_can_wear_armor() holds the hero's lasting limits (a druid
+      wildshape / vampire shift form keeps counting as able to wear
+      gear, ruled); is_better_armor() adds the cursed-slot and
+      shirt-under-suit refusals for pets and the bracer exemption plus
+      u.twoweap for the hero. Greedy pets keep could_use_item()'s
+      early return (ruled): they skip the hero test.
+      Batteries (PRE 712df543, POST cd0b551c; all paniclogs empty):
+      T1 P (is_better_armor(pet)) PRE 0 / POST 1 for hill giant +
+      mummy wrapping, gnome noble + dwarvish helm, ogre + gloves,
+      gnome-race and giant-race soldiers (cloak, wrapping), hobbit +
+      elven chain mail; dwarf + helm 1 / 1 and giant + cloak 0 / 0
+      controls. Live (one pet, inventory emptied, the item alone on a
+      lit square): POST hill giant and gnome lord picked up and put on
+      the item in 3-10 turns (PRE did too: an empty-handed pet fetches
+      anything by the apport roll; a first run failed because the
+      pet's own wand / gold lay on top - dog_invent() reads only the
+      top object). T2 P PRE 1 / POST 0 for a Woodland-elf + iron
+      orcish helm (leather 1 / 1), Angel + plate mail (jacket 1 / 1),
+      drider + leather boots, a dwarf's cursed worn helm vs +2 (1 / 1
+      uncursed), a soldier's cursed bracers vs a +5 shield, an
+      invisible soldier + wrapping (1 / 1 with see invisible); bracers
+      beside a two-hander 0 / 1, small shield 0 / 0; invisible hill
+      giant 0 / 0, with see invisible 0 / 1. Live drop: PRE elf kept
+      an unworn iron helm 104 turns, POST dropped it within 8. T3 H
+      (hero arm) PRE 0 / POST 1 for a giant Valkyrie's helm, wrapping,
+      gloves, high boots, chromatic dragon scales (plate mail and
+      cloak 0 / 0); centaur boots 1 / 0; tortle Samurai helm 0 / 1
+      (boots 0 / 0); human bracers with a two-hander 0 / 1, shield
+      while two-weaponing 1 / 0; druid wolf wildshape helm 1 / 1,
+      gloves 0 / 1 (ruled), boots 1 / 1; ordinary wolf polymorph 0 / 0.
+      Hero W messages, creation wear (wrapped mummies, armored
+      soldiers, hobbit in elven chain mail, gnome cloak, two-hander +
+      bracers vs shield, giant wrapping vs cloak) identical PRE / POST.
+      MASTER (scratch build): giant + wrapping and gnome noble + helm
+      P 0; master's m_dowear() puts no wrapping on a hill giant.
+      Residue, no row: accessory_or_armor_on()'s retouch_object()
+      refusal (silver for a silver-hating hero, bane artifacts) sits
+      outside canwearobj(), so the hero test ignores it; the Purity
+      gauntlets test carries !wizard (code read only).
+- [ ] LOW: muse.c's monster wish code has its own armor rules (minted
+      2026-11-07, session 305, Plan stress test). mmake_wish()'s armor
+      picks (cantweararm() / sliparm() tests) refuse helmets to small
+      monsters that m_dowear() would dress, and their boot choices
+      ignore slithy / centaur / drider / tortle bodies. Candidate: ask
+      m_can_wear_armor() (worn.c) per pick. Master-shaped. LOW.
 - [ ] LOW watch: Racial monsters live-coverage residue (minted
       2026-10-19 by the umbrella audit; static and reviewer checks
       only): drow temple darkening, gnome Int / nymph Cha quotes and
@@ -29776,6 +29855,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       attacked pets and a magic beam trap whose missile bounced at
       T:11-12. Trace whether a trap's or a pet's hit is blamed on the
       hero (abuse -> untame). LOW (needs a trace).
+      LEAD (session 305 battery, both builds): the moveloop pet cap in
+      allmain.c (master's design) untames the weakest pets silently
+      while more than ACURR(A_CHA) / 3 are on the level (1 in 3, or by
+      abuse, also turn hostile); T1 / T2 saw gnomes, ogres, hobbits,
+      dwarves and elves go tame 0 within a turn or two while the
+      high-level hill giants stayed. Two pets need Cha under 6 to trip
+      it; check that battery's Cha before closing as by design.
 - [x] LOW: an Infidel's game opens with "You were wearing the Amulet
       of Yendor.  a - the Amulet of Yendor (being worn)." at T:1
       (minted 2026-10-05, session 185, battery C observation; seen on
@@ -37630,6 +37716,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit COMMIT_C1; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
 | 2026-11-07 | Phasing status slice (Phase 2 session 303, AskUserQuestion x4 with 7 questions - one a battery launch ask - all as recommended). (1) SLICE: master's Phasing status condition (the pet mummy wrapping, the master hardening pair and the session 302 record pair not taken). (2) MASK ROOM: Phasing takes the in-place slot of 5.0's never-set elf_iron condition; the iron hilite name and cond_iron option go (rejected: widen the mask to 64 bits across the window interface, now a Phase 4 row; take the opt-in Bare slot). (3) GROUPS: master's exactly - movement = Lev Fly Ride Slow Phasing, Slow out of minor_troubles (rejected: Slow in both; Phasing only). (4) NAMES: Phasing / Phase / Ph (rejected: Phas). (5) RANK 11, after Slow (re-asked after a wrong rendering in question 4; rejected: rank 10, alphabetical). (6) REFRESHES at the invoke, the prayer fallback and the timer expiry (rejected: master's shape). (7) Battery: launch all three testers. Session calls, plan-approved: the reviewer's text-dumplog fold (do_statusline2() Phasing, plus the Slow it never had - BUG-2893). Commit ee66ebc71; BUG-2892..2894. | maintainer (1-7); session, plan-approved (rest) |
 | 2026-11-06 | Underwater-view slice (Phase 2 session 302, AskUserQuestion x3 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the See_underwater toggle row (the pet mummy wrapping, hit-chain anger and strangle record items not taken). (2) RARE ROUTES: per-site checks at region_safety()'s grant and the MAGICAL_BREATHING expiry, no per-turn catch-all (rejected: a moveloop check against the state the tables were built for; both); #wizintrinsic timed swimming / breathing stays uncovered (wizard only). Polymorph: the compare moves into polymon() / polyman() and the five caller wrappers go. (3) SEWAGE SNATCH: folded in (rejected: its own row) - a worn item comes off through remove_worn_item() under the in_lava_effects guard before the muck takes it; uskin and a worn Hand of Vecna get the "tries to grab ... but cannot!" line. (4) Battery: launch all four testers. | maintainer |
