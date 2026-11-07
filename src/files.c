@@ -786,21 +786,22 @@ staticfn void
 set_whereisfile(void)
 {
     char *p = (char *) strstr(whereis_file, "%n");
+
     if (p) {
-        int new_whereis_len = strlen(whereis_file) + strlen(svp.plname) - 2; /* %n */
-        char *new_whereis_fn = (char *) alloc((unsigned)(new_whereis_len + 1));
-        char *q = new_whereis_fn;
-        strncpy(q, whereis_file, p - whereis_file);
-        q += p - whereis_file;
-        strncpy(q, svp.plname, strlen(svp.plname) + 1);
-        regularize(q);
-        q[strlen(svp.plname)] = '\0';
-        q += strlen(q);
-        p += 2;   /* skip "%n" */
-        strncpy(q, p, strlen(p));
-        new_whereis_fn[new_whereis_len] = '\0';
-        Sprintf(whereis_file, "%s", new_whereis_fn);
-        free(new_whereis_fn); /* clean up the pointer */
+        char playerbuf[PL_NSIZ + 4], newbuf[sizeof whereis_file], *q;
+
+        /* regularize() may shorten the name but never lengthens it */
+        copynchars(playerbuf, svp.plname, (int) sizeof playerbuf - 1);
+        regularize(playerbuf);
+        /* a '%' left in the name could spell "%n" and be expanded
+           again on every later write */
+        for (q = playerbuf; (q = strchr(q, '%')) != 0; )
+            *q = '_';
+        /* prefix + regularized name + the part after "%n", truncated
+           to fit; a long template and a long name can't overflow */
+        Snprintf(newbuf, sizeof newbuf, "%.*s%s%s",
+                 (int) (p - whereis_file), whereis_file, playerbuf, p + 2);
+        Strcpy(whereis_file, newbuf);
     }
 }
 
@@ -809,43 +810,45 @@ staticfn void
 write_whereis(boolean playing) /* < True if game is running */
 {
     FILE* fp;
-    char whereis_work[511];
+    char whereis_work[512];
+    long score = 0L;
+
     if (!program_state.something_worth_saving)
         return;
     if (strstr(whereis_file, "%n"))
         set_whereisfile();
-
-    /* construct the whereis string */
-    Sprintf(whereis_work, "player=%s:depth=%d:dnum=%d:dname=%s:",
-            svp.plname,
-            depth(&u.uz),
-            u.uz.dnum,
-            svd.dungeons[u.uz.dnum].dname);
-    Sprintf(eos(whereis_work), "hp=%d:maxhp=%d:turns=%ld:score=%ld:",
-            u.uhp,
-            u.uhpmax,
-            svm.moves,
 #ifdef SCORE_ON_BOTL
-            botl_score()
-#else
-            0L
+    score = botl_score();
 #endif
-            );
-    Sprintf(eos(whereis_work), "role=%s:race=%s:gender=%s:align=%s:",
-            gu.urole.filecode,
-            gu.urace.filecode,
-            genders[flags.female].filecode,
-            aligns[u.ualign.type == A_NONE
-                   ? 3 : 1 - u.ualign.type].filecode);
-    /* conduct is always 0: the field is kept so the record layout stays
+
+    /* construct the whereis string; bounded, so a future field can't
+       overflow the buffer.
+       conduct is always 0: the field is kept so the record layout stays
        stable for whatever parses it, but encodeconduct() is staticfn in
        topten.c and not reachable from here */
-    Sprintf(eos(whereis_work), "conduct=0x%lx:amulet=%d:ascended=%d:",
-            0L,
-            u.uhave.amulet ? 1 : 0,
-            u.uevent.ascended ? 2 : *svk.killer.name ? 1 : 0);
-    Sprintf(eos(whereis_work), "playing=%d\n",
-            playing);
+    Snprintf(whereis_work, sizeof whereis_work,
+             "player=%s:depth=%d:dnum=%d:dname=%s:"
+             "hp=%d:maxhp=%d:turns=%ld:score=%ld:"
+             "role=%s:race=%s:gender=%s:align=%s:"
+             "conduct=0x%lx:amulet=%d:ascended=%d:"
+             "playing=%d\n",
+             svp.plname,
+             depth(&u.uz),
+             u.uz.dnum,
+             svd.dungeons[u.uz.dnum].dname,
+             u.uhp,
+             u.uhpmax,
+             svm.moves,
+             score,
+             gu.urole.filecode,
+             gu.urace.filecode,
+             genders[flags.female].filecode,
+             aligns[u.ualign.type == A_NONE
+                    ? 3 : 1 - u.ualign.type].filecode,
+             0L,
+             u.uhave.amulet ? 1 : 0,
+             u.uevent.ascended ? 2 : *svk.killer.name ? 1 : 0,
+             playing);
 
     fp = fopen_datafile(whereis_file, "w", LEVELPREFIX);
     if (fp) {
@@ -1941,29 +1944,36 @@ docompress_file(const char *filename, boolean uncomp)
     }
 
     args[0] = COMPRESS;
-    if (uncomp)
-        args[++i] = "-d"; /* uncompress */
-#ifdef COMPRESS_OPTIONS
+    /* leave one slot reserved for the trailing NULL terminator */
     {
-        /* we can't guarantee there's only one additional option, sigh */
-        char *opt;
-        boolean inword = FALSE;
+        const int args_max = (int) (sizeof args / sizeof args[0]) - 1;
 
-        opt = strcpy(opts, COMPRESS_OPTIONS);
-        while (*opt) {
-            if ((*opt == ' ') || (*opt == '\t')) {
-                if (inword) {
-                    *opt = '\0';
-                    inword = FALSE;
+        if (uncomp && i + 1 < args_max)
+            args[++i] = "-d"; /* uncompress */
+#ifdef COMPRESS_OPTIONS
+        {
+            /* we can't guarantee there's only one additional option, sigh */
+            char *opt;
+            boolean inword = FALSE;
+
+            opt = strcpy(opts, COMPRESS_OPTIONS);
+            while (*opt) {
+                if ((*opt == ' ') || (*opt == '\t')) {
+                    if (inword) {
+                        *opt = '\0';
+                        inword = FALSE;
+                    }
+                } else if (!inword) {
+                    if (i + 1 >= args_max)
+                        break; /* reserve room for NULL terminator */
+                    args[++i] = opt;
+                    inword = TRUE;
                 }
-            } else if (!inword) {
-                args[++i] = opt;
-                inword = TRUE;
+                opt++;
             }
-            opt++;
         }
-    }
 #endif
+    }
     args[++i] = (char *) 0;
 
 #ifdef TTY_GRAPHICS
@@ -2002,8 +2012,10 @@ docompress_file(const char *filename, boolean uncomp)
             redirect(filename, RDBMODE, stdin, uncomp);
             redirect(cfn, WRBMODE, stdout, uncomp);
         }
-        (void) setgid(getgid());
-        (void) setuid(getuid());
+        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+            perror("Failed to drop privileges");
+            nh_terminate(EXIT_FAILURE);
+        }
         (void) execv(args[0], (char *const *) args);
         perror((char *) 0);
         (void) fprintf(stderr, "Exec to %scompress %s failed.\n",
@@ -2257,8 +2269,9 @@ docompress_file(const char *filename, boolean uncomp)
         /* Copy from the compressed to the uncompressed file */
 
         while (1) {
-            len = gzread(compressedfile, buf, sizeof(buf));
-            if (len == (unsigned) -1) {
+            int gzrc = gzread(compressedfile, buf, sizeof(buf));
+
+            if (gzrc < 0) {
                 pline("Failure reading compressed file");
                 pline("Can't uncompress %s.", filename);
                 fclose(uncompressedfile);
@@ -2269,6 +2282,7 @@ docompress_file(const char *filename, boolean uncomp)
 #endif
                 return;
             }
+            len = (unsigned) gzrc;
             if (len == 0)
                 break; /* End of file */
 
@@ -2779,8 +2793,10 @@ fopen_wizkit_file(void)
     char *envp;
 
     envp = nh_getenv("WIZKIT");
-    if (envp && *envp)
+    if (envp && *envp) {
         (void) strncpy(gw.wizkit, envp, WIZKIT_MAX - 1);
+        gw.wizkit[WIZKIT_MAX - 1] = '\0';
+    }
     if (!gw.wizkit[0])
         return (FILE *) 0;
 
@@ -3075,7 +3091,7 @@ check_recordfile(const char *dir UNUSED_if_not_OS2_CODEVIEW)
 #else
         fd = open(fq_record, O_CREAT | O_RDWR, S_IREAD | S_IWRITE);
 #endif
-        if (fd <= 0) {
+        if (fd < 0) {
             raw_printf("Warning: cannot write record '%s'", tmp);
             wait_synch();
         } else {
@@ -3351,7 +3367,16 @@ recover_savefile(void)
             if (lnhfp) {
                 /* any or all of these may not exist */
                 levc = (xint8) lev;
-                (void) write(snhfp->fd, (genericptr_t) &levc, sizeof(levc));
+                if (write(snhfp->fd, (genericptr_t) &levc, sizeof levc)
+                    != sizeof levc) {
+                    raw_printf(
+                       "\nError writing %s; recovery failed (level header).\n",
+                       gs.SAVEF);
+                    close_nhfile(lnhfp);
+                    close_nhfile(snhfp);
+                    delete_savefile();
+                    return FALSE;
+                }
                 if (!copy_bytes(lnhfp->fd, snhfp->fd)) {
                     close_nhfile(lnhfp);
                     close_nhfile(snhfp);

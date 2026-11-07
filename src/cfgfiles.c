@@ -662,6 +662,7 @@ cnf_line_HACKDIR(char *bufp)
 #else /*NOCWD_ASSUMPTIONS*/
 #ifdef MICRO
     (void) strncpy(gh.hackdir, bufp, PATHLEN - 1);
+    gh.hackdir[PATHLEN - 1] = '\0';
 #else /* MICRO */
     nhUse(bufp);
 #endif /* MICRO */
@@ -702,7 +703,9 @@ cnf_line_SAVEDIR(char *bufp)
         *ptr = '\0';
     }
 
-    (void) strncpy(gs.SAVEP, bufp, SAVESIZE - 1);
+    /* leave room for the '/' that append_slash() may add */
+    (void) strncpy(gs.SAVEP, bufp, SAVESIZE - 2);
+    gs.SAVEP[SAVESIZE - 2] = '\0';
     append_slash(gs.SAVEP);
 #else /* MICRO */
     nhUse(bufp);
@@ -781,6 +784,7 @@ staticfn boolean
 cnf_line_NAME(char *bufp)
 {
     (void) strncpy(svp.plname, bufp, PL_NSIZ - 1);
+    svp.plname[PL_NSIZ - 1] = '\0';
     return TRUE;
 }
 
@@ -798,6 +802,7 @@ staticfn boolean
 cnf_line_dogname(char *bufp)
 {
     (void) strncpy(gd.dogname, bufp, PL_PSIZ - 1);
+    gd.dogname[PL_PSIZ - 1] = '\0';
     return TRUE;
 }
 
@@ -805,6 +810,7 @@ staticfn boolean
 cnf_line_catname(char *bufp)
 {
     (void) strncpy(gc.catname, bufp, PL_PSIZ - 1);
+    gc.catname[PL_PSIZ - 1] = '\0';
     return TRUE;
 }
 #endif /* SFCTOOL */
@@ -1269,6 +1275,7 @@ staticfn boolean
 cnf_line_WIZKIT(char *bufp)
 {
     (void) strncpy(gw.wizkit, bufp, WIZKIT_MAX - 1);
+    gw.wizkit[WIZKIT_MAX - 1] = '\0';
     return TRUE;
 }
 
@@ -1775,15 +1782,20 @@ parse_conf_buf(struct _cnf_parser_state *p, boolean (*proc)(char *arg))
             boolean ignoreline = FALSE;
             boolean oldline = FALSE;
 
-            /* line continuation (trailing '\') */
-            p->morelines = (--p->ep >= p->inbuf && *p->ep == '\\');
-            if (p->morelines)
-                *p->ep = '\0';
-
-            /* trim off spaces at end of line */
-            while (p->ep >= p->inbuf
-                   && (*p->ep == ' ' || *p->ep == '\t' || *p->ep == '\r'))
-                *p->ep-- = '\0';
+            /* line continuation (trailing '\'); p->ep is at the
+               terminator, so look back through ep[-1] and never step
+               the pointer in front of inbuf */
+            p->morelines = (p->ep > p->inbuf && p->ep[-1] == '\\');
+            if (p->morelines) {
+                /* a continued line keeps any spaces before the '\' */
+                *--p->ep = '\0';
+            } else {
+                /* trim off spaces at end of line */
+                while (p->ep > p->inbuf
+                       && (p->ep[-1] == ' ' || p->ep[-1] == '\t'
+                           || p->ep[-1] == '\r'))
+                    *--p->ep = '\0';
+            }
 
             if (!config_error_nextline(p->inbuf)) {
                 p->rv = FALSE;
