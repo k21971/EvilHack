@@ -17,10 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-06, after session 302's
-  underwater-view slice: the See_underwater toggle row closed, the
-  sewage snatch row minted and closed, two record LOWs minted):
-  661 rows closed, 54 open
+- Phase 2 status (refreshed 2026-11-07, after session 303's
+  Phasing slice: the Phasing status condition row closed, one
+  Phase 4 row minted):
+  662 rows closed, 53 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -381,7 +381,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 50 LOW: small parity rows, quirks and watch/record-only items.
+  - 49 LOW: small parity rows, quirks and watch/record-only items.
+    Session 303 closed the Phasing row (BUG-2892..2894): master's
+    "Phasing" status condition is back, in the slot of 5.0's
+    never-set "Iron" condition (all 32 mask bits were taken), with
+    master's movement hilite group, Slow and Phasing in the text
+    dumplog's status line, and same-turn refreshes at the invoke,
+    the prayer fallback and the timer expiry. By the 2026-10-20
+    rule the row had been a MED (a status field live players see).
     Session 302 closed the See_underwater toggle row (BUG-2888 /
     2889): every form change (polymon(), polyman()), prayer's
     poison-cloud breathing and its expiry now redraw a submerged
@@ -34079,7 +34086,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       tracked and OBJ_FREE, and the caller lands it. Battery F1: PRE the
       webbing was never freed, POST it went back to throwit() and broke
       there ("Splat!").
-- [ ] LOW: master's "Phasing" status condition is absent (minted
+- [x] LOW: master's "Phasing" status condition is absent - PORTED
+      2026-11-07 (session 303, commit `Port master's Phasing status
+      condition.` = ee66ebc71; BUG-2892 / 2893 branch-only, BUG-2894
+      master-only, frozen-unfixed; closure notes at the end of this
+      row; really a MED by the 2026-10-20 rule; minted
       2026-10-02, session 171, found beside the census of master
       91977c174). Master a8d9fa0fb (2023-05-13, "Add phasing status to
       botl.") shows " Phasing" on the bottom line and sets
@@ -34095,6 +34106,60 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hilite_status rule written for master's "movement" misses Slow).
       Port as one status-field unit with the Phase 4 window-port rows.
       LOW (status line).
+      CLOSURE (session 303; rulings 2026-11-07, decisions log). All 32
+      condition bits were taken (BL_MASK_WITHER 0x80000000L) and 5.0's
+      window interface carries the mask in a 32-bit `unsigned long`
+      on Windows and the 32-bit ports (ANY_MASK32, `unsigned long
+      *colormasks`, win32's nhassert `mask == 1L << ci`), so Phasing
+      took the in-place slot of 5.0's `bl_elf_iron` (enum 5, bit 0x20),
+      which nothing in vanilla 5.0 or the branch ever set; the `iron`
+      hilite name and `cond_iron` option went with it (master has
+      neither). conditions[] row rank 11 "Phasing" / "Phase" / "Ph"
+      (after the rank-10 group: "Lev Ride Slow Phasing", as master),
+      condtests "phasing" opt_out, test on Passes_walls; master's
+      groups exactly (movement = LEV | FLY | RIDE | SLOW | PHASING,
+      SLOW out of minor_troubles); genl_status_update() and
+      dump_render_status() (HTML dumplog) rows; propertyname
+      "phasing"; X11 F_IRON -> F_PHASING, win32 / libnh tables (not
+      compiled here). The code reviewer found the text dumplog builds
+      its status line in do_statusline2(), not dump_render_status()
+      (dump_putstr() sends NHW_STATUS to HTML only): " Phasing" after
+      " Ride" and the missing " Slow" after encumbrance, both at
+      master's positions (BUG-2893, Slow absent since BUG-1608).
+      Refreshes: invoke_phasing() and the pray.c stuck-in-rock
+      fallback set disp.botl after granting phasing; nh_timeout()'s
+      case PASSES_WALLS sets it first (the branch's expiry already
+      refreshes through phasing_dialogue() -> stop_occupation() ->
+      nomul(0), except when an earlier expiry's pline that turn spent
+      it). The per-turn timebot() can't add a condition
+      (stat_update_time() sends only the time fields). Plan stress
+      test CONDITIONAL PASS (the expiry premise, battery staging),
+      reviewer CONDITIONAL PASS (the text dumplog, folded).
+      BATTERY (three testers, every paniclog empty): T1 POST Phasing
+      at once on the Striped Shirt invoke, on xorn form and gone on
+      rehumanize, gone on the expiry turn solo and paired with water
+      walking or fire resistance (their expiry line first); PRE no
+      condition, "pass thru walls" in #wizintrinsic; MASTER invoke at
+      once (clean, no blast, HP / Pw full - master's refresh source not
+      found), expiry 1 turn late solo and paired with displaced. T2
+      prayer fallback (safe_teleds() -> 0 lever, Luck 0, HP / Pw full)
+      POST Phasing on the "You feel much slimmer." turn, MASTER 1 turn
+      late, and master's in-rock expiry late too; order "Lev Slow
+      Phasing" / "Lev Ride Slow Phasing", "Lv Rd Sw Ph" when shrunk.
+      T3 hilites: condition/phasing parses (PRE "Unknown condition
+      'phasing'"), movement colors Lev / Slow / Phasing (PRE not Slow),
+      minor_troubles no longer colors Slow, iron / cond_iron error on
+      POST, !cond_phasing hides it, the condition menu lists
+      cond_phasing not cond_iron; curses "Lev Slow Phasing" clearing
+      on the expiry turn; HTML dumplog Phasing; text dumplog FAIL on
+      the first POST, then on POST2 (7ac61036) "T:151  Slow Phasing".
+      A3: with the invoke's refresh cancelled by gdb, Phasing stayed
+      off 36 turns until a goblin's throw refreshed the line - the
+      line is needed on the branch. Seen, not this slice: curses cuts a
+      long condition list mid-word at 80 columns ("Pha") where tty
+      shrinks names; a sysconf perm_invent narrows the curses status
+      window; a Convict is blasted by the shirt (alignment record -20,
+      master the same).
 - [x] Covetous court freeze + master's covetous pursuit
       (BUG-2081..2087) - FIXED 2026-10-02 (session 169, commit `Port
       master's covetous pursuit and fix the demon-court freeze.` =
@@ -36023,6 +36088,16 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       vmsbuild, Amiga AMIGA_VERSION_STRING, mac68k Info.plist,
       cross-pre2.501, multiw-1.501 NHV, macOS.501) - set them to
       EvilHack 1.0.0 with each port's slice.
+      (11) (added 2026-11-07, session 303, the Phasing condition,
+      BUG-2892) Phasing took the slot of 5.0's never-set elf_iron
+      condition. X11: F_IRON is now F_PHASING (same index 52), so the
+      fancy status shows Phasing; the tty-style tt_condorder[] lacks
+      Phasing as well as Slow and Wither (item (1)). Qt: a phasing
+      widget beside slow / wither (item (2)). Guidebook.mn condition
+      lists: add phasing with slow and wither (item (3)). GEM's
+      gem_conds hand list lacks Phasing, Slow and Wither. Win32 /
+      libnh tables renamed, never compiled here. The mask is full: see
+      the condition-mask row below.
       RULED 2026-10-04 (session 177 follow-up, decisions log):
       install ALL FOUR toolchains on this host - X11 dev packages,
       Qt6 dev packages, the DJGPP MS-DOS cross-compiler and the Amiga
@@ -36038,6 +36113,22 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       lists, (c) CI jobs + item (6)'s project files + items (7)
       and (8),
       (d) TILE-ART DRIFT (MS-DOS, X11 and Windows tiles depend on it).
+- [ ] LOW: the status condition mask is full (minted 2026-11-07,
+      session 303, by the Phasing slice ruling). All 32 bits of the
+      condition mask are in use (bl_bareh .. bl_wither, Phasing in the
+      old elf_iron slot), and 5.0 carries it as a 32-bit `unsigned
+      long` on Windows and the 32-bit ports. The next new status
+      condition needs the mask widened to 64 bits first: ANY_MASK32 /
+      a_mask32 in wintype.h, struct conditions_t's `long mask`,
+      condition_aliases, gc.cond_hilites[], the hilite parse / menu
+      helpers in botl.c, and the status_update() interface's
+      `unsigned long *colormasks` plus the BL_CONDITION pointer in
+      every window port (tty, curses, X11, win32, Qt via windows.c,
+      shim, chain, libnh, amiga, mac68k, gem) and their `1L << i`
+      loops. On LP64 Linux `long` is already 64 bits, so a missed site
+      breaks only on Windows / 32-bit ports - do it with the PLATFORM
+      PARITY toolchains in place (item (7) above). LOW until a new
+      condition is wanted.
 
 - [ ] Customcolor/truecolor rebuilt on map_glyphinfo(); reconcile
       with upstream coloratt/utf8map (nh50-color-architecture
@@ -37432,6 +37523,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-07 | Phasing status slice (Phase 2 session 303, AskUserQuestion x4 with 7 questions - one a battery launch ask - all as recommended). (1) SLICE: master's Phasing status condition (the pet mummy wrapping, the master hardening pair and the session 302 record pair not taken). (2) MASK ROOM: Phasing takes the in-place slot of 5.0's never-set elf_iron condition; the iron hilite name and cond_iron option go (rejected: widen the mask to 64 bits across the window interface, now a Phase 4 row; take the opt-in Bare slot). (3) GROUPS: master's exactly - movement = Lev Fly Ride Slow Phasing, Slow out of minor_troubles (rejected: Slow in both; Phasing only). (4) NAMES: Phasing / Phase / Ph (rejected: Phas). (5) RANK 11, after Slow (re-asked after a wrong rendering in question 4; rejected: rank 10, alphabetical). (6) REFRESHES at the invoke, the prayer fallback and the timer expiry (rejected: master's shape). (7) Battery: launch all three testers. Session calls, plan-approved: the reviewer's text-dumplog fold (do_statusline2() Phasing, plus the Slow it never had - BUG-2893). Commit ee66ebc71; BUG-2892..2894. | maintainer (1-7); session, plan-approved (rest) |
 | 2026-11-06 | Underwater-view slice (Phase 2 session 302, AskUserQuestion x3 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the See_underwater toggle row (the pet mummy wrapping, hit-chain anger and strangle record items not taken). (2) RARE ROUTES: per-site checks at region_safety()'s grant and the MAGICAL_BREATHING expiry, no per-turn catch-all (rejected: a moveloop check against the state the tables were built for; both); #wizintrinsic timed swimming / breathing stays uncovered (wizard only). Polymorph: the compare moves into polymon() / polyman() and the five caller wrappers go. (3) SEWAGE SNATCH: folded in (rejected: its own row) - a worn item comes off through remove_worn_item() under the in_lava_effects guard before the muck takes it; uskin and a worn Hand of Vecna get the "tries to grab ... but cannot!" line. (4) Battery: launch all four testers. | maintainer |
 | 2026-11-06 | Strangle residue rest slice (Phase 2 session 301, AskUserQuestion x5 with 9 questions - one a battery launch ask - all as recommended). (1) SLICE: the strangle residue row's items (a) rest, (i), (j), (k), (l) (the underwater-view toggle, the pet mummy wrapping and the hit-chain anger rows not taken). (2) SCALES: an amulet of strangulation keeps choking through sea dragon-scaled armor; the scales clear only another clock (rejected: master's clear of any clock). (3) POLYMORPH: a running clock inside a choking engulfer keeps its count, "You still can't breathe!" with no amulet, the amulet's "still constricts" line with one and 6 only when the clock is 0 or above 6 (rejected: the same silently; master's reset). (4) RESTART: "It's impossible to breathe in here!" on every start of the clock; no immediate start at take-off; the prayer cure unchanged (rejected: also start at take-off). (5) CLEAR LINE: "You can breathe again." (rejected: "You can suddenly breathe again!"). (6) CATCH-ALL PLACE (Plan stress-test re-ask: bare scales in the cloak slot are a normal-play route, not only #wizintrinsic): nh_timeout() each turn before the choke lines (rejected: gulpmu()'s next attack; both). (7) EXPEL TURN (Plan stress-test re-ask): an attack that is about to expel the hero starts no clock (rejected: ungated). Session calls, plan-approved: end_engulf_suffocation() sets disp.botl (branch-only newcham() caller); the reviewer's LOW folds (the expel gate covers all three of gulpmu()'s tail expels - swallow time, a huge form, a petrifying one - as ruling 7 asks; comment wording). Commits cccc34bcd and f8ec51851; BUG-2882..2887. | maintainer (1-7); session, plan-approved (rest) |
 | 2026-11-06 | Strangle residue slice (Phase 2 session 300, AskUserQuestion x6 with 9 questions - one a battery launch ask). (1) SLICE: the strangle residue row's items (b) + (c), as recommended (the underwater-view toggle, the pet mummy wrapping and the hit-chain anger rows not taken). (2) (b) TAKE-OFF LINE: "You still can't breathe!" (rejected: silent, the recommendation). (3) (c) HERO ENGULF LINE: "The X can still breathe in the water.", as recommended. (4) "brushes against" dropped for engulfs (master's shape), as recommended. (5) Plan stress test: fold item (a)'s amulet half, as recommended (rejected: gulpmu()'s arm; record only). (6) Its line "You can suddenly breathe again!", as recommended. (7) Reviewer found master's Amulet_on() arm for magical breathing lost in the 5.0 tree adoption: MASTER'S UNCONDITIONAL FORM, as recommended (rejected: engulfer-owned clocks only). (8) Battery T1 found 5.0's silent strangulation put-on inside a running clock: MASTER'S SHAPE, folded into C1, as recommended (rejected: keep 5.0's, record). Commits 71cb80414 and 171d1dc39; BUG-2877..2881. |
