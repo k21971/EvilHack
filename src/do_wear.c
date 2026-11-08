@@ -1439,6 +1439,9 @@ dragon_armor_handling(
             EAcid_resistance |= W_ARM;
             EStone_resistance |= W_ARM;
             EReflecting |= W_ARM;
+            /* the scales' reflection is acquired like any worn
+               source's and breaks the reflection conduct */
+            u.uconduct.reflection++;
             if (Stone_resistance && Stoned)
                 make_stoned(0L, "You no longer seem to be petrifying.", 0,
                             (char *) 0);

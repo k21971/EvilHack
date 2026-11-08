@@ -472,6 +472,12 @@ encodeconduct(void)
         e |= 1L << 14;
     if (!u.uconduct.forgedarti)
         e |= 1L << 15;
+    if (!u.uconduct.antimagic)
+        e |= 1L << 16;
+    if (!u.uconduct.reflection)
+        e |= 1L << 17;
+    if (!u.uconduct.artitouch)
+        e |= 1L << 18;
 
     return e;
 }

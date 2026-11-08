@@ -2479,6 +2479,10 @@ show_conduct(int final)
         you_have_X(buf);
     }
 
+    if (!u.uconduct.artitouch) {
+        you_have_never("touched an artifact");
+    }
+
     if (!u.uconduct.wishes) {
         you_have_X("used no wishes");
     } else {
@@ -2513,6 +2517,14 @@ show_conduct(int final)
 
     if (!u.uconduct.forgedarti) {
         you_have_never("forged an artifact");
+    }
+
+    if (!u.uconduct.antimagic) {
+        you_have_never("acquired magic resistance");
+    }
+
+    if (!u.uconduct.reflection) {
+        you_have_never("acquired reflection");
     }
 
     /* only report Sokoban conduct if the Sokoban branch has been entered */

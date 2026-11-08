@@ -95,8 +95,9 @@ setworn(struct obj *obj, long mask)
                 if (oobj && !(oobj->owornmask & wp->w_mask))
                     impossible("Setworn: mask=0x%08lx.", wp->w_mask);
                 /* slot already correctly occupied; skip teardown+grant
-                   so we don't re-call set_artifact_intrinsic or churn
-                   the slot's extrinsics */
+                   so we don't re-call set_artifact_intrinsic, churn
+                   the slot's extrinsics or count the antimagic /
+                   reflection conducts again */
                 if (oobj == obj && obj != (struct obj *) 0)
                     continue;
                 if (oobj) {
@@ -152,6 +153,12 @@ setworn(struct obj *obj, long mask)
                             p = armor_provides_extrinsic(obj);
                             u.uprops[p].extrinsic =
                                 u.uprops[p].extrinsic | wp->w_mask;
+                            /* no magic resistance conduct */
+                            if (p == ANTIMAGIC)
+                                u.uconduct.antimagic++;
+                            /* no reflection conduct */
+                            if (p == REFLECTING)
+                                u.uconduct.reflection++;
                             if ((p = w_blocks(obj, mask)) != 0)
                                 u.uprops[p].blocked |= wp->w_mask;
                         }

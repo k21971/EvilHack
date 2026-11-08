@@ -1337,6 +1337,15 @@ polymon(int mntmp)
     if (nohands(gy.youmonst.data))
         make_glib(0);
 
+    /* no magic resistance conduct */
+    if (resists_mgc(gy.youmonst.data))
+        u.uconduct.antimagic++;
+
+    /* no reflection conduct; a silver dragon is the only form with
+       reflection, as in set_uasmon() */
+    if (gy.youmonst.data == &mons[PM_SILVER_DRAGON])
+        u.uconduct.reflection++;
+
     /*
     mlvl = adj_lev(&mons[mntmp]);
      * We can't do the above, since there's no such thing as an
