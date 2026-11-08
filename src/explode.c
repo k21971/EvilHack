@@ -272,8 +272,9 @@ explode(
            it hits the surrounding terrain */
         exploding_wand_typ = SCR_FIRE;
     } else if (olet == TRAPPED_DOOR) {
-        /* a booby-trapped door's blast isn't the hero's own zap; this
-           keeps zap_over_floor() from crediting it to the hero */
+        /* a booby-trapped door passes a monster-side type, which keeps
+           the blame off the hero (a tin's stays the hero's); this only
+           makes zap_over_floor() call it "the blast" at a door */
         exploding_wand_typ = type;
     } else if (olet == TRAP_EXPLODE) {
         type = 0; /* hardcoded to generic magic explosion */

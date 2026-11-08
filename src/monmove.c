@@ -179,7 +179,10 @@ mb_trapped(
             mtmp->mstun = 1;
         save_exploder = ge.exploder;
         ge.exploder = mtmp;
-        explode(mx, my, ZT_FIRE, dmg, TRAPPED_DOOR, EXPL_FIERY);
+        /* never the hero's zap: a monster-side type keeps it from being
+           confined to an engulfer the hero is inside elsewhere, and
+           keeps its floor effects from being blamed on the hero */
+        explode(mx, my, BZ_M_SPELL(ZT_FIRE), dmg, TRAPPED_DOOR, EXPL_FIERY);
         ge.exploder = save_exploder;
         scatter(mx, my, dmg,
                 VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE,

@@ -1811,8 +1811,12 @@ blowupforge(coordxy x, coordxy y)
     set_levltyp(x, y, ROOM);
     levl[x][y].flags = 0;
     newsym(x, y);
-    /* wand-section fire type; FORGE_EXPLODE picks the actual messaging */
-    explode(x, y, BZ_U_WAND(ZT_FIRE), resist_reduce(rnd(30), FIRE_RES),
+    /* never the hero's zap, whether a dip, a failed forging, #monster
+       or a lava gremlin set it off: a monster-side type keeps it from
+       being confined to an engulfer the hero is inside elsewhere, and
+       keeps its floor effects from being blamed on the hero;
+       FORGE_EXPLODE picks the actual messaging */
+    explode(x, y, BZ_M_SPELL(ZT_FIRE), resist_reduce(rnd(30), FIRE_RES),
             FORGE_EXPLODE, EXPL_FIERY);
 }
 

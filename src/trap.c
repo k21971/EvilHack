@@ -8555,6 +8555,8 @@ b_trapped(
             dmg *= 3;
         Soundeffect(se_kaboom, 80);
         pline("KABOOM!!  %s was booby-trapped!", The(item));
+        /* the hero's own: opened inside an engulfer, it hits only the
+           hero and the engulfer */
         explode(u.ux, u.uy, ZT_FIRE, resist_reduce(dmg, FIRE_RES),
                 TRAPPED_DOOR, EXPL_FIERY);
         scatter(u.ux, u.uy, dmg,
@@ -8661,7 +8663,10 @@ b_trapped(
             dmg *= 3;
         Soundeffect(se_kaboom, 80);
         pline("KABOOM!!  %s was booby-trapped!", The(item));
-        explode(dx, dy, ZT_FIRE, resist_reduce(dmg, FIRE_RES),
+        /* the door's blast, not the hero's zap: a monster-side type
+           keeps its floor effects from being blamed on the hero; the
+           blast's kills are still the hero's */
+        explode(dx, dy, BZ_M_SPELL(ZT_FIRE), resist_reduce(dmg, FIRE_RES),
                 TRAPPED_DOOR, EXPL_FIERY);
         scatter(dx, dy, dmg,
                 VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE,
