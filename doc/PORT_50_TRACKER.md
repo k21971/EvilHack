@@ -17,11 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-08, after session 307's
-  strangle residue (e)+(f) slice, which fixed two items of an open
-  LOW row and added two record items to it; no row closed or
-  minted):
-  664 rows closed, 53 open
+- Phase 2 status (refreshed 2026-11-08, after session 308's
+  strangle residue (p)+(q) slice, which fixed two items of an open
+  LOW row, added four record items to it and minted one LOW record
+  row; no row closed):
+  664 rows closed, 54 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -382,7 +382,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 49 LOW: small parity rows, quirks and watch/record-only items.
+  - 50 LOW: small parity rows, quirks and watch/record-only items.
+    Session 308 minted the zap_over_floor() billing record row (the
+    hero's own broken wand and scroll of fire are billed by 5.0's
+    sign tests; master's yourzap never billed them).
     Session 306 closed the monster-wish armor row (BUG-2911..2913):
     a monster's wish asks for armor only when it would put it on
     (cloaks, helms and boots for gnome lords, hobbits, kobold lords
@@ -21320,10 +21323,86 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
           own MAY_DESTROY scatter breaking a lit potion of oil on the
           door square (breaks() -> breakobj(..., FALSE, FALSE)), or
           a monster's thrown potion hitting (potionhit()).
+          FIXED 2026-11-08 (session 308, 5a3902d08, BUG-2917 +
+          BUG-2918; ruled "by cause"): splatter_burning_oil() /
+          explode_oil() take `byyou` (breakobj()'s hero_caused,
+          potionhit()'s your_fault) and pass BZ_U_SPELL(ZT_FIRE) only
+          for a flask the hero broke, else BZ_M_SPELL(ZT_FIRE). The
+          engulf skip is master-shared (master's ZT_SPELL type was
+          positive too); the blame is branch-only (master's yourzap
+          was FALSE for POT_OIL). MUSE_POT_OIL (master's) makes the
+          blame common: every monster-hurled flask angered what it
+          hit, erased the Elbereth under the hero, dried a town
+          fountain onto the hero and billed shop goods and doors.
+          The hero's own flask keeps 5.0's billing (master never
+          billed it: a free shop-burn route, closed) and its engulf
+          confinement; one broken by a land mine or trap the hero
+          set off is not floor-blamed, its kills and anger stay the
+          hero's (explode()'s mon_moving tests).
       (q) The boulder on a collapsing drawbridge span goes through
           flooreffects() -> boulder_hits_pool() -> mondied(), so the
           monster sharing its square (a xorn) dies with no credit for
           anyone, the hero included.
+          FIXED 2026-11-08 (session 308, ea526f9ff, BUG-2919; ruled
+          "bridge only"): boulder_hits_pool() takes `byyou`
+          (xkilled(XKILL_NOMSG) vs mondied() for the buried
+          monster); destroy_drawbridge() calls it directly with
+          !svc.context.mon_moving, wrapped by e_pet_credit() /
+          set_pet_killer(NULL), so the kill follows e_died()'s rule;
+          every other caller passes FALSE (master's mondied()).
+          Giants are MZ_HUGE and never buried by the fill.
+      Added 2026-11-08 by session 308 (Plan stress test, reviewer,
+      batteries; record):
+      (r) A pet's hurled lit flask: ohitmon()'s set_pet_killer()
+          goes to whichever monster in the burst dies first; the
+          rest are nobody's (explode()'s monkilled() arm reads only
+          ge.exploder, unset for a thrown potion).
+      (s) melt_ice()'s boulder fill buries a monster with nobody's
+          credit, while minliquid() credits the hero's fire for a
+          drowning on the same melt; needs a cause signal, since
+          timed melts reach melt_ice() too (master-shared).
+      (t) destroy_drawbridge() drops only the first of several span
+          boulders; when it sinks, the rest sit on the moat
+          (master-shared).
+      (u) breakobj()'s pyrolisk-egg blast always passes
+          BZ_M_SPELL(ZT_FIRE) (vanilla 5.0's shape, no master
+          counterpart): a hero's thrown egg is never confined to an
+          engulfer and its floor damage is never billed, the reverse
+          of (p)'s rule in the same function.
+      Findings (no item): a striking bolt fired from beyond the span
+      shatters the span's boulder before the bridge falls, so that
+      route never reaches boulder_hits_pool(); an engulfed hero's
+      booby-trapped tin scatter breaking a lit flask under the
+      engulfer now bursts around the engulfer's square (by cause:
+      the flask lay outside it); a fog cloud's engulf snuffs a lit
+      flask and #apply can't relight it inside.
+      SESSION 308 BATTERIES (PRE 0fb6e548, POST e91b8a0c, before the
+      reviewer's apply.c spacing fold; committed 7b6af644; every
+      paniclog empty but T1 PRE's one staging line from a gdb
+      deltrap() of a land mine): T1 a soldier hurls a lit flask at
+      the hero on Elbereth (sleeping peaceful gnome, sleeping jackal,
+      fountain, scroll adjacent): PRE `EXPLODE type=12`, WAKEUP
+      via_attack=1 + SETMANGRY both, "You feel like a hypocrite.",
+      Elbereth gone, gnome hostile, record 0 -> -7, DRYUP isyou=1,
+      BURNFLOOR u_caused=1 / POST SPLATTER byyou=0, type=-12,
+      via_attack=0, no SETMANGRY, Elbereth kept, gnome peaceful,
+      record 0, isyou=0, u_caused=0. Engulfed 13 squares away, a
+      fleeing orc sets off a land mine under a lit flask: PRE
+      type=12 uswallow=1, bystanders untouched / POST type=-12, both
+      bystanders and the orc burned, orc player_killed=0. T2 the
+      hero's throw at a peaceful: both builds type=12, via_attack=1,
+      gnome hostile, record 0 -> -5; engulfed throw at the fog cloud:
+      both type=12 uswallow=1, only the cloud hit; the hero steps on
+      a land mine under a lit flask: PRE type=12, via_attack=1,
+      u_caused=1 / POST byyou=0, type=-12, via_attack=0, u_caused=0,
+      both builds the gnome's SETMANGRY (mon_moving=0) and the
+      hobbit player_killed=1, record +1, uexp +7. T3 staged bridges,
+      boulder + 200-hp sleeping xorn on the span: the hero's striking
+      PRE player_killed=0, uexp unchanged / POST byyou=1,
+      player_killed=1, uexp +229; a tame gnome lord's striking PRE
+      pet_killer=none / POST pet_killer=gnome noble; a hostile
+      zapper none on both (W crossed first); a sink on PRE left the
+      xorn alive (automiss, breathless).
       SESSION 307 BATTERIES (every paniclog empty; PRE b85742da,
       POST e5db5329, before the reviewer fold; committed 0fb6e548):
       T1 engulfed in a fog cloud 5 squares away: a fleeing hill orc
@@ -21354,6 +21433,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hostile zapper none, the hero's zap player_killed=1, the pet
       crushed by its own bridge none, a zapper killed first on the
       portcullis square none for the later kill.
+- [ ] LOW, record: zap_over_floor() bills the hero by the sign of the
+      type for their own broken wand and scroll of fire (minted
+      2026-11-08, session 308, for the 2026-07-24 ruling's "separate
+      pre-existing divergence, own owner", which had no row).
+      Master's zap_over_floor() gated every blame test on
+      `yourzap = (type >= 0 && !exploding_wand_typ && !moncast)`, so
+      a broken wand, a read scroll of fire and a lit-oil burst never
+      dried a town fountain onto the hero, never billed burned shop
+      goods or broken shop doors / bars, and never woke what they hit
+      with via_attack (explode()'s own setmangry() still angered it).
+      The branch keeps 5.0's sign tests (ruled 2026-07-24 for the
+      shop door); session 308 ruled the hero's own lit flask billed
+      the same way (it closes master's free shop-burn route). Open
+      question if ever asked: the broken wand and scroll of fire stay
+      billed (5.0) unless ruled back to master's shape. Record only.
 - [x] LOW: "nothing left" deaths still leave a corpse (minted
       2026-10-06, session 186, by the direct-death slice's reviewer;
       master-shared). really_done()'s no-corpse list covers BURNING,
@@ -37859,6 +37953,7 @@ trees, different content - Phase 0 rename).
 | date | decision | by |
 |------|----------|----|
 | 2026-11-08 | Door / forge blast and drawbridge credit slice (Phase 2 session 307, AskUserQuestion x3 with 3 questions - one a battery launch ask - all as recommended). (1) SLICE: strangle residue (e)+(f) (the session 302 record pair, the untamed kitten row and the tool rows not taken). (2) SCOPE "never the hero's": every booby-trapped door blast and every forge blast passes the monster-side fire type whoever set it off - master's shape (master's zap_over_floor() gated blame on yourzap, FALSE for these) and the branch comment's stated intent; a booby-trapped tin keeps the hero's type; kills and setmangry() from a hero-set blast stay the hero's (rejected: by cause - only monster-set blasts switch; door only, as recorded). (3) Battery: launch all three testers. Session calls, plan-approved: the drawbridge pet credit reuses zap.c's floor_zap_pet() (made extern), skips a pet already dead, covers each debris chain and the spared monster's fall into the moat; the reviewer's self-credit LOW folded as one mondead() guard for every credit site; oil burst and boulder deaths recorded as items (p) / (q). Commits af0e40e62 / 0a19e2aea; BUG-2914..2916. | maintainer (1-3); session, plan-approved (rest) |
+| 2026-11-08 | Oil burst and drawbridge boulder slice (Phase 2 session 308, AskUserQuestion x2 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: strangle residue (p)+(q) (the session 302 record pair, the untamed kitten row and the tool rows not taken). (2) (p) BY CAUSE: a lit-oil burst passes BZ_U_SPELL(ZT_FIRE) only when the hero broke the flask (breakobj()'s hero_caused, potionhit()'s your_fault), else BZ_M_SPELL(ZT_FIRE); the hero's own flask keeps 5.0's billing (closes master's free shop-burn route) and its engulf confinement; one broken by a mine or trap the hero set off is not floor-blamed, its kills and anger stay the hero's (rejected: master's floor rule - the hero's own flask never billed, an oil-only exception in zap_over_floor()). (3) (q) BRIDGE ONLY: the span boulder's buried monster dies by e_died()'s rule (hero's turn xkilled, pet zap pet credit, else nobody), no kill message (rejected: minliquid()'s rule for every boulder on the hero's turn - contradicts ohitmon()'s rolling-boulder rule). (4) Battery: launch the testers. Session calls, plan-approved: the engulfed-tin scatter flask bursts open (it lay outside the engulfer); the 2026-07-24 billing divergence minted as a LOW record row; reviewer's apply.c spacing LOW folded, its pyrolisk-egg LOW recorded as item (u). Commits 5a3902d08 / ea526f9ff; BUG-2917..2919. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
