@@ -5578,8 +5578,10 @@ mondead(struct monst *mtmp)
        deaths that bypass xkilled()/monkilled() can then never inherit
        a previous kill's attribution */
     was_player_kill = player_killed;
-    pet_credit = (pet_killer && pet_killer->mtame) ? pet_killer
-                                                   : (struct monst *) 0;
+    /* a pet never gets the credit for its own death */
+    pet_credit = (pet_killer && pet_killer != mtmp && pet_killer->mtame)
+                     ? pet_killer
+                     : (struct monst *) 0;
     player_killed = FALSE;
     pet_killer = (struct monst *) 0;
 

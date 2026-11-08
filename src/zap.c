@@ -28,7 +28,6 @@ staticfn void skiprange(int, int *, int *) NONNULLPTRS;
 staticfn void maybe_explode_trap(struct trap *, struct obj *,
                                boolean *) NONNULLARG3;
 staticfn void zap_map(coordxy, coordxy, struct obj *) NONNULLARG3;
-staticfn struct monst *floor_zap_pet(void);
 staticfn void bounce_dir(coordxy, coordxy, int *, int *, int) NO_NNARGS;
 staticfn int zap_hit(int, int, boolean);
 staticfn void disintegrate_mon(struct monst *, int, const char *) NONNULLARG1;
@@ -7079,10 +7078,11 @@ melt_ice_away(anything *arg, long timeout UNUSED)
 
 /* the tame monster whose blast (ge.exploder) or beam (gb.buzzer) is
    changing the floor, to be credited with a kill that the change causes
-   (a drowning in melted ice, a fall into a boiled-away pool's pit), as
-   the beam's and blast's own kills are; only during monster movement,
-   since the hero's own zaps get minliquid()'s xkilled() credit */
-staticfn struct monst *
+   (a drowning in melted ice, a fall into a boiled-away pool's pit, a
+   drawbridge brought down), as the beam's and blast's own kills are;
+   only during monster movement, since the hero's own zaps get
+   minliquid()'s and dbridge.c's xkilled() credit */
+struct monst *
 floor_zap_pet(void)
 {
     struct monst *culprit;

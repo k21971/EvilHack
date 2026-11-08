@@ -27,6 +27,7 @@ staticfn void set_entity(coordxy, coordxy, struct entity *);
 staticfn const char *e_nam(struct entity *);
 staticfn const char *E_phrase(struct entity *, const char *);
 staticfn boolean e_survives_at(struct entity *, coordxy, coordxy);
+staticfn void e_pet_credit(void);
 staticfn void e_kill_again(struct monst *, int);
 staticfn void e_survivor_leaves(struct monst *, coordxy, coordxy, int);
 staticfn void e_died(struct entity *, int, int);
@@ -449,6 +450,20 @@ e_survives_at(struct entity *etmp, coordxy x, coordxy y)
     return TRUE;
 }
 
+/* a pet whose beam brought the bridge down while monsters move gets
+   the kill of the death that follows, as the hero's zap gets xkilled();
+   not one the falling bridge already killed (mondead() refuses a pet
+   its own death); call right before that death, since a kill credit
+   nobody consumes would go to the next one */
+staticfn void
+e_pet_credit(void)
+{
+    struct monst *pet = floor_zap_pet();
+
+    if (pet && !DEADMONSTER(pet))
+        set_pet_killer(pet);
+}
+
 /* e_died(): a monster that life saving (or a vampire's shifted form)
    kept alive is killed a second time; xkill_flags already carry
    XKILL_NOMSG | XKILL_NOCONDUCT */
@@ -462,10 +477,11 @@ e_kill_again(struct monst *mon, int xkill_flags)
         return;
     seeit = canspotmon(mon);
     /* fake "digested to death" damage type suppresses the corpse */
-    if (svc.context.mon_moving)
+    if (svc.context.mon_moving) {
+        e_pet_credit();
         monkilled(mon, "",
                   (xkill_flags & XKILL_NOCORPSE) != 0 ? AD_DGST : AD_PHYS);
-    else /* you caused it */
+    } else /* you caused it */
         xkilled(mon, xkill_flags);
     if (DEADMONSTER(mon) && seeit)
         pline("Unfortunately for %s, %s is still crushed.",
@@ -549,11 +565,14 @@ e_died(
            rider that changed form instead may have got down from its
            steed with no room for it, sending it into limbo */
         if (svc.context.mon_moving) {
+            e_pet_credit();
             monkilled(etmp->emon,
                       mk_message(xkill_flags), mk_corpse(xkill_flags));
-            if (steed && !mon_lost_in_rloc(steed))
+            if (steed && !mon_lost_in_rloc(steed)) {
+                e_pet_credit();
                 monkilled(steed,
                           mk_message(xkill_flags), mk_corpse(xkill_flags));
+            }
         } else { /* you caused it */
             xkilled(etmp->emon, xkill_flags);
             if (steed && !mon_lost_in_rloc(steed))
@@ -1252,9 +1271,13 @@ destroy_drawbridge(coordxy x, coordxy y)
            pairings will always match one of <x,y> or <x2,y2> */
         otmp = mksobj_at(IRON_CHAIN, rn2(2) ? x : x2, rn2(2) ? y : y2, TRUE,
                          FALSE);
+        e_pet_credit();
         /* a force of 5 here would yield a radius of 2 for
            iron chain; anything less produces a radius of 1 */
         (void) scatter(otmp->ox, otmp->oy, 1, MAY_HIT, otmp);
+        /* one chain kills at most one monster; a chain that killed
+           nobody leaves the credit unused, so clear it */
+        set_pet_killer((struct monst *) 0);
     }
     newsym(x, y);
     newsym(x2, y2);
@@ -1290,10 +1313,15 @@ destroy_drawbridge(coordxy x, coordxy y)
         if (e_missed(etmp1, TRUE)) {
             debugpline1("%s spared!", E_phrase(etmp1, "are"));
             /* if there is water or lava here, fall in now */
-            if (is_u(etmp1))
+            if (is_u(etmp1)) {
                 spoteffects(FALSE);
-            else
+            } else {
+                /* a drowning is the pet's kill */
+                e_pet_credit();
                 (void) minliquid(etmp1->emon);
+                /* a survivor leaves the credit unused, so clear it */
+                set_pet_killer((struct monst *) 0);
+            }
         } else if (e_survives_unique(etmp1, e_inview,
                    "A huge chunk of metal strikes %s!")) {
             ; /* unique survived; bridge already being destroyed */
