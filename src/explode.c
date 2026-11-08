@@ -1298,18 +1298,25 @@ scatter(
  * For now, just perform a "regular" explosion.
  */
 void
-splatter_burning_oil(coordxy x, coordxy y, boolean diluted_oil)
+splatter_burning_oil(
+    coordxy x, coordxy y,
+    boolean diluted_oil,
+    boolean byyou) /* the hero broke the flask */
 {
     int dmg = d(diluted_oil ? 3 : 4, 4);
 
-    /* BZ_U_SPELL(ZT_FIRE) marks this as a hero-spell-style fireball */
-    explode(x, y, BZ_U_SPELL(ZT_FIRE), dmg, BURNING_OIL, EXPL_FIERY);
+    /* the hero's own flask is a hero-side fireball, confined to an
+       engulfer the hero is inside; any other is monster-side, so its
+       floor effects are never blamed on the hero */
+    explode(x, y, byyou ? BZ_U_SPELL(ZT_FIRE) : BZ_M_SPELL(ZT_FIRE), dmg,
+            BURNING_OIL, EXPL_FIERY);
 }
 
 /* lit potion of oil is exploding; extinguish it as a light source before
-   possibly killing the hero and attempting to save bones */
+   possibly killing the hero and attempting to save bones; 'byyou' when
+   the hero broke it */
 void
-explode_oil(struct obj *obj, coordxy x, coordxy y)
+explode_oil(struct obj *obj, coordxy x, coordxy y, boolean byyou)
 {
     boolean diluted_oil = obj->odiluted;
 
@@ -1319,7 +1326,7 @@ explode_oil(struct obj *obj, coordxy x, coordxy y)
     if (cansee(x, y))
         makeknown(obj->otyp);
     obj->how_lost = LOST_EXPLODING;
-    splatter_burning_oil(x, y, diluted_oil);
+    splatter_burning_oil(x, y, diluted_oil, byyou);
 }
 
 /* Convert a damage type into an explosion display type. */

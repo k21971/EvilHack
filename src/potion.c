@@ -2105,7 +2105,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
         switch (obj->otyp) {
         case POT_OIL:
             if (obj->lamplit) {
-                explode_oil(obj, u.ux, u.uy);
+                explode_oil(obj, u.ux, u.uy, your_fault);
             } else {
                 pline("Yuck!  You're covered in oil!");
                 if (!Glib)
@@ -2380,7 +2380,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
             break;
         case POT_OIL:
             if (obj->lamplit)
-                explode_oil(obj, tx, ty);
+                explode_oil(obj, tx, ty, your_fault);
             break;
         case POT_ACID:
             if (!(resists_acid(mon) || defended(mon, AD_ACID))

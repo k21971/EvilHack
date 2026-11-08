@@ -1171,8 +1171,8 @@ extern long rndexp(boolean);
 
 extern void explode(coordxy, coordxy, int, int, char, int);
 extern long scatter(coordxy, coordxy, int, unsigned int, struct obj *);
-extern void splatter_burning_oil(coordxy, coordxy, boolean);
-extern void explode_oil(struct obj *, coordxy, coordxy) NONNULLARG1;
+extern void splatter_burning_oil(coordxy, coordxy, boolean, boolean);
+extern void explode_oil(struct obj *, coordxy, coordxy, boolean) NONNULLARG1;
 extern int adtyp_to_expltype(const int);
 extern void mon_explodes(struct monst *, struct attack *) NONNULLPTRS;
 

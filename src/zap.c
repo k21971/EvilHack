@@ -7476,8 +7476,9 @@ zap_over_floor(
     } else if (exploding_wand_typ == POT_OIL
                || exploding_wand_typ == SCR_FIRE) {
         /* breakobj() -> explode_oil() -> splatter_burning_oil()
-           -> explode(ZT_SPELL(ZT_FIRE), BURNING_OIL)
-           -> zap_over_floor(ZT_SPELL(ZT_FIRE), POT_OIL) */
+           -> explode(BZ_U_SPELL(ZT_FIRE) for the hero's flask, else
+              BZ_M_SPELL(ZT_FIRE), BURNING_OIL)
+           -> zap_over_floor(that type, POT_OIL) */
         /* leave zapverb as "blast"; exploding_wand_typ was nonzero, so
            'yourzap' is FALSE and the result will be "the blast" */
         exploding_wand_typ = 0; /* not actually an exploding wand */

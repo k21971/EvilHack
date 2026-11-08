@@ -3098,7 +3098,7 @@ breakobj(
     case POT_WATER:      /* really, all potions */
         obj->in_use = 1; /* in case it's fatal */
         if (obj->otyp == POT_OIL && obj->lamplit) {
-            explode_oil(obj, x, y);
+            explode_oil(obj, x, y, hero_caused);
         } else if (next2u(x, y)) {
             if (!Breathless_nomagic || haseyes(gy.youmonst.data)) {
                 /* wet towel protects both eyes and breathing */
