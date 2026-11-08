@@ -17,9 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-07, after session 306's
-  monster-wish slice, which closed one Phase 2 LOW row and minted
-  one):
+- Phase 2 status (refreshed 2026-11-08, after session 307's
+  strangle residue (e)+(f) slice, which fixed two items of an open
+  LOW row and added two record items to it; no row closed or
+  minted):
   664 rows closed, 53 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
@@ -21176,12 +21177,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (e) Drawbridge kills from a pet's wand of striking or a tame
           caster's force bolt (gb.buzzer set, muse.c's drawbridge
           arm) go through dbridge.c's monkilled() with no pet credit.
+          FIXED 2026-11-08 (session 307, 0a19e2aea, BUG-2916): new
+          staticfn e_pet_credit() gives the kill to floor_zap_pet()'s
+          tame zapper (now extern) when it is still alive, right
+          before e_died()'s kill and its steed's, e_kill_again()'s
+          second kill, the spared monster's minliquid() fall and each
+          debris chain (the last two cleared after, unused by a
+          survivor). Reviewer fold: mondead() never credits a pet
+          with its own death (every credit site).
       (f) A booby-trapped door's blast (monmove.c: explode() with
           ZT_FIRE and TRAPPED_DOOR) passes a positive type, so
           explode()'s inside_engulfer is TRUE whenever the hero is
           engulfed anywhere on the level and the whole blast is
           skipped, the door opener's damage included (master's
           monmove.c / explode.c the same shape).
+          FIXED 2026-11-08 (session 307, af0e40e62, BUG-2914 +
+          BUG-2915; ruled "never the hero's"): every door blast
+          (mb_trapped(), b_trapped()'s door arm) and every forge
+          blast (blowupforge(): dips, failed forging, #monster, a
+          lava gremlin) passes BZ_M_SPELL(ZT_FIRE); a booby-trapped
+          tin keeps ZT_FIRE. The census found the positive type
+          also made 5.0's sign-based zap_over_floor() blame the
+          hero for every door / forge blast, a monster's included
+          (BUG-2915, branch-only): wakeup(mon, TRUE) on everything
+          in it (peacefuls angered, "You feel guilty.", Elbereth
+          erased with "You feel like a hypocrite.", a temple
+          priest's wrath), dryup(isyou) for a town fountain, shop
+          billing for burned scrolls / books and broken doors. Kills
+          and setmangry() from a hero-set blast stay the hero's
+          (explode()'s own mon_moving tests). Lava gremlin forge
+          blast was the same bug (master-shared skip).
       (g) doc/claude/EVILHACK_MECHANICS.md (wiki snapshot) says a
           draugr can't be strangled; in its own form the amulet
           strangles it (can_be_strangled() reads the role monster).
@@ -21287,6 +21312,48 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       POST gone at once. T4 fog cloud vs zombie / crocodile: PRE and
       MASTER 1-6 per round, POST 0; hill orc and flaming sphere
       damaged everywhere.
+      Added 2026-11-08 by session 307 (Plan stress test, reviewer;
+      record):
+      (p) splatter_burning_oil() always passes BZ_U_SPELL(ZT_FIRE)
+          (vanilla 5.0's shape), so a monster-caused lit-oil burst
+          has (f)'s engulf skip and blame. Reachable: mb_trapped()'s
+          own MAY_DESTROY scatter breaking a lit potion of oil on the
+          door square (breaks() -> breakobj(..., FALSE, FALSE)), or
+          a monster's thrown potion hitting (potionhit()).
+      (q) The boulder on a collapsing drawbridge span goes through
+          flooreffects() -> boulder_hits_pool() -> mondied(), so the
+          monster sharing its square (a xorn) dies with no credit for
+          anyone, the hero included.
+      SESSION 307 BATTERIES (every paniclog empty; PRE b85742da,
+      POST e5db5329, before the reviewer fold; committed 0fb6e548):
+      T1 engulfed in a fog cloud 5 squares away: a fleeing hill orc
+      opens a FIRE_BLAST door - PRE `EXPLODE type=1 olet=28
+      uswallow=1` and nothing else, orc and gnome untouched; POST
+      type=-12, gnome killed, orc 12 -> 6. A peaceful lava gremlin's
+      forge blast: PRE nothing; POST both gnomes killed. Tin
+      control: both builds hit only the hero and the fog cloud.
+      (Monsters do not move while the hero is engulfed unless
+      fleeing - monmove.c's u.uswallow return - so the door case
+      needs a fleeing opener; the forge case runs every turn.) T2
+      not engulfed, hero on a burned Elbereth: a
+      hill orc's door blast - PRE WAKEUP via_attack=1 + SETMANGRY
+      on the orc and a peaceful gnome, "You feel like a
+      hypocrite.", Elbereth gone, gnome hostile, record 0 -> -7,
+      DRYUP isyou=1, BURNFLOOR u_caused=1; POST via_attack=0, no
+      SETMANGRY, Elbereth kept, gnome peaceful, record unchanged,
+      isyou=0, u_caused=0. The hero's own #open: both builds the
+      gnome turns hostile ("You feel guilty.") and the newt is
+      player_killed=1; PRE 1/1/1, POST 0/0/0 for via_attack / isyou
+      / u_caused. Forge blast next to a peaceful gnome: PRE record
+      2 -> -15 with the hypocrite line; POST nothing. T3 staged
+      drawbridges, a tame gnome lord's wand of striking: the hill
+      orc on the span (chunk kill and spared-then-drowned) PRE
+      `pet_killer=none`, POST `pet_killer=gnome noble`; a gnome
+      blown apart on the portcullis square and a life-saved orc's
+      two deaths the same split; controls on both builds - a
+      hostile zapper none, the hero's zap player_killed=1, the pet
+      crushed by its own bridge none, a zapper killed first on the
+      portcullis square none for the later kill.
 - [x] LOW: "nothing left" deaths still leave a corpse (minted
       2026-10-06, session 186, by the direct-death slice's reviewer;
       master-shared). really_done()'s no-corpse list covers BURNING,
@@ -37791,6 +37858,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-11-08 | Door / forge blast and drawbridge credit slice (Phase 2 session 307, AskUserQuestion x3 with 3 questions - one a battery launch ask - all as recommended). (1) SLICE: strangle residue (e)+(f) (the session 302 record pair, the untamed kitten row and the tool rows not taken). (2) SCOPE "never the hero's": every booby-trapped door blast and every forge blast passes the monster-side fire type whoever set it off - master's shape (master's zap_over_floor() gated blame on yourzap, FALSE for these) and the branch comment's stated intent; a booby-trapped tin keeps the hero's type; kills and setmangry() from a hero-set blast stay the hero's (rejected: by cause - only monster-set blasts switch; door only, as recorded). (3) Battery: launch all three testers. Session calls, plan-approved: the drawbridge pet credit reuses zap.c's floor_zap_pet() (made extern), skips a pet already dead, covers each debris chain and the spared monster's fall into the moat; the reviewer's self-credit LOW folded as one mondead() guard for every credit site; oil burst and boulder deaths recorded as items (p) / (q). Commits af0e40e62 / 0a19e2aea; BUG-2914..2916. | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
