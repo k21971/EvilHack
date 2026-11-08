@@ -5020,7 +5020,7 @@ maybe_dunk_boulders(coordxy x, coordxy y)
 
     while (is_pool_or_lava(x, y) && (otmp = sobj_at(BOULDER, x, y)) != 0) {
         obj_extract_self(otmp);
-        (void) boulder_hits_pool(otmp, x,y, FALSE);
+        (void) boulder_hits_pool(otmp, x, y, FALSE, FALSE);
     }
 }
 

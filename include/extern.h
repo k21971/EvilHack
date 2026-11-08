@@ -713,7 +713,8 @@ extern int fn_cmap_to_glyph(int);
 /* ### do.c ### */
 
 extern int dodrop(void);
-extern boolean boulder_hits_pool(struct obj *, coordxy, coordxy, boolean);
+extern boolean boulder_hits_pool(struct obj *, coordxy, coordxy, boolean,
+                                 boolean);
 extern boolean flooreffects(struct obj *, coordxy, coordxy,
                             const char *) NONNULLPTRS;
 extern void doaltarobj(struct obj *) NONNULLARG1;

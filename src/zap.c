@@ -7011,7 +7011,7 @@ melt_ice(coordxy x, coordxy y, const char *msg)
             pline("%s settles...", An(xname(otmp)));
         do {
             obj_extract_self(otmp); /* boulder isn't being pushed */
-            if (!boulder_hits_pool(otmp, x, y, FALSE))
+            if (!boulder_hits_pool(otmp, x, y, FALSE, FALSE))
                 impossible("melt_ice: no pool?");
             /* try again if there's another boulder and pool didn't fill */
         } while (is_pool(x, y) && (otmp = sobj_at(BOULDER, x, y)) != 0);

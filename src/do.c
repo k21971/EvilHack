@@ -52,7 +52,8 @@ boolean
 boulder_hits_pool(
     struct obj *otmp, /* the object falling into a pool or water or lava */
     coordxy rx, coordxy ry, /* coordinates of the pool */
-    boolean pushing)  /* for a boulder, whether or not it is being pushed */
+    boolean pushing,  /* for a boulder, whether or not it is being pushed */
+    boolean byyou)    /* a monster it buries is the hero's kill */
 {
     if (!otmp || otmp->otyp != BOULDER) {
         impossible("Not a boulder?");
@@ -90,8 +91,12 @@ boulder_hits_pool(
             if ((mtmp = m_at(rx, ry)) != 0 && !DEADMONSTER(mtmp)
                 && r_data(mtmp)->msize <= MZ_LARGE && !m_in_air(mtmp)
                 /* up by gear, a spell or a flying or floating steed */
-                && !mon_airborne(mtmp) && !mon_steed_airborne(mtmp))
-                mondied(mtmp);
+                && !mon_airborne(mtmp) && !mon_steed_airborne(mtmp)) {
+                if (byyou)
+                    xkilled(mtmp, XKILL_NOMSG);
+                else
+                    mondied(mtmp);
+            }
 
             if (ttmp)
                 (void) delfloortrap(ttmp);
@@ -210,7 +215,7 @@ flooreffects(
     save_bhitpos = gb.bhitpos;
     gb.bhitpos.x = x, gb.bhitpos.y = y;
 
-    if (obj->otyp == BOULDER && boulder_hits_pool(obj, x, y, FALSE)) {
+    if (obj->otyp == BOULDER && boulder_hits_pool(obj, x, y, FALSE, FALSE)) {
         res = TRUE;
     } else if (obj->otyp == BOULDER && (t = t_at(x, y)) != 0
                && (is_pit(t->ttyp) || is_hole(t->ttyp))) {

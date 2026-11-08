@@ -644,7 +644,7 @@ moverock_core(coordxy sx, coordxy sy)
                 }
             }
 
-            if (boulder_hits_pool(otmp, rx, ry, TRUE))
+            if (boulder_hits_pool(otmp, rx, ry, TRUE, FALSE))
                 continue;
 
             /*

@@ -1242,7 +1242,13 @@ destroy_drawbridge(coordxy x, coordxy y)
         lev1->drawbridgemask = 0;
         if ((otmp2 = sobj_at(BOULDER, x, y)) != 0) {
             obj_extract_self(otmp2);
-            (void) flooreffects(otmp2, x, y, "fall");
+            /* a monster it buries is killed by whoever brought the bridge
+               down, as the bridge's own victims are */
+            e_pet_credit();
+            (void) boulder_hits_pool(otmp2, x, y, FALSE,
+                                     !svc.context.mon_moving);
+            /* a boulder that buried nobody leaves the credit unused */
+            set_pet_killer((struct monst *) 0);
         }
     } else {
         /* no moat beneath */
