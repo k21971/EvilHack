@@ -218,6 +218,10 @@ setnotworn(struct obj *obj)
         }
     if (!uarm)
         iflags.tux_penalty = FALSE;
+    /* nothing is wielded now; the next melee gives uwepgone()'s
+       bare-hands reminder */
+    if ((unworn & W_WEP) != 0L)
+        gu.unweapon = TRUE;
     /* see setworn() */
     if ((unworn & (W_WEP | W_SWAPWEP)) != 0L
         || (flags.armorstatus && (unworn & W_ARMOR) != 0L))

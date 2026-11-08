@@ -1754,6 +1754,11 @@ nhl_gamestate(lua_State *L)
         }
         assert(gg.gmst_ubak != NULL);
         (void) memcpy((genericptr_t) &u, gg.gmst_ubak, sizeof u);
+        /* useupall() above left gu.unweapon set and setworn()
+           re-seated the weapon without setuwep()'s set_unweapon();
+           derive the flag from that weapon now that u (and the
+           u.usteed set_unweapon() reads) is back */
+        set_unweapon(uwep);
         assert(gg.gmst_disco != NULL);
         (void) memcpy((genericptr_t) &svd.disco, gg.gmst_disco,
                       sizeof svd.disco);
