@@ -347,8 +347,13 @@ flooreffects(
         if (is_puddle(x, y) && !rn2(3)) {
             /* shallow water isn't an endless resource like a pool/moat */
             levl[x][y].typ = ROOM;
+            /* a submerged hero saw through the water; the floor blocks */
+            recalc_block_point(x, y);
             /* unhide any monster (or hero) lurking in it */
             maybe_unhide_at(x, y);
+            /* a tiny hero under it is out of the water at once */
+            if (u_at(x, y))
+                leave_vanished_water();
             newsym(x, y);
             if (cansee(x, y))
                 pline_The("puddle dries up.");

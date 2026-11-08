@@ -2141,6 +2141,9 @@ trapeffect_fire_trap(
                 if (in_sight)
                     pline_The("water evaporates!");
                 levl[tx][ty].typ = ROOM;
+                /* a submerged hero saw through the water; the floor
+                   blocks */
+                recalc_block_point(tx, ty);
                 maybe_unhide_at(tx, ty);
                 newsym(tx, ty);
             }

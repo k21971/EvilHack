@@ -198,6 +198,8 @@ gush(coordxy x, coordxy y, genericptr_t arg)
     /* Put a puddle at x, y */
     set_levltyp(x, y, PUDDLE);
     levl[x][y].flags = 0;
+    /* a submerged hero sees through the new water */
+    recalc_block_point(x, y);
     /* No kelp! */
     del_engr_at(x, y);
     water_damage_chain(svl.level.objects[x][y], TRUE, 0, TRUE);

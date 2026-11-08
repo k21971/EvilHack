@@ -192,11 +192,13 @@ does_block(int x, int y, struct rm *lev)
             && (lev->doormask & (D_CLOSED | D_LOCKED | D_TRAPPED))))
         return 1;
 
-    /* a submerged hero who can see down there sees through water and
-       ice only; every way out of the water rebuilds the tables, and so
-       do the known sites that change what the hero can see down there */
+    /* a submerged hero who can see down there sees through water
+       (shallow water and sewage too) and ice only; every way out of the
+       water rebuilds the tables, and so do the known sites that change
+       what the hero can see down there */
     if (Underwater && See_underwater && !Is_waterlevel(&u.uz)
-        && !IS_POOL(lev->typ) && lev->typ != ICE)
+        && !IS_POOL(lev->typ) && !IS_PUDDLE(lev->typ)
+        && !IS_SEWAGE(lev->typ) && lev->typ != ICE)
         return 1;
 
 #ifdef DEBUG

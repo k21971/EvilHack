@@ -7227,6 +7227,8 @@ zap_over_floor(
                 You_hear("hissing gas.");
             rangemod -= 3;
             lev->typ = ROOM, lev->flags = 0;
+            /* a submerged hero saw through the water; the floor blocks */
+            recalc_block_point(x, y);
             /* unhide any monster (or hero) lurking in it */
             maybe_unhide_at(x, y);
             if (u_at(x, y))
