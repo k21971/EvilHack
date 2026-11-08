@@ -17,10 +17,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-08, after session 309's
-  session 302 record pair slice, which closed two LOW rows and
-  minted one LOW record row):
-  666 rows closed, 53 open
+- Phase 2 status (refreshed 2026-11-08, after session 310's conduct
+  wiring slice, which closed the untagged conduct row and minted one
+  MED row; earlier the same session ticked two stale untagged rows
+  whose code had already landed in Phase 3 - the ratname / homunname
+  pet-name options and the endgame plane order - and recounted by
+  grep of the Phase 2 section's `- [x]` / `- [ ]` rows: the closed
+  figure here had run one high since at least session 306, and the
+  untagged and LOW sub-counts below were also stale;
+  51 = 0 HIGH + 2 MED + 4 SWEEP + 6 untagged + 39 LOW):
+  668 rows closed, 51 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -30,8 +36,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 1 MED: door-material colors (an unported master feature; it
-    stays with Phase 4).
+  - 2 MED: door-material colors (an unported master feature; it
+    stays with Phase 4), and leaving the tutorial drops the worn
+    kit's extrinsics (minted by session 310; vanilla 5.0 shape: a
+    Wizard's cloak shows worn but gives no magic resistance until it
+    is taken off and put back on).
+    Session 310 closed the conduct wiring row (BUG-2924..2926): worn
+    items and new forms break "never acquired magic resistance" and
+    "never acquired reflection" again, as on 0.9.3 (a Wizard's
+    starting cloak counts, so no Wizard keeps the first one);
+    chromatic dragon-scaled armor's reflection now counts too;
+    #conduct and the dumplog list those two and "never touched an
+    artifact"; the xlogfile conduct field carries them in bits 16,
+    17 and 18.
     Session 296 closed the ranged-casting MED (BUG-2867..2869):
     spell-list casters cast directed spells at you from range again
     when lined up, as on 0.9.3; master's list of close-range spells
@@ -369,7 +386,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     other hand's plain weapon no longer counts); cancellation also
     ends Stoneskin's stoning resistance, and spares a form's or
     race's reflection and vulnerabilities.
-  - 8 untagged: port gaps (material consumers, Caveperson flint and
+  - 6 untagged: port gaps (material consumers, Caveperson flint and
     meat armor (minted and closed session 287, BUG-2827..2835),
     Rumor-slice riders (closed session 286,
     BUG-2810..2820), Muse offense items (closed session 285,
@@ -377,11 +394,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     meatfood(), monster chest_trap() (closed session 283, BUG-2773),
     des-placed mplayer sex, look_at_monster buffer; "pairs of" closed
     by design, session 276),
-    rows that wait on other work (endgame plane order with Phase
-    3's endgame.lua, Convict/Infidel pet names with their quest
-    tracks, damp riders with their features), and the standing
-    per-subsystem archive sweep.
-  - 49 LOW: small parity rows, quirks and watch/record-only items.
+    rows that wait on other work (damp riders with their features;
+    the endgame plane order and the Convict / Infidel pet names
+    turned out landed in Phase 3 and were ticked by session 310),
+    and the standing per-subsystem archive sweep.
+  - 39 LOW: small parity rows, quirks and watch/record-only items.
     Session 309 closed the session 302 record pair: a hero under the
     water with goggles sees through puddles and sewage, and a tiny
     hero under a puddle that dries up comes out at once
@@ -10096,7 +10113,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       disguised only from master's 12; five nasty(0, 0) waves (49
       monsters) all from the table; a doppelganger's picks from the
       table. Recorded in doc/PORT_50_REMOVALS.md.
-- [ ] pet-name options for the EvilHack-only roles (minted 2026-08-07
+- [x] pet-name options for the EvilHack-only roles (minted 2026-08-07
       by the Wizard slice's pseudoname plumbing): master also carries
       ratname (Convict sewer rat) and homunname (Infidel lesser
       homunculus) with dog.c petname arms; the branch has neither
@@ -10104,6 +10121,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (batch 3); clone the pseudoname plumbing shape (gp/gr/gh letter
       structs + optlist NHOPTC + petname_optfn arm + wrapper + dog.c
       ternary arm).
+      CLOSED 2026-11-08 (session 310, stale row, tracker-only): landed
+      with the Infidel quest C payload e9e8d96ed (BUG-1544, 2026-08-12)
+      and never ticked here. Bodies re-read: optlist.h NHOPTC(ratname)
+      and NHOPTC(homunname); decl.h gr.ratname / gh.homunname;
+      petname_optfn() arms plus optfn_ratname() / optfn_homunname();
+      makedog()'s PM_SEWER_RAT / PM_LESSER_HOMUNCULUS arms, with the
+      Nicodemus / Hecubus defaults. Live evidence in the Infidel.des
+      levels-table row: pet names 3/3, the Nicodemus / Hecubus / Bobo
+      controls and pettype b/B/* round trips through save.
 - [x] rloc_to_core worm mtrapped-stale parity note (minted 2026-08-07,
       Wizard-slice reviewer LOW): branch/upstream-5.0 skips the
       post-teleport mintrap re-check for long worms WITHOUT clearing
@@ -10380,7 +10406,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (elven 20, bow 18, Diana 21, orcish 16, crossbow 19, hand
       crossbow 17, Carl 21, sling 13) and Str 25 still reads
       urange=9 - the cap holds.
-- [ ] Conduct wiring reconciliation (reflection/antimagic/forgedarti)
+- [x] Conduct wiring reconciliation (reflection/antimagic/forgedarti)
       NOT PORTED (minted 2026-08-06 by the Knight slice's C-hook audit).
       The u.uconduct counter fields and topten.c token-string readers
       (add_achieveX) are live on branch and the Knight slice ported the
@@ -10427,6 +10453,51 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       antimagic/reflection conduct writers can hang off its return
       exactly as master's setworn does; celestial dragon-SCALED body
       armor now grants EFlying|W_ARM to the hero and MR2_FLY to monsters.
+      CLOSED 2026-11-08 (Phase 2 session 310, commit dc4508009,
+      BUG-2924..2926). Writers: setworn() counts a worn item whose
+      armor_provides_extrinsic() is ANTIMAGIC / REFLECTING (master's
+      two bumps, before `p` is reused for w_blocks(); the already-seated
+      skip keeps a reseat from counting again); polymon() counts a
+      resists_mgc() form and a silver dragon (master's spot, after
+      set_uasmon()); dragon_armor_handling()'s chromatic arm counts its
+      secondary reflection (ruled; master-shared omission, BUG-2926).
+      Display: show_conduct() lists "touched an artifact" after the
+      form line and "acquired magic resistance" / "acquired reflection"
+      after the forged line (master cmd.c's order; the dumplog follows).
+      Xlog: encodeconduct() bits 16 antimagic, 17 reflection, 18
+      artitouch (ruled; bit 15 forged unchanged; conductX unchanged).
+      Rulings 2026-11-08: those bits; chromatic counts; the starting kit
+      counts (master parity - 7/7 local 0.9.3 Wizard xlog entries lack
+      never_acquired_magic_resistance, so every Wizard starts with it
+      broken). The steed-Flying annotation above was discharged by the
+      session 188 LOW row (the macro reads mon_airborne(u.usteed)); the
+      armor_provides_extrinsic annotation by the 2026-09-07 landing.
+      Plan stress test CONDITIONAL PASS (all folded; it found the
+      tutorial extrinsics bug, minted as its own MED row); reviewer
+      PASS, two comment LOWs folded. BATTERY (PRE b427dbdb / POST
+      a4872905, three testers, human characters, every paniclog and
+      .err empty): T1 Valkyrie turn 1 PRE conduct=0xdfff, no new lines /
+      POST 0x7dfff with "You have never touched an artifact.", "...
+      acquired magic resistance.", "... acquired reflection."; wielded
+      cloak of MR and an off-hand shield of reflection without
+      twoweapon move nothing on both; worn cloak of MR PRE 0 / POST 1,
+      re-worn POST 2; amulet, shield and silver scales each reflection
+      PRE 0 / POST 1; bare chromatic scales (cloak slot) POST antimagic
+      1, reflection 0; enchant-armor meld onto plate mail ("Your set of
+      chromatic dragon scales hardens and melds into your mail!",
+      corpsenm 144) PRE 0/0 / POST 1/1, re-worn POST 1/1 again; quit PRE
+      0xddbf / POST 0x4ddbf, end screen POST "You never touched an
+      artifact." only. T2 human Wizard turn 1 PRE antimagic 0, 0xdfff /
+      POST 1, 0x6dfff, no MR line and no MR token; Valkyrie #polyself
+      gray dragon PRE 0 / POST antimagic 1, silver dragon POST
+      reflection 1, newt and the return to human form move nothing. T3
+      Frost Brand wish: artitouch 1 on both, POST 0x3d9ff and the
+      artifact line gone; intact quit PRE 0xdfff / POST 0x7dfff,
+      conductX identical; death with an amulet of reflection: POST
+      "You never touched an artifact." and "You never acquired magic
+      resistance." on the death screen and in the dumplog, conduct
+      0x5ddff; save / restore POST antimagic 1 -> 2 at restore (the
+      re-seat; master does the same), lines unchanged, PRE 0 -> 0.
 - [x] Slow-status ladder (u_slow_down HSlow timeout + Fast/Very_fast
       !Slow gating) DONE 2026-08-20, TWO COMMITS (A = BUG-1609
       polyself.c rehumanize FROMHUNGER reset, independent live bug
@@ -17267,8 +17338,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       two outstanding arms landed with their slices - Vecna:%-2d
       and Hidden:%-2d verified live in botl.c (WizTwr and the
       endgame naming too); nothing remains.
-- [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
+- [x] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
+      CLOSED 2026-11-08 (session 310, stale row, tracker-only): both
+      halves landed in Phase 3 and were never ticked here. The
+      mkportal() In_endgame dlevel-1 arm came with the endgame.des
+      slice (2026-08-01, levels-table row); the order came with
+      ec6a92b05 (2026-08-16): dat/dungeon.lua gives water / fire /
+      air / earth base 2 range 4 (master's dungeon.def "@ (2, 4)"),
+      astral 1, dummy 6, entry -2, and dungeon.c reads "range" for
+      each level. ec6a92b05's battery: 6 games, 6/6 distinct plane
+      orders, a full portal-chain traversal, canonical xlog deathlev.
 - [x] SWEEP: FEATURES_ARCHIVE.md Features Index (57 entries) +
       dated 2026 sections (~100) - tick each off as covered by the
       subsystems above or added here; nothing skipped silently.
@@ -25019,7 +25099,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       suddenly appears next to you!" repeatedly with arrivals mtame 5;
       human control never; kicking Excalibur -> artitouch 0 -> 1 by gdb
       (the #conduct screen never lists artitouch - it is an xlogfile
-      achievement); tamedog by gdb call: lava demon as human returns 1
+      achievement [CORRECTED 2026-11-08, session 310: master's
+      #conduct does list it; the branch had dropped the line, now
+      ported]); tamedog by gdb call: lava demon as human returns 1
       (mtame 5), vrock as human 0, vrock as demon race 1. Observation,
       master parity: a refused tamedog still leaves the monster
       peaceful (vanilla's "worst case, at least it'll be peaceful").
@@ -25336,6 +25418,24 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       changes and the unconditional unblock_point() calls (dig.c
       zap_dig walls, music.c, apply.c) never recalc for the
       submerged clause. Record only.
+- [ ] MED: leaving the tutorial drops the worn kit's extrinsics
+      (minted 2026-11-08, session 310, found by the conduct slice's
+      Plan stress test; vanilla 5.0 shape, branch-shared - master has
+      no tutorial). nhl_gamestate()'s store side setnotworn()s each
+      item (clearing u.uprops[].extrinsic and the artifact intrinsics)
+      BEFORE copying `u` to gg.gmst_ubak; the restore side re-seats
+      the kit with setworn() and THEN memcpy()s that copy over `u`,
+      wiping the re-grants. So after the tutorial every worn item
+      shows worn but confers nothing until it is taken off and put
+      back on (blocked props too; a wielded artifact's intrinsics the
+      same way). Live (T2, POST a4872905, human Wizard): cloak of
+      magic resistance worn=0x2, MC:1, ANTIMAGIC ext=0x0, ^X lists no
+      magic resistance; T then W restores ext=0x2. Official_nh50
+      src/nhlua.c has the same order. Candidate fix: restore `u`
+      first, then re-seat (keeping the u.uz / unweapon fix-ups after),
+      or store `u` before the setnotworn() loop; check the conduct
+      counters, nudist and set_artifact_intrinsic() side effects under
+      either order. Also a vanilla PR candidate (5.0 fixes hub).
 - [x] LOW, record: worn-weapon useups that skip uwepgone() leave
       gu.unweapon stale - FIXED 2026-11-08 (session 309, commit
       `Fix: losing your weapon reminds you of your bare hands.` =
@@ -38045,6 +38145,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-08 | Door / forge blast and drawbridge credit slice (Phase 2 session 307, AskUserQuestion x3 with 3 questions - one a battery launch ask - all as recommended). (1) SLICE: strangle residue (e)+(f) (the session 302 record pair, the untamed kitten row and the tool rows not taken). (2) SCOPE "never the hero's": every booby-trapped door blast and every forge blast passes the monster-side fire type whoever set it off - master's shape (master's zap_over_floor() gated blame on yourzap, FALSE for these) and the branch comment's stated intent; a booby-trapped tin keeps the hero's type; kills and setmangry() from a hero-set blast stay the hero's (rejected: by cause - only monster-set blasts switch; door only, as recorded). (3) Battery: launch all three testers. Session calls, plan-approved: the drawbridge pet credit reuses zap.c's floor_zap_pet() (made extern), skips a pet already dead, covers each debris chain and the spared monster's fall into the moat; the reviewer's self-credit LOW folded as one mondead() guard for every credit site; oil burst and boulder deaths recorded as items (p) / (q). Commits af0e40e62 / 0a19e2aea; BUG-2914..2916. | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-08 | Oil burst and drawbridge boulder slice (Phase 2 session 308, AskUserQuestion x2 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: strangle residue (p)+(q) (the session 302 record pair, the untamed kitten row and the tool rows not taken). (2) (p) BY CAUSE: a lit-oil burst passes BZ_U_SPELL(ZT_FIRE) only when the hero broke the flask (breakobj()'s hero_caused, potionhit()'s your_fault), else BZ_M_SPELL(ZT_FIRE); the hero's own flask keeps 5.0's billing (closes master's free shop-burn route) and its engulf confinement; one broken by a mine or trap the hero set off is not floor-blamed, its kills and anger stay the hero's (rejected: master's floor rule - the hero's own flask never billed, an oil-only exception in zap_over_floor()). (3) (q) BRIDGE ONLY: the span boulder's buried monster dies by e_died()'s rule (hero's turn xkilled, pet zap pet credit, else nobody), no kill message (rejected: minliquid()'s rule for every boulder on the hero's turn - contradicts ohitmon()'s rolling-boulder rule). (4) Battery: launch the testers. Session calls, plan-approved: the engulfed-tin scatter flask bursts open (it lay outside the engulfer); the 2026-07-24 billing divergence minted as a LOW record row; reviewer's apply.c spacing LOW folded, its pyrolisk-egg LOW recorded as item (u). Commits 5a3902d08 / ea526f9ff; BUG-2917..2919. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-08 | Session 302 record pair slice (Phase 2 session 309, AskUserQuestion x2 with 3 questions - one a battery launch ask - all as recommended). (1) SLICE: the session 302 record pair, does_block()'s puddle / sewage clause and the worn-weapon useups (the tool rows, the untamed kitten row and strangle (r)..(u) not taken). (2) UNWEAPON CENTRAL: setnotworn() sets gu.unweapon whenever it empties the weapon slot, every route giving the bare-hands reminder (rejected: uwepgone() at the row's listed sites only; closing as a record). (3) Battery: launch the testers. Session calls, plan-approved: the sight scope follows fd2af9750's ruling (puddle and sewage count as water for every submerged See_underwater hero); recalc_block_point() at the puddle / sewage <-> floor flips (fire boil, drop dry-up, a monster's fire trap, a fountain gush - the last the reviewer's LOW); the hero-square dry-ups surface the hero at once (BUG-2921, folded sibling); the tutorial restore re-derives the flag (Plan stress test, BUG-2923); the pool boil hunk dropped (maketrap(PIT) already recalcs); the residue (pit / hole on the hero's puddle, drown()'s placebc(), a punished teleport's chain dry-up, pool-side view gaps) minted as a LOW record row. Commits 906ef8dda / c57b305b0; BUG-2920..2923. | maintainer (1-3); session, plan-approved (rest) |
+| 2026-11-08 | Conduct wiring slice (Phase 2 session 310, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (0) Two stale untagged rows ticked tracker-only first (ratname / homunname pet names, e9e8d96ed; endgame plane order, ec6a92b05), Dashboard recounted. (1) SLICE: the conduct wiring row (the Hammer tether, the four SWEEP rows and a bulk LOW "record, won't fix" ruling not taken). (2) XLOG BITS: encodeconduct() appends antimagic 16, reflection 17, artitouch 18 after forged 15, so the numeric field carries all four EvilHack conducts (rejected: 16 / 17 only; no new bits, conductX only). (3) CHROMATIC COUNTS: chromatic dragon-scaled armor's secondary reflection breaks the reflection conduct (master-shared omission, BUG-2926; rejected: master parity). (4) STARTING KIT COUNTS: master / 0.9.3 parity, every Wizard starts with "never acquired magic resistance" broken (rejected: exempt the kit). (5) Battery: launch the testers. Session calls, plan-approved: the "touched an artifact" #conduct line folded (master lists it; the tracker's old note said otherwise); the tutorial extrinsics wipe found by the Plan stress test minted as its own MED row, not fixed here. Commit dc4508009; BUG-2924..2926. | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
