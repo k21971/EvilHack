@@ -17,11 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-08, after session 308's
-  strangle residue (p)+(q) slice, which fixed two items of an open
-  LOW row, added four record items to it and minted one LOW record
-  row; no row closed):
-  664 rows closed, 54 open
+- Phase 2 status (refreshed 2026-11-08, after session 309's
+  session 302 record pair slice, which closed two LOW rows and
+  minted one LOW record row):
+  666 rows closed, 53 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -382,7 +381,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 50 LOW: small parity rows, quirks and watch/record-only items.
+  - 49 LOW: small parity rows, quirks and watch/record-only items.
+    Session 309 closed the session 302 record pair: a hero under the
+    water with goggles sees through puddles and sewage, and a tiny
+    hero under a puddle that dries up comes out at once
+    (BUG-2920 / 2921); losing the wielded item by any route gives
+    the bare-hands reminder on the next fight (BUG-2922 / 2923).
+    It minted a submerged-hero terrain residue record row.
     Session 308 minted the zap_over_floor() billing record row (the
     hero's own broken wand and scroll of fire are billed by 5.0's
     sign tests; master's yourzap never billed them).
@@ -25258,9 +25263,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       LOW, noted): under the guard a levitator held by a trap over
       sewage loses float_down()'s "no longer trying to float up"
       line, as in erode_obj().
-- [ ] LOW, record: does_block()'s submerged clause blocks PUDDLE and
-      SEWAGE squares for a tiny hero submerged in them (minted
-      2026-11-06, session 302, stress test L5; master-shared - master's
+- [x] LOW, record: does_block()'s submerged clause blocks PUDDLE and
+      SEWAGE squares for a tiny hero submerged in them - FIXED
+      2026-11-08 (session 309, commit `Fix: a submerged hero sees
+      through shallow water and sewage.` = 906ef8dda; BUG-2920 /
+      2921, master-shared, frozen-unfixed; closure notes at the end
+      of this row; minted 2026-11-06, session 302, stress test L5;
+      master-shared - master's
       bare clause does the same). IS_POOL() covers POOL..DRAWBRIDGE_UP
       only, so a giant ant under sewage with goggles had does_block()
       true on every square (battery T4 entry sweep: 1659 of 1659) and
@@ -25268,8 +25277,71 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       no-sight arm uses is_damp_terrain(). Candidate: test
       is_damp_terrain() (or IS_PUDDLE / IS_SEWAGE) in the clause.
       Record only unless ruled.
-- [ ] LOW, record: worn-weapon useups that skip uwepgone() leave
-      gu.unweapon stale (minted 2026-11-06, session 302, stress test
+      CLOSURE (session 309; slice ruled 2026-11-08, decisions log;
+      the scope follows fd2af9750's "a puddle or sewage counts as
+      water for a submerged hero"). The clause adds IS_PUDDLE /
+      IS_SEWAGE for every submerged See_underwater hero (a hero in a
+      pool now sees across a puddle too). recalc_block_point() at
+      the runtime flips: zap_over_floor()'s fire boil arm,
+      flooreffects()'s puddle dry-up, trapeffect_fire_trap()'s
+      monster evaporation and gush()'s new puddles (reviewer LOW: a
+      wand of digging broken beside a fountain while submerged); the
+      pool boil arm already recalcs through maketrap(PIT). Folded
+      sibling (BUG-2921): flooreffects()'s and dodip()'s dry-up of
+      the hero's own puddle call leave_vanished_water(), so a tiny
+      hero comes up at once instead of staying submerged on floor
+      until moveloop's pooleffects(). Plan stress test CONDITIONAL
+      PASS (tutorial regression, pool hunk dropped, census premise,
+      residue, staging), code reviewer PASS (gush folded, the
+      tutorial comment reworded, the teleport-and-chain case
+      recorded). BATTERY (PRE 7b6af644, POST b427dbdb, all
+      paniclogs empty): T1 imp hero with goggles in a sewage /
+      puddle strip: PRE strip does_block=1 viz_clear=0, squares two
+      and three away unseen, SWEEP blocking=1659 mismatches=0 /
+      POST does_block=0 viz_clear=1, the strip in sight up to the
+      floor gap, the sewage square beyond it unseen, SWEEP 1654 /
+      0; POST a fire ray boiling the strip and a red mold's fire
+      trap evaporating a puddle leave each new floor square
+      does_block=1 viz_clear=0 at once, mismatches 0. T2 imp hero
+      (no goggles) in its own puddle, dry-up roll forced: drop and
+      #dip PRE "The puddle dries up." then "You are back on solid
+      ground." at the end of the turn (BACK_ON_GROUND uinwater=1 on
+      typ 26) / POST LEAVE_VANISHED_WATER at once, no back-on-ground
+      line; a normal-size hero identical on both builds.
+      FINDINGS (no row): the underwater redraw shows only water,
+      lava and ice squares even with goggles, so a boiled square or
+      a monster standing on one draws blank (master's "along the
+      water, not over the banks" design, both builds); POST's
+      dry-up splits the message with a --More-- before "The puddle
+      dries up." (the redraw, as the fire boil arm already does); a
+      dart dropped into a drying puddle still rusts after the dry-up
+      line (flooreffects() order, both builds).
+- [ ] LOW, record: submerged-hero terrain residue (minted 2026-11-08,
+      session 309, Plan stress test + code reviewer; pre-existing,
+      master-shared unless noted). (a) maketrap()'s pit / hole /
+      trapdoor turns the hero's own puddle into ROOM with no
+      leave_vanished_water() (a tiny submerged hero breaking a wand
+      of digging): submerged in the pit until the turn ends. (b)
+      drown()'s placebc() for a punished hero runs flooreffects() on
+      the ball and chain before set_uinwater(1); a dried puddle leaves
+      the hero submerged on floor. (c) teleds() keeps u.uinwater from
+      the square left, so a punished hero teleported out of water
+      whose chain dries the landing puddle is surfaced silently by
+      the new flooreffects() call: no "You are back on solid ground."
+      (and none from rescued_from_terrain() after a drowning
+      life-save); no cheap gate tells "submerged here" from
+      "submerged where I came from" (BUG-2921's call, branch-only).
+      (d) pool-side view gaps for a submerged See_underwater hero:
+      liquid_flow()'s ROOM -> POOL, the drawbridge span's type
+      changes and the unconditional unblock_point() calls (dig.c
+      zap_dig walls, music.c, apply.c) never recalc for the
+      submerged clause. Record only.
+- [x] LOW, record: worn-weapon useups that skip uwepgone() leave
+      gu.unweapon stale - FIXED 2026-11-08 (session 309, commit
+      `Fix: losing your weapon reminds you of your bare hands.` =
+      c57b305b0; BUG-2922 master / vanilla-shared, frozen-unfixed;
+      BUG-2923 vanilla-shaped, branch-fixed; closure notes at the
+      end of this row; minted 2026-11-06, session 302, stress test
       L3; master / vanilla-shaped). dipsink() useup() of a wielded
       potion (src/fountain.c), the Excalibur fountain dip's useup(),
       potion.c's mixing / explosion useups (dip_potion_explosion(),
@@ -25277,6 +25349,24 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pot_acid_damage()'s setnotworn() + delobj() (src/trap.c). Only
       the "You begin bashing ..." bookkeeping is lost (setnotworn()
       clears uwep). Record only.
+      CLOSURE (session 309; ruled central 2026-11-08, decisions log).
+      The census found 28 setnotworn() call sites, far more routes
+      than the row lists (forge dip, a stolen mirror, a broken or
+      given wand, part of a wielded stack destroyed ...). setnotworn()
+      sets gu.unweapon when it empties the W_WEP slot (merged() never
+      does: setworn(otmp, W_WEP) runs first; a later setuwep()
+      recomputes it). Folded (Plan stress test, BUG-2923): the
+      tutorial restore re-seats the stored weapon with a bare
+      setworn() after useupall()ing the kit, so it now calls
+      set_unweapon(uwep) once `u` is back, as restgamestate() does;
+      a weaponless starter (Monk, Tourist) gets one bare-hands line
+      after the tutorial, as after a restore. BATTERY T3 (PRE
+      7b6af644, POST b427dbdb, paniclogs empty): sink, forge and
+      Lady of the Lake (gdb rn2 lever) PRE uwep=(nil) unweapon=0 and
+      no line on the next attack / POST unweapon=1 and "You begin
+      bashing monsters with your bare hands."; `w-` control prints it
+      on both; tutorial round trip (spear) back in the Dungeons
+      unweapon=0 and no bashing line on both builds.
 - [x] LOW: vision_recalc() Blind arm lacks master's
       do_light_sources() call PORTED 2026-09-18 (session 128, commit
       `Fix: a blind hero's surroundings ignored carried light and
@@ -37954,6 +38044,7 @@ trees, different content - Phase 0 rename).
 |------|----------|----|
 | 2026-11-08 | Door / forge blast and drawbridge credit slice (Phase 2 session 307, AskUserQuestion x3 with 3 questions - one a battery launch ask - all as recommended). (1) SLICE: strangle residue (e)+(f) (the session 302 record pair, the untamed kitten row and the tool rows not taken). (2) SCOPE "never the hero's": every booby-trapped door blast and every forge blast passes the monster-side fire type whoever set it off - master's shape (master's zap_over_floor() gated blame on yourzap, FALSE for these) and the branch comment's stated intent; a booby-trapped tin keeps the hero's type; kills and setmangry() from a hero-set blast stay the hero's (rejected: by cause - only monster-set blasts switch; door only, as recorded). (3) Battery: launch all three testers. Session calls, plan-approved: the drawbridge pet credit reuses zap.c's floor_zap_pet() (made extern), skips a pet already dead, covers each debris chain and the spared monster's fall into the moat; the reviewer's self-credit LOW folded as one mondead() guard for every credit site; oil burst and boulder deaths recorded as items (p) / (q). Commits af0e40e62 / 0a19e2aea; BUG-2914..2916. | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-08 | Oil burst and drawbridge boulder slice (Phase 2 session 308, AskUserQuestion x2 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: strangle residue (p)+(q) (the session 302 record pair, the untamed kitten row and the tool rows not taken). (2) (p) BY CAUSE: a lit-oil burst passes BZ_U_SPELL(ZT_FIRE) only when the hero broke the flask (breakobj()'s hero_caused, potionhit()'s your_fault), else BZ_M_SPELL(ZT_FIRE); the hero's own flask keeps 5.0's billing (closes master's free shop-burn route) and its engulf confinement; one broken by a mine or trap the hero set off is not floor-blamed, its kills and anger stay the hero's (rejected: master's floor rule - the hero's own flask never billed, an oil-only exception in zap_over_floor()). (3) (q) BRIDGE ONLY: the span boulder's buried monster dies by e_died()'s rule (hero's turn xkilled, pet zap pet credit, else nobody), no kill message (rejected: minliquid()'s rule for every boulder on the hero's turn - contradicts ohitmon()'s rolling-boulder rule). (4) Battery: launch the testers. Session calls, plan-approved: the engulfed-tin scatter flask bursts open (it lay outside the engulfer); the 2026-07-24 billing divergence minted as a LOW record row; reviewer's apply.c spacing LOW folded, its pyrolisk-egg LOW recorded as item (u). Commits 5a3902d08 / ea526f9ff; BUG-2917..2919. | maintainer (1-4); session, plan-approved (rest) |
+| 2026-11-08 | Session 302 record pair slice (Phase 2 session 309, AskUserQuestion x2 with 3 questions - one a battery launch ask - all as recommended). (1) SLICE: the session 302 record pair, does_block()'s puddle / sewage clause and the worn-weapon useups (the tool rows, the untamed kitten row and strangle (r)..(u) not taken). (2) UNWEAPON CENTRAL: setnotworn() sets gu.unweapon whenever it empties the weapon slot, every route giving the bare-hands reminder (rejected: uwepgone() at the row's listed sites only; closing as a record). (3) Battery: launch the testers. Session calls, plan-approved: the sight scope follows fd2af9750's ruling (puddle and sewage count as water for every submerged See_underwater hero); recalc_block_point() at the puddle / sewage <-> floor flips (fire boil, drop dry-up, a monster's fire trap, a fountain gush - the last the reviewer's LOW); the hero-square dry-ups surface the hero at once (BUG-2921, folded sibling); the tutorial restore re-derives the flag (Plan stress test, BUG-2923); the pool boil hunk dropped (maketrap(PIT) already recalcs); the residue (pit / hole on the hero's puddle, drown()'s placebc(), a punished teleport's chain dry-up, pool-side view gaps) minted as a LOW record row. Commits 906ef8dda / c57b305b0; BUG-2920..2923. | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
