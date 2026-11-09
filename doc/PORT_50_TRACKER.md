@@ -17,12 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-09, after session 311's tutorial
-  slice, which closed the tutorial extrinsics MED row; recounted by
+- Phase 2 status (refreshed 2026-11-09, after session 312's Hammer
+  tether slice, which closed the untagged Hammer of the Gods tether
+  row and minted and closed the throwit() slip block row; recounted by
   grep of the Phase 2 section's `- [x]` / `- [ ]` rows and their tag
   prefixes - the door-material MED row carries no prefix;
-  49 = 0 HIGH + 1 MED + 4 SWEEP + 6 untagged + 38 LOW):
-  671 rows closed, 49 open
+  48 = 0 HIGH + 1 MED + 4 SWEEP + 5 untagged + 38 LOW):
+  673 rows closed, 48 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -34,6 +35,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 312 closed the untagged Hammer of the Gods tether row
+    (BUG-2933..2941): wielded at Skilled hammer or better the Hammer
+    is tethered like an aklys again (the tether line, "tethered to"
+    in the inventory, a 4-square throw that snaps back, no drop from
+    slippery fingers); heavy war hammers are throwing weapons again
+    and can break iron bars; a Priest's edged missiles slip, and a
+    missile that slips straight down hits the thrower's leg, as on
+    0.9.3.
     Session 311 closed the tutorial MED (BUG-2931 / 2932): leaving
     the tutorial no longer strips the worn starting kit (a Wizard's
     cloak of magic resistance, an Infidel's cloak of protection work
@@ -3328,7 +3337,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2026-08-22, BUG-1676), thrown-slip
       self-hit (must also carry master's throwit slip-gate Priest
       conjunct - Role_if(PM_PRIEST) && pierce/slash beside the
-      Infidel carve-out; noted 2026-08-26), monster teleport-AI
+      Infidel carve-out; noted 2026-08-26) [DISCHARGED 2026-11-09,
+      session 312, BUG-2938, with the Priest conjunct], monster
+      teleport-AI
       (decide_to_teleport; DISCHARGED 2026-09-24, session 139,
       BUG-1920),
       pet-stash filter, vulnerable_to/mon_underwater severity,
@@ -23685,7 +23696,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       refuses every demon form, so nothing changes in play. Battery T1:
       a hezrou never picked up Demonbane over 20 turns; the new arm's
       breakpoint never fired.
-- [ ] Hammer of the Gods tether semantics ABSENT (minted 2026-09-09 by
+- [x] Hammer of the Gods tether semantics ABSENT (minted 2026-09-09 by
       the bane-aura census): master 6189cf1e1 treats the Hammer
       wielded at Skilled hammer as an aklys-style tethered weapon in
       four sites - wield.c "You secure the tether", dothrow.c
@@ -23696,6 +23707,59 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       attribute (arw->tethered) that no artifact sets. The pokedex
       "Returns when thrown by a skilled hammer wielder." stays true.
       LOW.
+      CLOSED 2026-11-09 (session 312, 660b7f49e; BUG-2933..2937,
+      2940). The do_wear.c site is glibr()'s slippery-fingers drop
+      (d9bc161bd), not a two-weapon one. A hero-only predicate
+      hammer_tethers() (weapon.c: the artifact at Skilled hammer or
+      better) feeds the AutoReturn macro, throwit()'s tethered_weapon
+      (range BOLT_LIM / 2 = the aklys cord, the Hammer has no arwep[]
+      entry), ready_weapon()'s "You secure the tether.", doname()'s
+      "(tethered to <hand>)" (gated on carried(): master showed a
+      MONSTER's Hammer as tethered when the hero was Skilled, BUG-2935)
+      and glibr() (RULED: kept in hand only while it tethers; master's
+      ungated exemption = BUG-2934). arwep[] / autoreturn_weapon()
+      unchanged, so monsters never tether it. RULED: a bad tethered
+      throw takes the branch aklys's 5.0 path (back into the pack
+      unwielded). Folded by ruling: throwing_weapon()'s HEAVY_WAR_HAMMER
+      (master 8cb181628; the branch had 5.0's WAR_HAMMER, BUG-2936),
+      the Hammer kept out of addinv()'s quiver refill like Mjollnir
+      (BUG-2937), heavy war hammers breaking iron bars in 5.0's
+      hit_bars() (BUG-2940), and the slip block row below. Battery
+      A / B (PRE 20d7b653 / POST 50ac1c46): tether lines and "tethered
+      to right hand" at Skilled / Expert only; bhit range PRE 8 / POST
+      4; confused throws PRE land at the hero's feet / POST snap back
+      into the pack; Glib at Skilled PRE drops / POST keeps, Basic both
+      drop; pickup refill heavy POST only, light PRE only; thrown to-hit
+      heavy PRE -2 / POST +2; bars with a +7 heavy hammer PRE never in 80
+      / POST at try 14; a probed dwarf's Hammer "(weapon in ...)" on
+      both. Recorded, not fixed (master parity): intelligent pets catch
+      thrown heavy hammers, a tethered Hammer too ("The tether comes off
+      your arm."); mon_needs_ammo() counts a carried heavy hammer as a
+      thrown weapon though select_rwep() never throws one; the tether
+      lines name a "heavy war hammer" (simpleonames()); 5.0's "addinv
+      autoquivers an aklys" comments in throwit() are stale (addinv()
+      excludes the aklys).
+- [x] LOW: throwit()'s slip block lacked master's Priest term and the
+      leg self-hit (minted and closed 2026-11-09, session 312; it was
+      only a deferral in the oprops row's DEFER list, with no row).
+      Master f5c0ce453 lets a Priest's thrown pierce / slash missile
+      slip 1 in 7 like a cursed one; 7c87f6f30 makes a slip that sends
+      the missile straight down hit the thrower ("You hit yourself in
+      the leg!"). CLOSED 660b7f49e (BUG-2938 / 2939 / 2941): the
+      PM_CLERIC conjunct joins the slip gate; staticfn slip_hits_leg()
+      carries master's arm (dmgval, artifact_hit rn1(18, 2), oprops_known
+      to ammo_stack, udaminc, Half_physical_damage, the sear, "hitting
+      <him>self with a cursed projectile") with toss_up()'s bark /
+      stone-skin sear gate; it sets gt.thrownobj first so a fatal hit
+      leaves the missile on the map (master left it in limbo, BUG-2939);
+      RULED (reviewer finding): only weapons, weapon-tools and ammo hit
+      the leg, other greased objects just fall (master hit the leg for
+      0 damage, BUG-2941). Battery C: 40 Priest dagger throws PRE 0 /
+      POST 5 slips; forced leg hit PRE none / POST HP -2..-3; fatal hit
+      leaves the dagger OBJ_FLOOR on the hero's square; greased potion
+      and orange no leg line on both. Recorded, not fixed: the killer
+      text says "cursed projectile" for greased and Priest slips too
+      (master's wording).
 - [x] Reading the One Ring's inscription ABSENT (minted 2026-09-09 by
       the bane-aura census): master 397510c57 (the ring became an
       artifact) lets doread() read the One Ring - blind: "You feel an
@@ -38281,6 +38345,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-08 | Conduct wiring slice (Phase 2 session 310, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (0) Two stale untagged rows ticked tracker-only first (ratname / homunname pet names, e9e8d96ed; endgame plane order, ec6a92b05), Dashboard recounted. (1) SLICE: the conduct wiring row (the Hammer tether, the four SWEEP rows and a bulk LOW "record, won't fix" ruling not taken). (2) XLOG BITS: encodeconduct() appends antimagic 16, reflection 17, artitouch 18 after forged 15, so the numeric field carries all four EvilHack conducts (rejected: 16 / 17 only; no new bits, conductX only). (3) CHROMATIC COUNTS: chromatic dragon-scaled armor's secondary reflection breaks the reflection conduct (master-shared omission, BUG-2926; rejected: master parity). (4) STARTING KIT COUNTS: master / 0.9.3 parity, every Wizard starts with "never acquired magic resistance" broken (rejected: exempt the kit). (5) Battery: launch the testers. Session calls, plan-approved: the "touched an artifact" #conduct line folded (master lists it; the tracker's old note said otherwise); the tutorial extrinsics wipe found by the Plan stress test minted as its own MED row, not fixed here. Commit dc4508009; BUG-2924..2926. | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-09 | Permanent hallucination and petless djinni slice (Phase 2 session 310's second slice, AskUserQuestion x6 with 8 questions - two battery launch asks - all as recommended). (0) The maintainer flagged more unported master conducts; the census found master's permanent hallucination, the djinni petless guard and master's xlog roleplay bits. (1) SLICE: plan it now (rejected: mint rows for next session). (2) XLOG BITS: encodeconduct() appends 19 blind, 20 nudist, 21 hallucinating, 22 deaf, 23 never died, 24 never abused, master's order (rejected: conductX only). (3) OPTION: `hallucinating` with alias `permahallu`, like blind / deaf (rejected: master's no-alias form). (4) MESSAGES: make_hallucinated() prints no cosmic / boring line while the permanent state is on (rejected: master parity). (5) EXTENDED to the reviewer's three: no "shocked back to your senses" (sickness), no "back in Kansas" (prayer), black light "You seem unaffected." (rejected: sickness only; record all three). (6) Batteries: launch the testers, then one verify tester. Session calls, plan-approved: the artifact clear redraws (swallowed(0) or the see_* trio, botl) before its message when no timed hallucination runs; the shared-redraw helper declined (keeps make_hallucinated() vanilla-shaped); the permadeaf "unable to hear anything" timeout line recorded, not fixed. Commit 0642c2907; BUG-2927..2930. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-09 | Tutorial state slice (Phase 2 session 311, AskUserQuestion x2 with 2 questions, both as recommended). (1) SLICE: the tutorial extrinsics MED (the Hammer tether, the four SWEEP rows and a bulk LOW ruling not taken). (2) CONVICT HUNGER FOLDED: drop the init_uhunger() call after the tutorial restore's memcpy (it predates the `u` backup, vanilla 2a7be0b05 vs cb73cbedb; the memcpy brings hunger back), so a Convict leaves at the starting 200, not 900 (rejected: mint a LOW row; rule the reset intended). Session calls, plan-approved: copy `u` before the setnotworn() / freeinv() loop rather than restore `u` first and re-seat after (that order double-counts the antimagic / reflection conducts, trips addinv_core1()'s "already have ...?" checks and keeps addinv_core2()'s wrong ITEM_EXCEL luck); the restore-side order comment is required; the wizard-mode ^V two-weapon entry, go.oldcap and the Convict's ball and chain recorded, not fixed. Commit 6d67bd6c9; BUG-2931 / 2932. | maintainer (1-2); session, plan-approved (rest) |
+| 2026-11-09 | Hammer of the Gods tether slice (Phase 2 session 312, AskUserQuestion x4 with 8 questions, all as recommended). (1) SLICE: the Hammer tether row (the racial size SWEEP, damp riders (b)+(c) and a bulk LOW ruling not taken). (2) GLIB: the Hammer stays in hand only while it tethers (Skilled+); master's ungated exemption recorded as BUG-2934 (rejected: master's exact shape). (3) THROW LIST FOLDED: throwing_weapon() back to master's HEAVY_WAR_HAMMER (rejected: mint a row). (4) AUTOQUIVER: the Hammer stays out of an empty quiver on pickup, like Mjollnir (rejected: master's shape, quivered). (5) BAD THROW: a confused / stunned or failed-roll tethered throw takes the branch aklys's 5.0 path, back into the pack unwielded (rejected: master's drop at the hero's feet, a Hammer-only carve-out). (6) SLIP BLOCK FOLDED: master's Priest pierce / slash slip term and the "You hit yourself in the leg!" self-hit (rejected: mint a row). (7) IRON BARS: light and heavy war hammers both break bars (rejected: heavy only; keep 5.0's light only; mint a row). (8) LEG HIT WEAPONS ONLY: a slipped non-weapon (greased potion, food, corpse) just falls, no 0-damage leg line (rejected: master's exact shape). Session calls, plan-approved: one hero-only predicate hammer_tethers() with arwep[] unchanged; doname()'s Hammer term gated on carried(), not uwep; the self-hit sear uses toss_up()'s bark / stone-skin gate and gt.thrownobj is set before any damage. Commit 660b7f49e; BUG-2933..2941. | maintainer (1-8); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
