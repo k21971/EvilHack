@@ -1752,6 +1752,10 @@ nhl_gamestate(lua_State *L)
             if (wornmask)
                 setworn(otmp, wornmask);
         }
+        /* the copy predates the kit's removal and already holds what
+           the kit gives u (extrinsics, u.uhave, conduct counts), so it
+           goes back after the re-seat above; re-seating after it would
+           count the kit twice */
         assert(gg.gmst_ubak != NULL);
         (void) memcpy((genericptr_t) &u, gg.gmst_ubak, sizeof u);
         /* useupall() above left gu.unweapon set and setworn()
@@ -1773,13 +1777,18 @@ nhl_gamestate(lua_State *L)
             }
         /* some restored state would confuse the level change in progress */
         u.uz = cur_uz, u.uz0 = cur_uz0;
-        init_uhunger();
+        /* hunger came back with u (a Convict starts near hungry) */
         free_tutorial(); /* release gg.gmst_XYZ */
         gg.gmst_stored = FALSE;
         (void) memcpy(svs.spl_book, gg.gmst_spl_book, sizeof svs.spl_book);
     } else if (!reststate && !gg.gmst_stored) {
         /* store game state */
         gg.gmst_moves = svm.moves;
+        /* copy u before the kit is taken off and put away: setnotworn()
+           and freeinv() strip what it gives u, and this copy goes back
+           over u, after the kit is re-seated, when the tutorial ends */
+        gg.gmst_ubak = (genericptr_t) alloc(sizeof u);
+        (void) memcpy(gg.gmst_ubak, (genericptr_t) &u, sizeof u);
         while ((otmp = gi.invent) != NULL) {
             wornmask = otmp->owornmask;
             setnotworn(otmp);
@@ -1789,8 +1798,6 @@ nhl_gamestate(lua_State *L)
             gg.gmst_invent = otmp;
         }
         gl.lastinvnr = 51; /* next inv letter to try to use will be 'a' */
-        gg.gmst_ubak = (genericptr_t) alloc(sizeof u);
-        (void) memcpy(gg.gmst_ubak, (genericptr_t) &u, sizeof u);
         gg.gmst_disco = (genericptr_t) alloc(sizeof svd.disco);
         (void) memcpy(gg.gmst_disco, (genericptr_t) &svd.disco,
                       sizeof svd.disco);
