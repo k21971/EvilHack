@@ -17,13 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-09, after session 312's Hammer
-  tether slice, which closed the untagged Hammer of the Gods tether
-  row and minted and closed the throwit() slip block row; recounted by
-  grep of the Phase 2 section's `- [x]` / `- [ ]` rows and their tag
-  prefixes - the door-material MED row carries no prefix;
-  48 = 0 HIGH + 1 MED + 4 SWEEP + 5 untagged + 38 LOW):
-  673 rows closed, 48 open
+- Phase 2 status (refreshed 2026-11-09, after session 313's
+  LARGEST_INT slice, which closed the untagged LARGEST_INT widening
+  row and minted and closed the partial-stack can_carry() row;
+  recounted by grep of the Phase 2 section's `- [x]` / `- [ ]` rows
+  and their tag prefixes - the door-material MED row carries no
+  prefix; 47 = 0 HIGH + 1 MED + 4 SWEEP + 4 untagged + 38 LOW):
+  675 rows closed, 47 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -35,6 +35,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 313 closed the untagged LARGEST_INT row (BUG-2942..2948):
+    counts typed at an item prompt, stack weights and hilite_status
+    thresholds go past 32767 again, while command repeat counts and
+    the incubus / succubus fee keep the old cap; monsters and pets
+    take the part of a stack they can carry (giving a pet some of a
+    stack works again), a monkey that can carry part of a stack
+    steals all of it, and wizard-mode #loot can give to a peaceful,
+    as on 0.9.3.
     Session 312 closed the untagged Hammer of the Gods tether row
     (BUG-2933..2941): wielded at Skilled hammer or better the Hammer
     is tethered like an aklys again (the tether line, "tethered to"
@@ -14823,8 +14831,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       can_carry() tests curr + newload only.
       CLOSED 2026-11-05 (session 293): NOT REPRODUCED on today's code
       or on master (scratch build acb41484). Master's can_carry() has
-      no "already overloaded" pre-check either, and monster movement
-      has no load penalty on either tree. Battery T2 (Uruk-hai with a
+      no "already overloaded" pre-check either [CORRECTED 2026-11-09,
+      session 313: it has one, from 0ebb23d86 with the partial-stack
+      arm; both now ported, see the partial-stack row near the
+      LARGEST_INT row; the not-reproduced verdict stands], and
+      monster movement has no load penalty on either tree. Battery
+      T2 (Uruk-hai with a
       wielded orcish bow and 20 arrows, 10 squares off, in line and
       out of line): own pack 141 / 1000, a large box 530 / 1000, the
       box plus a cursed loadstone 1030 / 1000, and the no-box control
@@ -18392,7 +18404,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       CLOSED 2026-10-21 (session 250, 34b404ad1; BUG-2491,
       BUG-2492, BUG-2494). Master's caps on 5.0's body. RULED: cap
       at LARGEST_INT as master's source reads - 32767 on the
-      branch (see the LARGEST_INT row): 10000 daggers show 32767
+      branch (see the LARGEST_INT row; WIDENED 2026-11-09, session
+      313, so these now read master's figures): 10000 daggers show 32767
       aum (master 100000), 6 boulders 32767 (master 36000, display
       only). Folded: "pair of" / "pairs of" no longer double a
       count past INT_MAX / 2 or a negative one (master bug,
@@ -19040,7 +19053,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       slots (pre-existing); ^P topline merging makes its text
       differ cosmetically from the per-pline ring. Archive:
       Dumplog Message Grouping (Nov 30 2025).
-- [ ] LARGEST_INT 2^31-1 widening NOT PORTED (minted 2026-08-26 by
+- [x] LARGEST_INT 2^31-1 widening NOT PORTED (minted 2026-08-26 by
       the features-coverage sweep; LOW). Branch and upstream keep
       32767. COUPLING: the succubus/incubus-cost ratification in
       the mhitu row assumes 32767 - re-porting the widening must
@@ -19056,6 +19069,89 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       instead of 6667. 5.0's corpse arm already capped there. The
       widening restores master's figures; glob owt and the bag
       multipliers stay uncapped on both trees.
+      CLOSED 2026-11-09 (session 313, 01a87e2f5; BUG-2942, 2945, 2948).
+      Master 8d7c90670 on the branch: LARGEST_INT 2147483647, with
+      master's two pins (cmd.c parse() repeat count 32767L; mhitu.c
+      foocubus cost `umoney > 32757L` / rnd(32767) + 500), so the
+      mhitu-row ratification COUPLING is DISCHARGED. Premise
+      correction: 5.0's tty / curses menus already took counts past
+      32767 (AppendLongDigit); the visible changes are the item-prompt
+      count (getobj()), stack weights, hilite_status int thresholds,
+      rndexp() granularity, theft / scatter / poly splits, the dog.c
+      wild-pet roll, and 5.0's prayer-timeout DoS throttle (it clamped
+      the timeout to 32767 past about 3.38M moves; master never
+      capped it). Census of all 31 uses: none overflows at the new
+      value (rumors.c is 5.0's INT_MAX assert; amiga unmaintained).
+      RULED hardening (BUG-2945): monmove.c's three `pctload`
+      products overflowed past 21M aum carried, reachable from one
+      wish (5000 silver dragon corpses, 22.5M aum, into a nymph) -
+      mon_pctload() clamps at 100 (every caller tests below 95), which
+      also holds where a long is 32 bits; plain long math did not
+      (reviewer). BUG-2948: xprname()'s scaled owt and can_carry()'s
+      weightper products go through int64 (LLP64). Comments fixed:
+      global.h, botl.c, pray.c, extern.h's Strlen() note. The partial
+      stack can_carry() row below was folded in by ruling. Battery A
+      (PRE 50ac1c46 / POST 357f3cb8, Valkyrie): `d` 40000 `$` PRE
+      "Count: 32767", 32767 dropped / POST "Count: 40000", 40000
+      dropped; a 40000 command count "Count: 32767" on both; "10000
+      daggers (32767 aum)" / "(100000 aum)", "6 boulders (32767 aum)" /
+      "(36000 aum)"; `hilite_status:hitpoints/>40000/red` PRE " *
+      hilite_status threshold '>40000' is out of range." / POST no
+      error. Recorded, not fixed (master parity, wizard-wish extremes):
+      int sums of capped weights still overflow - a container's cwt
+      sum and its bag multipliers (a cursed Bag of the Hesperides at
+      about 5.4e8 aum inside), inv_weight() / calc_capacity()'s
+      `wt * 2` near 1e9 aum carried, pickup.c's `iw + owt`,
+      curr_mon_load(); botl.c's threshold range check can no longer
+      fire (atoi() past INT_MAX unchecked); sys/amiga's menu count
+      `count * 10` overflows a 32-bit long past 214748364.
+- [x] Monsters pick up PART of a stack NOT PORTED (minted and closed
+      2026-11-09, session 313, by the LARGEST_INT census; master
+      4dde18ca6 + 0ebb23d86, 2023, live since 0.9.1, and e5d7a963f's
+      mon.c arm, 2021). The branch's can_carry() was all or nothing:
+      a monster or pet that could carry part of a stack took none of
+      it, #order-giving a pet an overweight stack said "can't carry",
+      and giving 3 of 20 daggers was checked against all 20. Master's
+      partial arm holds its one LARGEST_INT consumer the branch lacked
+      (`owt == LARGEST_INT`).
+      CLOSED 2026-11-09 (01a87e2f5; BUG-2943, 2944, 2946, 2947). Master's
+      over-capacity pre-check, then the partial count `(max - curr) /
+      weightper` with master's impossible() clip; the sum tested as
+      `newload > maxload - curload` so a capped stack cannot overflow
+      it. RULED: a capped CORPSE weighs its monster's cwt apiece
+      (racial one as in weight()); master's oc_weight * 24 gave
+      corpses (oc_weight 0) a weightper of 1 (BUG-2946). e5d7a963f's
+      peaceful exemption for an object in the hero's inventory
+      (BUG-2944): wizard-mode #loot gives to a peaceful, and a
+      peaceful thief under Conflict steals (master parity). RULED
+      (BUG-2947): 5.0-only give_to_nearby_mon() (bones) gives only a
+      stack the monster takes whole, keeping a handless non-glomper's
+      whole-stack 1 as before - mon_glomps() split out of can_carry()
+      for it (reviewer: a dragon's weight-limited 1 must not count).
+      RULED: steal.c keeps master's whole-stack theft once any part
+      fits; the killer's bones pickup and mloot_container() also take
+      whole stacks (master parity, plan-approved). Battery B (PRE
+      50ac1c46 / POST 357f3cb8, Healer, monkey load 34, hill orc 1000,
+      nymph 206): #order give 20 daggers PRE "The monkey can't carry
+      your daggers." / POST "...can only carry some of your daggers.",
+      monkey 3; give 3 of 20 PRE "can't carry any of" / POST given;
+      give 5000 gold POST 34 coins (the monkey then dropped them);
+      can_carry(orc, 200 daggers) PRE 0 / POST 100 and mpickstuff()
+      POST "The hill orc picks up 100 daggers (1000 aum)." (100 left);
+      a hostile monkey and a peaceful one under Conflict PRE "tries to
+      snatch your arrows but gives up" / POST "The monkey stole 40
+      arrows (40 aum)." (it then carries 40 of 34); wizard #loot give
+      to a peaceful dwarf PRE "The dwarf can't carry your dagger." /
+      POST given; a nymph holding 22.5M aum mon_would_take_item() 0
+      (the old int product reads -2044967296); give_to_nearby_mon()
+      200 daggers stay on the floor, 50 go to the orc, on both.
+      Paniclogs empty. Recorded, not fixed: a handed pet takes about
+      (max - curr) coins (weightper 1, master parity; mpickgold() skips
+      can_carry()); a stack of more than 2^31-1 (64-bit wizard gold)
+      draws can_carry()'s random iquan and now stays on the floor in
+      give_to_nearby_mon(); the thief and whole-stack lootings leave
+      the monster over capacity, after which the pre-check refuses it
+      everything until it drops something.
 - [x] Rust-trap dousing of pure-flame monsters PORTED (2026-08-29,
       the last missing arm of master 9d38f549e - macro + zap zhitm/
       zhitu + mcastu geyser arms had already re-landed via
@@ -38346,6 +38442,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-09 | Permanent hallucination and petless djinni slice (Phase 2 session 310's second slice, AskUserQuestion x6 with 8 questions - two battery launch asks - all as recommended). (0) The maintainer flagged more unported master conducts; the census found master's permanent hallucination, the djinni petless guard and master's xlog roleplay bits. (1) SLICE: plan it now (rejected: mint rows for next session). (2) XLOG BITS: encodeconduct() appends 19 blind, 20 nudist, 21 hallucinating, 22 deaf, 23 never died, 24 never abused, master's order (rejected: conductX only). (3) OPTION: `hallucinating` with alias `permahallu`, like blind / deaf (rejected: master's no-alias form). (4) MESSAGES: make_hallucinated() prints no cosmic / boring line while the permanent state is on (rejected: master parity). (5) EXTENDED to the reviewer's three: no "shocked back to your senses" (sickness), no "back in Kansas" (prayer), black light "You seem unaffected." (rejected: sickness only; record all three). (6) Batteries: launch the testers, then one verify tester. Session calls, plan-approved: the artifact clear redraws (swallowed(0) or the see_* trio, botl) before its message when no timed hallucination runs; the shared-redraw helper declined (keeps make_hallucinated() vanilla-shaped); the permadeaf "unable to hear anything" timeout line recorded, not fixed. Commit 0642c2907; BUG-2927..2930. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-09 | Tutorial state slice (Phase 2 session 311, AskUserQuestion x2 with 2 questions, both as recommended). (1) SLICE: the tutorial extrinsics MED (the Hammer tether, the four SWEEP rows and a bulk LOW ruling not taken). (2) CONVICT HUNGER FOLDED: drop the init_uhunger() call after the tutorial restore's memcpy (it predates the `u` backup, vanilla 2a7be0b05 vs cb73cbedb; the memcpy brings hunger back), so a Convict leaves at the starting 200, not 900 (rejected: mint a LOW row; rule the reset intended). Session calls, plan-approved: copy `u` before the setnotworn() / freeinv() loop rather than restore `u` first and re-seat after (that order double-counts the antimagic / reflection conducts, trips addinv_core1()'s "already have ...?" checks and keeps addinv_core2()'s wrong ITEM_EXCEL luck); the restore-side order comment is required; the wizard-mode ^V two-weapon entry, go.oldcap and the Convict's ball and chain recorded, not fixed. Commit 6d67bd6c9; BUG-2931 / 2932. | maintainer (1-2); session, plan-approved (rest) |
 | 2026-11-09 | Hammer of the Gods tether slice (Phase 2 session 312, AskUserQuestion x4 with 8 questions, all as recommended). (1) SLICE: the Hammer tether row (the racial size SWEEP, damp riders (b)+(c) and a bulk LOW ruling not taken). (2) GLIB: the Hammer stays in hand only while it tethers (Skilled+); master's ungated exemption recorded as BUG-2934 (rejected: master's exact shape). (3) THROW LIST FOLDED: throwing_weapon() back to master's HEAVY_WAR_HAMMER (rejected: mint a row). (4) AUTOQUIVER: the Hammer stays out of an empty quiver on pickup, like Mjollnir (rejected: master's shape, quivered). (5) BAD THROW: a confused / stunned or failed-roll tethered throw takes the branch aklys's 5.0 path, back into the pack unwielded (rejected: master's drop at the hero's feet, a Hammer-only carve-out). (6) SLIP BLOCK FOLDED: master's Priest pierce / slash slip term and the "You hit yourself in the leg!" self-hit (rejected: mint a row). (7) IRON BARS: light and heavy war hammers both break bars (rejected: heavy only; keep 5.0's light only; mint a row). (8) LEG HIT WEAPONS ONLY: a slipped non-weapon (greased potion, food, corpse) just falls, no 0-damage leg line (rejected: master's exact shape). Session calls, plan-approved: one hero-only predicate hammer_tethers() with arwep[] unchanged; doname()'s Hammer term gated on carried(), not uwep; the self-hit sear uses toss_up()'s bark / stone-skin gate and gt.thrownobj is set before any damage. Commit 660b7f49e; BUG-2933..2941. | maintainer (1-8); session, plan-approved (rest) |
+| 2026-11-09 | LARGEST_INT slice (Phase 2 session 313, AskUserQuestion x3 with 6 questions, all as recommended). (1) SLICE: the LARGEST_INT widening row (the monstseesu() setter SWEEP, the racial size SWEEP and a rebased-artifact otyp sweep not taken). (2) CAN_CARRY FOLDED: master's partial-stack arm and over-capacity pre-check (4dde18ca6 + 0ebb23d86) and e5d7a963f's peaceful OBJ_INVENT exemption, none of them in any row; session 293's "no pre-check on master" sentence corrected (rejected: partial arm only; mint rows). (3) PCTLOAD: monmove.c's three pctload products no longer overflow (rejected: master parity). (4) CAPPED CORPSE: a stack whose weight hit LARGEST_INT weighs its monster's cwt apiece when it is a corpse (rejected: master's oc_weight * 24, which is 0 for corpses). (5) BONES GIFT: give_to_nearby_mon() gives only a stack the monster takes whole (rejected: split it; take the whole stack). (6) MONKEY THEFT: master's whole-stack theft once any part fits (rejected: only if all fits). Session calls, plan-approved: master's two 32767 pins (repeat count, foocubus fee); the sum tested as `newload > maxload - curload`; the bones killer pickup and mloot_container() keep master's whole-stack take; stale comments fixed (global.h, botl.c, pray.c, can_carry()'s TODO). Reviewer folds: pctload as a clamp at 100 (mon_pctload()), since a long can be 32 bits; xprname() and weightper products in int64; mon_glomps() split out so a dragon's weight-limited 1 is not taken for a handless monster's; the Strlen() comment in extern.h. Commit 01a87e2f5; BUG-2942..2948. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
