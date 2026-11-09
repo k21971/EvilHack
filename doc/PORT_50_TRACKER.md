@@ -17,16 +17,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-08, after session 310's conduct
-  wiring slice, which closed the untagged conduct row and minted one
-  MED row; earlier the same session ticked two stale untagged rows
+- Phase 2 status (refreshed 2026-11-09, after session 310's second
+  slice, the permanent hallucination conduct and the petless djinni,
+  which minted and closed its own row and closed the from_what() LOW
+  row; before it the conduct wiring slice closed the untagged conduct
+  row and minted one MED row; earlier the same session ticked two
+  stale untagged rows
   whose code had already landed in Phase 3 - the ratname / homunname
   pet-name options and the endgame plane order - and recounted by
   grep of the Phase 2 section's `- [x]` / `- [ ]` rows: the closed
   figure here had run one high since at least session 306, and the
   untagged and LOW sub-counts below were also stale;
-  51 = 0 HIGH + 2 MED + 4 SWEEP + 6 untagged + 39 LOW):
-  668 rows closed, 51 open
+  50 = 0 HIGH + 2 MED + 4 SWEEP + 6 untagged + 38 LOW):
+  670 rows closed, 50 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -41,6 +44,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     kit's extrinsics (minted by session 310; vanilla 5.0 shape: a
     Wizard's cloak shows worn but gives no magic resistance until it
     is taken off and put back on).
+    Session 310's second slice (BUG-2927..2930) ported master's
+    permanent hallucination ("hallucinating" / "permahallu" option,
+    the #conduct line, Grayswandir ends it) with no false start / end
+    lines while it lasts, kept a petless hero's freed djinni peaceful,
+    and added xlog conduct bits 19-24 (blind, nudist, hallucinating,
+    deaf, never died, never abused).
     Session 310 closed the conduct wiring row (BUG-2924..2926): worn
     items and new forms break "never acquired magic resistance" and
     "never acquired reflection" again, as on 0.9.3 (a Wizard's
@@ -398,7 +407,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the endgame plane order and the Convict / Infidel pet names
     turned out landed in Phase 3 and were ticked by session 310),
     and the standing per-subsystem archive sweep.
-  - 39 LOW: small parity rows, quirks and watch/record-only items.
+  - 38 LOW: small parity rows, quirks and watch/record-only items.
     Session 309 closed the session 302 record pair: a hero under the
     water with goggles sees through puddles and sewage, and a tiny
     hero under a puddle that dries up comes out at once
@@ -10498,6 +10507,68 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       resistance." on the death screen and in the dumplog, conduct
       0x5ddff; save / restore POST antimagic 1 -> 2 at restore (the
       re-seat; master does the same), lines unchanged, PRE 0 -> 0.
+- [x] Permanent hallucination conduct and the djinni petless guard NOT
+      PORTED (minted 2026-11-08 by session 310's conduct census, after
+      the maintainer flagged more unported master conducts; closed the
+      same session, commit 0642c2907, BUG-2927..2930). The census
+      compared every conduct counter's writers file by file, the
+      gameplay reads, livelog arms, options, #conduct lines and the
+      xlog field: all matched or were equivalent 5.0 rewrites except
+      (1) master d743b0cc3 / b18340cbd's permanent hallucination - only
+      u.uroleplay.hallu (saved by name) and its conductX token had
+      landed; (2) master's djinni_from_bottle() petless guard; (3)
+      master's xlog conduct bits for blind / nudist / hallu / deaf /
+      never died / never abused. Ported: optlist.h `hallucinating`
+      (alias permahallu, ruled); the Hallucination macro term (the
+      permanent state ignores resistance, master's shape);
+      set_artifact_intrinsic()'s SPFX_HALRES clear with "The world no
+      longer makes any sense to you!" plus a redraw (swallowed(0) or
+      the see_* trio, botl) before it when no timed hallucination is
+      running - master left the map and status stale (BUG-2930);
+      exerper()'s no-wisdom-abuse arm; from_what()'s " permanently";
+      the #conduct line; the Guidebook entry; the djinni guard (case 1
+      falls through to the peaceful case for a hero with pets == 0);
+      encodeconduct() bits 19 blind, 20 nudist, 21 hallu, 22 deaf, 23
+      never died, 24 never abused (ruled). Ruled message guards while
+      the permanent state is on (BUG-2930, master-shared): no "so
+      cosmic" / "SO boring" (make_hallucinated()), no "shocked back to
+      your senses" (sickness), no "back in Kansas" (prayer), and a
+      black light says "You seem unaffected." (the last three found by
+      the reviewer, ruling extended). Plan stress test CONDITIONAL PASS
+      (the engulfed redraw, the option slot, the git-derived Guidebook
+      date and battery staging folded); reviewer CONDITIONAL PASS (the
+      three extra lines folded; the shared-redraw helper declined to
+      keep make_hallucinated() vanilla-shaped). BATTERY (PRE b87b5def /
+      POST 5737ca84, then 5737ca84 / 5319ecd0 for the extra guards;
+      every paniclog and .err empty): U1 POST `hallucinating` and
+      `permahallu` start with Hallu, hallu=1, HHallucination=0,
+      "You have been hallucinating for your entire life." and ^X "You
+      are hallucinating permanently."; PRE "Unknown option" then a
+      plain game; a potion of hallucination on top prints only "You
+      have a normal feeling for a moment, then it passes." and no
+      boring line at its end (T730), control "Oh wow!" / "SO boring";
+      aexe.wis 0 -> 0 over T1-T101 permanent vs 1 -> -6 timed control;
+      Grayswandir "The world no longer makes any sense to you!", map
+      and status normal at once, hallu=0, line gone, xlog bit 21 clear
+      and no conductX token; engulfed in a fog cloud the interior
+      turned real at once; PRE no line. U2 petless rub with chance
+      forced to 1: PRE "Thank you for freeing me!", tame, pets 1, the
+      "obtained her first pet (a djinni)" livelog / POST "You freed
+      me!", peaceful, pets 0; a hero with a kitten gets the tame djinni
+      on both. U3 blind+deaf+nudist+hallucinating POST 0x1ffdfff (bits
+      19-24 set) / PRE 0x7dfff; plain POST bits 23-24 only; gdb
+      umortality / ever_abused and a worn armor clear 23 / 24 / 20. V1
+      sickness PRE "You are shocked back to your senses!" / POST none,
+      Hallu stays; black light PRE "You are freaked out." / POST "You
+      seem unaffected.", control "caught in a blast" + "freaked out";
+      prayer (Luck 10, the timed part the worst trouble) PRE "Looks
+      like you are back in Kansas." / POST none, HHallucination 0 and
+      hallu 1 on both. RECORDED (no fix): a timed deafness ending on a
+      permadeaf hero prints "You are unable to hear anything." (master
+      and branch, make_deaf()); unfixable_trouble_count() counts the
+      permanent state as horn-fixable and wizard-mode wiz_map() maps
+      hallucinated (master parity); while hallucinating, a wished
+      artifact is named by its base item only ("a saber").
 - [x] Slow-status ladder (u_slow_down HSlow timeout + Fast/Very_fast
       !Slow gating) DONE 2026-08-20, TWO COMMITS (A = BUG-1609
       polyself.c rehumanize FROMHUNGER reset, independent live bug
@@ -18030,7 +18101,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pickup.c loot_everything arms), showmondamage (MOVED
       2026-10-20 to the MED damage_mon() core row, which owns its
       emitter), plus the start-state option hallucinating (no
-      field). MOVED 2026-10-20 (maintainer, session 245 follow-up)
+      field) [WIRED 2026-11-09, session 310, 0642c2907: see the
+      permanent hallucination row]. MOVED 2026-10-20 (maintainer, session 245 follow-up)
       to five MED rows of their own, right below:
       underline_peacefuls, master's sparkle frame count, master's
       wizweight->invweight rename, hilite_hidden_stairs, and
@@ -25108,13 +25180,17 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Genesis grammar slip "The invisible Mephistopheles appear next to
       you." -> upstream table (withdrawn 2026-10-04: the branch had
       lost master's special_subjs[] entries, BUG-2134).
-- [ ] LOW: from_what() master-only hallucination arm (minted
+- [x] LOW: from_what() master-only hallucination arm (minted
       2026-09-06 by the role-tables slice's attrib.c diff). Master's
       from_what() prints " permanently" for HALLUC when
       u.uroleplay.hallu is set (d743b0cc3 conducts); the branch has
       the field with a topten.c reader only - the hallucinating
       start-state roleplay option is unwired (Ownerless option
       wirings row). The arm travels with that wiring.
+      CLOSED 2026-11-09 (session 310, commit 0642c2907, BUG-2927): the
+      arm landed with the hallucinating option (see the permanent
+      hallucination row); live ^X "You are hallucinating
+      permanently.".
 - [x] LOW: remembered-map paint while submerged - FIXED 2026-09-17
       (session 124, commit `Fix: the remembered map stayed painted
       while submerged.` = e72db1934, tracker 9ebfff883, landed
@@ -38146,6 +38222,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-08 | Oil burst and drawbridge boulder slice (Phase 2 session 308, AskUserQuestion x2 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: strangle residue (p)+(q) (the session 302 record pair, the untamed kitten row and the tool rows not taken). (2) (p) BY CAUSE: a lit-oil burst passes BZ_U_SPELL(ZT_FIRE) only when the hero broke the flask (breakobj()'s hero_caused, potionhit()'s your_fault), else BZ_M_SPELL(ZT_FIRE); the hero's own flask keeps 5.0's billing (closes master's free shop-burn route) and its engulf confinement; one broken by a mine or trap the hero set off is not floor-blamed, its kills and anger stay the hero's (rejected: master's floor rule - the hero's own flask never billed, an oil-only exception in zap_over_floor()). (3) (q) BRIDGE ONLY: the span boulder's buried monster dies by e_died()'s rule (hero's turn xkilled, pet zap pet credit, else nobody), no kill message (rejected: minliquid()'s rule for every boulder on the hero's turn - contradicts ohitmon()'s rolling-boulder rule). (4) Battery: launch the testers. Session calls, plan-approved: the engulfed-tin scatter flask bursts open (it lay outside the engulfer); the 2026-07-24 billing divergence minted as a LOW record row; reviewer's apply.c spacing LOW folded, its pyrolisk-egg LOW recorded as item (u). Commits 5a3902d08 / ea526f9ff; BUG-2917..2919. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-08 | Session 302 record pair slice (Phase 2 session 309, AskUserQuestion x2 with 3 questions - one a battery launch ask - all as recommended). (1) SLICE: the session 302 record pair, does_block()'s puddle / sewage clause and the worn-weapon useups (the tool rows, the untamed kitten row and strangle (r)..(u) not taken). (2) UNWEAPON CENTRAL: setnotworn() sets gu.unweapon whenever it empties the weapon slot, every route giving the bare-hands reminder (rejected: uwepgone() at the row's listed sites only; closing as a record). (3) Battery: launch the testers. Session calls, plan-approved: the sight scope follows fd2af9750's ruling (puddle and sewage count as water for every submerged See_underwater hero); recalc_block_point() at the puddle / sewage <-> floor flips (fire boil, drop dry-up, a monster's fire trap, a fountain gush - the last the reviewer's LOW); the hero-square dry-ups surface the hero at once (BUG-2921, folded sibling); the tutorial restore re-derives the flag (Plan stress test, BUG-2923); the pool boil hunk dropped (maketrap(PIT) already recalcs); the residue (pit / hole on the hero's puddle, drown()'s placebc(), a punished teleport's chain dry-up, pool-side view gaps) minted as a LOW record row. Commits 906ef8dda / c57b305b0; BUG-2920..2923. | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-08 | Conduct wiring slice (Phase 2 session 310, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (0) Two stale untagged rows ticked tracker-only first (ratname / homunname pet names, e9e8d96ed; endgame plane order, ec6a92b05), Dashboard recounted. (1) SLICE: the conduct wiring row (the Hammer tether, the four SWEEP rows and a bulk LOW "record, won't fix" ruling not taken). (2) XLOG BITS: encodeconduct() appends antimagic 16, reflection 17, artitouch 18 after forged 15, so the numeric field carries all four EvilHack conducts (rejected: 16 / 17 only; no new bits, conductX only). (3) CHROMATIC COUNTS: chromatic dragon-scaled armor's secondary reflection breaks the reflection conduct (master-shared omission, BUG-2926; rejected: master parity). (4) STARTING KIT COUNTS: master / 0.9.3 parity, every Wizard starts with "never acquired magic resistance" broken (rejected: exempt the kit). (5) Battery: launch the testers. Session calls, plan-approved: the "touched an artifact" #conduct line folded (master lists it; the tracker's old note said otherwise); the tutorial extrinsics wipe found by the Plan stress test minted as its own MED row, not fixed here. Commit dc4508009; BUG-2924..2926. | maintainer (1-5); session, plan-approved (rest) |
+| 2026-11-09 | Permanent hallucination and petless djinni slice (Phase 2 session 310's second slice, AskUserQuestion x6 with 8 questions - two battery launch asks - all as recommended). (0) The maintainer flagged more unported master conducts; the census found master's permanent hallucination, the djinni petless guard and master's xlog roleplay bits. (1) SLICE: plan it now (rejected: mint rows for next session). (2) XLOG BITS: encodeconduct() appends 19 blind, 20 nudist, 21 hallucinating, 22 deaf, 23 never died, 24 never abused, master's order (rejected: conductX only). (3) OPTION: `hallucinating` with alias `permahallu`, like blind / deaf (rejected: master's no-alias form). (4) MESSAGES: make_hallucinated() prints no cosmic / boring line while the permanent state is on (rejected: master parity). (5) EXTENDED to the reviewer's three: no "shocked back to your senses" (sickness), no "back in Kansas" (prayer), black light "You seem unaffected." (rejected: sickness only; record all three). (6) Batteries: launch the testers, then one verify tester. Session calls, plan-approved: the artifact clear redraws (swallowed(0) or the see_* trio, botl) before its message when no timed hallucination runs; the shared-redraw helper declined (keeps make_hallucinated() vanilla-shaped); the permadeaf "unable to hear anything" timeout line recorded, not fixed. Commit 0642c2907; BUG-2927..2930. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
