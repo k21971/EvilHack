@@ -60,7 +60,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 October 29, 2026
+.ds f2 November 9, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -4305,6 +4305,9 @@ Gold is never blessed or cursed, but it is not described as \(lquncursed\(rq
 even when the
 .op implicit_uncursed
 option is \(lqoff\(rq.
+.lp hallucinating
+Start the character permanently hallucinating (default false).
+Persistent.
 .lp "help    "
 If more information is available for an object looked at
 with the \(oq/\(cq command, ask if you want to see it (default on).

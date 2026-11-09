@@ -1318,6 +1318,29 @@ set_artifact_intrinsic(
          * that can print a message--need to guard against being printed
          * when restoring a game
          */
+        if (on && u.uroleplay.hallu) {
+            /* the resistance ends the hallucinating option's permanent
+               state, and with it that conduct */
+            u.uroleplay.hallu = FALSE;
+            if (!program_state.restoring) {
+                /* make_hallucinated() below redraws only when a timed
+                   hallucination is running; otherwise do it here, as
+                   it would, before the message */
+                if (!HHallucination) {
+                    eatmupdate();
+                    if (u.uswallow) {
+                        swallowed(0);
+                    } else {
+                        see_monsters();
+                        see_objects();
+                        see_traps();
+                    }
+                    update_inventory();
+                    disp.botl = TRUE;
+                }
+                pline_The("world no longer makes any sense to you!");
+            }
+        }
         (void) make_hallucinated((long) !on,
                                  program_state.restoring ? FALSE : TRUE,
                                  wp_mask);

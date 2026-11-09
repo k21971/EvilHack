@@ -2600,7 +2600,9 @@ explmu(
             kill_agr = FALSE; /* already killed (maybe lifesaved) */
             chg =
                 make_hallucinated(HHallucination + (long) tmp, FALSE, 0L);
-            You("%s.", chg ? "are freaked out" : "seem unaffected");
+            /* the hallucinating option's permanent state sees no change */
+            You("%s.", (chg && !u.uroleplay.hallu) ? "are freaked out"
+                                                   : "seem unaffected");
         }
         break;
     default:

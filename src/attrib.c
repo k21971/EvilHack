@@ -754,7 +754,8 @@ exerper(void)
 
         if (Sick || Vomiting)
             exercise(A_CON, FALSE);
-        if (Confusion || Hallucination)
+        /* the hallucinating option's permanent state is no abuse */
+        if (Confusion || (Hallucination && !u.uroleplay.hallu))
             exercise(A_WIS, FALSE);
         if ((Wounded_legs && !u.usteed) || Fumbling || HStun)
             exercise(A_DEX, FALSE);
@@ -1160,6 +1161,8 @@ from_what(
             if ((propidx == BLINDED && u.uroleplay.blind)
                 || (propidx == DEAF && u.uroleplay.deaf))
                 Sprintf(buf, " from birth");
+            else if (propidx == HALLUC && u.uroleplay.hallu)
+                Strcpy(buf, " permanently");
             else if (innateness == FROM_ROLE || innateness == FROM_RACE)
                 Strcpy(buf, " innately");
             else if (innateness == FROM_INTR) /* [].intrinsic & FROMOUTSIDE */

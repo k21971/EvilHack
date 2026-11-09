@@ -2371,6 +2371,8 @@ show_conduct(int final)
         you_have_been("blind from birth");
     if (u.uroleplay.deaf)
         you_have_been("deaf from birth");
+    if (u.uroleplay.hallu)
+        you_have_been("hallucinating for your entire life");
     /* note: we don't report "you are without possessions" unless the
        game started with the pauper option set */
     if (u.uroleplay.pauper)

@@ -180,7 +180,10 @@
 #define HHalluc_resistance u.uprops[HALLUC_RES].intrinsic
 #define EHalluc_resistance u.uprops[HALLUC_RES].extrinsic
 #define Halluc_resistance (HHalluc_resistance || EHalluc_resistance)
-#define Hallucination (HHallucination && !Halluc_resistance)
+/* the hallucinating option's permanent state ignores resistance; only an
+   artifact that confers resistance ends it */
+#define Hallucination \
+    ((HHallucination && !Halluc_resistance) || u.uroleplay.hallu)
 
 /* Timeout, plus a worn mask */
 #define HDeaf u.uprops[DEAF].intrinsic

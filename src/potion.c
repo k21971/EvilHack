@@ -590,7 +590,9 @@ make_hallucinated(
         update_inventory();
 
         disp.botl = TRUE;
-        if (talk)
+        /* a timed hallucination starting or ending changes nothing the
+           hallucinating option's permanent state can see */
+        if (talk && !u.uroleplay.hallu)
             pline(message, verb);
     }
     return changed;
@@ -1234,7 +1236,10 @@ peffect_sickness(struct obj *otmp)
         }
     }
     if (Hallucination) {
-        You("are shocked back to your senses!");
+        /* only a timed hallucination ends; the hallucinating option's
+           permanent state stays */
+        if (!u.uroleplay.hallu)
+            You("are shocked back to your senses!");
         (void) make_hallucinated(0L, FALSE, 0L);
     }
 }
@@ -3556,9 +3561,14 @@ djinni_from_bottle(struct obj *obj)
         mongrantswish(&mtmp);
         break;
     case 1:
-        verbalize("Thank you for freeing me!");
-        (void) tamedog(mtmp, (struct obj *) 0, FALSE);
-        break;
+        /* a hero who plays petless can safely rub lamps */
+        if (u.uconduct.pets) {
+            verbalize("Thank you for freeing me!");
+            (void) tamedog(mtmp, (struct obj *) 0, FALSE);
+            break;
+        }
+        FALLTHROUGH;
+        /*FALLTHRU*/
     case 2:
         verbalize("You freed me!");
         mtmp->mpeaceful = TRUE;

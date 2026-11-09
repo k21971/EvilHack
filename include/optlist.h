@@ -357,6 +357,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(guicolor, Advanced, 0, opt_out, set_in_game,
            On, Yes, No, No, NoAlias, &iflags.wc2_guicolor, Term_False,
            "use color for UI")
+    NHOPTB(hallucinating, Advanced, 0, opt_in, set_in_config,
+           Off, Yes, No, No, "permahallu", &u.uroleplay.hallu, Term_False,
+           "your character is permanently hallucinating")
     NHOPTC(hawkname, Advanced, PL_PSIZ, opt_in, set_gameview,
                 No, Yes, No, No, NoAlias,
                 "name of your starting pet if it is a hawk")

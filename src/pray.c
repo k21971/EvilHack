@@ -639,7 +639,10 @@ fix_worst_trouble(int trouble)
         make_confused(0L, TRUE);
         break;
     case TROUBLE_HALLUCINATION:
-        pline("Looks like you are back in Kansas.");
+        /* only the timed part is fixed; the hallucinating option's
+           permanent state stays */
+        if (!u.uroleplay.hallu)
+            pline("Looks like you are back in Kansas.");
         (void) make_hallucinated(0L, FALSE, 0L);
         break;
     case TROUBLE_SADDLE:

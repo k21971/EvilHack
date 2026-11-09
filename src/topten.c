@@ -478,6 +478,18 @@ encodeconduct(void)
         e |= 1L << 17;
     if (!u.uconduct.artitouch)
         e |= 1L << 18;
+    if (u.uroleplay.blind)
+        e |= 1L << 19;
+    if (u.uroleplay.nudist)
+        e |= 1L << 20;
+    if (u.uroleplay.hallu)
+        e |= 1L << 21;
+    if (u.uroleplay.deaf)
+        e |= 1L << 22;
+    if (u.umortality == 0)
+        e |= 1L << 23;
+    if (!u.ever_abused)
+        e |= 1L << 24;
 
     return e;
 }
