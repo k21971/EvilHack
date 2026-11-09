@@ -5340,7 +5340,9 @@ parse(void)
            and meta keystroke "n<count>M-<character>" */
         program_state.input_state = commandInp;
 
-        foo = get_count((char *) 0, '\0', LARGEST_INT,
+        /* repeat counts keep the old 32767 cap, so neither a player nor
+           the fuzzer can ask for billions of repeated actions */
+        foo = get_count((char *) 0, '\0', 32767L,
                         &gc.command_count, GC_NOFLAGS);
     }
     gl.last_command_count = gc.command_count;

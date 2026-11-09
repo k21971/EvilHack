@@ -2707,8 +2707,8 @@ get_hilite(
         int dt;
         /* there are hilites set here */
         int max_pc = -1, min_pc = 101;
-        /* LARGEST_INT isn't INT_MAX; it fits within 16 bits, but that
-           value is big enough to handle all 'int' status fields */
+        /* LARGEST_INT is 2^31 - 1, big enough to handle all 'int'
+           status fields */
         int max_ival = -LARGEST_INT, min_ival = LARGEST_INT;
         /* LONG_MAX comes from <limits.h> which might not be available for
            ancient configurations; we don't need LONG_MIN */

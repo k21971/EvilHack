@@ -350,7 +350,18 @@ give_to_nearby_mon(struct obj *otmp, coordxy x, coordxy y)
                 selected = mtmp;
         }
     }
-    if (selected && can_carry(selected, otmp))
+    /* can_carry() can report the part of a stack that fits; a stack too
+       heavy to take whole stays on the floor (a handless monster's 1
+       comes before the weight test and still takes the whole stack) */
+    if (selected) {
+        int carryamt = can_carry(selected, otmp);
+
+        if (carryamt < otmp->quan
+            && !(carryamt == 1 && nohands(selected->data)
+                 && !mon_glomps(selected, otmp)))
+            selected = (struct monst *) 0;
+    }
+    if (selected)
         add_to_minv(selected, otmp);
     else
         place_object(otmp, x, y);

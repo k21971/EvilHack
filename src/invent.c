@@ -3185,7 +3185,7 @@ xprname(
         if (iflags.invweight) {
             /* show the weight of the part being listed */
             saveowt = obj->owt;
-            obj->owt = (unsigned) ((long) obj->owt * quan / obj->quan);
+            obj->owt = (unsigned) ((int64) obj->owt * quan / obj->quan);
             owt_scaled = TRUE;
         }
         savequan = obj->quan;

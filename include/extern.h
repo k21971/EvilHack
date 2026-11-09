@@ -88,7 +88,7 @@ extern int FITSint_(long long, const char *, int) NONNULLARG2;
 #define FITSuint(x) FITSuint_(x, __func__, __LINE__)
 extern unsigned FITSuint_(unsigned long long, const char *, int) NONNULLARG2;
 /* for Strlen() which returns unsigned instead of size_t and panics for
-   strings of length INT_MAX (32K - 1) or longer */
+   strings of length LARGEST_INT (2^31 - 1) or longer */
 
 #include "hacklib.h"
 
@@ -1993,6 +1993,7 @@ extern boolean mpickstuff(struct monst *) NONNULLARG1;
 extern int curr_mon_load(struct monst *) NONNULLARG1;
 extern int max_mon_load(struct monst *) NONNULLARG1;
 extern boolean can_touch_safely(struct monst *, struct obj *) NONNULLARG12;
+extern boolean mon_glomps(struct monst *, struct obj *) NONNULLARG12;
 extern int can_carry(struct monst *, struct obj *) NONNULLARG12;
 extern long mon_allowflags(struct monst *) NONNULLARG1;
 extern boolean m_in_air(struct monst *) NONNULLARG1;

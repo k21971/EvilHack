@@ -1915,12 +1915,11 @@ pleased(aligntyp g_align)
 
     /* Avoid games that go into infinite loops of copy-pasted commands
        with no human interaction; this is a DoS vector against the
-       computer running NetHack.  Once the turn counter is over 100000,
+       computer running NetHack. Once the turn counter is over 100000,
        every additional 100 turns increases the prayer timeout by 1,
        thus eventually hunger prayers will fail and some other source
-       of nutrition will be required.  The increase gets throttled if
-       it ever reaches 32K so that configurations using 16-bit ints are
-       still viable. */
+       of nutrition will be required. The increase gets throttled at
+       LARGEST_INT so that the int timeout cannot overflow */
     if (svm.moves > 100000L) {
         long incr = (svm.moves - 100000L) / 100L,
              largest_ublesscnt_incr = (long) (LARGEST_INT - u.ublesscnt);

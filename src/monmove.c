@@ -34,6 +34,7 @@ staticfn int m_balks_at_approaching(int, struct monst *);
 staticfn boolean stuff_prevents_passage(struct monst *);
 staticfn int vamp_shift(struct monst *, struct permonst *, boolean);
 staticfn void maybe_spin_web(struct monst *);
+staticfn int mon_pctload(struct monst *) NONNULLARG1;
 
 /* a11y: give a message when monster moved */
 staticfn void
@@ -1624,11 +1625,22 @@ static NEARDATA const char magical[] = { AMULET_CLASS, POTION_CLASS,
                                          SCROLL_CLASS, WAND_CLASS,
                                          RING_CLASS,   SPBOOK_CLASS, 0 };
 
+/* how full mtmp's pack is, in percent; a stack's weight can reach
+   LARGEST_INT, so the result is clamped at 100 (every caller treats
+   that as full) and the product stays far inside an int */
+staticfn int
+mon_pctload(struct monst *mtmp)
+{
+    int curload = curr_mon_load(mtmp), maxload = max_mon_load(mtmp);
+
+    return (curload >= maxload) ? 100 : (curload * 100) / maxload;
+}
+
 /* monster mtmp would love to take object otmp? */
 boolean
 mon_would_take_item(struct monst *mtmp, struct obj *otmp)
 {
-    int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
+    int pctload = mon_pctload(mtmp);
 
     if (otmp == uball || otmp == uchain)
         return FALSE;
@@ -1685,7 +1697,7 @@ staticfn boolean
 mon_seeks_items(struct monst *mtmp)
 {
     struct permonst *ptr = mtmp->data;
-    int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
+    int pctload = mon_pctload(mtmp);
 
     return ((likes_gold(ptr) && pctload < 95)
             || (likes_gems(ptr) && pctload < 85)
@@ -2488,8 +2500,7 @@ postmov(
                closing in on the hero in line, one carrying the
                Amulet, and most peacefuls */
             if (getitems) {
-                int pctload = (curr_mon_load(mtmp) * 100)
-                              / max_mon_load(mtmp);
+                int pctload = mon_pctload(mtmp);
 
                 /* gold is scooped up for free: it costs no move and
                    skips can_carry(), so a peaceful that passed the

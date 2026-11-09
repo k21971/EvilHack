@@ -3651,8 +3651,10 @@ doseduce(struct monst *mon)
         long cost;
         long umoney = money_cnt(gi.invent);
 
-        if (umoney > (long) LARGEST_INT - 10L)
-            cost = (long) rnd(LARGEST_INT) + 500L;
+        /* cap at ~33K to keep seduction cost from scaling with
+           total gold; the original 32767 limit is intentional here */
+        if (umoney > 32757L)
+            cost = (long) rnd(32767) + 500L;
         else
             cost = (long) rnd((int) umoney + 10) + 500L;
         if (mon->mpeaceful) {

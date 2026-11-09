@@ -3164,6 +3164,25 @@ can_touch_safely(struct monst *mtmp, struct obj *otmp)
     return TRUE;
 }
 
+/* can a handless monster take several of otmp at once? an engulfer
+   swallows anything and a dragon, of course, can always carry gold
+   pieces and gems somehow */
+boolean
+mon_glomps(struct monst *mtmp, struct obj *otmp)
+{
+    struct attack *mattk;
+    int nattk;
+
+    if (mtmp->data->mlet == S_DRAGON
+        && (otmp->oclass == COIN_CLASS || otmp->oclass == GEM_CLASS))
+        return TRUE;
+    mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk : mtmp->data->mattk;
+    for (nattk = 0; nattk < NATTK; nattk++)
+        if (mattk[nattk].aatyp == AT_ENGL)
+            return TRUE;
+    return FALSE;
+}
+
 /* for restricting monsters' object-pickup.
  *
  * to support the new pet behavior, this now returns the max # of objects
@@ -3172,17 +3191,16 @@ can_touch_safely(struct monst *mtmp, struct obj *otmp)
  *
  * this will probably cause very amusing behavior with pets and gold coins.
  *
- * TODO: allow picking up 2-N objects from a pile of N based on weight.
- *       Change from 'int' to 'long' to accommodate big stacks of gold.
- *       Right now we fake it by reporting a partial quantity, but the
- *       likesgold handling m_move results in picking up the whole stack.
+ * a stack too heavy to take whole yields the part of it that fits.
+ *
+ * TODO: change from 'int' to 'long' to accommodate big stacks of gold.
+ *       The likesgold handling in m_move picks up the whole stack anyway
  */
 int
 can_carry(struct monst *mtmp, struct obj *otmp)
 {
-    int iquan, otyp = otmp->otyp, newload = otmp->owt;
+    int iquan, otyp = otmp->otyp, newload = otmp->owt, curload, maxload;
     struct permonst *mdat = mtmp->data;
-    short nattk = 0;
 
     if (notake(mdat))
         return 0; /* can't carry anything */
@@ -3197,37 +3215,20 @@ can_carry(struct monst *mtmp, struct obj *otmp)
                : (int) otmp->quan;
 
     /* monsters without hands can't pick up multiple objects at once
-     * unless they have an engulfing attack
-     *
-     * ...dragons, of course, can always carry gold pieces and gems somehow
-     */
-    if (iquan > 1) {
-        boolean glomper = FALSE;
-
-        if (mtmp->data->mlet == S_DRAGON
-            && (otmp->oclass == COIN_CLASS
-                || otmp->oclass == GEM_CLASS)) {
-            glomper = TRUE;
-        } else {
-            struct attack *mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk
-                                                  : mtmp->data->mattk;
-
-            for (nattk = 0; nattk < NATTK; nattk++)
-                if (mattk[nattk].aatyp == AT_ENGL) {
-                    glomper = TRUE;
-                    break;
-                }
-        }
-        if ((mtmp->data->mflags1 & M1_NOHANDS) && !glomper)
-            return 1;
-    }
+       unless they glomp them (see mon_glomps()) */
+    if (iquan > 1 && (mtmp->data->mflags1 & M1_NOHANDS)
+        && !mon_glomps(mtmp, otmp))
+        return 1;
 
     /* steeds don't pick up stuff (to avoid shop abuse) */
     if (mtmp == u.usteed)
         return 0;
     if (mtmp->isshk)
         return iquan; /* no limit */
-    if (mtmp->mpeaceful && !mtmp->mtame)
+    if (mtmp->mpeaceful && !mtmp->mtame && otmp->where != OBJ_INVENT)
+        /* original condition lacked OBJ_INVENT check to prevent peacefuls
+         * picking up items; but we also want wizard-mode player to be able
+         * to give peacefuls items via #loot */
         return 0;
     /* otherwise players might find themselves obligated to violate
      * their alignment if the monster takes something they need
@@ -3249,8 +3250,54 @@ can_carry(struct monst *mtmp, struct obj *otmp)
     if (mdat == &mons[PM_CROESUS])
         return (otmp->oclass == ROCK_CLASS) ? 0 : iquan;
 
-    if (curr_mon_load(mtmp) + newload > max_mon_load(mtmp))
+    curload = curr_mon_load(mtmp);
+    maxload = max_mon_load(mtmp);
+    /* monster is already over capacity, somehow (rock mole? leprechaun?) */
+    if (curload > maxload)
         return 0;
+    /* maybe can't take whole stack; tested this way round so that a
+       stack weighing LARGEST_INT cannot overflow the sum */
+    if (newload > maxload - curload) {
+        int weightper;
+
+        /* weight() caps a stack's weight at LARGEST_INT, so a capped
+           owt says nothing about one item: a corpse weighs its monster's
+           corpse weight (the racial one, as in weight()), and anything
+           else assumes the worst case, 24 = 120 / 5 being the ratio of
+           the densest to the lightest material */
+        if (otmp->owt == LARGEST_INT) {
+            if (otyp == CORPSE && ismnum(otmp->corpsenm)) {
+                int mnum = otmp->corpsenm;
+
+                if (has_omonst(otmp) && has_erac(OMONST(otmp)))
+                    mnum = ERAC(OMONST(otmp))->rmnum;
+                weightper = (int) mons[mnum].cwt;
+            } else {
+                weightper = (int) objects[otyp].oc_weight * 24;
+            }
+        } else {
+            /* the normal case: divide stack weight by quantity, rounding
+               up (in int64, since a long can be 32 bits) */
+            weightper = (int) (((int64) otmp->owt - 1 + otmp->quan)
+                               / otmp->quan);
+        }
+        /* maybe possible if something manages to have 0 weight */
+        if (weightper < 1)
+            weightper = 1;
+        iquan = (maxload - curload) / weightper;
+        /* to catch splitobj crash. hopefully can be properly fixed in
+           time */
+        if (iquan < 0) {
+            impossible("can_carry tried to take %d objects, each weighing %d",
+                       iquan, weightper);
+            iquan = 0;
+        } else if (iquan > otmp->quan) {
+            impossible("can_carry tried to take %d objects, each weighing %d",
+                       iquan, weightper);
+            iquan = (int) otmp->quan;
+        }
+        return iquan;
+    }
 
     return iquan;
 }
