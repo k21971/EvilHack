@@ -2188,6 +2188,7 @@ hit_bars(
             noise = 4 * 4;
 
         if (your_fault && (otmp->otyp == WAR_HAMMER
+                           || otmp->otyp == HEAVY_WAR_HAMMER
                            || otmp->otyp == HEAVY_IRON_BALL)) {
             /* iron ball isn't a weapon or wep-tool so doesn't use obj->spe;
                weight is normally 480 but can be increased by increments

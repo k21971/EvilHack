@@ -273,7 +273,8 @@ ready_weapon(struct obj *wep)
             long dummy = wep->owornmask;
 
             wep->owornmask |= W_WEP;
-            if (wep->otyp == AKLYS && (wep->owornmask & W_WEP) != 0)
+            if ((wep->otyp == AKLYS || hammer_tethers(wep))
+                && (wep->owornmask & W_WEP) != 0)
                 You("secure the tether.");
             prinv((char *) 0, wep, 0L);
             wep->owornmask = dummy;

@@ -1187,13 +1187,15 @@ addinv_core0(
         /* if Mjollnir or Xiuhcoatl is thrown and fails to return, we
            want to auto-pick it when we move to its spot, but not into
            quiver because it needs to be wielded to be re-thrown;
-           aklys likewise because player using 'f' to throw it might
-           not notice that it isn't wielded until it fails to return
-           several times; we never auto-wield, just omit from quiver
+           aklys and the Hammer of the Gods likewise because player
+           using 'f' to throw one might not notice that it isn't
+           wielded until it fails to return several times; we never
+           auto-wield, just omit from quiver
            so that player will be prompted for what to throw and
            possibly realize that re-wielding is necessary */
         && obj->oartifact != ART_MJOLLNIR
         && obj->oartifact != ART_XIUHCOATL && obj->otyp != AKLYS
+        && obj->oartifact != ART_HAMMER_OF_THE_GODS
         && (throwing_weapon(obj) || is_ammo(obj)))
         setuqwep(obj);
  added:

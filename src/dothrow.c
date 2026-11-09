@@ -26,6 +26,7 @@ staticfn void check_shop_obj(struct obj *, coordxy, coordxy, boolean);
 staticfn void breakmsg(struct obj *, boolean);
 staticfn boolean mhurtle_step(genericptr_t, coordxy, coordxy);
 staticfn boolean steed_held_in_place(struct monst *) NONNULLARG1;
+staticfn void slip_hits_leg(struct obj *) NONNULLARG1;
 
 /* uwep might already be removed from inventory so test for W_WEP instead;
    for Valk + Mjollnir, caller needs to validate the strength requirement,
@@ -35,8 +36,7 @@ staticfn boolean steed_held_in_place(struct monst *) NONNULLARG1;
       && ((o)->otyp == AKLYS                                            \
           || (o)->oartifact == ART_XIUHCOATL                            \
           || ((o)->oartifact == ART_MJOLLNIR && Role_if(PM_VALKYRIE))   \
-          || ((o)->oartifact == ART_HAMMER_OF_THE_GODS                  \
-              && P_SKILL(P_HAMMER) >= P_SKILLED)))                      \
+          || hammer_tethers(o)))                                        \
      || (o)->otyp == BOOMERANG)
 
 /* gt.thrownobj (decl.c) tracks an object until it lands */
@@ -1647,8 +1647,9 @@ throwing_weapon(struct obj *obj)
                       /* daggers and knife (excludes scalpel) */
                       || (is_blade(obj) && !is_sword(obj)
                           && (objects[obj->otyp].oc_dir & PIERCE))
-                      /* special cases [might want to add AXE] */
-                      || obj->otyp == WAR_HAMMER || obj->otyp == AKLYS);
+                      /* special cases [might want to add AXE]; the thrown
+                         hammer is the heavy one, Mjollnir's base */
+                      || obj->otyp == HEAVY_WAR_HAMMER || obj->otyp == AKLYS);
 }
 
 /* the currently thrown object is returning to you (not for boomerangs
@@ -1733,6 +1734,44 @@ throwit_mon_hit(struct obj *obj, struct monst *mon)
     return FALSE;
 }
 
+/* a missile that slipped as it was thrown is heading straight down;
+   it hits the thrower's leg first */
+staticfn void
+slip_hits_leg(struct obj *obj)
+{
+    /* skin turned to bark or stone feels no hated material, as in
+       dmgval() */
+    boolean hatemat = (Hate_material(obj->material)
+                       && !(Barkskin || Stoneskin));
+    int dmg = dmgval(&gy.youmonst, obj, &gy.youmonst);
+    char killbuf[BUFSZ];
+
+    /* track it already, so a fatal hit leaves the missile on the map
+       (done_object_cleanup()) instead of in limbo */
+    gt.thrownobj = obj;
+    You("hit yourself in the %s!", body_part(LEG));
+    if (obj->oartifact
+        || ((obj->oclass == WEAPON_CLASS || is_weptool(obj)
+             || is_bullet(obj)) && obj->oprops))
+        /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */
+        (void) artifact_hit((struct monst *) 0, &gy.youmonst, obj, &dmg,
+                            rn1(18, 2));
+    if (ammo_stack && ammo_stack != obj)
+        ammo_stack->oprops_known |= obj->oprops_known;
+    if (dmg > 0)
+        dmg += u.udaminc;
+    if (dmg < 0)
+        dmg = 0; /* beware negative rings of increase damage */
+    dmg = Maybe_Half_Phys(dmg);
+    if (hatemat) {
+        /* dmgval() already added the extra damage */
+        searmsg(&gy.youmonst, &gy.youmonst, obj, FALSE);
+        exercise(A_CON, FALSE);
+    }
+    Sprintf(killbuf, "hitting %sself with a cursed projectile", uhim());
+    losehp(dmg, killbuf, KILLED_BY);
+}
+
 /* throw an object, NB: obj may be consumed in the process */
 void
 throwit(
@@ -1748,11 +1787,15 @@ throwit(
     boolean crossbowing,
             impaired = (Confusion || Stunned || Blind
                         || Hallucination || Fumbling),
-            tethered_weapon = (arw && arw->tethered && (wep_mask & W_WEP) != 0),
+            tethered_weapon = ((wep_mask & W_WEP) != 0
+                               && ((arw && arw->tethered)
+                                   || hammer_tethers(obj))),
             tether_released_msg = FALSE;
 
     gn.notonhead = FALSE; /* reset potentially stale value */
-    if (((obj->cursed && u.ualign.type != A_NONE) || obj->greased)
+    if (((obj->cursed && u.ualign.type != A_NONE)
+         || (Role_if(PM_CLERIC) && (is_pierce(obj) || is_slash(obj)))
+         || obj->greased)
         && (u.dx || u.dy) && !rn2(7)) {
         boolean slipok = TRUE;
 
@@ -1770,8 +1813,14 @@ throwit(
         if (slipok) {
             u.dx = rn2(3) - 1;
             u.dy = rn2(3) - 1;
-            if (!u.dx && !u.dy)
+            if (!u.dx && !u.dy) {
                 u.dz = 1;
+                /* only a weapon, weapon-tool or ammo hits the leg;
+                   anything else just falls at your feet */
+                if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
+                    || is_ammo(obj))
+                    slip_hits_leg(obj);
+            }
             impaired = TRUE;
         }
     }
@@ -1809,8 +1858,8 @@ throwit(
     } else if (u.dz) {
         if (u.dz < 0
             /* Mjollnir and Xiuhcoatl must be wielded to be thrown--caller
-               verifies this; aklys must be wielded as primary to return
-               when thrown */
+               verifies this; aklys and the Hammer of the Gods must be
+               wielded as primary to return when thrown */
             && iflags.returning_missile
             && !impaired) {
             pline("%s the %s and returns to your %s!", Tobjnam(obj, "hit"),
@@ -1947,10 +1996,12 @@ throwit(
             range = (range + 1) / 2; /* it's heavy */
         else if (is_art(obj, ART_XIUHCOATL))
             range = (range + 2); /* not heavy at all */
-        else if (tethered_weapon) /* primary weapon is aklys */
+        else if (tethered_weapon) /* primary weapon is aklys or Hammer */
             /* range of a tethered_weapon is limited by the
-               length of the attached cord [implicit aspect of item] */
-            range = min(range, isqrt(arw->range));
+               length of the attached cord [implicit aspect of item];
+               the Hammer of the Gods has no arwep[] entry and takes
+               the aklys's cord (weapon.c's AKLYS_LIM) */
+            range = min(range, arw ? isqrt(arw->range) : BOLT_LIM / 2);
         else if (obj == uball && u.utrap && u.utraptype == TT_INFLOOR)
             range = 1;
 
@@ -2016,9 +2067,9 @@ throwit(
         return;
     } else {
         /* Mjollnir and Xiuhcoatl must be wielded to be thrown--caller
-           verifies this; aklys must be wielded as primary to return
-           when thrown */
-        if (iflags.returning_missile) { /* Mjollnir, Xiuhcoatl or aklys */
+           verifies this; aklys and the Hammer of the Gods must be
+           wielded as primary to return when thrown */
+        if (iflags.returning_missile) {
             boolean aklys_skill = (obj->otyp == AKLYS
                                    && P_SKILL(P_CLUB) >= P_EXPERT);
             boolean spear_skill = (is_spear(obj)
@@ -2161,12 +2212,10 @@ throwit(
                     tmp_at(DISP_END, 0);
                     /* when this location is stepped on, the weapon will be
                        auto-picked up due to 'obj->how_lost' of LOST_THROWN;
-                       addinv() prevents thrown Mjollnir from being placed
-                       into the quiver slot, but an aklys will end up there if
-                       that slot is empty at the time; since hero will need to
-                       explicitly rewield the weapon to get throw-and-return
-                       capability back anyway, quivered or not shouldn't
-                       matter */
+                       addinv() keeps a thrown Mjollnir, Xiuhcoatl, aklys
+                       or Hammer of the Gods out of the quiver slot, since
+                       hero will need to explicitly rewield the weapon to
+                       get throw-and-return capability back anyway */
                 } else {
                     pline("%s to return!", Tobjnam(obj, "fail"));
                 }

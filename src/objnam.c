@@ -1994,7 +1994,10 @@ doname_base(
 
     if ((obj->owornmask & W_WEP) && !gm.mrg_to_wielded) {
         boolean twoweap_primary = (obj == uwep && u.twoweap),
-                tethered = (obj->otyp == AKLYS);
+                /* the Hammer tethers only for the hero; carried(), not
+                   uwep, since ready_weapon() names it before setuwep() */
+                tethered = (obj->otyp == AKLYS
+                            || (carried(obj) && hammer_tethers(obj)));
 
         /* use alternate phrasing for non-weapons and for wielded ammo
            (arrows, bolts), or missiles (darts, shuriken, boomerangs)

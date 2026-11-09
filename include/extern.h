@@ -4236,6 +4236,7 @@ extern void setmnotwielded(struct monst *, struct obj *) NONNULLARG1;
 extern void setmnotwielded2(struct monst *, struct obj *) NONNULLARG1;
 extern const struct throw_and_return_weapon *autoreturn_weapon(struct obj *)
     NONNULLARG1;
+extern boolean hammer_tethers(struct obj *) NONNULLARG1;
 
 /* ### were.c ### */
 

@@ -4007,7 +4007,8 @@ glibr(void)
             dropx(otmp);
     }
     otmp = uwep;
-    if (otmp && otmp->otyp != AKLYS && !welded(otmp)) {
+    if (otmp && otmp->otyp != AKLYS && !hammer_tethers(otmp)
+        && !welded(otmp)) {
         long savequan = otmp->quan;
 
         /* nice wording if both weapons are the same type.

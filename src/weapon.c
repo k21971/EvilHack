@@ -1125,6 +1125,15 @@ autoreturn_weapon(struct obj *otmp)
     return (struct throw_and_return_weapon *) 0;
 }
 
+/* the Hammer of the Gods tethers like an aklys when the hero wields it
+   at Skilled hammer or better; monsters never tether it */
+boolean
+hammer_tethers(struct obj *obj)
+{
+    return (boolean) (is_art(obj, ART_HAMMER_OF_THE_GODS)
+                      && P_SKILL(P_HAMMER) >= P_SKILLED);
+}
+
 boolean
 would_prefer_rwep(struct monst *mtmp, struct obj *otmp)
 {
