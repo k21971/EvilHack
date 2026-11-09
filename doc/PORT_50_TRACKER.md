@@ -34672,7 +34672,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       really lost, and it matches the ruling ("fires even if you
       still resist another way").
 - [x] SWEEP: monstseesu() SETTER parity with master (BUG-2949..
-      2951) - CLOSED 2026-11-09 (session 314, commit pending;
+      2951) - CLOSED 2026-11-09 (session 314, 766bdc794, tracker
+      24c04706c;
       closure notes at the end of this row). Original text: (minted
       2026-09-28, session 152, by the forgetting-gaps slice). The
       branch's setter calls sit where 5.0 put them, and master's sit
