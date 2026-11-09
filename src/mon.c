@@ -5765,9 +5765,8 @@ mondead(struct monst *mtmp)
         gs.submit_count++;
         if (!svc.context.mon_moving)
             endmultishot(TRUE);
-        newmonhp(mtmp, monsndx(mtmp->data));
-        /* full health on submitting, not a random roll */
-        mtmp->mhp = mtmp->mhpmax;
+        /* a fresh roll at its present level, and full health */
+        mtmp->mhp = mtmp->mhpmax = monmaxhp(mtmp->data, (int) mtmp->m_lev);
         if (has_edog(mtmp))
             EDOG(mtmp)->mhpmax_penalty = 0;
         if (mtmp == u.ustuck) {

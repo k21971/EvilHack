@@ -3983,7 +3983,7 @@ mhitm_ad_drli(
                 return;
             }
             mhm->damage = d(2, 6); /* Stormbringer uses monhp_per_lvl
-                                    * (usually 1d8) */
+                                    * (one hit die) */
             if (maybe_polyd(is_vampire(gy.youmonst.data),
                             Race_if(PM_VAMPIRE))
                 && mattk->aatyp == AT_BITE) {
@@ -4037,7 +4037,7 @@ mhitm_ad_drli(
         if (is_death
             || (!rn2(3) && !(resists_drli(mdef) || defended(mdef, AD_DRLI))
                 && !mhitm_mgc_atk_negated(magr, mdef, TRUE))) {
-            if (!is_death) /* Stormbringer uses monhp_per_lvl (1d8) */
+            if (!is_death) /* Stormbringer uses monhp_per_lvl (a hit die) */
                 mhm->damage = d(2, 6);
             if (gv.vis && canspotmon(mdef))
                 pline_mon(mdef, "%s becomes weaker!", Monnam(mdef));

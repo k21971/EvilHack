@@ -4026,7 +4026,7 @@ artifact_hit(
         if (!youdefend) {
             int m_lev = (int) mdef->m_lev, /* will be 0 for 1d4 mon */
                 mhpmax = mdef->mhpmax,
-                drain = monhp_per_lvl(mdef); /* usually 1d8 */
+                drain = monhp_per_lvl(mdef); /* one hit die */
                 /* note: DRLI attack uses 2d6, attacker doesn't get healed */
 
             /* stop draining HP if it drops too low (still drains level;

@@ -1352,18 +1352,7 @@ polymon(int mntmp)
      * "experience level of you as a monster" for a polymorphed character.
      */
     mlvl = (int) mons[mntmp].mlevel;
-    if (gy.youmonst.data->mlet == S_DRAGON && mntmp >= PM_GRAY_DRAGON) {
-        u.mhmax = In_endgame(&u.uz) ? (8 * mlvl) : (4 * mlvl + d(mlvl, 4));
-    } else if (is_golem(gy.youmonst.data)) {
-        u.mhmax = golemhp(mntmp);
-    } else {
-        if (!mlvl)
-            u.mhmax = rnd(4);
-        else
-            u.mhmax = d(mlvl, 8);
-        if (is_home_elemental(&mons[mntmp]))
-            u.mhmax *= 3;
-    }
+    u.mhmax = monmaxhp(&mons[mntmp], mlvl);
     /* Druid assumes #wildshape form, or a vampire uses #shapechange;
        hit points/max hit points either stays the same as if they
        did not change shape (u.uhp/u.uhpmax), or becomes that of

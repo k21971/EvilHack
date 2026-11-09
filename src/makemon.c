@@ -28,6 +28,7 @@ staticfn void ini_mon_inv(struct monst *, const struct trobj *,
 staticfn void m_initweap(struct monst *);
 staticfn void m_initinv(struct monst *);
 staticfn boolean makemon_rnd_goodpos(struct monst *, mmflags_nht, coord *);
+staticfn int hd_size(struct permonst *);
 staticfn void init_mextra(struct mextra *);
 
 #define m_initsgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 3, mmf)
@@ -2964,29 +2965,87 @@ propagate(int mndx, boolean tally, boolean ghostly)
     return result;
 }
 
+/* size of the die a monster rolls for each level's hit points; it used
+   to be 8 for every monster, but a mumak ought to be beefier than a
+   killer bee of the same level; the size is randomized a bit */
+staticfn int
+hd_size(struct permonst *ptr)
+{
+    switch (ptr->msize) {
+    case MZ_TINY:
+        return 5 + rn2(2);
+    case MZ_SMALL:
+        return 7 + rn2(2);
+    case MZ_MEDIUM:
+        return 8 + rn2(2);
+    case MZ_LARGE:
+        return 10 + rn2(3);
+    case MZ_HUGE:
+        return 14 + rn2(3);
+    case MZ_GIGANTIC:
+        return 18 + rn2(4);
+    default:
+        impossible("hd_size: unknown monster size %d", ptr->msize);
+        return 8;
+    }
+}
+
 /* amount of HP to lose from level drain (or gain from Stormbringer) */
 int
 monhp_per_lvl(struct monst *mon)
 {
     struct permonst *ptr = mon->data;
-    int hp = rnd(8); /* default is d8 */
+    int hp = rnd(hd_size(ptr)); /* one hit die */
 
-    /* like newmonhp, but home elementals are ignored, riders use normal d8 */
+    /* like monmaxhp, but home elementals are ignored and riders use
+       their hit die */
     if (is_golem(ptr)) {
         /* draining usually won't be applicable for these critters */
         hp = golemhp(monsndx(ptr)) / (int) ptr->mlevel;
     } else if (ptr->mlevel > 49) {
         /* arbitrary; such monsters won't be involved in draining anyway */
         hp = 4 + rnd(4); /* 5..8 */
-    } else if (ptr->mlet == S_DRAGON && monsndx(ptr) >= PM_GRAY_DRAGON) {
-        /* adult dragons; newmonhp() uses In_endgame(&u.uz) ? 8 : 4 + rnd(4)
-         */
-        hp = 4 + rn2(5); /* 4..8 */
     } else if (!mon->m_lev) {
-        /* level 0 monsters use 1d4 instead of Nd8 */
+        /* level 0 monsters use 1d4 instead of a hit die per level */
         hp = rnd(4);
     }
     return hp;
+}
+
+/* compute an appropriate maximum HP for a given monster type and level;
+   not just a struct monst because polymon() also uses this */
+int
+monmaxhp(struct permonst *ptr, int m_lev)
+{
+    int hpmax;
+
+    if (is_golem(ptr)) {
+        /* golems have a fixed amount of HP, varying by golem type */
+        hpmax = golemhp(monsndx(ptr));
+    } else if (is_rider(ptr)) {
+        /* we want low HP, but a high mlevel so they can attack well;
+           riders are a bit too easy to take down, so buff them up */
+        hpmax = 100 + d(10, 8);
+    } else if (ptr->mlevel > 49) {
+        /* "special" fixed hp monster
+         * the hit points are encoded in the mlevel in a somewhat strange
+         * way to fit in the 50..127 positive range of a signed character
+         * above the 1..49 that indicate "normal" monster levels */
+        hpmax = 2 * (ptr->mlevel - 6);
+        if (is_dprince(ptr))
+            hpmax += 100;
+        else if (is_dlord(ptr))
+            hpmax += 50;
+    } else if (m_lev == 0) {
+        hpmax = rnd(4);
+    } else {
+        hpmax = d(m_lev, hd_size(ptr));
+        if (is_home_elemental(ptr))
+            hpmax *= 3;
+        if (is_mplayer(ptr))
+            hpmax = ((hpmax * 5) + 1) / 4;
+    }
+    return hpmax;
 }
 
 /* set up a new monster's initial level and hit points;
@@ -2995,44 +3054,21 @@ void
 newmonhp(struct monst *mon, int mndx)
 {
     struct permonst *ptr = &mons[mndx];
-    int basehp = 0;
+    int basehp;
 
     mon->m_lev = adj_lev(ptr);
-    if (is_golem(ptr)) {
-        /* golems have a fixed amount of HP, varying by golem type */
-        mon->mhpmax = mon->mhp = golemhp(mndx);
-    } else if (is_rider(ptr)) {
-        /* we want low HP, but a high mlevel so they can attack well */
-        basehp = 10; /* minimum is 1 per false (weaker) level */
-        mon->mhpmax = mon->mhp = d(basehp, 8);
-    } else if (ptr->mlevel > 49) {
-        /* "special" fixed hp monster
-         * the hit points are encoded in the mlevel in a somewhat strange
-         * way to fit in the 50..127 positive range of a signed character
-         * above the 1..49 that indicate "normal" monster levels */
-        mon->mhpmax = mon->mhp = 2 * (ptr->mlevel - 6);
-        mon->m_lev = mon->mhp / 4; /* approximation */
-    } else if (ptr->mlet == S_DRAGON && mndx >= PM_GRAY_DRAGON) {
-        /* adult dragons; N*(4+rnd(4)) before endgame, N*8 once there */
-        basehp = (int) mon->m_lev; /* not really applicable; isolates cast */
-        mon->mhpmax = mon->mhp = In_endgame(&u.uz) ? (8 * basehp)
-                                 : (4 * basehp + d(basehp, 4));
-    } else if (!mon->m_lev) {
-        basehp = 1; /* minimum is 1, increased to 2 below */
-        mon->mhpmax = mon->mhp = rnd(4);
-    } else {
-        basehp = (int) mon->m_lev; /* minimum possible is one per level */
-        mon->mhpmax = mon->mhp = d(basehp, 8);
-        if (is_home_elemental(ptr))
-            mon->mhpmax = (mon->mhp *= 3); /* leave 'basehp' as-is */
-        if (is_mplayer(ptr))
-            mon->mhpmax = mon->mhp = ((mon->mhp * 5) + 1) / 4;
-    }
+    basehp = mon->m_lev ? (int) mon->m_lev : 1;
+    mon->mhpmax = mon->mhp = monmaxhp(ptr, (int) mon->m_lev);
 
-    /* if d(X,8) rolled a 1 all X times, give a boost;
-       most beneficial for level 0 and level 1 monsters, making mhpmax
-       and starting mhp always be at least 2 */
-    if (mon->mhpmax == basehp) {
+    if (is_golem(ptr) || is_rider(ptr)) {
+        ; /* fixed or padded amounts, no minimum to raise */
+    } else if (ptr->mlevel > 49) {
+        /* second half of the "special" fixed hp monster code */
+        mon->m_lev = mon->mhp / 4; /* approximation */
+    } else if (mon->mhpmax == basehp) {
+        /* if every die rolled a 1, give a boost; most beneficial for
+           level 0 and level 1 monsters, making mhpmax and starting mhp
+           always be at least 2 */
         mon->mhpmax += 1;
         mon->mhp = mon->mhpmax;
     }
@@ -4484,8 +4520,8 @@ grow_up(struct monst *mtmp, struct monst *victim)
         if (mtmp->mhpmax == hp_threshold + 1)
             mtmp->mhpmax--;
     }
-    if (mtmp->mhpmax > 50 * 8)
-        mtmp->mhpmax = 50 * 8; /* absolute limit */
+    if (mtmp->mhpmax > 50 * 8 && !unique_corpstat(ptr))
+        mtmp->mhpmax = 50 * 8; /* absolute limit, except for uniques */
     if (mtmp->mhp > mtmp->mhpmax)
         mtmp->mhp = mtmp->mhpmax;
 
