@@ -4446,7 +4446,7 @@ mhitm_ad_acid(
         /* mhitu */
         hitmsg(magr, mattk);
         if (!magr->mcan && !rn2(3))
-            if (Acid_resistance) {
+            if (Acid_resistance || Underwater) {
                 pline("You're covered in %s, but it seems harmless.",
                       hliquid("acid"));
                 monstseesu(M_SEEN_ACID);
@@ -9484,13 +9484,23 @@ passive(
         break;
     case AD_ACID:
         if (mhitb && rn2(2)) {
-            if (Blind || !flags.verbose)
-                You("are splashed!");
-            else
-                You("are splashed by %s %s!", s_suffix(mon_nam(mon)),
-                    hliquid("acid"));
+            if (Blind || !flags.verbose) {
+                if (mon->data == &mons[PM_YELLOW_DRAGON])
+                    You("are%s seared!",
+                        (Acid_resistance || Underwater) ? " mildly" : "");
+                else
+                    You("are splashed!");
+            } else {
+                if (mon->data == &mons[PM_YELLOW_DRAGON])
+                    You("are%s seared by %s acidic hide!",
+                        (Acid_resistance || Underwater) ? " mildly" : "",
+                        s_suffix(mon_nam(mon)));
+                else
+                    You("are splashed by %s %s!", s_suffix(mon_nam(mon)),
+                        hliquid("acid"));
+            }
 
-            if (!Acid_resistance) {
+            if (!(Acid_resistance || Underwater)) {
                 mdamageu(mon, tmp);
                 monstunseesu(M_SEEN_ACID);
             } else {

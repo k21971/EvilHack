@@ -1597,6 +1597,7 @@ peffect_acid(struct obj *otmp)
     if (Acid_resistance) {
         /* Not necessarily a creature who _likes_ acid */
         pline("This tastes %s.", Hallucination ? "tangy" : "sour");
+        monstseesu(M_SEEN_ACID);
     } else {
         int dmg;
 
@@ -1607,6 +1608,7 @@ peffect_acid(struct obj *otmp)
               / (otmp->odiluted ? 2 : 1);
         losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
         exercise(A_CON, FALSE);
+        monstunseesu(M_SEEN_ACID);
     }
     if (Stoned)
         fix_petrification();
@@ -2136,6 +2138,9 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                                    : obj->cursed ? " a lot" : "");
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
                 losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
+                monstunseesu(M_SEEN_ACID);
+            } else {
+                monstseesu(M_SEEN_ACID);
             }
             break;
         case POT_HALLUCINATION:
