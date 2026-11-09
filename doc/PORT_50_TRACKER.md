@@ -17,13 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-09, after session 313's
-  LARGEST_INT slice, which closed the untagged LARGEST_INT widening
-  row and minted and closed the partial-stack can_carry() row;
-  recounted by grep of the Phase 2 section's `- [x]` / `- [ ]` rows
-  and their tag prefixes - the door-material MED row carries no
-  prefix; 47 = 0 HIGH + 1 MED + 4 SWEEP + 4 untagged + 38 LOW):
-  675 rows closed, 47 open
+- Phase 2 status (refreshed 2026-11-09, after session 314's
+  monstseesu() setter slice, which closed the setter-parity SWEEP
+  row; recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
+  rows and their tag prefixes - the door-material MED row carries no
+  prefix; 46 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 38 LOW):
+  676 rows closed, 46 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -369,8 +368,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 4 SWEEP: race-predicate census, inert persistent fields,
-    monstseesu() setter parity, racial size macros.
+  - 3 SWEEP: race-predicate census, inert persistent fields,
+    racial size macros.
+    Session 314 closed the monstseesu() setter census (BUG-2949..
+    2951): watchers learn acid resistance from a potion of acid
+    drunk by or broken on a resistant hero; a hero underwater takes
+    no acid damage from a melee hit or a passive splash; the yellow
+    dragon's "acidic hide" passive lines are back.
     Session 287 closed the base-type oc_material sweep (BUG-2821..
     2826): items are judged by their own material - gold detection,
     polypiling, bars, kicked boxes, #sit, xorns, unicorns, the aklys;
@@ -34667,7 +34671,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       form grants cold FROMFORM beside FROMEXPER. That is a source
       really lost, and it matches the ruling ("fires even if you
       still resist another way").
-- [ ] SWEEP: monstseesu() SETTER parity with master (minted
+- [x] SWEEP: monstseesu() SETTER parity with master (BUG-2949..
+      2951) - CLOSED 2026-11-09 (session 314, commit pending;
+      closure notes at the end of this row). Original text: (minted
       2026-09-28, session 152, by the forgetting-gaps slice). The
       branch's setter calls sit where 5.0 put them, and master's sit
       elsewhere. Per-bit counts (master / branch):
@@ -34685,6 +34691,75 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (muse.c wand picks, mcastu.c spell choice, the reflection_skip
       that blocks every ray wand). SWEEP (gameplay: monster item and
       spell choice).
+      CLOSURE (2026-11-09, session 314, plan
+      /root/.claude/plans/synthetic-scribbling-sunset.md). CENSUS:
+      every master monstseesu() site (about 120, 14 files) read
+      against its branch counterpart by three Explore agents, the
+      findings re-read by hand. SAME bit under the same test at every
+      site but the ones below. The REFL count gap is not a gap:
+      master sets the bit inside ureflects(), the branch at each of
+      its five callers (lightning spell, Medusa gaze, floating eye,
+      god's lightning, ray - BUG-1499), and no caller sends the hero
+      through the silent mon_reflects() route. The read.c FIRE gap is
+      geno_refusal() folding six arms into two.
+      RULINGS (AskUserQuestion x2, three questions): the slice; fold
+      in the underwater acid arms and the yellow dragon lines (as
+      recommended); GAZES ON A HELPLESS HERO KEEP 5.0 (recommended
+      master; the maintainer kept 5.0: an asleep or fainted hero has
+      closed eyes, the same protection as being blind) - 5.0's
+      gazemu() cancels every gaze while the hero is Unaware, master
+      gazes a sleeper (PORT_50_REMOVALS.md section 3). Side effect
+      recorded: a resisted fire / cold gaze on a sleeper teaches
+      nothing.
+      FIXES: (BUG-2949) potion.c peffect_acid() and potionhit()
+      POT_ACID call monstseesu(M_SEEN_ACID) for a resistant hero, as
+      master peffects() / potionhit() do, and monstunseesu() when the
+      hero is burned (the branch's forgetting convention) - muse.c
+      stops picking MUSE_POT_ACID against a hero seen shrugging one
+      off. (BUG-2950) master 61fbffdee's hero half: mhitm_ad_acid()'s
+      hero arm and passive() AD_ACID test `Acid_resistance ||
+      Underwater` (the monster arms and the fire twin landed as
+      BUG-1779). (BUG-2951) passive() AD_ACID prints master
+      748894d6c's yellow dragon lines: "You are [mildly] seared by
+      the yellow dragon's acidic hide!", "You are [mildly] seared!"
+      when blind or !verbose.
+      RECORDED, NOT FIXED: zhitu()'s death ray under Reflecting +
+      Half_spell_damage sets no MAGR (BUG-1905, deliberate); the
+      class-genocide refusal also fires for "lich" / "vampire lord"
+      spellings (BUG-1576); a confused scroll of fire underwater
+      teaches nothing (session 247); a monster-read scroll of fire
+      burns and teaches only a hero really in range (branch fix);
+      mcast_acid_blast() tests Acid_resistance where master tests
+      how_resistant() == 100, equal in effect because explode()
+      teaches on the same test first; a tainted weapon destroyed by
+      rustm() on the same hit skips the SLEEP lesson (rustm() runs
+      first on the branch; polymorphed-hero corner); monstseesu()
+      returns early when swallowed (master: vision cleared, same
+      result); 5.0's m_canseeu() has `!Underwater`, so nothing is
+      learned or forgotten while the hero is underwater (master
+      could teach FIRE / ACID from the underwater arms, a false
+      lesson; 5.0 kept); the adult-only yellow dragon test (master
+      parity). BRANCH-ONLY SETTERS, all 5.0's or ruled earlier: the
+      stun / paralyze spells teach MAGR on Free_action, potionhit()
+      polymorph MAGR (BUG-2765), zapyourself() SLEEP, zhitu() DRLI /
+      STUN, doicetrap() COLD, the gazemu() / passive() REFL calls.
+      REVIEWER PASS: no HIGH / MED; sibling sweep clean (master's
+      five `Acid_resistance || Underwater` sites all on the branch
+      now; passiveum() / passivemm() already carry the hide lines).
+      BATTERY (two game-testers in -d copies; PRE 357f3cb8 / POST
+      e774f7f4; paniclogs empty): A 5/5 PASS - resistant hero quaffs
+      "This tastes sour." watcher 0x0 -> 0x0 / 0x80; burned hero
+      0xfff -> 0xfff / 0xf7f; a potion thrown up and landing on the
+      head the same pair; an out-of-sight watcher stays 0x0. B 3/3
+      PASS - a giant eel given a 4d6 acid touch by gdb against a
+      submerged hero: PRE "You're covered in acid!  It burns!" 8 of
+      8 with HP loss / POST "You're covered in acid, but it seems
+      harmless." 7 of 7, HP 5000 throughout, both burn on dry floor;
+      acid blob splash underwater PRE 6 of 6 with loss / POST 8 with
+      none; yellow dragon PRE "You are splashed by the yellow
+      dragon's acid!" / POST "You are seared by the yellow dragon's
+      acidic hide!", resistant "mildly seared" with no loss, blind
+      "You are seared!".
 - [x] Snark -> boojum swap, the boojum's vanishing touch, TLPT death
       guards, J class and satyrs awake (BUG-2094..2099) - FIXED
       2026-10-02 (session 171, commit `Port snarks that are boojums
@@ -38442,6 +38517,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-09 | Permanent hallucination and petless djinni slice (Phase 2 session 310's second slice, AskUserQuestion x6 with 8 questions - two battery launch asks - all as recommended). (0) The maintainer flagged more unported master conducts; the census found master's permanent hallucination, the djinni petless guard and master's xlog roleplay bits. (1) SLICE: plan it now (rejected: mint rows for next session). (2) XLOG BITS: encodeconduct() appends 19 blind, 20 nudist, 21 hallucinating, 22 deaf, 23 never died, 24 never abused, master's order (rejected: conductX only). (3) OPTION: `hallucinating` with alias `permahallu`, like blind / deaf (rejected: master's no-alias form). (4) MESSAGES: make_hallucinated() prints no cosmic / boring line while the permanent state is on (rejected: master parity). (5) EXTENDED to the reviewer's three: no "shocked back to your senses" (sickness), no "back in Kansas" (prayer), black light "You seem unaffected." (rejected: sickness only; record all three). (6) Batteries: launch the testers, then one verify tester. Session calls, plan-approved: the artifact clear redraws (swallowed(0) or the see_* trio, botl) before its message when no timed hallucination runs; the shared-redraw helper declined (keeps make_hallucinated() vanilla-shaped); the permadeaf "unable to hear anything" timeout line recorded, not fixed. Commit 0642c2907; BUG-2927..2930. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-09 | Tutorial state slice (Phase 2 session 311, AskUserQuestion x2 with 2 questions, both as recommended). (1) SLICE: the tutorial extrinsics MED (the Hammer tether, the four SWEEP rows and a bulk LOW ruling not taken). (2) CONVICT HUNGER FOLDED: drop the init_uhunger() call after the tutorial restore's memcpy (it predates the `u` backup, vanilla 2a7be0b05 vs cb73cbedb; the memcpy brings hunger back), so a Convict leaves at the starting 200, not 900 (rejected: mint a LOW row; rule the reset intended). Session calls, plan-approved: copy `u` before the setnotworn() / freeinv() loop rather than restore `u` first and re-seat after (that order double-counts the antimagic / reflection conducts, trips addinv_core1()'s "already have ...?" checks and keeps addinv_core2()'s wrong ITEM_EXCEL luck); the restore-side order comment is required; the wizard-mode ^V two-weapon entry, go.oldcap and the Convict's ball and chain recorded, not fixed. Commit 6d67bd6c9; BUG-2931 / 2932. | maintainer (1-2); session, plan-approved (rest) |
 | 2026-11-09 | Hammer of the Gods tether slice (Phase 2 session 312, AskUserQuestion x4 with 8 questions, all as recommended). (1) SLICE: the Hammer tether row (the racial size SWEEP, damp riders (b)+(c) and a bulk LOW ruling not taken). (2) GLIB: the Hammer stays in hand only while it tethers (Skilled+); master's ungated exemption recorded as BUG-2934 (rejected: master's exact shape). (3) THROW LIST FOLDED: throwing_weapon() back to master's HEAVY_WAR_HAMMER (rejected: mint a row). (4) AUTOQUIVER: the Hammer stays out of an empty quiver on pickup, like Mjollnir (rejected: master's shape, quivered). (5) BAD THROW: a confused / stunned or failed-roll tethered throw takes the branch aklys's 5.0 path, back into the pack unwielded (rejected: master's drop at the hero's feet, a Hammer-only carve-out). (6) SLIP BLOCK FOLDED: master's Priest pierce / slash slip term and the "You hit yourself in the leg!" self-hit (rejected: mint a row). (7) IRON BARS: light and heavy war hammers both break bars (rejected: heavy only; keep 5.0's light only; mint a row). (8) LEG HIT WEAPONS ONLY: a slipped non-weapon (greased potion, food, corpse) just falls, no 0-damage leg line (rejected: master's exact shape). Session calls, plan-approved: one hero-only predicate hammer_tethers() with arwep[] unchanged; doname()'s Hammer term gated on carried(), not uwep; the self-hit sear uses toss_up()'s bark / stone-skin gate and gt.thrownobj is set before any damage. Commit 660b7f49e; BUG-2933..2941. | maintainer (1-8); session, plan-approved (rest) |
+| 2026-11-09 | monstseesu() setter slice (Phase 2 session 314, AskUserQuestion x2 with 3 questions). (1) SLICE: the monstseesu() setter SWEEP (racial size macros, the race-predicate census and a bulk LOW ruling not taken). (2) GAZES ON A HELPLESS HERO: 5.0 kept - an asleep, fainted or unconscious hero is not affected by any gaze, as a blind one is not (recommended: master's form, where a sleeper is stoned or burned; the maintainer's reason: closed eyes). (3) ACID FOLD-IN: the underwater acid arms of 61fbffdee's hero half and the yellow dragon passive lines land with the two potion setters, as recommended (rejected: setters only, mint a row). |
 | 2026-11-09 | LARGEST_INT slice (Phase 2 session 313, AskUserQuestion x3 with 6 questions, all as recommended). (1) SLICE: the LARGEST_INT widening row (the monstseesu() setter SWEEP, the racial size SWEEP and a rebased-artifact otyp sweep not taken). (2) CAN_CARRY FOLDED: master's partial-stack arm and over-capacity pre-check (4dde18ca6 + 0ebb23d86) and e5d7a963f's peaceful OBJ_INVENT exemption, none of them in any row; session 293's "no pre-check on master" sentence corrected (rejected: partial arm only; mint rows). (3) PCTLOAD: monmove.c's three pctload products no longer overflow (rejected: master parity). (4) CAPPED CORPSE: a stack whose weight hit LARGEST_INT weighs its monster's cwt apiece when it is a corpse (rejected: master's oc_weight * 24, which is 0 for corpses). (5) BONES GIFT: give_to_nearby_mon() gives only a stack the monster takes whole (rejected: split it; take the whole stack). (6) MONKEY THEFT: master's whole-stack theft once any part fits (rejected: only if all fits). Session calls, plan-approved: master's two 32767 pins (repeat count, foocubus fee); the sum tested as `newload > maxload - curload`; the bones killer pickup and mloot_container() keep master's whole-stack take; stale comments fixed (global.h, botl.c, pray.c, can_carry()'s TODO). Reviewer folds: pctload as a clamp at 100 (mon_pctload()), since a long can be 32 bits; xprname() and weightper products in int64; mon_glomps() split out so a dragon's weight-limited 1 is not taken for a handless monster's; the Strlen() comment in extern.h. Commit 01a87e2f5; BUG-2942..2948. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |

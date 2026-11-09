@@ -411,6 +411,10 @@ tracker; sNNN = port session.
 - [r] Strength to-hit at exactly 18/50: abon()'s +2 (5.0, so gnomes and
   orcs gain a point at their cap) kept over master's / vanilla 3.6's +1
   (ruled 2026-10-23, s252).
+- [r] Gazes on a helpless hero: 5.0's gazemu() cancels every gaze
+  while the hero is asleep, fainted or unconscious; kept over
+  master's form, where a sleeper is stoned or burned (ruled
+  2026-11-09, s314: closed eyes protect as blindness does).
 
 ## 4. Open
 
