@@ -334,6 +334,11 @@ tracker; sNNN = port session.
   blows it up; a never-recharged one recharges to 1..3 (ruled s285,
   BUG-2796, 059962eb1; upstream 615edb1c7; master 80ab6d9dc). The other
   wish-spreading parts (Vlad's throne, the Amulet wish) went earlier.
+- [x] Monster hit points: 5.0's flat d8 per level and its adult-dragon
+  formula (4 per level + d(level,4), 8 per level in the endgame) ->
+  master's dice by size, Rider and demon lord bonuses (s315,
+  BUG-2952..2957). Kept from 5.0: the raised golem values and the
+  2 HP floor (see section 3).
 
 ### 2.4 Text and logs
 
@@ -415,6 +420,11 @@ tracker; sNNN = port session.
   while the hero is asleep, fainted or unconscious; kept over
   master's form, where a sleeper is stoned or burned (ruled
   2026-11-09, s314: closed eyes protect as blindness does).
+- [r] Golem hit points and the 2 HP floor: the maintainer kept 5.0's
+  raised golem values (gold 60, clay 70, stone 100, glass 80, iron
+  120; master 40 / 50 / 60 / 60 / 80) and 5.0's "every die rolled a 1
+  gets +1" floor when master's hit dice were ported (s315,
+  2026-11-09).
 
 ## 4. Open
 

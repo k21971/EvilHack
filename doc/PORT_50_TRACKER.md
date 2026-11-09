@@ -17,12 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-09, after session 314's
-  monstseesu() setter slice, which closed the setter-parity SWEEP
-  row; recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
+- Phase 2 status (refreshed 2026-11-09, after session 315's
+  monster hit-dice slice, which minted and closed one row and minted
+  16 open rows from the master-only symbol and string census;
+  recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 46 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 38 LOW):
-  676 rows closed, 46 open
+  prefix; 62 = 0 HIGH + 8 MED + 3 SWEEP + 4 untagged + 47 LOW):
+  677 rows closed, 62 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -34,6 +35,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 315 added 7 MED rows from the census (force bolt skill
+    scaling, the ghost overhaul, Monk qi break and senseless blow,
+    hostile shopkeeper talk, the #enhance display, the unidentified
+    item filter, wizard / fuzzer duplicate uniques) and closed the
+    monster hit-dice row (BUG-2952..2957): monsters roll hit dice by
+    size again (d5-6 tiny up to d18-21 gigantic), Riders have
+    100 + d(10,8), demon lords and princes +50 / +100, level drain
+    takes one of the monster's own dice, and a polymorphed hero gets
+    the form's size dice, as on 0.9.3; golems keep 5.0's values and
+    nothing starts below 2 HP.
     Session 313 closed the untagged LARGEST_INT row (BUG-2942..2948):
     counts typed at an item prompt, stack weights and hilite_status
     thresholds go past 32767 again, while command repeat counts and
@@ -34671,6 +34682,140 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       form grants cold FROMFORM beside FROMEXPER. That is a source
       really lost, and it matches the ruling ("fires even if you
       still resist another way").
+- [x] Monster hit dice by size (master 624bcb645; minted + CLOSED
+      2026-11-09, session 315, BUG-2952..2957, commit pending). The
+      tree adoption replaced master's monmaxhp() / hd_size() with
+      vanilla's flat d8 and no slice restored it (the mplayer-deltas
+      row above even calls master's roll "the 5.0 d8 roll"). Found by
+      the session-315 census of master-only symbols. PORTED: hd_size()
+      (tiny 5-6, small 7-8, medium 8-9, large 10-12, huge 14-16,
+      gigantic 18-21, picked once per roll), monmaxhp() (Riders
+      100 + d(10,8); mlevel > 49 monsters 2*(mlevel-6), +100 demon
+      prince, +50 demon lord; home elemental x3 then mplayer 5/4),
+      newmonhp() and monhp_per_lvl() on top of them, polymon() through
+      monmaxhp(), the Bourbon / Ozzy submit arm at the monster's
+      present level (the recorded adj_lev level-shift delta is gone),
+      grow_up()'s 400 cap sparing uniques.
+      RULINGS (AskUserQuestion, three questions): adult dragons take
+      master's size dice (5.0's 4/level + d(level,4) formula removed
+      from creation, polymorph and the drain die - as recommended);
+      golems KEEP 5.0's values (gold 60, clay 70, stone 100, glass 80,
+      iron 120; master's were recommended); 5.0's 2 HP floor KEPT for
+      the dice arms (dropping it was recommended).
+      REVIEWER: PASS, no HIGH / MED. Master-parity sites left on 8 per
+      level, recorded so nobody reports them as missed: grow_up()'s
+      m_lev * 8 threshold, cutworm()'s d(m_lev, 8), the Schroedinger's
+      cat score, the blue jelly split test (m_lev + 1) * 8; and
+      monhp_per_lvl(&youmonst) always takes the level-0 d4 arm because
+      the hero's m_lev is never maintained (both trees).
+      BATTERY (game-tester, one XL30 Barbarian game, sanity_check on,
+      saved + restored once): 10/10 legs PASS, paniclog empty. 156
+      created monsters all inside N..N*max die; mumak ratio 6.3-11.0
+      and red dragon 8.0-11.2 HP per level; newts and jackals 2-4;
+      Death 137, Pestilence 144, Famine 155; Juiblex 138 (L34), Orcus
+      220 (L55), Demogorgon 300 (L75); iron golem 120, gold golem 60;
+      dragon-form hero 118-175; Stormbringer drains of a red dragon
+      1-17 per level; six mplayers 5.2-6.7 HP per level. Observation
+      from the battery, unverified: a dragon frozen by a bare gdb
+      write of mcanmove / mfrozen still attacked once (lever artifact
+      suspected, not chased).
+- [ ] MED: force bolt skill scaling unported (minted 2026-11-09,
+      session 315 census; master 288a5e60d + eb1b67971). Master
+      bhitm() / zapyourself(): d(2, 6 / 12 / 16 / 20) by attack-spell
+      skill and a to-hit base of 8 / 10 / 20 / 30; spelleffects():
+      a Wizard's force bolt costs spellev * a skill factor instead of
+      5 Pw. Branch: d(2,12), base 10, 5 Pw. The clerical, healing and
+      sickness dice of the same family are already ported.
+- [ ] MED: ghost overhaul unported (minted 2026-11-09, session 315
+      census; master a65fef3a8). Hostile ghosts turn invisible in
+      dochug(), half are generated invisible, the AD_PLYS touch
+      reveals them ("Boo!", "A ghost appears out of ...", the
+      scary_ghost() fright with the Draugr exemption) and sets
+      mspec_used; ghosts are exempt from map_invisible. Branch has
+      only the temple-ghost fright inlined in priest.c.
+- [ ] MED: Monk bare-handed extras unported (minted 2026-11-09,
+      session 315 census). (a) ma_break(): forcefight at a boulder or
+      statue bare-handed at Skilled or better, an occupation
+      (master f03ad32ba; named only as a deferral in three closed
+      rows; it goes AHEAD of the burn arm). (b) the martial-arts
+      "forceful blow knocks %s senseless!" confusion half beside the
+      stagger (master 717d1cb16). (c) body-armor feedback on wearing
+      and removing (master ae019d4be).
+- [ ] MED: hostile shopkeeper talk unported (minted 2026-11-09,
+      session 315 census; master 3f5eda4e3 hostile_shk(), about 20
+      shk.c sites): racially hostile shopkeepers, and any shopkeeper
+      facing an Infidel, greet with a hatesrace[] insult and send the
+      hero off at payment; Izchak exempt. The price side is ported.
+      Same row: a shopkeeper nymph restrains herself from a mirror
+      (master 8717d8d57); on the branch she steals it and teleports.
+- [ ] MED: #enhance display unported (minted 2026-11-09, session 315
+      census; master 68b383e62 + ffba3222e): skill caps, percentage
+      toward the next level (skill_training_percent()), the slot count
+      shown outside wizard mode, "Miscellaneous Skills" heading.
+- [ ] MED: unidentified-item menu filter unported (minted 2026-11-09,
+      session 315 census; master 1872d1d09): UNIDED_TYPES, the 'I'
+      "Items not fully identified" entry in query_category() and its
+      allow_category() filter, four callers.
+- [ ] MED: wizard / fuzzer duplicate unique items (minted 2026-11-09,
+      session 315 census; master ba281baaf + 493ccf555, BUG-274):
+      master's addinv_core1() / freeinv_core() tolerate a second
+      Amulet, candelabrum, bell, book or quest artifact in wizard mode
+      or under the fuzzer; the branch calls impossible(), which panics
+      under fuzzer_impossible_panic. Land before the Phase 7 campaign.
+- [ ] LOW: vampire monster bite feeding unported (minted 2026-11-09,
+      session 315 census; master c3816e9ea): the AD_DRLI bite of a
+      racial vampire on a target with blood prints the drain lines and
+      feeds a tame vampire (hungrytime += cnutrit / 20 + 1).
+- [ ] LOW: water rays stop at walls (minted 2026-11-09, session 315
+      census; master c0efa08e3): dobuzz()'s ZT_WATER arm prints
+      "%s splashes against the wall!" and ends the ray; the branch
+      bounces it.
+- [ ] LOW: weapon familiarity unported (minted 2026-11-09, session
+      315 census; master a0e258c9f): wep_kills is declared and never
+      used; master counts kills with an unidentified wielded weapon
+      and past 20 can set known ("quite familiar with"). The inert
+      persistent fields SWEEP row does not list it.
+- [ ] LOW: iron-bar room walls unported (minted 2026-11-09, session
+      315 census; master 462fc9aa4 make_ironbarwalls()): 1 in 5
+      ordinary levels turn some room walls into iron bars.
+- [ ] LOW, needs a ruling: iron safes (minted 2026-11-09, session 315
+      census; master 7acedb22e): never generated (three TODO-EVILHACK
+      markers in mklev.c / mkroom.c), no stethoscope cracking or
+      lock_action() wording. The 2026-11-02 "no iron-safe stethoscope
+      arm" note was recorded, not ruled.
+- [ ] LOW: small master behaviors unported (minted 2026-11-09, session
+      315 census): #jump fails when stunned or confused (78d9fc27b); a
+      phasing hero is not hurtled (624e7d268); a container dropped on
+      an altar flashes for its contents (1cab63768); magical eye
+      corpse shifts Luck (ae8bf25d6); scroll of earth against a hard
+      helmet lets a heavy boulder through (eb73649b9, both sides);
+      digging up while flying loosens a rock (7f328d740); graveyard
+      pits are open graves (9c765aa9c); float_up()'s "already flying"
+      arm and its landing guard (3cf5fb284); uunstick() tells holder
+      from held (33cc2bac2); the pea whistle identifies itself
+      (65cd648f1); wizard-mode teleport into a no-teleport spot
+      (c693341e0).
+- [ ] LOW: master texts unported (minted 2026-11-09, session 315
+      census): engulfer expel lines for steam, fire and antimatter
+      vortices and "with a woosh"; the blind demon-summon stench; the
+      A_NONE "torrent of hellfire" offering; grouped class-genocide
+      feedback (6e7694b0e); "almost completely turned to stone" and
+      "die from your sickness"; "The frumious falchion" for an unseen
+      Vorpal Blade; bullwhip "out of the sky"; S_UMBER / S_HUMAN class
+      descriptions.
+- [ ] LOW: master records unported (minted 2026-11-09, session 315
+      census): the dumplog "Time information" block and
+      iso8601_duration() (63f550127); the "digested by" death reason
+      (848be16a0); tt_oname() giving a scoreboard corpse or statue the
+      dead hero's race and refusing a corpse for a no-corpse race.
+- [ ] LOW, verify: census leftovers not yet read against the branch
+      (minted 2026-11-09, session 315): --listroles, iflags
+      .suppress_worn (quiver text while throwing), Death's 500 HP cap
+      under a death ray (branch 999), pet intrinsic odds from magical
+      corpses (conveys_energy). Also unread: 217 master strings that
+      matched the branch only in part and about 400 master-only local
+      names (lists in the session scratchpad are gone after the
+      session; rerun the string census to regenerate).
 - [x] SWEEP: monstseesu() SETTER parity with master (BUG-2949..
       2951) - CLOSED 2026-11-09 (session 314, 766bdc794, tracker
       24c04706c;
@@ -38520,6 +38665,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-09 | Hammer of the Gods tether slice (Phase 2 session 312, AskUserQuestion x4 with 8 questions, all as recommended). (1) SLICE: the Hammer tether row (the racial size SWEEP, damp riders (b)+(c) and a bulk LOW ruling not taken). (2) GLIB: the Hammer stays in hand only while it tethers (Skilled+); master's ungated exemption recorded as BUG-2934 (rejected: master's exact shape). (3) THROW LIST FOLDED: throwing_weapon() back to master's HEAVY_WAR_HAMMER (rejected: mint a row). (4) AUTOQUIVER: the Hammer stays out of an empty quiver on pickup, like Mjollnir (rejected: master's shape, quivered). (5) BAD THROW: a confused / stunned or failed-roll tethered throw takes the branch aklys's 5.0 path, back into the pack unwielded (rejected: master's drop at the hero's feet, a Hammer-only carve-out). (6) SLIP BLOCK FOLDED: master's Priest pierce / slash slip term and the "You hit yourself in the leg!" self-hit (rejected: mint a row). (7) IRON BARS: light and heavy war hammers both break bars (rejected: heavy only; keep 5.0's light only; mint a row). (8) LEG HIT WEAPONS ONLY: a slipped non-weapon (greased potion, food, corpse) just falls, no 0-damage leg line (rejected: master's exact shape). Session calls, plan-approved: one hero-only predicate hammer_tethers() with arwep[] unchanged; doname()'s Hammer term gated on carried(), not uwep; the self-hit sear uses toss_up()'s bark / stone-skin gate and gt.thrownobj is set before any damage. Commit 660b7f49e; BUG-2933..2941. | maintainer (1-8); session, plan-approved (rest) |
 | 2026-11-09 | monstseesu() setter slice (Phase 2 session 314, AskUserQuestion x2 with 3 questions). (1) SLICE: the monstseesu() setter SWEEP (racial size macros, the race-predicate census and a bulk LOW ruling not taken). (2) GAZES ON A HELPLESS HERO: 5.0 kept - an asleep, fainted or unconscious hero is not affected by any gaze, as a blind one is not (recommended: master's form, where a sleeper is stoned or burned; the maintainer's reason: closed eyes). (3) ACID FOLD-IN: the underwater acid arms of 61fbffdee's hero half and the yellow dragon passive lines land with the two potion setters, as recommended (rejected: setters only, mint a row). |
 | 2026-11-09 | LARGEST_INT slice (Phase 2 session 313, AskUserQuestion x3 with 6 questions, all as recommended). (1) SLICE: the LARGEST_INT widening row (the monstseesu() setter SWEEP, the racial size SWEEP and a rebased-artifact otyp sweep not taken). (2) CAN_CARRY FOLDED: master's partial-stack arm and over-capacity pre-check (4dde18ca6 + 0ebb23d86) and e5d7a963f's peaceful OBJ_INVENT exemption, none of them in any row; session 293's "no pre-check on master" sentence corrected (rejected: partial arm only; mint rows). (3) PCTLOAD: monmove.c's three pctload products no longer overflow (rejected: master parity). (4) CAPPED CORPSE: a stack whose weight hit LARGEST_INT weighs its monster's cwt apiece when it is a corpse (rejected: master's oc_weight * 24, which is 0 for corpses). (5) BONES GIFT: give_to_nearby_mon() gives only a stack the monster takes whole (rejected: split it; take the whole stack). (6) MONKEY THEFT: master's whole-stack theft once any part fits (rejected: only if all fits). Session calls, plan-approved: master's two 32767 pins (repeat count, foocubus fee); the sum tested as `newload > maxload - curload`; the bones killer pickup and mloot_container() keep master's whole-stack take; stale comments fixed (global.h, botl.c, pray.c, can_carry()'s TODO). Reviewer folds: pctload as a clamp at 100 (mon_pctload()), since a long can be 32 bits; xprname() and weightper products in int64; mon_glomps() split out so a dragon's weight-limited 1 is not taken for a handless monster's; the Strlen() comment in extern.h. Commit 01a87e2f5; BUG-2942..2948. | maintainer (1-6); session, plan-approved (rest) |
+| 2026-11-09 | Monster hit-dice slice (Phase 2 session 315, AskUserQuestion x2 with 4 questions - one a battery launch ask). (0) The slice came from a census of master-only symbols and strings against the branch, run because the maintainer asked for a second look at past commits; the maintainer picked monster hit points first. (1) DRAGONS: master's size dice; 5.0's adult-dragon formula is removed (as recommended). (2) GOLEMS: keep 5.0's higher values (master's were recommended). (3) FLOOR: keep 5.0's 2 HP minimum (dropping it was recommended). (4) Battery launched on ask. |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
