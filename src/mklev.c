@@ -38,6 +38,7 @@ staticfn boolean cardinal_nextto_room(struct mkroom *, coordxy, coordxy);
 staticfn boolean place_niche(struct mkroom *, int *, coordxy *, coordxy *);
 staticfn void makeniche(int);
 staticfn void make_niches(void);
+staticfn void make_ironbarwalls(int);
 staticfn int QSORTCALLBACK mkroom_cmp(const genericptr, const genericptr);
 staticfn void dosdoor(coordxy, coordxy, struct mkroom *, int);
 staticfn void join(int, int, boolean);
@@ -847,6 +848,44 @@ make_niches(void)
     }
 }
 
+/* replace straight stretches of room wall with iron bars: the spot must
+   have wall or bars to either side along the wall, so never sits beside
+   a door or on a corner, and open space on both of its faces */
+staticfn void
+make_ironbarwalls(int chance)
+{
+    coordxy x, y;
+    schar typ;
+
+    if (chance < 1)
+        return;
+
+    for (x = 1; x < COLNO - 1; x++) {
+        for (y = 1; y < ROWNO - 1; y++) {
+            typ = levl[x][y].typ;
+            if (typ == HWALL) {
+                if ((IS_WALL(levl[x - 1][y].typ)
+                     || levl[x - 1][y].typ == IRONBARS)
+                    && (IS_WALL(levl[x + 1][y].typ)
+                        || levl[x + 1][y].typ == IRONBARS)
+                    && SPACE_POS(levl[x][y - 1].typ)
+                    && SPACE_POS(levl[x][y + 1].typ)
+                    && rn2(100) < chance)
+                    (void) set_levltyp(x, y, IRONBARS);
+            } else if (typ == VWALL) {
+                if ((IS_WALL(levl[x][y - 1].typ)
+                     || levl[x][y - 1].typ == IRONBARS)
+                    && (IS_WALL(levl[x][y + 1].typ)
+                        || levl[x][y + 1].typ == IRONBARS)
+                    && SPACE_POS(levl[x - 1][y].typ)
+                    && SPACE_POS(levl[x + 1][y].typ)
+                    && rn2(100) < chance)
+                    (void) set_levltyp(x, y, IRONBARS);
+            }
+        }
+    }
+}
+
 staticfn void
 makevtele(void)
 {
@@ -1188,22 +1227,20 @@ fill_ordinary_room(
         }
     }
 
-    /* put box/chest inside;
+    /* put box/chest/safe inside;
      *  40% chance for at least 1 box, regardless of number
      *  of rooms; about 5 - 7.5% for 2 boxes, least likely
      *  when few rooms; chance for 3 or more is negligible.
+     *
+     * A safe only shows up below level 15 since a key won't
+     *  open one.
      */
     /*assert(svn.nroom > 0); // must be true because we're filling a room*/
     if (!skip_chests && !rn2(svn.nroom * 5 / 2) && somexyspace(croom, &pos)) {
         int i = rn2(5), boxtype;
 
-        /* TODO-EVILHACK: master generates IRON_SAFE here below depth 15
-           (taking precedence over the crystal chest); a plain chest
-           stands in until the iron safe subsystem (stethoscope
-           cracking) ports, keeping crystal chests in master's
-           depth 11-15 window */
         if (!i && depth(&u.uz) > 15)
-            boxtype = CHEST;
+            boxtype = IRON_SAFE;
         else if (!i && depth(&u.uz) > 10)
             boxtype = CRYSTAL_CHEST;
         else if (i > 2)
@@ -1392,6 +1429,10 @@ makelevel(void)
             goto skip0;
         makecorridors();
         make_niches();
+
+        /* before the vault is walled and special rooms are picked */
+        if (!rn2(5))
+            make_ironbarwalls(rn2(20) ? rn2(20) : rn2(50));
 
         mklev_sanity_check();
 

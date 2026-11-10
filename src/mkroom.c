@@ -515,12 +515,12 @@ fill_zoo(struct mkroom *sroom)
                                      FALSE);
                 break;
             case BARRACKS:
-                /* TODO-EVILHACK: master rolls IRON_SAFE 1 in 3 here
-                   below depth 15; a plain chest stands in until the
-                   iron safe subsystem ports (master upgraded the
-                   payroll box from LARGE_BOX to CHEST throughout) */
-                if (!rn2(20)) /* the payroll and some loot */
-                    (void) mksobj_at(CHEST, sx, sy, TRUE, FALSE);
+                /* the payroll and some loot; deep enough, it may be
+                   kept in a safe */
+                if (!rn2(20))
+                    (void) mksobj_at((rn2(3) || depth(&u.uz) < 16)
+                                         ? CHEST : IRON_SAFE,
+                                     sx, sy, TRUE, FALSE);
                 break;
             case COCKNEST:
                 if (!rn2(3)) {
@@ -585,11 +585,8 @@ fill_zoo(struct mkroom *sroom)
         gold->quan = (long) rn1(max(50 * level_difficulty(), 1), 10);
         gold->owt = weight(gold);
         /* the royal coffers */
-        /* TODO-EVILHACK: master uses IRON_SAFE below depth 15; a plain
-           chest stands in until the iron safe subsystem ports, keeping
-           crystal chests in master's depth 11-15 window */
         if (depth(&u.uz) > 15)
-            chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);
+            chest = mksobj_at(IRON_SAFE, mm.x, mm.y, TRUE, FALSE);
         else if (depth(&u.uz) > 10 && !rn2(10))
             chest = mksobj_at(CRYSTAL_CHEST, mm.x, mm.y, TRUE, FALSE);
         else

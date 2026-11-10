@@ -216,7 +216,8 @@ its_dead(coordxy rx, coordxy ry, int *resp, struct obj *tobj)
     struct permonst *mptr;
     struct obj *corpse = sobj_at(CORPSE, rx, ry),
                *statue = sobj_at(STATUE, rx, ry),
-               *egg = sobj_at(EGG, rx, ry);
+               *egg = sobj_at(EGG, rx, ry),
+               *safe = sobj_at(IRON_SAFE, rx, ry);
 
     if (!can_reach_floor(TRUE)) { /* levitation or unskilled riding */
         corpse = 0;               /* can't reach corpse on floor */
@@ -339,7 +340,18 @@ its_dead(coordxy rx, coordxy ry, int *resp, struct obj *tobj)
         }
         return TRUE;
     }
-    return FALSE; /* no corpse, statue or egg */
+
+    /* a stethoscope against a safe the hero stands over cracks it */
+    if (safe && u_at(rx, ry)) {
+        if (Hallucination || Confusion || tobj->cursed) {
+            You("attempt to crack the safe using the combination... %s?",
+                rndcolor());
+        } else {
+            (void) pick_lock(tobj, 0, 0, (struct obj *) 0);
+            return TRUE;
+        }
+    }
+    return FALSE; /* no corpse, statue, egg or safe */
 }
 
 static const char hollow_str[] = "a hollow sound.  This must be a secret %s!";

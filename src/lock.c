@@ -37,35 +37,49 @@ picking_at(coordxy x, coordxy y)
 staticfn const char *
 lock_action(void)
 {
-    /* "unlocking"+2 == "locking" */
-    static const char *const actions[] = {
-        "unlocking the door",   /* [0] */
-        "unlocking the chest",  /* [1] */
-        "unlocking the box",    /* [2] */
-        "picking the lock",     /* [3] */
-        "unlocking the magic chest" /* [4] */
+    /* two tables, since "cracking" has no "un" prefix to skip */
+    static const char *const unlocking[] = {
+        "unlocking the door",       /* [0] */
+        "unlocking the chest",      /* [1] */
+        "unlocking the box",        /* [2] */
+        "cracking the safe",        /* [3] */
+        "picking the lock",         /* [4] */
+        "unlocking the magic chest" /* [5] */
     };
+    static const char *const locking[] = {
+        "locking the door",
+        "locking the chest",
+        "locking the box",
+        "locking the safe",
+        "picking the lock",
+        "locking the magic chest"
+    };
+    int idx;
 
     /* if the target is currently unlocked, we're trying to lock it now */
-    if (gx.xlock.door && !(gx.xlock.door->doormask & D_LOCKED))
-        return actions[0] + 2; /* "locking the door" */
-    else if (gx.xlock.box && !gx.xlock.box->olocked)
-        return gx.xlock.box->otyp == CHEST ? actions[1] + 2
-               : gx.xlock.box->otyp == HIDDEN_CHEST ? actions[4] + 2
-                 : actions[2] + 2;
+    if (gx.xlock.door && !(gx.xlock.door->doormask & D_LOCKED)) {
+        return locking[0];
+    } else if (gx.xlock.box && !gx.xlock.box->olocked) {
+        idx = (gx.xlock.box->otyp == CHEST) ? 1
+              : (gx.xlock.box->otyp == IRON_SAFE) ? 3
+                : (gx.xlock.box->otyp == HIDDEN_CHEST) ? 5
+                  : 2;
+        return locking[idx];
     /* otherwise we're trying to unlock it */
-    else if (gx.xlock.picktyp == LOCK_PICK)
-        return actions[3]; /* "picking the lock" */
-    else if (gx.xlock.picktyp == CREDIT_CARD)
-        return actions[3]; /* same as lock_pick */
-    else if (gx.xlock.door)
-        return actions[0]; /* "unlocking the door" */
-    else if (gx.xlock.box)
-        return gx.xlock.box->otyp == CHEST ? actions[1]
-               : gx.xlock.box->otyp == HIDDEN_CHEST ? actions[4]
-                 : actions[2];
-    else
-        return actions[3];
+    } else if (gx.xlock.picktyp == LOCK_PICK) {
+        return unlocking[4]; /* "picking the lock" */
+    } else if (gx.xlock.picktyp == CREDIT_CARD) {
+        return unlocking[4]; /* same as lock_pick */
+    } else if (gx.xlock.door) {
+        return unlocking[0];
+    } else if (gx.xlock.box) {
+        idx = (gx.xlock.box->otyp == CHEST) ? 1
+              : (gx.xlock.box->otyp == IRON_SAFE) ? 3
+                : (gx.xlock.box->otyp == HIDDEN_CHEST) ? 5
+                  : 2;
+        return unlocking[idx];
+    }
+    return unlocking[4]; /* defensive: neither door nor box */
 }
 
 /* try to open/close a lock */
@@ -437,7 +451,8 @@ DISABLE_WARNING_FORMAT_NONLITERAL
 #define PICKLOCK_DID_NOTHING 0          /* no time passes */
 #define PICKLOCK_DID_SOMETHING 1
 
-/* player is applying a key, lock pick, or credit card */
+/* player is applying a key, lock pick, or credit card, or a
+   stethoscope to an iron safe */
 int
 pick_lock(
     struct obj *pick,
@@ -472,6 +487,8 @@ pick_lock(
 
             if (picktyp == CREDIT_CARD)
                 what = "card";
+            else if (picktyp == STETHOSCOPE)
+                what = "stethoscope";
             pline(no_longer, "hold the", what);
             reset_pick();
             return PICKLOCK_LEARNED_SOMETHING;
@@ -510,7 +527,7 @@ pick_lock(
 
     if (pick != &dummypick && picktyp != SKELETON_KEY
         && picktyp != LOCK_PICK && picktyp != CREDIT_CARD
-        && picktyp != MAGIC_KEY) {
+        && picktyp != MAGIC_KEY && picktyp != STETHOSCOPE) {
         impossible("picking lock with object %d?", picktyp);
         return PICKLOCK_DID_NOTHING;
     }
@@ -519,6 +536,11 @@ pick_lock(
     if (rx != 0) { /* autounlock; caller has provided coordinates */
         cc.x = rx;
         cc.y = ry;
+    } else if (picktyp == STETHOSCOPE) {
+        /* no direction prompt; use_stethoscope() already had the hero
+           pick "down" */
+        cc.x = u.ux;
+        cc.y = u.uy;
     } else if (!get_adjacent_loc((char *) 0, "Invalid location!",
                                  u.ux, u.uy, &cc)) {
         return PICKLOCK_DID_NOTHING;
@@ -565,6 +587,8 @@ pick_lock(
                 it = 0;
                 if (otmp->obroken)
                     verb = "fix";
+                else if (otmp->otyp == IRON_SAFE)
+                    verb = "crack", it = 1;
                 else if (!otmp->olocked)
                     verb = "lock", it = 1;
                 else if (picktyp != LOCK_PICK)
@@ -589,11 +613,16 @@ pick_lock(
                        would ask again on every repeat */
                     end_running(TRUE);
                     return PICKLOCK_DID_SOMETHING; /* even if no trap found */
-                } else if (autounlock
-                          && (flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0) {
+                } else if (autounlock) {
+                    /* without a tool (the trap check was the only
+                       reason for the call) there is nothing to offer */
                     c = 'q';
                     if (pick != &dummypick)
-                        c = ynq(safe_qbuf(qbuf, "Unlock it with ", "?", pick,
+                        c = ynq(safe_qbuf(qbuf,
+                                          (otmp->otyp == IRON_SAFE)
+                                              ? "Crack it with "
+                                              : "Unlock it with ",
+                                          "?", pick,
                                           yname, ysimple_name, "that"));
                     if (c != 'y')
                         return PICKLOCK_DID_NOTHING;
@@ -632,6 +661,26 @@ pick_lock(
                     return PICKLOCK_DID_SOMETHING;
                 }
 
+                /* a safe has a combination dial, not a keyhole */
+                if (otmp->otyp == IRON_SAFE) {
+                    if (!otmp->olocked) {
+                        pline_The("safe door is already hanging wide open.");
+                        return PICKLOCK_LEARNED_SOMETHING;
+                    } else if (picktyp != STETHOSCOPE) {
+                        You("don't %s a %s that would fit %s.",
+                            Blind ? "feel" : "see",
+                            (picktyp == CREDIT_CARD) ? "gap" : "keyhole",
+                            an(simple_typename(picktyp)));
+                        return PICKLOCK_LEARNED_SOMETHING;
+                    }
+                }
+
+                /* stethoscopes only work on safes */
+                if (picktyp == STETHOSCOPE && otmp->otyp != IRON_SAFE) {
+                    You_cant("open such a container with a stethoscope.");
+                    return PICKLOCK_LEARNED_SOMETHING;
+                }
+
                 /* crystal chests can only be opened by artifacts */
                 if (otmp->otyp == CRYSTAL_CHEST && !pick->oartifact) {
                     You_cant("%s %ssuch a container with a mundane %s.",
@@ -661,6 +710,9 @@ pick_lock(
                 case MAGIC_KEY:
                     ch = 75 + ACURR(A_DEX);
                     break;
+                case STETHOSCOPE:
+                    ch = 5 + 2 * ACURR(A_DEX) * Role_if(PM_ROGUE);
+                    break;
                 default:
                     ch = 0;
                 }
@@ -668,8 +720,10 @@ pick_lock(
                     ch /= 2;
 
                 /* small chance a cursed locking tool will break on use;
-                   the magic key and the two artifact keys never do */
+                   the magic key and the two artifact keys never do, nor
+                   does a stethoscope */
                 if (pick->cursed && !rn2(5) && picktyp != MAGIC_KEY
+                    && picktyp != STETHOSCOPE
                     && !is_art(pick, ART_MASTER_KEY_OF_THIEVERY)
                     && !is_art(pick, ART_YENDORIAN_EXPRESS_CARD)) {
                     pline("As you start to %s the %s, your %s breaks!",
@@ -692,7 +746,7 @@ pick_lock(
         }
         if (c != 'y') {
             if (!count)
-                There("doesn't seem to be any sort of lock here.");
+                There("doesn't seem to be any sort of pickable lock here.");
             return PICKLOCK_LEARNED_SOMETHING; /* decided against all boxes */
         }
 

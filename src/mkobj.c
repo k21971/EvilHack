@@ -1092,10 +1092,6 @@ mksobj_init(struct obj **obj, boolean artif)
             blessorcurse(otmp, 2);
             break;
         case IRON_SAFE:
-            /* TODO-EVILHACK: not generated yet (see mklev.c); a wished
-               safe is born locked and filled per master, but the
-               stethoscope-only unlocking rules port with the iron
-               safe subsystem */
             otmp->olocked = 1;
             mkbox_cnts(otmp);
             break;

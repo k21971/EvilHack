@@ -2214,8 +2214,11 @@ do_loot_cont(
             /* if both the untrap and apply_key bits are set, untrap
                attempt will be performed first but we need to set up
                unlocktool in case "check for trap?" is declined */
+            /* a safe has no keyhole; the tool for it is a stethoscope */
             if (((flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0
-                 && (unlocktool = autokey(TRUE)) != 0)
+                 && (unlocktool = (cobj->otyp == IRON_SAFE)
+                                  ? carrying(STETHOSCOPE)
+                                  : autokey(TRUE)) != 0)
                 || (flags.autounlock & AUTOUNLOCK_UNTRAP) != 0) {
                 /* pass ox and oy to avoid direction prompt */
                 if (pick_lock(unlocktool, ox, oy, cobj))
@@ -2230,8 +2233,9 @@ do_loot_cont(
                     *cobjp = (struct obj *) 0;
                 return res;
             }
+            /* a safe can't be forced, so don't offer */
             if ((flags.autounlock & AUTOUNLOCK_FORCE) != 0
-                && res != ECMD_TIME
+                && res != ECMD_TIME && cobj->otyp != IRON_SAFE
                 && ccount == 1 && u_have_forceable_weapon()) {
                 /* single container, and we could #force it open... */
                 /* note: doforce asks for confirmation */
