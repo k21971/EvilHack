@@ -17,12 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-10, after session 317's
-  monsters slice, which closed three more of the census rows;
+- Phase 2 status (refreshed 2026-11-10, after session 318's
+  shops slice, which closed one more of the census rows;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 56 = 0 HIGH + 5 MED + 3 SWEEP + 4 untagged + 44 LOW):
-  683 rows closed, 56 open
+  prefix; 55 = 0 HIGH + 4 MED + 3 SWEEP + 4 untagged + 44 LOW):
+  684 rows closed, 55 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -34,6 +34,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 318 closed the hostile shopkeeper talk MED row
+    (BUG-2974..2977, commit pending): a shopkeeper whose race the
+    hero's race hates, and every shopkeeper but Izchak facing an
+    Infidel, trades insults for courtesies; a nymph shopkeeper
+    shown a mirror in her shop restrains herself; a mirror at a
+    magical eye cancels it; a nymph's stolen unpaid mirror leaves
+    the bill.
     Session 317 closed the ghost overhaul MED row and two LOWs
     (BUG-2969..2973): hostile ghosts fade from view, half start
     invisible, and one appearing beside the hero frightens them for
@@ -34765,8 +34772,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       scary_ghost() fright with the Draugr exemption) and sets
       mspec_used; ghosts are exempt from map_invisible. Branch has
       only the temple-ghost fright inlined in priest.c.
-      CLOSED 2026-11-10, session 317 (BUG-2969, BUG-2970, commit
-      pending). Master's current form: priest.c scary_ghost() (used
+      CLOSED 2026-11-10, session 317 (BUG-2969, BUG-2970,
+      e4ea8815d). Master's current form: priest.c scary_ghost() (used
       by intemple(), potion.c ghost_from_bottle() and the touch);
       makemon.c case S_GHOST; monmove.c dochug() fade block ahead of
       the drow aura arm; uhitm.c mhitm_ad_plys() mhitu arm; mhitu.c
@@ -34845,13 +34852,44 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       crocodile, barkskin gnome lord and fire vortex (outside and
       engulfed) never. Armor lines on / off / destroyed; Wizard
       silent; poly swap silent.
-- [ ] MED: hostile shopkeeper talk unported (minted 2026-11-09,
+- [x] MED: hostile shopkeeper talk unported (minted 2026-11-09,
       session 315 census; master 3f5eda4e3 hostile_shk(), about 20
       shk.c sites): racially hostile shopkeepers, and any shopkeeper
       facing an Infidel, greet with a hatesrace[] insult and send the
       hero off at payment; Izchak exempt. The price side is ported.
       Same row: a shopkeeper nymph restrains herself from a mirror
       (master 8717d8d57); on the branch she steals it and teleports.
+      CLOSED 2026-11-10, session 318 (BUG-2974..2977, commit pending).
+      shk.c: hostile_shk() and hatesrace[] at master's sites -
+      u_entered_shop() welcome and pick-axe / steed lines, dopay()
+      thank-you plus "Move along now..." / "Feel free to leave
+      anytime.", reject_purchase(), inherits(), add_to_billobj()
+      "For you, <insult>;" (ANGRY too, replacing the fixed "scum"),
+      shopdig(0), shk_chat(), globby_bill_fixup(). RULED
+      (AskUserQuestion x2, both as recommended): 5.0's surcharge tone
+      stays and hostile_shk() goes on top (a surcharged hostile
+      shopkeeper greets "Back again, <name>?"); the mirror restores
+      master's intent. CORRECTION to this row: the nymph shopkeeper
+      never stole the mirror - master's arm died when the Satyr
+      commit 4ac81e26f tested is_nymph(mtmp->data) (her data is
+      PM_SHOPKEEPER), so on 0.9.3 and the branch she ignored her
+      reflection. apply.c use_mirror() now tests r_data(): in her
+      shop she restrains herself, outside it she takes the mirror
+      and teleports. REVIEWER finds, same commit: an unpaid mirror
+      taken by a nymph comes off the bill (BUG-2976, vanilla 5.0 and
+      master gap, upstream candidate); master's magical eye arm
+      (65d45ea04, cancel and flee, no row until now) ported by
+      ruling (BUG-2977). RECORDED, master parity: the doorway "Please
+      pay before leaving" line is not gated; a hostile shopkeeper
+      gives no other #chat; Izchak is rude to a hallucinating hated
+      hero; the test is the hero's hatemask against the shopkeeper's
+      race. BATTERY (game-tester, XL30 human Infidel + XL30 human
+      Valkyrie, sanity_check on, 21 legs, paniclog absent): all PASS
+      - all eight insults seen, deaf twins, "disapprovingly
+      inherits", Izchak polite, gnomish shopkeeper rude to a human
+      and a nymph one polite, restrains / silent when blind / takes
+      it outside the shop, a wild nymph's unpaid mirror left billct
+      0, magical eye cancelled and fled.
 - [ ] MED: #enhance display unported (minted 2026-11-09, session 315
       census; master 68b383e62 + ffba3222e): skill caps, percentage
       toward the next level (skill_training_percent()), the slot count
@@ -34870,7 +34908,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       session 315 census; master c3816e9ea): the AD_DRLI bite of a
       racial vampire on a target with blood prints the drain lines and
       feeds a tame vampire (hungrytime += cnutrit / 20 + 1).
-      CLOSED 2026-11-10, session 317 (BUG-2971, commit pending).
+      CLOSED 2026-11-10, session 317 (BUG-2971, e4ea8815d).
       uhitm.c mhitm_ad_drli(), mhitu and mhitm arms. DEPARTURES:
       has_edog() guard; master's "suddenly seems weaker!" is left to
       5.0's "becomes weaker!". BATTERY: tame vampire lady on a hill
@@ -34884,7 +34922,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       census; master c0efa08e3): dobuzz()'s ZT_WATER arm prints
       "%s splashes against the wall!" and ends the ray; the branch
       bounces it.
-      CLOSED 2026-11-10, session 317 (BUG-2972, commit pending).
+      CLOSED 2026-11-10, session 317 (BUG-2972, e4ea8815d).
       zap.c dobuzz() at make_bounce. RULED (AskUserQuestion, as
       recommended): the ray ALWAYS ends at an obstacle. Master's stop
       sat inside the hero-can-see test, so an unseen water ray, or
@@ -34931,8 +34969,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (65cd648f1); wizard-mode teleport into a no-teleport spot
       (c693341e0).
 - [ ] LOW: master texts unported (minted 2026-11-09, session 315
-      census): [DONE 2026-11-10, session 317, BUG-2973, commit
-      pending: engulfer expel lines for steam, fire and antimatter
+      census): [DONE 2026-11-10, session 317, BUG-2973,
+      e4ea8815d: engulfer expel lines for steam, fire and antimatter
       vortices and "with a woosh" - mhitu.c expels(); battery saw
       all eight whirly endings through the wand of opening] the
       blind demon-summon stench; the
