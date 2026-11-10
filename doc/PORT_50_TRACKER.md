@@ -17,13 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-10, after session 319's
-  interface and records slice, which closed four more of the census
+- Phase 2 status (refreshed 2026-11-10, after session 320's
+  level generation slice, which closed two more of the census
   rows and minted one;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 52 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 44 LOW):
-  688 rows closed, 52 open
+  prefix; 51 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 43 LOW):
+  690 rows closed, 51 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -35,8 +35,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 320 closed the two level generation LOW rows
+    (BUG-2986..2988, commit pending): one ordinary level in five
+    turns some straight room wall squares into iron bars; iron
+    safes turn up below depth 15 in ordinary rooms, barracks and
+    throne rooms, and a stethoscope applied down over one cracks
+    it.
     Session 319 closed the last three census MED rows and the
-    records LOW (BUG-2978..2985, commit pending): #enhance shows
+    records LOW (BUG-2978..2985, 80ca868e2): #enhance shows
     skill caps, percent trained and free slots; an 'I' "Items not
     fully identified" entry in the drop, take-off, loot and
     inventory-type menus; a second Bell, Candelabrum, Book or
@@ -34905,7 +34911,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       census; master 68b383e62 + ffba3222e): skill caps, percentage
       toward the next level (skill_training_percent()), the slot count
       shown outside wizard mode, "Miscellaneous Skills" heading.
-      CLOSED 2026-11-10, session 319 (BUG-2978, commit pending).
+      CLOSED 2026-11-10, session 319 (BUG-2978, 80ca868e2).
       weapon.c + insight.c. The row missed three master commits:
       add05a1e3 (slot count), d2006ebf1 (skill_level_name() now takes
       a LEVEL; five callers), de4630e46 (the percent clamp). RULED
@@ -34921,7 +34927,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       session 315 census; master 1872d1d09): UNIDED_TYPES, the 'I'
       "Items not fully identified" entry in query_category() and its
       allow_category() filter, four callers.
-      CLOSED 2026-11-10, session 319 (BUG-2979, commit pending).
+      CLOSED 2026-11-10, session 319 (BUG-2979, 80ca868e2).
       UNIDED_TYPES is 0x2000 here (master's 0x800 is BUC_UNKNOWN).
       Also master 9ec6c8d7e (filter reset) and the traditional-prompt
       sites (ggetobj, query_classes, askchain, this_type_only,
@@ -34943,8 +34949,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Amulet, candelabrum, bell, book or quest artifact in wizard mode
       or under the fuzzer; the branch calls impossible(), which panics
       under fuzzer_impossible_panic. Land before the Phase 7 campaign.
-      CLOSED 2026-11-10, session 319 (BUG-2980 / 2981, commit
-      pending). invent.c duplicate_unique() + other_unique_carried().
+      CLOSED 2026-11-10, session 319 (BUG-2980 / 2981,
+      80ca868e2). invent.c duplicate_unique() + other_unique_carried().
       Also master 6c49bc702 (the Amulet and quest artifact arms).
       RULED (as recommended): master's messages plus a recount - a
       u.uhave flag clears only when no other source is carried;
@@ -34999,14 +35005,56 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the count then stops; a thrown dagger and a bare-handed kill
       count nothing; a +5 sword identified on kills 21 and 28 and not
       at all in two runs of 8.
-- [ ] LOW: iron-bar room walls unported (minted 2026-11-09, session
+- [x] LOW: iron-bar room walls unported (minted 2026-11-09, session
       315 census; master 462fc9aa4 make_ironbarwalls()): 1 in 5
       ordinary levels turn some room walls into iron bars.
-- [ ] LOW, needs a ruling: iron safes (minted 2026-11-09, session 315
+      CLOSED 2026-11-10, session 320 (BUG-2986, commit pending).
+      mklev.c make_ironbarwalls(), called after make_niches() and
+      before the vault is walled, master's odds. RULED (as
+      recommended): master's whole-map scan, 5.0 themed rooms
+      included, so a Mausoleum cell or a room in a room can get a
+      barred wall. Recorded: a garden's tree walls are planted
+      later, and a square barred first stays bars. BATTERY: the roll
+      fired on 28 of 146 levels and made bars on 15; 367 bars on 64
+      levels all obey the rule (wall or bars to both sides, floor or
+      corridor on both faces, never by a door or on a corner); no
+      vault wall barred on 19 levels; bars see-through, joined into
+      the wall run; a shop's barred wall bills a dart thrown out
+      through it and the shopkeeper repairs a broken bar; Mines,
+      Sokoban and Gehennom untouched; save / restore identical.
+- [x] LOW, needs a ruling: iron safes (minted 2026-11-09, session 315
       census; master 7acedb22e): never generated (three TODO-EVILHACK
       markers in mklev.c / mkroom.c), no stethoscope cracking or
       lock_action() wording. The 2026-11-02 "no iron-safe stethoscope
       arm" note was recorded, not ruled.
+      CLOSED 2026-11-10, session 320 (BUG-2987 / 2988, commit
+      pending). RULED (as recommended): the whole master subsystem,
+      7acedb22e + 93ff2b277 + 8e9e63d03. Generation at master's
+      three sites (ordinary-room box roll, barracks payroll, royal
+      coffers, all below depth 15). lock.c pick_lock() takes a
+      stethoscope (hero's own square, 5% a turn, a Rogue 5 + 2 x
+      Dex), master's refusal lines, "pickable lock"; lock_action()
+      in master's two-table form (BUG-867); apply.c its_dead() safe
+      arm; pickup.c offers "Crack it with" a carried stethoscope
+      and no #force for a safe. FOUND (reviewer, BUG-2988): #loot
+      with only autounlock's untrap bit went on to ask "unlock it?"
+      with no tool - vanilla 5.0's hole, a chest then started a
+      50-turn attempt that could not succeed. Kept as master: a
+      stethoscope's refusals cost no move; #loot's offer skips the
+      cursed / confused / hallucinating joke. BATTERY: 13 PASS, 2
+      partial, 0 FAIL: crack, give up at 50 turns, interrupt and
+      resume, Rogue in 1 to 8 turns, all refusal lines sighted and
+      blind, every autounlock setting; 69 levels at depth 16+ gave
+      6 safes of 27 room boxes, 14 safe coffers and no crystal
+      chest, 49 levels at depth 12-15 gave no safe. Partial: the
+      Fort Ludios safe was cracked after gdb moved it off the level.
+- [ ] LOW: a metal-eating hero eats a container's contents with it
+      (minted 2026-11-10, session 320, reviewer; master e82a64841):
+      master's floorfood() asks about a metallic chest, large box or
+      iron safe first and spills its contents ("Its contents fall
+      out."); the branch has no such arm, so the ordinary floor loop
+      offers the container whole. Read by the reviewer, not run.
+      Random safes make it more likely to be met.
 - [ ] LOW: small master behaviors unported (minted 2026-11-09, session
       315 census): #jump fails when stunned or confused (78d9fc27b); a
       phasing hero is not hurtled (624e7d268); a container dropped on
@@ -35035,8 +35083,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       iso8601_duration() (63f550127); the "digested by" death reason
       (848be16a0); tt_oname() giving a scoreboard corpse or statue the
       dead hero's race and refusing a corpse for a no-corpse race.
-      CLOSED 2026-11-10, session 319 (BUG-2982..2985, commit
-      pending). (1) FOUND: the record file was still written in the
+      CLOSED 2026-11-10, session 319 (BUG-2982..2985,
+      80ca868e2). (1) FOUND: the record file was still written in the
       pre-3.3 one-letter layout with no race (5.0's version test
       against EvilHack's 1.0.0); master's use_newfmt ported
       (BUG-2982). (2) tt_oname() race (BUG-2983): raceinfo(), a
