@@ -647,21 +647,13 @@ ghost_from_bottle(void)
         pline("This bottle turns out to be empty.");
         return;
     }
-    if (Blind) {
+    if (!canspotmon(mtmp)) {
         pline("As you open the bottle, %s emerges.", something);
         return;
     }
     pline("As you open the bottle, an enormous %s emerges!",
           Hallucination ? rndmonnam(NULL) : (const char *) "ghost");
-    /* draugr do not fear the undead,
-       or anything else for that matter */
-    if (!maybe_polyd(is_undead(gy.youmonst.data), Race_if(PM_DRAUGR))) {
-        if (flags.verbose)
-            You("are frightened to death, and unable to move.");
-        nomul(-3);
-        gm.multi_reason = "being frightened to death";
-        gn.nomovemsg = "You regain your composure.";
-    }
+    scary_ghost(mtmp);
 }
 
 /* getobj callback for object to drink from, which also does double duty as

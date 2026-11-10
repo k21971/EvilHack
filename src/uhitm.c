@@ -4057,6 +4057,15 @@ mhitm_ad_drli(
         hitmsg(magr, mattk);
         if (!rn2(3) && !Drain_resistance
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)){
+            /* a vampire's bite draws blood, and feeds a pet vampire */
+            if (racial_vampire(magr) && mattk->aatyp == AT_BITE
+                && has_blood(gy.youmonst.data)) {
+                Your("blood is being drained!");
+                /* 1/20th of the full corpse value */
+                if (magr->mtame && !magr->isminion && has_edog(magr))
+                    EDOG(magr)->hungrytime
+                        += (int) (gy.youmonst.data->cnutrit / 20) + 1;
+            }
             mon_drains_level(magr, "life drainage");
 
             /* unlike hitting with Stormbringer, wounded attacker doesn't
@@ -4072,6 +4081,16 @@ mhitm_ad_drli(
                 && !mhitm_mgc_atk_negated(magr, mdef, TRUE))) {
             if (!is_death) /* Stormbringer uses monhp_per_lvl (a hit die) */
                 mhm->damage = d(2, 6);
+            /* a vampire's bite draws blood, and feeds a pet vampire */
+            if (racial_vampire(magr) && mattk->aatyp == AT_BITE
+                && has_blood(mdef->data)) {
+                if (gv.vis && canspotmon(mdef))
+                    pline_mon(mdef, "%s blood is being drained!",
+                              s_suffix(Monnam(mdef)));
+                if (magr->mtame && !magr->isminion && has_edog(magr))
+                    EDOG(magr)->hungrytime
+                        += (int) (mdef->data->cnutrit / 20) + 1;
+            }
             if (gv.vis && canspotmon(mdef))
                 pline_mon(mdef, "%s becomes weaker!", Monnam(mdef));
             if (mdef->mhpmax - mhm->damage > (int) mdef->m_lev) {
@@ -5910,6 +5929,46 @@ mhitm_ad_plys(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
+        /* from xNetHack: ghosts don't have a "paralyzing touch"; this
+           is simply the most convenient place to put this code. What
+           they actually do is try to pop up out of nowhere right next
+           to you, frightening you to death (which of course paralyzes
+           you) */
+        if (magr->data == &mons[PM_GHOST]) {
+            boolean couldspot = canspotmon(magr);
+
+            if (gm.multi < 0) /* already paralyzed; ghost won't appear */
+                return;
+            if (magr->minvis) {
+                magr->minvis = 0;
+                magr->mspec_used = d(2, 8);
+                /* canseemon rather than canspotmon; if you can spot but
+                   not see the ghost, you won't notice that it became
+                   visible */
+                if (canseemon(magr) && !Unaware) {
+                    newsym(magr->mx, magr->my);
+                    if (!couldspot) {
+                        /* only works if you didn't know it was there
+                           before it turned visible */
+                        if (Hallucination) {
+                            SetVoice(magr, 0, 80, 0);
+                            verbalize("Boo!");
+                        } else
+                            pline("A ghost appears out of %s!",
+                                  rn2(2) ? "the shadows" : "nowhere");
+                        scary_ghost(magr);
+                    } else if (Blind) {
+                        pline("%s seems easier to spot.", Monnam(magr));
+                    } else {
+                        pline("%s becomes visible!", Monnam(magr));
+                        if (!rn2(3))
+                            You("aren't %s.",
+                                rn2(2) ? "afraid" : "scared");
+                    }
+                }
+            }
+            return;
+        }
         if (gm.multi >= 0 && !rn2(3)
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             if (Free_action) {

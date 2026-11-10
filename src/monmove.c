@@ -1301,6 +1301,26 @@ dochug(struct monst *mtmp)
         distfleeck(mtmp, &inrange, &nearby, &scared);
     }
 
+    /* ghosts prefer turning invisible instead of moving if they can */
+    if (mdat == &mons[PM_GHOST] && !mtmp->mpeaceful && !mtmp->mcan
+        && !mtmp->mspec_used && !mtmp->minvis) {
+        boolean sawit = canseemon(mtmp);
+        /* store the monster's name as we see it now; afterwards it
+           would read "The invisible Foo's ghost fades from view" */
+        char nam[BUFSZ];
+
+        Strcpy(nam, Monnam(mtmp));
+        mtmp->minvis = 1;
+        if (sawit && !canseemon(mtmp)) {
+            pline("%s fades from view.", nam);
+            newsym(mtmp->mx, mtmp->my);
+        } else if (sawit && See_invisible) {
+            pline("%s turns even more transparent.", nam);
+            newsym(mtmp->mx, mtmp->my);
+        }
+        return 0;
+    }
+
     /* drow have the innate ability to cast an aura of darkness
        around themselves, and will use it if surrounded by light */
     if (!rn2(10) && racial_drow(mtmp)

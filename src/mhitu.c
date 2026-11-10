@@ -647,6 +647,19 @@ expels(
                     case AD_COLD:
                         Strcpy(blast, " in a blast of frost");
                         break;
+                    case AD_FIRE:
+                        if (mdat == &mons[PM_STEAM_VORTEX])
+                            Strcpy(blast, " in a blast of steam");
+                        else
+                            Strcpy(blast, " in a blast of fire");
+                        break;
+                    case AD_DISN:
+                        Strcpy(blast, " in a haze of antiparticles");
+                        break;
+                    case AD_BLND:
+                    case AD_PHYS:
+                        Strcpy(blast, " with a woosh");
+                        break;
                     }
                 } else {
                     Strcpy(blast, " with a squelch");
@@ -1828,7 +1841,10 @@ hitmu(struct monst *mtmp, struct attack *mattk)
        weapon erodes away or shatters mid-blow */
     armask = attack_contact_slots(mtmp, mattk->aatyp, mhm.mwep);
 
-    if (!canspotmon(mtmp))
+    /* ghosts have an exception because if the hero can't spot it, their
+       attack does absolutely nothing, and there's no indication of a
+       monster being around */
+    if (!canspotmon(mtmp) && mdat != &mons[PM_GHOST])
         map_invisible(mtmp->mx, mtmp->my);
 
     /* Awaken nearby monsters */

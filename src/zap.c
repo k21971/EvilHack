@@ -6972,6 +6972,19 @@ dobuzz(
             bchance = (!isok(sx, sy) || levl[sx][sy].typ == STONE) ? 10
                       : (In_mines(&u.uz) && IS_WALL(levl[sx][sy].typ)) ? 20
                         : 75;
+            /* water splashes against an obstacle rather than bouncing,
+               whether or not anyone is watching */
+            if (damgtype == ZT_WATER) {
+                if (!isok(lsx, lsy) || !cansee(lsx, lsy))
+                    ; /* unseen */
+                else if (Is_airlevel(&u.uz))
+                    pline_The("%s vanishes into the aether!",
+                              flash_str(fltyp, FALSE));
+                else if (isok(sx, sy) && IS_STWALL(levl[sx][sy].typ))
+                    pline("%s splashes against the wall!",
+                          The(flash_str(fltyp, FALSE)));
+                break;
+            }
             if ((--range > 0 && isok(lsx, lsy) && cansee(lsx, lsy))
                 || fireball) {
                 if (Is_airlevel(&u.uz)) { /* nothing to bounce off of */

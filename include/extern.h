@@ -2932,6 +2932,7 @@ extern char *priestname(struct monst *, int, boolean, char *) NONNULLARG1;
 extern boolean p_coaligned(struct monst *) NONNULLARG1;
 extern struct monst *findpriest(char);
 extern void intemple(int);
+extern void scary_ghost(struct monst *) NONNULLARG1;
 extern void forget_temple_entry(struct monst *) NONNULLARG1;
 extern void priest_talk(struct monst *) NONNULLARG1;
 extern struct monst *mk_roamer(struct permonst *, aligntyp, coordxy, coordxy,

@@ -3447,6 +3447,11 @@ makemon(
             mtmp->minvis = TRUE;
         }
         break;
+    case S_GHOST:
+        if (mndx == PM_GHOST && rn2(2)) {
+            mtmp->minvis = TRUE; /* not permanent though */
+        }
+        break;
     case S_EEL:
         if (gi.in_mklev) {
             (void) hideunder(mtmp);

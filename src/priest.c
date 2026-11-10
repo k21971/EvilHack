@@ -910,25 +910,40 @@ intemple(int roomno)
             && (mtmp = makemon(&mons[PM_GHOST], u.ux, u.uy, MM_NOMSG))
                    != 0) {
             int ngen = svm.mvitals[PM_GHOST].born;
-            if (canspotmon(mtmp))
+            if (canspotmon(mtmp)) {
                 pline("A%s ghost appears next to you%c",
                       ngen < 5 ? "n enormous" : "",
                       ngen < 10 ? '!' : '.');
-            else
+                scary_ghost(mtmp);
+            } else {
                 You("sense a presence close by!");
-            mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            newsym(mtmp->mx, mtmp->my); /* update display */
-            /* draugr do not fear the undead,
-               or anything else for that matter */
-            if (!maybe_polyd(is_undead(gy.youmonst.data),
-                             Race_if(PM_DRAUGR))) {
-                if (flags.verbose)
-                    You("are frightened to death, and unable to move.");
-                nomul(-3);
-                gm.multi_reason = "being terrified of a ghost";
-                gn.nomovemsg = "You regain your composure.";
             }
+        }
+    }
+}
+
+/* from xNetHack: a suddenly appearing ghost scares the hero and freezes
+   them with fright for a few turns; the caller has already checked that
+   the hero notices the ghost and has given the message for its
+   appearance */
+void
+scary_ghost(struct monst *ghost)
+{
+    /* a pet ghost driven to attack by conflict stays a pet */
+    if (!ghost->mtame) {
+        ghost->mpeaceful = 0;
+        set_malign(ghost);
+    }
+    newsym(ghost->mx, ghost->my); /* update display */
+    /* draugr do not fear the undead,
+       or anything else for that matter */
+    if (!maybe_polyd(is_undead(gy.youmonst.data), Race_if(PM_DRAUGR))) {
+        if (gm.multi >= 0) {
+            if (flags.verbose)
+                You("are frightened to death, and unable to move.");
+            nomul(-3);
+            gm.multi_reason = "being terrified of a ghost";
+            gn.nomovemsg = "You regain your composure.";
         }
     }
 }
