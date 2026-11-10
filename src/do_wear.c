@@ -4564,7 +4564,8 @@ menu_remarm(int retry)
         all_worn_categories = FALSE;
         n = query_category("What type of things do you want to take off?",
                            gi.invent, (WORN_TYPES | ALL_TYPES
-                                    | UNPAID_TYPES | BUCX_TYPES),
+                                    | UNPAID_TYPES | UNIDED_TYPES
+                                    | BUCX_TYPES),
                            &pick_list, PICK_ANY);
         if (!n)
             return 0;
@@ -4583,7 +4584,7 @@ menu_remarm(int retry)
             return 0;
         all_worn_categories = (i == -2);
     }
-    if (menu_class_present('u')
+    if (menu_class_present('u') || menu_class_present('I')
         || menu_class_present('B') || menu_class_present('U')
         || menu_class_present('C') || menu_class_present('X'))
         all_worn_categories = FALSE;

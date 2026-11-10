@@ -2515,7 +2515,27 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     }
 
     gm.mswallower = mtmp; /* match gulpmm() */
-    mdamageu(mtmp, tmp);
+    if (total_digestion && !Upolyd) {
+        /* the hero's own body is gone: this death has its own reason,
+           and nothing is left to rise from; a polymorphed hero only
+           loses the form, through mdamageu() below */
+        u.uhp = 0;
+        disp.botl = TRUE;
+        if (!Lifesaved)
+            pline("%s emits a satisfied belch.", Monnam(mtmp));
+        /* no corpse, and no zombie rising from one either */
+        u.ugrave_arise = -3;
+        svk.killer.format = NO_KILLER_PREFIX;
+        Sprintf(svk.killer.name, "digested by %s",
+                mon_killer_name(kbuf, mtmp));
+        set_monster_killer(mtmp, FALSE);
+        done(DIED);
+        /* survived; that was the whole of this attack's damage */
+        clear_monster_killer(mtmp);
+        tmp = 0;
+    } else {
+        mdamageu(mtmp, tmp);
+    }
     gm.mswallower = 0;
     if (tmp)
         stop_occupation();

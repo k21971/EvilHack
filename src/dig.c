@@ -1224,9 +1224,13 @@ dig_up_grave(coord *cc)
     switch (what_happens) {
     case 0:
     case 1:
-        You("unearth a corpse.");
-        if ((otmp = mk_tt_object(CORPSE, dig_x, dig_y)) != 0)
+        /* someone whose race leaves no corpse left none here */
+        if ((otmp = mk_tt_object(CORPSE, dig_x, dig_y)) != 0) {
+            You("unearth a corpse.");
             otmp->age -= 100; /* this is an *OLD* corpse */
+        } else {
+            pline_The("grave is unoccupied.  Strange...");
+        }
         break;
     case 2:
         if (!Blind)

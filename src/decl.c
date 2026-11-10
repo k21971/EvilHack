@@ -422,6 +422,7 @@ static const struct instance_globals_i g_init_i = {
     0, /* in_doagain */
     FALSE, /* in_mklev */
     FALSE, /* in_steed_dismounting */
+    FALSE, /* ided_filter */
     UNDEFINED_PTR, /* invent */
     /* do_wear.c */
     FALSE, /* initial_don */

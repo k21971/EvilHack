@@ -10,6 +10,9 @@ staticfn char *loot_xname(struct obj *);
 staticfn int invletter_value(char);
 staticfn int QSORTCALLBACK sortloot_cmp(const genericptr, const genericptr);
 staticfn void reorder_invent(void);
+staticfn boolean other_unique_carried(struct obj *, int) NONNULLARG1;
+staticfn void duplicate_unique(struct obj *, boolean,
+                             const char *) NONNULLARG1;
 staticfn struct obj *addinv_core0(struct obj *, struct obj *,
                                                          boolean) NONNULLARG1;
 staticfn void pull_indestructibles(struct obj *, struct obj **) NONNULLARG12;
@@ -981,6 +984,58 @@ merged(struct obj **potmp, struct obj **pobj)
     return 0;
 }
 
+/* which u.uhave flag other_unique_carried() is asked about */
+enum unique_kinds { UNIQ_OTYP, UNIQ_AMULET, UNIQ_QUESTART };
+
+/* is something other than 'obj' in inventory still a source of the
+   u.uhave flag that 'obj' feeds?  'obj' may or may not be on the
+   inventory chain when this is called */
+staticfn boolean
+other_unique_carried(struct obj *obj, int kind)
+{
+    struct obj *otmp;
+
+    for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+        if (otmp == obj)
+            continue;
+        switch (kind) {
+        case UNIQ_AMULET:
+            /* the Amulet itself, or an Infidel's imbued Idol of Moloch */
+            if (otmp->otyp == AMULET_OF_YENDOR
+                || (Role_if(PM_INFIDEL) && otmp->oartifact
+                    && is_quest_artifact(otmp) && otmp->spe == 1))
+                return TRUE;
+            break;
+        case UNIQ_QUESTART:
+            if (otmp->oartifact && is_quest_artifact(otmp))
+                return TRUE;
+            break;
+        default:
+            if (otmp->otyp == obj->otyp)
+                return TRUE;
+            break;
+        }
+    }
+    return FALSE;
+}
+
+/* a unique item is being added to an inventory that already holds one,
+   or removed from one that the u.uhave flags say holds none; wizard
+   mode wishes and the fuzzer can do that, anything else is a bug */
+staticfn void
+duplicate_unique(struct obj *obj, boolean adding, const char *complaint)
+{
+    if (wizard || iflags.debug_fuzzer) {
+        if (adding)
+            You("already have %s!  Creating a duplicate...",
+                the(xname(obj)));
+        else
+            pline("Removing duplicate %s...", simpleonames(obj));
+    } else {
+        impossible("%s", complaint);
+    }
+}
+
 /*
  * Adjust hero intrinsics as if this object was being added to the hero's
  * inventory.  Called _before_ the object has been added to the hero's
@@ -1000,7 +1055,7 @@ addinv_core1(struct obj *obj)
            their quest artifact has absorbed it, so duplicates are
            routine for them rather than impossible */
         if (u.uhave.amulet && !Role_if(PM_INFIDEL))
-            impossible("already have amulet?");
+            duplicate_unique(obj, TRUE, "already have amulet?");
         u.uhave.amulet = 1;
         u.uamulet_on_planes = 0;
         /* Player will be able to discover if s/he has the real amulet
@@ -1015,23 +1070,23 @@ addinv_core1(struct obj *obj)
         }
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
         if (u.uhave.menorah)
-            impossible("already have candelabrum?");
+            duplicate_unique(obj, TRUE, "already have candelabrum?");
         u.uhave.menorah = 1;
         record_achievement(ACH_CNDL);
     } else if (obj->otyp == BELL_OF_OPENING) {
         if (u.uhave.bell)
-            impossible("already have silver bell?");
+            duplicate_unique(obj, TRUE, "already have silver bell?");
         u.uhave.bell = 1;
         record_achievement(ACH_BELL);
     } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
         if (u.uhave.book)
-            impossible("already have the book?");
+            duplicate_unique(obj, TRUE, "already have the book?");
         u.uhave.book = 1;
         record_achievement(ACH_BOOK);
     } else if (obj->oartifact) {
         if (is_quest_artifact(obj)) {
             if (u.uhave.questart)
-                impossible("already have quest artifact?");
+                duplicate_unique(obj, TRUE, "already have quest artifact?");
             u.uhave.questart = 1;
             /* an Idol of Moloch imbued with the Amulet's power (its
                enchantment marks the imbue event) counts as the
@@ -1428,29 +1483,33 @@ freeinv_core(struct obj *obj)
         return;
     } else if (obj->otyp == AMULET_OF_YENDOR) {
         if (!u.uhave.amulet)
-            impossible("don't have amulet?");
-        u.uhave.amulet = 0;
+            duplicate_unique(obj, FALSE, "don't have amulet?");
+        /* the Amulet's power stays while another Amulet, or an Infidel's
+           imbued Idol, is still carried */
+        u.uhave.amulet = other_unique_carried(obj, UNIQ_AMULET) ? 1 : 0;
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
         if (!u.uhave.menorah)
-            impossible("don't have candelabrum?");
-        u.uhave.menorah = 0;
+            duplicate_unique(obj, FALSE, "don't have candelabrum?");
+        u.uhave.menorah = other_unique_carried(obj, UNIQ_OTYP) ? 1 : 0;
     } else if (obj->otyp == BELL_OF_OPENING) {
         if (!u.uhave.bell)
-            impossible("don't have silver bell?");
-        u.uhave.bell = 0;
+            duplicate_unique(obj, FALSE, "don't have silver bell?");
+        u.uhave.bell = other_unique_carried(obj, UNIQ_OTYP) ? 1 : 0;
     } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
         if (!u.uhave.book)
-            impossible("don't have the book?");
-        u.uhave.book = 0;
+            duplicate_unique(obj, FALSE, "don't have the book?");
+        u.uhave.book = other_unique_carried(obj, UNIQ_OTYP) ? 1 : 0;
     } else if (obj->oartifact) {
         if (is_quest_artifact(obj)) {
             if (!u.uhave.questart)
-                impossible("don't have quest artifact?");
-            u.uhave.questart = 0;
+                duplicate_unique(obj, FALSE, "don't have quest artifact?");
+            u.uhave.questart = other_unique_carried(obj, UNIQ_QUESTART)
+                               ? 1 : 0;
             /* losing the imbued Idol of Moloch means losing the
                Amulet's power it carries */
             if (Role_if(PM_INFIDEL) && obj->spe == 1)
-                u.uhave.amulet = 0;
+                u.uhave.amulet = other_unique_carried(obj, UNIQ_AMULET)
+                                 ? 1 : 0;
         }
         set_artifact_intrinsic(obj, 0, W_ART);
     }
@@ -2415,8 +2474,8 @@ ggetobj(const char *word, int (*fn)(OBJ_P), int mx,
     boolean (*ofilter)(OBJ_P) = (boolean (*)(OBJ_P)) 0;
     boolean takeoff, ident, allflag, m_seen;
     int itemcount;
-    int oletct, iletct, unpaid, oc_of_sym;
-    char sym, *ip, olets[MAXOCLASSES + 6], ilets[MAXOCLASSES + 11];
+    int oletct, iletct, unpaid, unided, oc_of_sym;
+    char sym, *ip, olets[MAXOCLASSES + 6], ilets[MAXOCLASSES + 12];
     char extra_removeables[3 + 1]; /* uwep,uswapwep,uquiver */
     char buf[BUFSZ] = DUMMY, qbuf[QBUFSZ];
 
@@ -2441,6 +2500,7 @@ ggetobj(const char *word, int (*fn)(OBJ_P), int mx,
     iletct = collect_obj_classes(ilets, gi.invent, FALSE, ofilter,
                                  &itemcount);
     unpaid = count_unpaid(gi.invent);
+    unided = count_unidentified(gi.invent);
 
     if (ident && !iletct) {
         return -1; /* no further identifications */
@@ -2448,6 +2508,8 @@ ggetobj(const char *word, int (*fn)(OBJ_P), int mx,
         ilets[iletct++] = ' ';
         if (unpaid)
             ilets[iletct++] = 'u';
+        if (unided)
+            ilets[iletct++] = 'I';
         if (count_buc(gi.invent, BUC_BLESSED, ofilter))
             ilets[iletct++] = 'B';
         if (count_buc(gi.invent, BUC_UNCURSED, ofilter))
@@ -2540,8 +2602,8 @@ ggetobj(const char *word, int (*fn)(OBJ_P), int mx,
         } else if (sym == 'u') {
             add_valid_menu_class('u');
             ckfn = ckunpaid;
-        } else if (strchr("BUCXP", sym)) {
-            add_valid_menu_class(sym); /* 'B','U','C','X', or 'P' */
+        } else if (strchr("IBUCXP", sym)) {
+            add_valid_menu_class(sym); /* 'I','B','U','C','X', or 'P' */
             ckfn = ckvalidcat;
         } else if (sym == 'm') {
             m_seen = TRUE;
@@ -2605,7 +2667,7 @@ askchain(
     nodot = (!strcmp(word, "nodot") || !strcmp(word, "drop") || ident
              || takeoff || take_out || put_in);
     ininv = (*objchn == gi.invent);
-    bycat = (menu_class_present('u')
+    bycat = (menu_class_present('u') || menu_class_present('I')
              || menu_class_present('B') || menu_class_present('U')
              || menu_class_present('C') || menu_class_present('X')
              || menu_class_present('P'));
@@ -4109,6 +4171,9 @@ this_type_only(struct obj *obj)
             res = (gt.this_type == (flags.goldX ? 'X' : 'U'));
     } else {
         switch (gt.this_type) {
+        case 'I':
+            res = not_fully_identified(obj);
+            break;
         case 'B':
             res = (obj->bknown && obj->blessed);
             break;
@@ -4140,7 +4205,7 @@ dotypeinv(void)
     const char *before = "", *after = "";
     int class_count, oclass, itemcount,
         any_unpaid, u_carried, u_floor, u_buried;
-    int bcnt, ccnt, ucnt, xcnt, ocnt, jcnt;
+    int bcnt, ccnt, ucnt, xcnt, ocnt, jcnt, unided_count;
     boolean billx = *u.ushops && doinvbill(0);
     menu_item *pick_list;
     boolean traditional = TRUE;
@@ -4157,12 +4222,13 @@ dotypeinv(void)
     u_buried = count_unpaid(svl.level.buriedobjlist);
     any_unpaid = u_carried + u_floor + u_buried;
     tally_BUCX(gi.invent, FALSE, &bcnt, &ucnt, &ccnt, &xcnt, &ocnt, &jcnt);
+    unided_count = count_unidentified(gi.invent);
 
     if (flags.menu_style != MENU_TRADITIONAL) {
         if (flags.menu_style == MENU_FULL
             || flags.menu_style == MENU_PARTIAL) {
             traditional = FALSE;
-            i = UNPAID_TYPES;
+            i = UNPAID_TYPES | UNIDED_TYPES;
             if (billx)
                 i |= BILLED_TYPES;
             if (bcnt)
@@ -4189,12 +4255,15 @@ dotypeinv(void)
         class_count = collect_obj_classes(types, gi.invent, FALSE,
                                           (boolean (*)(OBJ_P)) 0,
                                           &itemcount);
-        if (any_unpaid || billx || (bcnt + ccnt + ucnt + xcnt) != 0 || jcnt)
+        if (any_unpaid || billx || unided_count
+            || (bcnt + ccnt + ucnt + xcnt) != 0 || jcnt)
             types[class_count++] = ' ';
         if (any_unpaid)
             types[class_count++] = 'u';
         if (billx)
             types[class_count++] = 'x';
+        if (unided_count)
+            types[class_count++] = 'I';
         if (bcnt)
             types[class_count++] = 'B';
         if (ucnt)
@@ -4213,6 +4282,8 @@ dotypeinv(void)
             *extra_types++ = 'u';
         if (!billx)
             *extra_types++ = 'x';
+        if (!unided_count)
+            *extra_types++ = 'I';
         if (!bcnt)
             *extra_types++ = 'B';
         if (!ucnt)
@@ -4262,7 +4333,7 @@ dotypeinv(void)
         goto doI_done;
     }
 
-    if (strchr("BUCXP", c))
+    if (strchr("IBUCXP", c))
         oclass = c; /* not a class but understood by this_type_only() */
     else
         oclass = def_char_to_objclass(c); /* change to object class */
@@ -4292,6 +4363,9 @@ dotypeinv(void)
     case 'P':
         after = " that were just picked up";
         break;
+    case 'I':
+        after = " that are not fully identified";
+        break;
     default:
         /* 'c' is an object class, because we've already handled
            all the non-class letters which were put into 'types[]';
@@ -4310,7 +4384,7 @@ dotypeinv(void)
         }
         gt.this_type = oclass; /* extra input for this_type_only() */
     }
-    if (strchr("BUCXP", c)) {
+    if (strchr("IBUCXP", c)) {
         /* the before and after phrases for "you have no..." can both be
            treated as mutually-exclusive suffices when creating a title */
         Sprintf(title, "Items %s", (before && *before) ? before : after);

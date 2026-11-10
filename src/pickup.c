@@ -155,6 +155,7 @@ query_classes(
     char qbuf[QBUFSZ];
     boolean m_seen;
     int itemcount, bcnt, ucnt, ccnt, xcnt, ocnt, jcnt;
+    struct obj *otmp;
 
     oclasses[oclassct = 0] = '\0';
     *one_at_a_time = *everything = m_seen = FALSE;
@@ -179,6 +180,11 @@ query_classes(
         ilets[iletct++] = 'm';
     if (count_unpaid(objs))
         ilets[iletct++] = 'u';
+    for (otmp = objs; otmp; otmp = here ? otmp->nexthere : otmp->nobj)
+        if (not_fully_identified(otmp)) {
+            ilets[iletct++] = 'I';
+            break;
+        }
 
     tally_BUCX(objs, here, &bcnt, &ucnt, &ccnt, &xcnt, &ocnt, &jcnt);
     if (bcnt)
@@ -226,8 +232,9 @@ query_classes(
                 goto ask_again;
             } else if (sym == 'm') {
                 m_seen = TRUE;
-            } else if (strchr("uBUCXP", sym)) {
-                add_valid_menu_class(sym); /* 'u' or 'B','U','C','X','P' */
+            } else if (strchr("uIBUCXP", sym)) {
+                /* 'u', 'I' or 'B','U','C','X','P' */
+                add_valid_menu_class(sym);
                 filtered = TRUE;
             } else {
                 oc_of_sym = def_char_to_objclass(sym);
@@ -482,7 +489,7 @@ add_valid_menu_class(int c)
     if (c == 0) { /* reset */
         vmc_count = 0;
         gc.class_filter = gb.bucx_filter = gs.shop_filter = FALSE;
-        gp.picked_filter = FALSE;
+        gp.picked_filter = gi.ided_filter = FALSE;
     } else if (!menu_class_present(c)) {
         gv.valid_menu_classes[vmc_count++] = (char) c;
         /* categorize the new class */
@@ -495,6 +502,9 @@ add_valid_menu_class(int c)
             break;
         case 'P':
             gp.picked_filter = TRUE;
+            break;
+        case 'I':
+            gi.ided_filter = TRUE;
             break;
         case 'u':
             gs.shop_filter = TRUE;
@@ -528,7 +538,7 @@ allow_category(struct obj *obj)
     /* If no filters are active, nothing will match unless
        paranoid_confirm:A is set. */
     if (!gc.class_filter && !gs.shop_filter && !gb.bucx_filter
-        && !gp.picked_filter && !ParanoidAutoAll)
+        && !gp.picked_filter && !gi.ided_filter && !ParanoidAutoAll)
         return FALSE;
 
     /* For coins, if any class filter is specified, accept if coins
@@ -567,6 +577,9 @@ allow_category(struct obj *obj)
        holding any unpaid object as unpaid even if isn't unpaid itself) */
     if (gs.shop_filter && !obj->unpaid
         && !(Has_contents(obj) && count_unpaid(obj->cobj) > 0))
+        return FALSE;
+    /* if not-fully-identified is expected and obj is fully known, reject */
+    if (gi.ided_filter && !not_fully_identified(obj))
         return FALSE;
     /* check for particular bless/curse state */
     if (gb.bucx_filter) {
@@ -838,7 +851,8 @@ pickup(int what) /* should be a long */
                 goto menu_pickup;
             }
         }
-        bycat = (menu_class_present('B') || menu_class_present('U')
+        bycat = (menu_class_present('I')
+                 || menu_class_present('B') || menu_class_present('U')
                  || menu_class_present('C') || menu_class_present('X'));
 
         for (obj = *objchain_p; obj; obj = obj2) {
@@ -1258,7 +1272,7 @@ query_category(
             do_unpaid = FALSE, do_usedup = FALSE,
             do_blessed = FALSE, do_cursed = FALSE,
             do_uncursed = FALSE, do_buc_unknown = FALSE,
-            do_worn = FALSE, verify_All = FALSE;
+            do_worn = FALSE, do_unidentified = FALSE, verify_All = FALSE;
     int num_buc_types = 0, num_justpicked = 0, clr = NO_COLOR;
 
     *pick_list = (menu_item *) 0;
@@ -1298,10 +1312,21 @@ query_category(
     if ((qflags & JUSTPICKED) != 0) {
         num_justpicked = count_justpicked(olist);
     }
+    if ((qflags & UNIDED_TYPES) != 0) {
+        for (curr = olist; curr; curr = FOLLOW(curr, qflags)) {
+            if (ofilter && !(*ofilter)(curr))
+                continue;
+            if (not_fully_identified(curr)) {
+                do_unidentified = TRUE;
+                break;
+            }
+        }
+    }
 
     ccount = count_categories(olist, qflags);
     /* no point in actually showing a menu for a single category */
-    if (ccount == 1 && !do_unpaid && !do_usedup && num_buc_types <= 1) {
+    if (ccount == 1 && !do_unpaid && !do_usedup && !do_unidentified
+        && num_buc_types <= 1) {
         for (curr = olist; curr; curr = FOLLOW(curr, qflags)) {
             if (ofilter && !(*ofilter)(curr))
                 continue;
@@ -1393,7 +1418,7 @@ query_category(
 
     if (do_unpaid || do_usedup
         || do_blessed || do_cursed || do_uncursed || do_buc_unknown
-        || num_justpicked) {
+        || do_unidentified || num_justpicked) {
         add_menu_str(win, "");
     }
 
@@ -1412,6 +1437,14 @@ query_category(
         any.a_int = 'x';
         add_menu(win, &nul_glyphinfo, &any, invlet, 0, ATR_NONE, clr,
                  "Unpaid items already used up", MENU_ITEMFLAGS_SKIPINVERT);
+    }
+    /* items the hero has not fully identified, if there are any */
+    if (do_unidentified) {
+        invlet = 'I';
+        any = cg.zeroany;
+        any.a_int = 'I';
+        add_menu(win, &nul_glyphinfo, &any, invlet, 0, ATR_NONE, clr,
+                 "Items not fully identified", MENU_ITEMFLAGS_SKIPINVERT);
     }
 
     /* items with b/u/c/unknown if there are any;
@@ -3819,8 +3852,8 @@ menu_loot(int retry, boolean put_in)
     } else if (flags.menu_style == MENU_FULL) {
         all_categories = FALSE;
         Sprintf(buf, "%s what type of objects?", action);
-        mflags = (ALL_TYPES | UNPAID_TYPES | BUCX_TYPES | CHOOSE_ALL
-                  | JUSTPICKED );
+        mflags = (ALL_TYPES | UNPAID_TYPES | UNIDED_TYPES | BUCX_TYPES
+                  | CHOOSE_ALL | JUSTPICKED);
         n = query_category(buf,
                            put_in ? gi.invent : gc.current_container->cobj,
                            mflags, &pick_list, PICK_ANY);

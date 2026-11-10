@@ -17,7 +17,6 @@ staticfn void shrinking_glob_gone(struct obj *);
 staticfn boolean gold_touch_ok(struct obj *);
 staticfn void obj_timer_checks(struct obj *, coordxy, coordxy, int);
 staticfn void dealloc_obj_real(struct obj *);
-staticfn struct obj *save_mtraits(struct obj *, struct monst *);
 staticfn void objlist_sanity(struct obj *, int, const char *);
 staticfn void shop_obj_sanity(struct obj *, const char *);
 staticfn void mon_obj_sanity(struct monst *, const char *);
@@ -2472,7 +2471,7 @@ obj_attach_mid(struct obj *obj, unsigned int mid)
     return obj;
 }
 
-staticfn struct obj *
+struct obj *
 save_mtraits(struct obj *obj, struct monst *mtmp)
 {
     if (mtmp->ispriest)
@@ -2560,23 +2559,31 @@ get_mtraits(struct obj *obj, boolean copyof)
 }
 
 /* make an object named after someone listed in the scoreboard file;
-   never returns Null */
+   Null when a corpse was asked for and the entry picked leaves none */
 struct obj *
 mk_tt_object(
     int objtype, /* CORPSE or STATUE */
     coordxy x, coordxy y)
 {
     struct obj *otmp;
-    boolean initialize_it;
+    boolean initialize_it, nocorpse = FALSE;
 
     /* player statues never contain books */
     initialize_it = (objtype != STATUE);
     otmp = mksobj_at(objtype, x, y, initialize_it, FALSE);
 
     /* tt_oname() will return null if the scoreboard is empty, which in
-       turn leaves the random corpsenm value; force it to match a player */
-    if (!tt_oname(otmp)) {
-        int pm = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
+       turn leaves the random corpsenm value; force it to match a player;
+       it also returns null, with 'nocorpse' set, for an entry whose race
+       leaves no corpse, and then there is nothing to make */
+    if (!tt_oname(otmp, &nocorpse)) {
+        int pm;
+
+        if (nocorpse) {
+            delobj(otmp);
+            return (struct obj *) 0;
+        }
+        pm = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
 
         /* update weight for either, force timer sanity for corpses */
         set_corpsenm(otmp, pm);

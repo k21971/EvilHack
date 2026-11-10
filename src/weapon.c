@@ -17,6 +17,7 @@ staticfn boolean could_advance(int);
 staticfn boolean peaked_skill(int);
 staticfn int slots_required(int);
 staticfn void skill_advance(int);
+staticfn int skill_training_percent(int);
 staticfn void add_skills_to_menu(winid, boolean, boolean);
 
 /* Categories whose names don't come from OBJ_NAME(objects[type])
@@ -2323,13 +2324,46 @@ dry_a_towel(
         finish_towel_change(obj, newspe);
 }
 
-/* copy the skill level name into the given buffer */
+/* how far training has carried a skill toward its cap, in percent of a
+   skill level; 100 or more means a whole level is waiting on #enhance */
+staticfn int
+skill_training_percent(int skill)
+{
+    int percent = 0;
+    int i;
+
+    if (P_RESTRICTED(skill))
+        return 0;
+
+    for (i = P_SKILL(skill); i < P_MAX_SKILL(skill); i++) {
+        if (P_ADVANCE(skill) >= practice_needed_to_advance(i)) {
+            percent += 100;
+        } else {
+            int mintrain = (i == P_UNSKILLED)
+                           ? 0 : practice_needed_to_advance(i - 1);
+            int partial = (P_ADVANCE(skill) - mintrain) * 100
+                          / (practice_needed_to_advance(i) - mintrain);
+
+            /* P_ADVANCE can sit below mintrain after a skill loss
+               that leaves the previous tier's residue intact; clamp
+               so the #enhance display never shows a negative value */
+            if (partial < 0)
+                partial = 0;
+            percent += min(partial, 100);
+            break;
+        }
+    }
+    return percent;
+}
+
+/* copy the name of a skill level (P_BASIC and so on, not a skill
+   index) into the given buffer */
 char *
 skill_level_name(int skill, char *buf)
 {
     const char *ptr;
 
-    switch (P_SKILL(skill)) {
+    switch (skill) {
     case P_UNSKILLED:
         ptr = "Unskilled";
         break;
@@ -2436,6 +2470,10 @@ skill_advance(int skill)
     u.weapon_slots -= slots_required(skill);
     P_SKILL(skill)++;
     u.skill_record[u.skills_advanced++] = skill;
+    /* if enhanced through wizard mode, award the points as if the
+       skill had been practiced */
+    if (P_ADVANCE(skill) < practice_needed_to_advance(P_SKILL(skill) - 1))
+        P_ADVANCE(skill) = practice_needed_to_advance(P_SKILL(skill) - 1);
     /* subtly change the advance message to indicate no more advancement */
     You("are now %s skilled in %s.",
         P_SKILL(skill) >= P_MAX_SKILL(skill) ? "most" : "more",
@@ -2452,7 +2490,7 @@ static const struct skill_range {
     short first, last;
     const char *name;
 } skill_ranges[] = {
-    { P_FIRST_H_TO_H, P_LAST_H_TO_H, "Fighting Skills" },
+    { P_FIRST_H_TO_H, P_LAST_H_TO_H, "Miscellaneous Skills" },
     { P_FIRST_WEAPON, P_LAST_WEAPON, "Weapon Skills" },
     { P_FIRST_SPELL, P_LAST_SPELL, "Spellcasting Skills" },
 };
@@ -2466,9 +2504,9 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
 {
     int pass, i, len, longest;
     anything any;
-    char buf[BUFSZ], sklnambuf[BUFSZ];
+    char buf[BUFSZ], sklnambuf[BUFSZ], maxsklnambuf[BUFSZ], percentbuf[20];
     const char *prefix;
-    int clr = NO_COLOR;
+    int clr = NO_COLOR, percent;
     boolean dumping = program_state.gameover;
 
     /* Find the longest skill name. */
@@ -2516,7 +2554,17 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
                 prefix = "  # ";
             else
                 prefix = "    ";
-            (void) skill_level_name(i, sklnambuf);
+            (void) skill_level_name(P_SKILL(i), sklnambuf);
+            (void) skill_level_name(P_MAX_SKILL(i), maxsklnambuf);
+
+            percent = skill_training_percent(i);
+            percentbuf[0] = '\0';
+            if (percent > 0)
+                Sprintf(percentbuf, "%d%%", percent);
+            if (P_SKILL(i) == P_MAX_SKILL(i)
+                || (P_SKILL(i) + (percent / 100)) == P_MAX_SKILL(i))
+                Strcpy(percentbuf, "MAX");
+
             if (wizard) {
                 if (!iflags.menu_tab_sep)
                     Snprintf(buf, sizeof buf,
@@ -2529,14 +2577,18 @@ add_skills_to_menu(winid win, boolean selectable, boolean speedy)
                              sklnambuf, P_ADVANCE(i),
                              practice_needed_to_advance(P_SKILL(i)));
             } else {
+                /* only a Monk's caps reach "Grand Master" */
                 if (!iflags.menu_tab_sep)
                     Snprintf(buf, sizeof buf,
-                             " %s %-*s [%s]", prefix, longest,
-                             P_NAME(i), sklnambuf);
+                             Role_if(PM_MONK)
+                                 ? " %s %-*s [ %12s / %-12s ] %4s"
+                                 : " %s %-*s [ %9s / %-9s ] %4s",
+                             prefix, longest, P_NAME(i), sklnambuf,
+                             maxsklnambuf, percentbuf);
                 else
                     Snprintf(buf, sizeof buf,
-                             " %s%s\t[%s]", prefix, P_NAME(i),
-                             sklnambuf);
+                             " %s%s\t[ %s\t /%s ] %4s", prefix, P_NAME(i),
+                             sklnambuf, maxsklnambuf, percentbuf);
             }
             any.a_int = selectable && can_advance(i, speedy) ? i + 1 : 0;
             add_menu(win, &nul_glyphinfo, &any, 0, 0,
@@ -2624,10 +2676,9 @@ enhance_weapon_skill(void)
             win, to_advance + eventually_advance + maxxed_cnt > 0, speedy);
 
         Strcpy(buf, (to_advance > 0) ? "Pick a skill to advance:"
-                                     : "Current skills:");
-        if (wizard && !speedy)
-            Sprintf(eos(buf), "  (%d slot%s available)", u.weapon_slots,
-                    plur(u.weapon_slots));
+                                     : "Current skills / skill caps:");
+        Sprintf(eos(buf), "  (%d slot%s available)", u.weapon_slots,
+                plur(u.weapon_slots));
         end_menu(win, buf);
         n = select_menu(win, to_advance ? PICK_ONE : PICK_NONE, &selected);
         destroy_nhwindow(win);

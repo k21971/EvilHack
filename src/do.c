@@ -1134,9 +1134,10 @@ menu_drop(int retry)
     } else if (flags.menu_style == MENU_FULL) {
         all_categories = FALSE;
         n = query_category("Drop what type of items?", gi.invent,
-                           (UNPAID_TYPES | ALL_TYPES | CHOOSE_ALL
-                            | BUC_BLESSED | BUC_CURSED | BUC_UNCURSED
-                            | BUC_UNKNOWN | JUSTPICKED | INCLUDE_VENOM),
+                           (UNPAID_TYPES | UNIDED_TYPES | ALL_TYPES
+                            | CHOOSE_ALL | BUC_BLESSED | BUC_CURSED
+                            | BUC_UNCURSED | BUC_UNKNOWN | JUSTPICKED
+                            | INCLUDE_VENOM),
                            &pick_list, PICK_ANY);
             /* when paranoid_confirm:A is set, 'A' by itself implies
                'A'+'a' which will be followed by a confirmation prompt;

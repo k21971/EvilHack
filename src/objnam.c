@@ -2275,14 +2275,14 @@ not_fully_identified(struct obj *otmp)
         return TRUE;
     /* otmp->rknown is the only item of interest if we reach here */
     /*
-     *  Note:  if a revision ever allows scrolls to become fireproof or
-     *  rings to become shockproof, this checking will need to be revised.
+     *  Note:  any damageable object can be made fooproof here, not only
+     *  armor and weapons; if a revision ever extends that to scrolls,
+     *  spellbooks or potions, this checking will need to be revised.
      *  `rknown' ID only matters if xname() will provide the info about it.
      */
     if (otmp->rknown
-        || (otmp->oclass != ARMOR_CLASS && otmp->oclass != WEAPON_CLASS
-            && !is_weptool(otmp)            /* (redundant) */
-            && otmp->oclass != BALL_CLASS)) /* (useless) */
+        || otmp->oclass == SCROLL_CLASS || otmp->oclass == SPBOOK_CLASS
+        || otmp->oclass == POTION_CLASS)
         return FALSE;
     else /* lack of `rknown' only matters for vulnerable objects */
         return (boolean) is_damageable(otmp);

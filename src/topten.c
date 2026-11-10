@@ -80,6 +80,7 @@ staticfn char *killed_uniques(void);
 #endif
 staticfn void free_ttlist(struct toptenentry *);
 staticfn int classmon(char *);
+staticfn int raceinfo(char *);
 staticfn int score_wanted(boolean, int, struct toptenentry *, int,
                         const char **, int);
 #ifdef NO_SCAN_BRACK
@@ -224,6 +225,13 @@ discardexcess(FILE *rfile)
     } while (c != '\n' && c != EOF);
 }
 
+/* entries written before 0.7.2 use the old one-letter role and gender
+   layout with no race or alignment; the version numbers in a record are
+   this program's own, so the base game's 3.3 cutoff does not apply */
+#define use_newfmt \
+    (tt->ver_major > 0 || tt->ver_minor > 7 \
+     || (tt->ver_minor == 7 && tt->patchlevel > 1))
+
 DISABLE_WARNING_FORMAT_NONLITERAL
 
 staticfn void
@@ -266,7 +274,7 @@ readentry(FILE *rfile, struct toptenentry *tt)
             discardexcess(rfile);
         }
         /* Check for backwards compatibility */
-        if (tt->ver_major < 3 || (tt->ver_major == 3 && tt->ver_minor < 3)) {
+        if (!use_newfmt) {
             int i;
 
             if (sscanf(inbuf, fmt32, tt->plrole, tt->plgend, s1, s2) == 4) {
@@ -327,7 +335,7 @@ writeentry(FILE *rfile, struct toptenentry *tt)
                    tt->points, tt->deathdnum, tt->deathlev, tt->maxlvl,
                    tt->hp, tt->maxhp, tt->deaths, tt->deathdate,
                    tt->birthdate, tt->uid);
-    if (tt->ver_major < 3 || (tt->ver_major == 3 && tt->ver_minor < 3))
+    if (!use_newfmt)
         (void) fprintf(rfile, fmt32, tt->plrole[0], tt->plgend[0]);
     else
         (void) fprintf(rfile, fmt33, tt->plrole, tt->plrace, tt->plgend,
@@ -342,6 +350,8 @@ writeentry(FILE *rfile, struct toptenentry *tt)
 }
 
 RESTORE_WARNING_FORMAT_NONLITERAL
+
+#undef use_newfmt
 
 #ifdef XLOGFILE
 
@@ -1489,6 +1499,30 @@ classmon(char *plch)
     return  PM_HUMAN_MUMMY;
 }
 
+/* the monster index of the race a score file entry records, or NON_PM
+   when it records none (old-format entries) or one not known here */
+staticfn int
+raceinfo(char *plrac)
+{
+    int i;
+
+    if (!strcmp(plrac, "?"))
+        return NON_PM;
+
+    /* a crowned Infidel's race is not in races[] */
+    if (!strncmp(plrac, race_demon.filecode, ROLESZ))
+        return race_demon.mnum;
+
+    for (i = 0; races[i].noun; i++) {
+        if (!strncmp(plrac, races[i].filecode, ROLESZ))
+            return races[i].mnum;
+    }
+
+    /* record files are retained across versions; as with classmon(),
+       an unknown race code is external data, not corruption */
+    return NON_PM;
+}
+
 /*
  * Get a random player name and class from the high score list,
  */
@@ -1611,9 +1645,15 @@ get_rnd_tt_name(
  * to an object (for statues or morgue corpses).
  */
 struct obj *
-tt_oname(struct obj *otmp)
+tt_oname(struct obj *otmp, boolean *nocorpse)
 {
     struct toptenentry *tt;
+    struct monst *mtmp;
+    int classndx, racendx;
+    mmflags_nht mmflags = (MM_NOCOUNTBIRTH | MM_NOSTEED | MM_NOMSG
+                           | MM_NONAME | NO_MINVENT);
+
+    *nocorpse = FALSE;
     if (!otmp)
         return (struct obj *) 0;
 
@@ -1622,12 +1662,49 @@ tt_oname(struct obj *otmp)
     if (!tt)
         return (struct obj *) 0;
 
-    set_corpsenm(otmp, classmon(tt->plrole));
-    if (tt->plgend[0] == 'F')
+    /* a race that leaves no corpse (a crowned Infidel is a demon) gets
+       a statue but never a corpse */
+    racendx = raceinfo(tt->plrace);
+    if (otmp->otyp == CORPSE && racendx >= LOW_PM
+        && (mons[racendx].geno & G_NOCORPSE) != 0) {
+        *nocorpse = TRUE;
+        return (struct obj *) 0;
+    }
+
+    classndx = classmon(tt->plrole);
+    set_corpsenm(otmp, classndx);
+    if (tt->plgend[0] == 'F') {
         otmp->spe = CORPSTAT_FEMALE;
-    else if (tt->plgend[0] == 'M')
+        mmflags |= MM_FEMALE;
+    } else if (tt->plgend[0] == 'M') {
         otmp->spe = CORPSTAT_MALE;
+        mmflags |= MM_MALE;
+    }
     otmp = oname(otmp, tt->name, ONAME_NO_FLAGS);
+
+    /* record the race, which lives in a monster's extra data: make a
+       throwaway monster of the role, give it the race and store its
+       traits with the object; no steed and no kit, either of which
+       would outlive the monster; an unknown role (classmon()'s
+       fallback) or a genocided race records nothing */
+    if (racendx >= LOW_PM && is_mplayer(&mons[classndx])
+        && !(svm.mvitals[racendx].mvflags & G_GONE)) {
+        mtmp = makemon(&mons[classndx], 0, 0, mmflags);
+        /* makemon() can fail (no room on the level, genocided role) */
+        if (mtmp) {
+            /* makemon() rolled a race of its own; make the record
+               again in full for the entry's race rather than layer
+               one race's attacks and traits over another's */
+            if (has_erac(mtmp))
+                mtmp->mintrinsics = 0;
+            apply_race(mtmp, NON_PM);
+            init_mplayer_erac(mtmp, TRUE, (short) racendx);
+            otmp = save_mtraits(otmp, mtmp);
+            mongone(mtmp);
+            /* a racial corpse weighs what its race does */
+            otmp->owt = weight(otmp);
+        }
+    }
 
     return otmp;
 }

@@ -1380,6 +1380,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define BUC_UNCURSED      0x0400
 #define BUC_UNKNOWN       0x0800
 #define JUSTPICKED        0x1000
+#define UNIDED_TYPES      0x2000
 #define BUC_ALLBKNOWN (BUC_BLESSED | BUC_CURSED | BUC_UNCURSED)
 #define BUCX_TYPES (BUC_ALLBKNOWN | BUC_UNKNOWN)
 #define ALL_TYPES_SELECTED -2

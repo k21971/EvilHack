@@ -361,6 +361,7 @@ extern int midnight(void);
 extern boolean kathryn_bday(void);
 extern boolean bourbon_bday(void);
 extern boolean ozzy_bday(void);
+extern char *iso8601_duration(long);
 
 /* ### cfgfiles.c ### */
 
@@ -1879,6 +1880,7 @@ extern struct obj *mkcorpstat(int, struct monst *, struct permonst *,
 extern int corpse_revive_type(struct obj *) NONNULLARG1;
 extern struct obj *obj_attach_mid(struct obj *, unsigned);
 extern struct monst *get_mtraits(struct obj *, boolean) NONNULLARG1;
+extern struct obj *save_mtraits(struct obj *, struct monst *) NONNULLARG12;
 extern struct obj *mk_tt_object(int, coordxy, coordxy);
 extern struct obj *mk_named_object(int, struct permonst *,
                                    coordxy, coordxy,
@@ -3693,7 +3695,7 @@ extern void topten(int, time_t);
 extern void prscore(int, char **);
 extern struct toptenentry *get_rnd_toptenentry(void);
 extern char *get_rnd_tt_name(boolean);
-extern struct obj *tt_oname(struct obj *) NO_NNARGS;
+extern struct obj *tt_oname(struct obj *, boolean *) NONNULLARG2;
 extern int tt_doppel(struct monst *) NONNULLARG1;
 
 /* ### track.c ### */

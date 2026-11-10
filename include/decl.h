@@ -490,6 +490,7 @@ struct instance_globals_i {
     int in_doagain;
     boolean in_mklev;
     boolean in_steed_dismounting;
+    boolean ided_filter; /* pickup.c: 'I', items not fully identified */
     struct obj *invent;
 
     /* do_wear.c */
@@ -1102,8 +1103,9 @@ struct instance_globals_v {
     /* pickup.c */
     long val_for_n_or_more;
     /* list of menu classes for query_objlist() and allow_category callback
-       (with room for all object classes, 'u'npaid, BUCX, and terminator) */
-    char valid_menu_classes[MAXOCLASSES + 1 + 4 + 1];
+       (with room for all object classes, 'u'npaid, BUCX, 'P', 'I' and
+       terminator) */
+    char valid_menu_classes[MAXOCLASSES + 1 + 6 + 1];
 
     /* vision.c */
     seenV **viz_array;   /* used in cansee() and couldsee() macros */

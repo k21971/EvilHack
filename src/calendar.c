@@ -258,5 +258,31 @@ ozzy_bday(void)
     return (boolean) (lt->tm_mday == 13 && lt->tm_mon + 1 == 1);
 }
 
+/* format a span of seconds as hours, minutes and seconds with unit
+   letters, led by days once it reaches a full day; despite the name
+   this is for people to read and is not the ISO 8601 notation */
+char *
+iso8601_duration(long seconds)
+{
+    static char buf_fmt_duration[40];
+    long minutes, hours, days;
+
+    if (seconds < 0L)
+        seconds = 0L;
+    minutes = seconds / 60L;
+    hours = minutes / 60L;
+    days = hours / 24L;
+
+    if (days > 0L)
+        Snprintf(buf_fmt_duration, sizeof buf_fmt_duration,
+                 "%02ldd:%02ldh:%02ldm:%02lds",
+                 days, hours % 24L, minutes % 60L, seconds % 60L);
+    else
+        Snprintf(buf_fmt_duration, sizeof buf_fmt_duration,
+                 "%02ldh:%02ldm:%02lds",
+                 hours, minutes % 60L, seconds % 60L);
+    return buf_fmt_duration;
+}
+
 /* calendar.c */
 
