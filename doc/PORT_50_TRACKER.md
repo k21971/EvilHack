@@ -17,12 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-10, after session 318's
-  shops slice, which closed one more of the census rows;
+- Phase 2 status (refreshed 2026-11-10, after session 319's
+  interface and records slice, which closed four more of the census
+  rows and minted one;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 55 = 0 HIGH + 4 MED + 3 SWEEP + 4 untagged + 44 LOW):
-  684 rows closed, 55 open
+  prefix; 52 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 44 LOW):
+  688 rows closed, 52 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -34,8 +35,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 319 closed the last three census MED rows and the
+    records LOW (BUG-2978..2985, commit pending): #enhance shows
+    skill caps, percent trained and free slots; an 'I' "Items not
+    fully identified" entry in the drop, take-off, loot and
+    inventory-type menus; a second Bell, Candelabrum, Book or
+    Amulet no longer trips impossible() in wizard mode or under
+    the fuzzer; the record file keeps role, race, gender and
+    alignment codes; scoreboard statues and corpses carry the dead
+    hero's race; the dumplog has a "Time information" block; total
+    digestion reads "digested by".
     Session 318 closed the hostile shopkeeper talk MED row
-    (BUG-2974..2977, commit pending): a shopkeeper whose race the
+    (BUG-2974..2977, 4f949ab6a): a shopkeeper whose race the
     hero's race hates, and every shopkeeper but Izchak facing an
     Infidel, trades insults for courtesies; a nymph shopkeeper
     shown a mirror in her shop restrains herself; a mirror at a
@@ -34859,7 +34870,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hero off at payment; Izchak exempt. The price side is ported.
       Same row: a shopkeeper nymph restrains herself from a mirror
       (master 8717d8d57); on the branch she steals it and teleports.
-      CLOSED 2026-11-10, session 318 (BUG-2974..2977, commit pending).
+      CLOSED 2026-11-10, session 318 (BUG-2974..2977, 4f949ab6a).
       shk.c: hostile_shk() and hatesrace[] at master's sites -
       u_entered_shop() welcome and pick-axe / steed lines, dopay()
       thank-you plus "Move along now..." / "Feel free to leave
@@ -34890,20 +34901,60 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       and a nymph one polite, restrains / silent when blind / takes
       it outside the shop, a wild nymph's unpaid mirror left billct
       0, magical eye cancelled and fled.
-- [ ] MED: #enhance display unported (minted 2026-11-09, session 315
+- [x] MED: #enhance display unported (minted 2026-11-09, session 315
       census; master 68b383e62 + ffba3222e): skill caps, percentage
       toward the next level (skill_training_percent()), the slot count
       shown outside wizard mode, "Miscellaneous Skills" heading.
-- [ ] MED: unidentified-item menu filter unported (minted 2026-11-09,
+      CLOSED 2026-11-10, session 319 (BUG-2978, commit pending).
+      weapon.c + insight.c. The row missed three master commits:
+      add05a1e3 (slot count), d2006ebf1 (skill_level_name() now takes
+      a LEVEL; five callers), de4630e46 (the percent clamp). RULED
+      (AskUserQuestion, as recommended): the dumplog skill list, which
+      shares add_skills_to_menu(), shows the same rows. Wizard-mode
+      rows keep 5.0's form. BATTERY (normal-mode Monk): "martial arts
+      [ Grand Master / Grand Master ]  MAX", "quarterstaff [ Unskilled
+      / Expert ] 116%", percent blank at 0; title with "(N slots
+      available)" in a normal game; speedy advance leaves P_ADVANCE at
+      the previous tier's threshold; ^X lines agree; dumplog text and
+      HTML carry the rows and "Miscellaneous Skills".
+- [x] MED: unidentified-item menu filter unported (minted 2026-11-09,
       session 315 census; master 1872d1d09): UNIDED_TYPES, the 'I'
       "Items not fully identified" entry in query_category() and its
       allow_category() filter, four callers.
-- [ ] MED: wizard / fuzzer duplicate unique items (minted 2026-11-09,
+      CLOSED 2026-11-10, session 319 (BUG-2979, commit pending).
+      UNIDED_TYPES is 0x2000 here (master's 0x800 is BUC_UNKNOWN).
+      Also master 9ec6c8d7e (filter reset) and the traditional-prompt
+      sites (ggetobj, query_classes, askchain, this_type_only,
+      dotypeinv). RULED (as recommended): not_fully_identified()
+      takes master's bfefc9a34 rule - anything damageable but
+      scrolls, spellbooks and potions needs rknown. DEPARTURES: the
+      'I' test follows the list's own link and honors the caller's
+      filter; "Items that are not fully identified:" as the title;
+      'I' also honored by take-off "All types" and the traditional
+      pick-up prompt (master ignores it in both). RECORDED, master
+      parity: food and worthless glass with rknown unset count as not
+      fully identified; '$' + 'I' lists gold. BATTERY: 'I' in D, A,
+      #loot in and out, I, traditional D / I / pick-up, combination,
+      partial; absent when all is identified; ring, wand and lamp
+      with rknown 0 listed, scroll / book / potion not.
+- [x] MED: wizard / fuzzer duplicate unique items (minted 2026-11-09,
       session 315 census; master ba281baaf + 493ccf555, BUG-274):
       master's addinv_core1() / freeinv_core() tolerate a second
       Amulet, candelabrum, bell, book or quest artifact in wizard mode
       or under the fuzzer; the branch calls impossible(), which panics
       under fuzzer_impossible_panic. Land before the Phase 7 campaign.
+      CLOSED 2026-11-10, session 319 (BUG-2980 / 2981, commit
+      pending). invent.c duplicate_unique() + other_unique_carried().
+      Also master 6c49bc702 (the Amulet and quest artifact arms).
+      RULED (as recommended): master's messages plus a recount - a
+      u.uhave flag clears only when no other source is carried;
+      master never recounts. MASTER BUG fixed by the recount
+      (BUG-2981): an Infidel carrying the Amulet and the imbued Idol
+      lost u.uhave.amulet on dropping either, and the second drop hit
+      impossible() in normal play. BATTERY: second Bell, Candelabrum,
+      Book, Amulet - message, no paniclog, flags 1 / 1 / 0 in both
+      drop orders; Infidel Idol + Amulet both orders. Fuzzer-panic
+      mode not run (it starts random input); verified by reading.
 - [x] LOW: vampire monster bite feeding unported (minted 2026-11-09,
       session 315 census; master c3816e9ea): the AD_DRLI bite of a
       racial vampire on a target with blood prints the drain lines and
@@ -34979,11 +35030,39 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "die from your sickness"; "The frumious falchion" for an unseen
       Vorpal Blade; bullwhip "out of the sky"; S_UMBER / S_HUMAN class
       descriptions.
-- [ ] LOW: master records unported (minted 2026-11-09, session 315
+- [x] LOW: master records unported (minted 2026-11-09, session 315
       census): the dumplog "Time information" block and
       iso8601_duration() (63f550127); the "digested by" death reason
       (848be16a0); tt_oname() giving a scoreboard corpse or statue the
       dead hero's race and refusing a corpse for a no-corpse race.
+      CLOSED 2026-11-10, session 319 (BUG-2982..2985, commit
+      pending). (1) FOUND: the record file was still written in the
+      pre-3.3 one-letter layout with no race (5.0's version test
+      against EvilHack's 1.0.0); master's use_newfmt ported
+      (BUG-2982). (2) tt_oname() race (BUG-2983): raceinfo(), a
+      throwaway monster rebuilt for the entry's race the way the ^G
+      fix does (master layers the race over a random one - not
+      ported), no steed, kit or name. RULED (as recommended): no
+      corpse at all for a no-corpse race; master's caller ignored the
+      refusal. A dug grave then reads "The grave is unoccupied.
+      Strange...". (3) Time block (BUG-2984). RULED: uniform units,
+      "03d:04h:10m:22s". (4) "digested by" (BUG-2985), at gulpmu()'s
+      tail, not master's hunk (it double-hits a life-saved hero and
+      kills a polymorphed one). RULED: no rise; belch line kept,
+      "You die..." dropped. BATTERY: record round trip "Mon Hum Mal
+      Cha"; "statue of a dwarven valkyrie named Brunhilda" with
+      ERAC; demon statue made, demon corpse refused; no steed, birth
+      or artifact left behind; revived / animated monsters match
+      fresh ^G ones; time block in text and HTML; digestion own
+      form, zombie-sick, life-saved, "Die? n", polymorphed, vampire.
+- [ ] LOW, verify: the dead hero's own corpse and bones statue carry
+      no race (minted 2026-11-10, session 319, from the tt_oname()
+      exploration, unread against master): master end.c really_done()
+      and bones.c savebones() are reported to put the hero's race on
+      the corpse and the statue; the branch makes a plain
+      gu.urace.mnum corpse and a raceless u.umonnum statue. Same row:
+      a racial scoreboard STATUE weighs by its role (2175) while the
+      racial corpse weighs by race (battery, session 319).
 - [ ] LOW, verify: census leftovers not yet read against the branch
       (minted 2026-11-09, session 315): --listroles, iflags
       .suppress_worn (quiver text while throwing), Death's 500 HP cap

@@ -367,6 +367,16 @@ tracker; sNNN = port session.
 - [x] "Boom!" before every explosion the hero sees (s258, BUG-2560,
   81f2eaeef; master never printed it; an unseen blast still reads
   "You hear a blast.").
+- [x] "You die..." on total digestion: a hero digested in their own
+  form gets the engulfer's belch and the death reason "digested by
+  <monster>", as master's direct done(); other engulf deaths keep the
+  line (s319, BUG-2985; master 848be16a0).
+- [x] Record file version test: 5.0's "older than 3.3" layout test ->
+  master's EvilHack-version test, so entries keep role, race, gender
+  and alignment codes (s319, BUG-2982; master 8817d4e8a).
+- [x] `not_fully_identified()`: 5.0's "only armor, weapons and
+  weapon-tools need rknown" -> master's "everything damageable but
+  scrolls, spellbooks and potions" (s319, BUG-2979; master bfefc9a34).
 
 ### 2.5 Levels and content
 
