@@ -55,6 +55,12 @@ staticfn void kops_gone(boolean);
 #define ANGRY(mon) (!NOTANGRY(mon))
 #define IS_SHOP(x) (svr.rooms[x].rtype >= SHOPBASE)
 
+/* a shopkeeper whose race hates the hero's, or any shopkeeper facing
+   an Infidel, stays in business but is rude about it */
+#define hostile_shk(mon) \
+    ((erac_race_hostile(mon) || u.ualign.type == A_NONE) \
+     && !is_izchak(mon, FALSE))
+
 #define muteshk(shkp) (helpless(shkp) || (shkp)->data->msound <= MS_ANIMAL)
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
@@ -139,6 +145,12 @@ staticfn const char *cad(boolean);
 
 static const char *const angrytexts[] = {
     "quite upset", "ticked off", "furious"
+};
+
+/* what an angry or hostile shopkeeper calls the hero */
+static const char *const hatesrace[] = {
+    "scum", "vermin", "peasant", "scalawag",
+    "wretch", "miscreant", "maggot", "lowlife"
 };
 
 /*
@@ -860,21 +872,27 @@ u_entered_shop(char *enterstring)
                   Shknam(shkp), noit_mhis(shkp));
         }
     } else {
+        boolean rude = hostile_shk(shkp);
+        const char *punct = rude ? "." : "!";
+
         if (!Deaf && !muteshk(shkp) && !eshkp->pbanned) {
             set_voice(shkp, 0, 80, 0);
-            verbalize("%s, %s!  Welcome%s to %s %s!", Hello(shkp), svp.plname,
+            verbalize("%s, %s%s  Welcome%s to %s %s%s", Hello(shkp),
+                      rude ? ROLL_FROM(hatesrace) : svp.plname, punct,
                       eshkp->visitct++ ? " again" : "",
-                      s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
+                      s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name,
+                      punct);
         } else {
-            You("enter %s %s%s!",
+            You("enter %s %s%s%s",
                 s_suffix(shkname(shkp)),
                 shtypes[rt - SHOPBASE].name,
-                eshkp->visitct++ ? " again" : "");
+                eshkp->visitct++ ? " again" : "", punct);
         }
     }
     /* can't do anything about blocking if teleported in */
     if (!inside_shop(u.ux, u.uy)) {
-        boolean should_block, not_upset = !eshkp->surcharge;
+        boolean should_block,
+                not_upset = !eshkp->surcharge && !hostile_shk(shkp);
         int cnt;
         const char *tool;
         struct obj *pick = carrying(PICK_AXE),
@@ -2076,17 +2094,26 @@ dopay(void)
 
     /* {mute shk,deaf hero}-aware thank you message */
     if (pay_done && !ANGRY(shkp) && paid) {
+        boolean rude = hostile_shk(shkp),
+                not_upset = !eshkp->surcharge && !rude;
+
         if (!Deaf && !muteshk(shkp)) {
             SetVoice(shkp, 0, 80, 0);
-            verbalize("Thank you for shopping in %s %s%s",
+            verbalize("%s for shopping in %s %s%s",
+                      rude ? "Yeah, thanks" : "Thank you",
                       s_suffix(shkname(shkp)),
                       shtypes[eshkp->shoptype - SHOPBASE].name,
-                      !eshkp->surcharge ? "!" : ".");
+                      not_upset ? "!" : ".");
+            if (rude) {
+                SetVoice(shkp, 0, 80, 0);
+                verbalize("%s", rn2(2) ? "Move along now..."
+                                       : "Feel free to leave anytime.");
+            }
         } else {
             pline("%s nods%s at you for shopping in %s %s%s",
-                  Shknam(shkp), !eshkp->surcharge ? " appreciatively" : "",
+                  Shknam(shkp), not_upset ? " appreciatively" : "",
                   noit_mhis(shkp), shtypes[eshkp->shoptype - SHOPBASE].name,
-                  !eshkp->surcharge ? "!" : ".");
+                  not_upset ? "!" : ".");
         }
     }
 
@@ -2510,13 +2537,13 @@ reject_purchase(
 
         SetVoice(shkp, 0, 80, 0);
         verbalize("%s for the other %s before buying %s.",
-                  ANGRY(shkp) ? "Pay" : "Please pay",
+                  (ANGRY(shkp) || hostile_shk(shkp)) ? "Pay" : "Please pay",
                   simpleonames(obj), /* short name suffices */
                   which);
     } else {
         pline("%s %s%s your bill for the other %s first.",
               Shknam(shkp),
-              ANGRY(shkp) ? "angrily " : "",
+              (ANGRY(shkp) || hostile_shk(shkp)) ? "angrily " : "",
               nolimbs(shkp->data) ? "motions to" : "points out",
               simpleonames(obj));
     }
@@ -2688,8 +2715,9 @@ inherits(
         && !eshkp->following && u.ugrave_arise < LOW_PM) {
         taken = (gi.invent != 0);
         if (taken && !silently)
-            pline("%s gratefully inherits all your possessions.",
-                  Shknam(shkp));
+            pline("%s %s inherits all your possessions.",
+                  Shknam(shkp),
+                  hostile_shk(shkp) ? "disapprovingly" : "gratefully");
         goto clear;
     }
 
@@ -3974,8 +4002,10 @@ addtobill(
             long save_quan = obj->quan;
 
             Strcpy(buf, "\"For you,");
-            if (ANGRY(shkp)) {
-                Strcat(buf, " scum;");
+            if (ANGRY(shkp) || hostile_shk(shkp)) {
+                Strcat(buf, " ");
+                Strcat(buf, ROLL_FROM(hatesrace));
+                Strcat(buf, ";");
             } else if (!ESHK(shkp)->surcharge) {
                 Strcat(buf, " ");
                 append_honorific(buf);
@@ -5564,14 +5594,19 @@ shopdig(int fall)
     if (!fall) {
         if (lang == 2) {
             if (!Deaf && !muteshk(shkp)) {
+                boolean rude = hostile_shk(shkp);
+
                 SetVoice(shkp, 0, 80, 0);
                 if (u.utraptype == TT_PIT) {
                     verbalize(
                        "Be careful, %s, or you might fall through the floor.",
-                              flags.female ? "madam" : "sir");
+                              rude ? ROLL_FROM(hatesrace)
+                                   : flags.female ? "madam" : "sir");
                 } else {
-                    verbalize("%s, do not damage the floor here!",
-                              flags.female ? "Madam" : "Sir");
+                    verbalize("%s%s, do not damage the floor here!",
+                              rude ? "Hey " : "",
+                              rude ? ROLL_FROM(hatesrace)
+                                   : flags.female ? "Madam" : "Sir");
                 }
             }
         }
@@ -6094,7 +6129,7 @@ shk_chat(struct monst *shkp)
     }
 
     eshk = ESHK(shkp);
-    if (ANGRY(shkp)) {
+    if (ANGRY(shkp) || hostile_shk(shkp)) {
         pline("%s %s how much %s dislikes %s customers.",
               Shknam(shkp),
               (!Deaf && !muteshk(shkp)) ? "mentions" : "indicates",
@@ -6642,8 +6677,10 @@ globby_bill_fixup(struct obj *obj_absorber, struct obj *obj_absorbed)
         SetVoice(shkp, 0, 80, 0);
         verbalize("You owe me %ld %s for my %s that you %s with your%s",
                   amount, currency(amount), obj_typename(obj_absorbed->otyp),
-                  ANGRY(shkp) ? "had the audacity to mix" : "just mixed",
-                  ANGRY(shkp) ? " stinking batch!" : "s.");
+                  (ANGRY(shkp) || hostile_shk(shkp))
+                      ? "had the audacity to mix" : "just mixed",
+                  (ANGRY(shkp) || hostile_shk(shkp))
+                      ? " stinking batch!" : "s.");
         return;
     }
     /**************************************************************

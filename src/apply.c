@@ -1252,22 +1252,45 @@ use_mirror(struct obj *obj)
         if (has_free_action(mtmp))
             return ECMD_TIME;
         paralyze_monst(mtmp, (int) mtmp->mfrozen + tmp);
+    } else if (monable && !mtmp->mcan && !mtmp->minvis
+               && mtmp->data == &mons[PM_MAGICAL_EYE]) {
+        if (vis) {
+            pline("%s sees its own glare in your %s.", Monnam(mtmp), mirror);
+            pline("%s is cancelled!", Monnam(mtmp));
+        }
+        mtmp->mcan = 1;
+        monflee(mtmp, 0, FALSE, TRUE);
     } else if (monable && mtmp->data == &mons[PM_UMBER_HULK]) {
         if (vis)
             pline("%s confuses itself!", Monnam(mtmp));
         mtmp->mconf = 1;
-    } else if (monable && (is_nymph(mtmp->data)
+    } else if (monable && (is_nymph(r_data(mtmp))
                            || mtmp->data == &mons[PM_AMOROUS_DEMON])) {
+        /* a nymph tending her own shop leaves a customer's mirror be;
+           her race is tested because her data is the shopkeeper's */
+        boolean is_shkp = has_eshk(mtmp) && inhishop(mtmp);
+
         if (vis) {
             char buf[BUFSZ]; /* "She" or "He" */
 
             pline("%s in your %s.", /* "<mon> admires self in your mirror " */
                   monverbself(mtmp, Monnam(mtmp), "admire", (char *) 0),
                   mirror);
-            pline("%s takes it!", upstart(strcpy(buf, mhe(mtmp))));
-        } else
+            Strcpy(buf, mhe(mtmp));
+            if (is_shkp)
+                pline("%s starts to reach for it, but restrains %sself.",
+                      upstart(buf), mhim(mtmp));
+            else
+                pline("%s takes it!", upstart(buf));
+        } else if (!is_shkp) {
             pline("It steals your %s!", mirror);
+        }
+        if (is_shkp)
+            return ECMD_TIME;
         setnotworn(obj); /* in case mirror was wielded */
+        /* as when stolen in melee, an unpaid mirror comes off the bill */
+        if (obj->unpaid)
+            subfrombill(obj, shop_keeper(*u.ushops));
         freeinv(obj);
         (void) mpickobj(mtmp, obj);
         if (!tele_restrict(mtmp))
