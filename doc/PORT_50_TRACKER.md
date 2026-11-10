@@ -17,12 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-10, after session 316's spell
-  and Monk combat slice, which closed three of the census rows;
+- Phase 2 status (refreshed 2026-11-10, after session 317's
+  monsters slice, which closed three more of the census rows;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 59 = 0 HIGH + 6 MED + 3 SWEEP + 4 untagged + 46 LOW):
-  680 rows closed, 59 open
+  prefix; 56 = 0 HIGH + 5 MED + 3 SWEEP + 4 untagged + 44 LOW):
+  683 rows closed, 56 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -34,6 +34,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 317 closed the ghost overhaul MED row and two LOWs
+    (BUG-2969..2973): hostile ghosts fade from view, half start
+    invisible, and one appearing beside the hero frightens them for
+    three turns in place of the paralysing touch; a vampire's bite
+    names the blood it draws and feeds a pet vampire; a blast of
+    water ends at a wall instead of bouncing; fire, steam,
+    antimatter and windy engulfers have their own expel lines.
     Session 316 closed two of the census MED rows and one LOW
     (BUG-2958..2968): force bolt's damage die, to-hit and a Wizard's
     Pw cost follow attack spell skill again; a Monk at Skilled or
@@ -34734,8 +34741,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       a Wizard's force bolt costs spellev * a skill factor instead of
       5 Pw. Branch: d(2,12), base 10, 5 Pw. The clerical, healing and
       sickness dice of the same family are already ported.
-      CLOSED 2026-11-10, session 316 (BUG-2958, BUG-2959, commit
-      pending). zap.c force_bolt_dice() / force_bolt_tohit() beside
+      CLOSED 2026-11-10, session 316 (BUG-2958, BUG-2959,
+      c1bec4a3c). zap.c force_bolt_dice() / force_bolt_tohit() beside
       clerical_spell_dice(), used by bhitm() and zapyourself();
       spell.c spelleffects_check() charges a Wizard spellev * 1 / 1 /
       2 / 3 (unskilled / basic / skilled / expert). Wand of striking
@@ -34751,13 +34758,42 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the
       wand at Expert skill 20 of 20 miss and 3-22 damage; self-cast
       at Expert up to 38, the wand never above 14.
-- [ ] MED: ghost overhaul unported (minted 2026-11-09, session 315
+- [x] MED: ghost overhaul unported (minted 2026-11-09, session 315
       census; master a65fef3a8). Hostile ghosts turn invisible in
       dochug(), half are generated invisible, the AD_PLYS touch
       reveals them ("Boo!", "A ghost appears out of ...", the
       scary_ghost() fright with the Draugr exemption) and sets
       mspec_used; ghosts are exempt from map_invisible. Branch has
       only the temple-ghost fright inlined in priest.c.
+      CLOSED 2026-11-10, session 317 (BUG-2969, BUG-2970, commit
+      pending). Master's current form: priest.c scary_ghost() (used
+      by intemple(), potion.c ghost_from_bottle() and the touch);
+      makemon.c case S_GHOST; monmove.c dochug() fade block ahead of
+      the drow aura arm; uhitm.c mhitm_ad_plys() mhitu arm; mhitu.c
+      hitmu() skips map_invisible() for a ghost. Changes from the
+      branch's old inline copies, all master's shape: an unspotted
+      temple ghost gives no fright and is not forced hostile, the
+      bottle tests canspotmon() rather than Blind, an already
+      helpless hero is not re-frightened, the bottle's reason is
+      "being terrified of a ghost". MASTER BUG fixed (reviewer): a
+      tame ghost attacking under Conflict was made hostile with
+      mtame still set; it now frightens and stays a pet. RECORDED,
+      not taken (master parity): missmu() still maps an 'I' for an
+      unseen ghost that misses; the "seems easier to spot" arm is
+      unreachable (canseemon() is false while blind); a hero with
+      only warning is still frightened.
+      BATTERY (game-tester, XL30 Valkyrie + XL30 Draugr Barbarian,
+      sanity_check on, paniclog absent): 19 of 40 ghosts born
+      invisible, perminvis 0; 57 fades with no move the same turn;
+      unseen touch reveals, frightens for 3 turns, mspec_used 13 / 7
+      / 6, 1 HP, no 'I'; the ghost fades and frightens again; with
+      see invisible 29 reveals, 11 "You aren't ..." lines, no
+      fright; "Boo!" when hallucinating; a helpless hero is touched
+      with no reveal; Draugr reveal with no fright; a cancelled and
+      a peaceful ghost never fade; a tame ghost under Conflict
+      frightens and stays mtame 5 / peaceful; a ghoul still
+      paralyzes; temple ghost seen (fright) and unseen ("You sense a
+      presence close by!", none); milky potion spotted and not.
 - [x] MED: Monk bare-handed extras unported (minted 2026-11-09,
       session 315 census). (a) ma_break(): forcefight at a boulder or
       statue bare-handed at Skilled or better, an occupation
@@ -34766,8 +34802,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "forceful blow knocks %s senseless!" confusion half beside the
       stagger (master 717d1cb16). (c) body-armor feedback on wearing
       and removing (master ae019d4be).
-      CLOSED 2026-11-10, session 316 (BUG-2960..2967, commit
-      pending).
+      CLOSED 2026-11-10, session 316 (BUG-2960..2967,
+      c1bec4a3c).
       (a) hack.c ma_break() ported with its state in gq.qi_break_pos
       / gq.qi_break_turns, called from domove_fight_empty() ahead of
       the burn arm. DEPARTURES from master, in the plan: the call
@@ -34830,20 +34866,44 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Amulet, candelabrum, bell, book or quest artifact in wizard mode
       or under the fuzzer; the branch calls impossible(), which panics
       under fuzzer_impossible_panic. Land before the Phase 7 campaign.
-- [ ] LOW: vampire monster bite feeding unported (minted 2026-11-09,
+- [x] LOW: vampire monster bite feeding unported (minted 2026-11-09,
       session 315 census; master c3816e9ea): the AD_DRLI bite of a
       racial vampire on a target with blood prints the drain lines and
       feeds a tame vampire (hungrytime += cnutrit / 20 + 1).
-- [ ] LOW: water rays stop at walls (minted 2026-11-09, session 315
+      CLOSED 2026-11-10, session 317 (BUG-2971, commit pending).
+      uhitm.c mhitm_ad_drli(), mhitu and mhitm arms. DEPARTURES:
+      has_edog() guard; master's "suddenly seems weaker!" is left to
+      5.0's "becomes weaker!". BATTERY: tame vampire lady on a hill
+      giant, "The hill giant's blood is being drained!" then
+      "becomes weaker!", hungrytime +36 on each of 6 drains (700 /
+      20 + 1), +26 on an unseen ogre with no text; wood golem 7
+      drains, no blood line, hungrytime flat; hero bitten "Your
+      blood is being drained!" and XL 30 -> 29; clay golem form and
+      a wraith's touch give no blood line.
+- [x] LOW: water rays stop at walls (minted 2026-11-09, session 315
       census; master c0efa08e3): dobuzz()'s ZT_WATER arm prints
       "%s splashes against the wall!" and ends the ray; the branch
       bounces it.
+      CLOSED 2026-11-10, session 317 (BUG-2972, commit pending).
+      zap.c dobuzz() at make_bounce. RULED (AskUserQuestion, as
+      recommended): the ray ALWAYS ends at an obstacle. Master's stop
+      sat inside the hero-can-see test, so an unseen water ray, or
+      one on its last step, bounced; that is not ported. The text
+      prints only when seen; the Plane of Air keeps "vanishes into
+      the aether!". BATTERY (breakpoints on make_bounce and the
+      bounce_dir() call): sea dragon breath at a seen wall splashes
+      and does not return; red dragon fire from the same square
+      bounces back; blind, water gives no text and no bounce while
+      fire still reaches bounce_dir(); solid rock splashes; a closed
+      door "absorbs your blast"; a hostile sea dragon's breath
+      "slams into you!" then splashes. Map edge not run (no open
+      path to the border on an ordinary level).
 - [x] LOW: weapon familiarity unported (minted 2026-11-09, session
       315 census; master a0e258c9f): wep_kills is declared and never
       used; master counts kills with an unidentified wielded weapon
       and past 20 can set known ("quite familiar with"). The inert
       persistent fields SWEEP row does not list it.
-      CLOSED 2026-11-10, session 316 (BUG-2968, commit pending).
+      CLOSED 2026-11-10, session 316 (BUG-2968, c1bec4a3c).
       uhitm.c hmon_hitmon() tail, master's current form (obj == uwep,
       1 in max(2, spe) past KILL_FAMILIARITY 20). BATTERY: wep_kills
       tracks melee kills, a +0 long sword identified on kill 21 and
@@ -34871,8 +34931,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (65cd648f1); wizard-mode teleport into a no-teleport spot
       (c693341e0).
 - [ ] LOW: master texts unported (minted 2026-11-09, session 315
-      census): engulfer expel lines for steam, fire and antimatter
-      vortices and "with a woosh"; the blind demon-summon stench; the
+      census): [DONE 2026-11-10, session 317, BUG-2973, commit
+      pending: engulfer expel lines for steam, fire and antimatter
+      vortices and "with a woosh" - mhitu.c expels(); battery saw
+      all eight whirly endings through the wand of opening] the
+      blind demon-summon stench; the
       A_NONE "torrent of hellfire" offering; grouped class-genocide
       feedback (6e7694b0e); "almost completely turned to stone" and
       "die from your sickness"; "The frumious falchion" for an unseen
