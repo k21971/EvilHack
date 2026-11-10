@@ -694,6 +694,9 @@ static const struct instance_globals_p g_init_p = {
 };
 
 static const struct instance_globals_q g_init_q = {
+    /* hack.c */
+    { 0, 0 }, /* qi_break_pos */
+    0, /* qi_break_turns */
     TRUE, /* havestate*/
 };
 

@@ -84,6 +84,8 @@ staticfn boolean shade_aware(struct obj *) NO_NNARGS;
 staticfn boolean unarmed_hits_shade(void);
 
 #define PROJECTILE(obj) ((obj) && is_ammo(obj))
+/* kills with a wielded weapon before its enchantment can become known */
+#define KILL_FAMILIARITY 20
 
 staticfn boolean
 mhitm_mgc_atk_negated(
@@ -2352,20 +2354,34 @@ hmon_hitmon_stagger(
     struct monst *mon,
     struct obj *obj UNUSED)
 {
-    /* VERY small chance of stunning opponent if unarmed;
-       giant heroes hit hard enough to manage it more often */
+    /* VERY small chance of stunning or confusing opponent if unarmed;
+       giant heroes hit hard enough to manage it more often; no need to
+       check for huge monsters, mhurtle() refuses to move them */
     if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT)
-        && !bigmonst(hmd->mdat) && !thick_skinned(hmd->mdat)) {
-        if (canspotmon(mon))
-            pline("%s %s from your powerful strike!", Monnam(mon),
-                  makeplural(stagger(mon->data, "stagger")));
-        /* a wielded Harbinger or Giantslayer anchors the defender
-           against the knockback */
-        if (!(mon_wielding_artifact(mon, ART_HARBINGER)
-              || mon_wielding_artifact(mon, ART_GIANTSLAYER))
-            && mhurtle_to_doom(mon, hmd->dmg, &hmd->mdat))
-            hmd->already_killed = TRUE;
-        hmd->hittxt = TRUE;
+        && !(u.uswallow || thick_skinned(hmd->mdat)
+             || has_barkskin(mon) || has_stoneskin(mon)
+             || unsolid(hmd->mdat))) {
+        if (rn2(2)) {
+            if (canspotmon(mon))
+                pline("%s %s from your powerful strike!", Monnam(mon),
+                      makeplural(stagger(mon->data, "stagger")));
+            /* a wielded Harbinger or Giantslayer anchors the defender
+               against the knockback */
+            if (!(mon_wielding_artifact(mon, ART_HARBINGER)
+                  || mon_wielding_artifact(mon, ART_GIANTSLAYER))
+                && mhurtle_to_doom(mon, hmd->dmg, &hmd->mdat))
+                hmd->already_killed = TRUE;
+            hmd->hittxt = TRUE;
+        } else if (!mindless(mon->data)) {
+            if (canspotmon(mon))
+                Your("forceful blow knocks %s senseless!", mon_nam(mon));
+            /* no point confusing a monster this blow is about to kill */
+            if (mon->mhp > hmd->dmg)
+                mon->mconf = 1;
+            hmd->hittxt = TRUE;
+        }
+        /* a mindless target that drew the senseless half takes an
+           ordinary hit with the ordinary hit message */
     }
 }
 
@@ -2912,6 +2928,23 @@ hmon_hitmon(
 
     if (hmd.lightobj)
         lightobj_searmsg(mon, hmd.mdat, hmd.saved_oname);
+
+    /* weapons have a chance to id after a certain number of kills with
+       them; the more powerful a weapon, the lower this chance is; this
+       way, there is uncertainty about when a weapon will id, but spoiled
+       players can make an educated guess */
+    if (hmd.destroyed && uwep && obj == uwep
+        && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
+        && !uwep->known) {
+        uwep->wep_kills++;
+        if (uwep->wep_kills > KILL_FAMILIARITY
+            && !rn2(max(2, uwep->spe))) {
+            You("have become quite familiar with %s.",
+                yobjnam(uwep, (char *) 0));
+            uwep->known = TRUE;
+            update_inventory();
+        }
+    }
 
     /* if a "no longer poisoned/tainted" message is coming, it will be
        last; obj->opoisoned/otainted was cleared above and any message

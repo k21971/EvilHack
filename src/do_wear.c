@@ -1600,6 +1600,13 @@ Armor_on(void)
 
     if (!uarm) /* no known instances of !uarm here but play it safe */
         return 0;
+
+    /* nothing said when poly_obj() swaps a worn suit's form in place */
+    if (Role_if(PM_MONK)
+        && !(gw.worn_swap_quiet && gw.worn_slot_exempt
+             && gw.worn_slot_exempt != uarm))
+        You_feel("extremely uncomfortable wearing such armor.");
+
     if (!uarm->known) {
         uarm->known = 1; /* suit's +/- evident because of status line AC */
         update_inventory();
@@ -1623,6 +1630,11 @@ Armor_off(void)
     struct obj *otmp = uarm;
     boolean was_flying = !!Flying;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+
+    /* nothing said when poly_obj() swaps a worn suit's form in place */
+    if (Role_if(PM_MONK)
+        && !(gw.worn_swap_quiet && otmp && otmp == gw.worn_slot_exempt))
+        You_feel("much more comfortable and free now.");
 
     if (otmp)
         oprops_off(otmp, W_ARM);
@@ -1657,6 +1669,9 @@ Armor_gone(void)
     struct obj *otmp = uarm;
     boolean was_flying = !!Flying;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+
+    if (Role_if(PM_MONK))
+        You_feel("much more comfortable and free now.");
 
     if (otmp)
         oprops_off(otmp, W_ARM);

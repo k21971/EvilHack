@@ -43,6 +43,7 @@ staticfn boolean domove_swap_with_pet(struct monst *,
 staticfn struct obj *wielded_fire_weapon(void);
 staticfn void domove_fight_burn(coordxy, coordxy, const char *,
                                 struct obj *) NONNULLARG3;
+staticfn int ma_break(void);
 staticfn boolean domove_fight_empty(coordxy, coordxy);
 staticfn boolean air_turbulence(void);
 staticfn void slippery_ice_fumbling(void);
@@ -2721,6 +2722,144 @@ domove_fight_burn(coordxy x, coordxy y, const char *target,
     }
 }
 
+/* occupation: a monk channels qi to break a boulder or statue with
+   bare hands */
+staticfn int
+ma_break(void)
+{
+    struct obj *bobj, *obj;
+    coordxy dpx = gq.qi_break_pos.x, dpy = gq.qi_break_pos.y;
+    int prob;
+
+    if (distu(dpx, dpy) > 2) {
+        Your("qi dissipates in all directions.");
+        make_confused(6 + gq.qi_break_turns * P_SKILL(P_MARTIAL_ARTS),
+                      FALSE);
+        return 0;
+    }
+
+    /* starting the occupation requires P_SKILLED; guard the divisors
+       below */
+    if (P_SKILL(P_MARTIAL_ARTS) <= P_ISRESTRICTED)
+        return 0;
+
+    if (gq.qi_break_turns < 40 / P_SKILL(P_MARTIAL_ARTS)) {
+        gq.qi_break_turns++;
+        return 1; /* still concentrating */
+    }
+
+    /* the target was taken away or destroyed in the meantime */
+    if (!sobj_at(BOULDER, dpx, dpy) && !sobj_at(STATUE, dpx, dpy)) {
+        Your("qi dissipates in all directions.");
+        return 0;
+    }
+
+    if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0)
+        pline("Focusing your qi, you %s the boulder.",
+              rn2(2) ? "strike" : "hit");
+    else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0)
+        pline("Focusing your qi, you %s the statue.",
+              rn2(2) ? "strike" : "hit");
+
+    /* even while blind you can first feel and then image the boulder */
+    if (Confusion || Hallucination || Stunned) {
+        if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
+            if (rn2(2)) {
+                You("swing wildly, missing the boulder.");
+            } else {
+                You("slip, hitting your head against the boulder!");
+                losehp(d(1, 4), "face planting into a boulder",
+                       NO_KILLER_PREFIX);
+            }
+        } else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
+            if (rn2(2)) {
+                You("swing wildly, missing the statue.");
+            } else {
+                You("slip, hitting your head against the statue!");
+                losehp(d(1, 4), "trying to headbutt a statue",
+                       NO_KILLER_PREFIX);
+            }
+        }
+        return 0;
+    }
+
+    prob = 40;
+    prob -= u.ulevel;
+    prob /= P_SKILL(P_MARTIAL_ARTS);
+
+    /* inherently strong races get a probability bonus,
+       inherently weak races, not so much */
+    if (Race_if(PM_GIANT))
+        prob -= 3;
+    if (Race_if(PM_CENTAUR))
+        prob -= 2;
+    if (Race_if(PM_TORTLE) || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+        prob -= 1;
+    if (Race_if(PM_ELF) || Race_if(PM_DROW))
+        prob += 1;
+
+    if (uarmg) {
+        switch (uarmg->otyp) {
+        case GAUNTLETS_OF_POWER:
+        case MUMMIFIED_HAND: /* the Hand of Vecna */
+            prob -= 10;
+            break;
+        case GAUNTLETS_OF_FUMBLING:
+            prob *= 4;
+            break;
+        case GLOVES:
+        case DARK_ELVEN_GLOVES:
+        case GAUNTLETS:
+        case GAUNTLETS_OF_DEXTERITY:
+        case GAUNTLETS_OF_PROTECTION:
+        case MEAT_GLOVES:
+            break;
+        default:
+            impossible("Unknown type of gloves (%d)", uarmg->otyp);
+        }
+    }
+
+    if (3 > prob)
+        prob = 3; /* don't be always successful without skill */
+
+    if (P_SKILL(P_MARTIAL_ARTS) > P_EXPERT || !rn2(prob)) {
+        if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
+            fracture_rock(obj);
+            pline_The("boulder splits and falls apart.");
+        } else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
+            /* a statue trap comes to life instead; break_statue()
+               has given its message and there is nothing to credit */
+            if (!break_statue(obj))
+                return 0;
+            pline_The("statue shatters into pieces.");
+        }
+        if ((bobj = sobj_at(BOULDER, dpx, dpy)) != 0) {
+            /* another boulder here, restack it to the top */
+            obj_extract_self(bobj);
+            place_object(bobj, dpx, dpy);
+            stackobj(bobj);
+            newsym(dpx, dpy);
+        }
+        exercise(A_STR, TRUE);
+        use_skill(P_MARTIAL_ARTS, 1);
+    } else {
+        if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
+            pline("However, your qi is not focused enough to break the %s.",
+                  "boulder");
+            losehp(d(1, 6), "trying to split a boulder", KILLED_BY);
+        } else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
+            pline("However, your qi is not focused enough to break the %s.",
+                  "statue");
+            losehp(d(1, 6), "trying to shatter a statue", KILLED_BY);
+        }
+        if (!rn2(5)) {
+            You("need more training to reliably focus your qi.");
+            use_skill(P_MARTIAL_ARTS, 1);
+        }
+    }
+    return 0; /* done */
+}
+
 /* force-fight (x,y) which doesn't have anything to fight */
 staticfn boolean
 domove_fight_empty(coordxy x, coordxy y)
@@ -2820,6 +2959,25 @@ domove_fight_empty(coordxy x, coordxy y)
                5.0: furniture too */
         } else {
             Strcpy(buf, "thin air");
+        }
+
+        /* a monk fighting a boulder or statue bare-handed tries to
+           break it by channeling qi */
+        if (svc.context.forcefight && !Underwater
+            && Role_if(PM_MONK)
+            && weapon_type(uwep) == P_BARE_HANDED_COMBAT
+            && (sobj_at(BOULDER, x, y) || sobj_at(STATUE, x, y))) {
+            if (P_SKILL(P_MARTIAL_ARTS) < P_SKILLED) {
+                You("lack the necessary training to focus your qi.");
+                nomul(0);
+            } else {
+                You("start channeling your qi.");
+                gq.qi_break_pos.x = x;
+                gq.qi_break_pos.y = y;
+                gq.qi_break_turns = 0;
+                set_occupation(ma_break, "channeling your qi", 0);
+            }
+            return TRUE;
         }
 
         /* a fire weapon or hands aflame with the burning hands spell

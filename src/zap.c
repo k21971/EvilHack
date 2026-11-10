@@ -42,6 +42,8 @@ staticfn int spell_hit_bonus(int, boolean);
 staticfn int maybe_destroy_item(struct monst *, struct obj *, int) NONNULLPTRS;
 staticfn boolean destroyable(struct obj *, int);
 staticfn int clerical_spell_dice(void);
+staticfn int force_bolt_dice(void);
+staticfn int force_bolt_tohit(void);
 staticfn int healing_spell_dice(void);
 staticfn int sickness_spell_dice(void);
 staticfn void cure_mon_sickness(struct monst *) NONNULLARG1;
@@ -178,6 +180,31 @@ clerical_spell_dice(void)
     return (skill >= P_EXPERT) ? 12
            : (skill == P_SKILLED) ? 8
              : (skill == P_BASIC) ? 6 : 4;
+}
+
+/* die size for the hero's force bolt spell, set by attack spell skill:
+   d6 unskilled/restricted, d12 basic, d16 skilled, d20 expert */
+staticfn int
+force_bolt_dice(void)
+{
+    int skill = P_SKILL(P_ATTACK_SPELL);
+
+    return (skill >= P_EXPERT) ? 20
+           : (skill == P_SKILLED) ? 16
+             : (skill == P_BASIC) ? 12 : 6;
+}
+
+/* to-hit base for the hero's force bolt spell, set by attack spell
+   skill: 8 unskilled/restricted, 10 basic (same as a wand of striking),
+   20 skilled, 30 expert */
+staticfn int
+force_bolt_tohit(void)
+{
+    int skill = P_SKILL(P_ATTACK_SPELL);
+
+    return (skill >= P_EXPERT) ? 30
+           : (skill == P_SKILLED) ? 20
+             : (skill == P_BASIC) ? 10 : 8;
 }
 
 /* dice count for the hero's healing, extra healing and critical healing
@@ -341,10 +368,13 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             shieldeff(mtmp->mx, mtmp->my);
             pline("Boing!");
             /* 5.0: used to 'break' to avoid setting learn_it here */
-        } else if (u.uswallow || rnd(20) < 10 + find_mac(mtmp)) {
+        } else if (u.uswallow
+                   || (rnd(20) < ((otyp == WAN_STRIKING)
+                                  ? 10 : force_bolt_tohit())
+                                 + find_mac(mtmp))) {
             if (disguised_mimic)
                 seemimic(mtmp);
-            dmg = d(2, 12);
+            dmg = d(2, (otyp == WAN_STRIKING) ? 12 : force_bolt_dice());
             if (dbldam)
                 dmg *= 2;
             if (otyp == SPE_FORCE_BOLT)
@@ -3513,7 +3543,8 @@ zapyourself(struct obj *obj, boolean ordinary)
         } else {
             if (ordinary) {
                 You("bash yourself!");
-                damage = d(2, 12);
+                damage = d(2, (obj->otyp == WAN_STRIKING)
+                              ? 12 : force_bolt_dice());
             } else
                 damage = d(1 + obj->spe, 6);
             exercise(A_STR, FALSE);

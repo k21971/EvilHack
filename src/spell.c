@@ -1970,7 +1970,17 @@ spelleffects_check(int spell, int *res, int *energy)
      *  Note: dotele() also calculates energy use and checks nutrition
      *  and strength requirements; if any of these change, update it too.
      */
-    *energy = SPELL_LEV_PW(spellev(spell)); /* 5 <= energy <= 35 */
+    if (Role_if(PM_WIZARD) && spellid(spell) == SPE_FORCE_BOLT) {
+        /* a wizard's force bolt costs only one point of power per cast
+           up through basic attack spell skill, two at skilled and three
+           at expert */
+        int skill = P_SKILL(P_ATTACK_SPELL);
+
+        *energy = spellev(spell)
+                  * ((skill >= P_EXPERT) ? 3 : (skill == P_SKILLED) ? 2 : 1);
+    } else {
+        *energy = SPELL_LEV_PW(spellev(spell)); /* 5 <= energy <= 35 */
+    }
 
     /*
      * Spell casting no longer affects knowledge of the spell. A

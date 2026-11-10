@@ -869,6 +869,10 @@ struct instance_globals_p {
 
 struct instance_globals_q {
 
+    /* hack.c */
+    coord qi_break_pos;    /* boulder or statue a monk is breaking */
+    int qi_break_turns;    /* turns of concentration spent so far */
+
     boolean havestate;
 };
 
