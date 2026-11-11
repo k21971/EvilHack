@@ -2115,10 +2115,19 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
 
     if (!u.uswallow) { /* swallows you */
         int omx = mtmp->mx, omy = mtmp->my;
+        mmflags_nht gpflags = GP_ALLOW_U;
 
         if (!engulf_target(mtmp, &gy.youmonst))
             return M_ATTK_MISS;
         if ((t && is_pit(t->ttyp)) && sobj_at(BOULDER, u.ux, u.uy))
+            return M_ATTK_MISS;
+        /* the engulfer ends up on the hero's square, so it has to be
+           able to stand there; one that is stunned or confused doesn't
+           notice water, lava or open air beneath the hero and lunges
+           anyway */
+        if (mtmp->mconf || mtmp->mstun)
+            gpflags |= (MM_IGNOREWATER | MM_IGNORELAVA | MM_IGNOREAIR);
+        if (!goodpos(u.ux, u.uy, mtmp, gpflags))
             return M_ATTK_MISS;
         if (failed_grab(mtmp, &gy.youmonst, mattk))
             return M_ATTK_MISS;
@@ -2317,7 +2326,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
                engulfer changing shape); an attack after which the tail
                below expels the hero starts none (this arm changes none
                of the tail's tests) */
-            boolean expelling = (!u.uswldtim
+            boolean expelling = (!u.uswldtim || Passes_walls
                                  || gy.youmonst.data->msize >= MZ_HUGE
                                  || (touch_petrifies(gy.youmonst.data)
                                      && !(resists_ston(mtmp)
@@ -2515,11 +2524,15 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     }
 
     gm.mswallower = mtmp; /* match gulpmm() */
-    if (total_digestion && !Upolyd) {
-        /* the hero's own body is gone: this death has its own reason,
-           and nothing is left to rise from; a polymorphed hero only
-           loses the form, through mdamageu() below */
-        u.uhp = 0;
+    if (total_digestion && (!Upolyd || Unchanging)) {
+        /* the hero's own body is gone, or the form the hero is held in:
+           this death has its own reason, and nothing is left to rise
+           from; any other polymorphed hero only loses the form, through
+           mdamageu() below */
+        if (Upolyd)
+            u.mh = 0;
+        else
+            u.uhp = 0;
         disp.botl = TRUE;
         if (!Lifesaved)
             pline("%s emits a satisfied belch.", Monnam(mtmp));
@@ -2548,6 +2561,14 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
               digests(mtmp->data) ? "regurgitates"
               : enfolds(mtmp->data) ? "releases"
                 : "expels");
+        expels(mtmp, mtmp->data, FALSE);
+    } else if (Passes_walls) {
+        /* phasing, from an artifact or from a form that passes through
+           walls, takes the hero out through the engulfer as well; said
+           first, while the engulfer can still be named and before
+           whatever the hero lands on speaks up */
+        You("exit %s, phasing right through %s %s!", mon_nam(mtmp),
+            mhis(mtmp), mbodypart(mtmp, STOMACH));
         expels(mtmp, mtmp->data, FALSE);
     } else if (!u.uswldtim || gy.youmonst.data->msize >= MZ_HUGE) {
         /* As of 3.6.2: u.uswldtim used to be set to 0 by life-saving but it

@@ -1236,13 +1236,16 @@ dig_up_grave(coord *cc)
         if (!Blind)
             pline("%s!", Hallucination ? "Dude!  The living dead"
                                        : "The grave's owner is very upset");
-        (void) makemon(mkclass(S_ZOMBIE, 0), dig_x, dig_y, MM_NOMSG);
+        /* whoever digs, the occupant takes it badly */
+        (void) makemon(mkclass(S_ZOMBIE, 0), dig_x, dig_y,
+                       MM_NOMSG | MM_ANGRY);
         break;
     case 3:
         if (!Blind)
             pline("%s!", Hallucination ? "I want my mummy"
                                        : "You've disturbed a tomb");
-        (void) makemon(mkclass(S_MUMMY, 0), dig_x, dig_y, MM_NOMSG);
+        (void) makemon(mkclass(S_MUMMY, 0), dig_x, dig_y,
+                       MM_NOMSG | MM_ANGRY);
         break;
     default:
         /* No corpse */

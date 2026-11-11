@@ -6193,14 +6193,13 @@ mhitm_ad_slow(
     struct monst *mdef,
     struct mhitm_data *mhm UNUSED)
 {
-    boolean negated = mhitm_mgc_atk_negated(magr, mdef, FALSE);
+    boolean negated = mhitm_mgc_atk_negated(magr, mdef, FALSE),
+            warded = defended(mdef, AD_SLOW);
 
-    if (defended(mdef, AD_SLOW))
-        return;
-
+    /* a blow slows one time in three, whoever lands it */
     if (magr == &gy.youmonst) {
         /* uhitm */
-        if (!negated && mdef->mspeed != MSLOW) {
+        if (!negated && !warded && mdef->mspeed != MSLOW && !rn2(3)) {
             unsigned int oldspeed = mdef->mspeed;
 
             mon_adjust_speed(mdef, -1, (struct obj *) 0);
@@ -6210,12 +6209,14 @@ mhitm_ad_slow(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
-        if (!negated && !Slow && !resists_slow(gy.youmonst.data) && !rn2(3))
+        if (!negated && !warded && !Slow
+            && !resists_slow(gy.youmonst.data) && !rn2(3))
             u_slow_down();
         stop_occupation();
     } else {
-        /* mhitm */
-        if (!negated && mdef->mspeed != MSLOW) {
+        /* mhitm; a gaze always slows */
+        if (!negated && !warded && mdef->mspeed != MSLOW
+            && (mattk->aatyp == AT_GAZE || !rn2(3))) {
             unsigned int oldspeed = mdef->mspeed;
 
             mon_adjust_speed(mdef, -1, (struct obj *) 0);
@@ -8107,6 +8108,14 @@ mhitm_adtyping(
     case AD_ENCH: mhitm_ad_ench(magr, mattk, mdef, mhm); break;
     case AD_SLOW: mhitm_ad_slow(magr, mattk, mdef, mhm); break;
     case AD_CONF: mhitm_ad_conf(magr, mattk, mdef, mhm); break;
+    case AD_LUCK:
+        /* monsters have no Luck, so a gaze that would sap it confuses
+           another monster instead; the hero's own Luck is gazemu()'s */
+        if (magr != &gy.youmonst && mdef != &gy.youmonst)
+            mhitm_ad_conf(magr, mattk, mdef, mhm);
+        else
+            mhm->damage = 0;
+        break;
     case AD_POLY: mhitm_ad_poly(magr, mattk, mdef, mhm); break;
     case AD_WTHR: mhitm_ad_wthr(magr, mattk, mdef, mhm); break;
     case AD_DISE: mhitm_ad_dise(magr, mattk, mdef, mhm); break;

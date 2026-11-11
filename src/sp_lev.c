@@ -602,6 +602,11 @@ flip_level(
     for (ttmp = gf.ftrap; ttmp; ttmp = ttmp->ntrap) {
         if (!inFlipArea(ttmp->tx, ttmp->ty))
             continue;
+        /* a magic beam trap fires from the wall it picked when made, so
+           that wall moves with the trap; launch only, since launch2
+           shares its storage with the beam type */
+        if (ttmp->ttyp == MAGIC_BEAM_TRAP_SET)
+            Flip_coord(ttmp->launch);
         if (flp & 1) {
             ttmp->ty = FlipY(ttmp->ty);
             if (ttmp->ttyp == ROLLING_BOULDER_TRAP) {

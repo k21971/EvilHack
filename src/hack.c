@@ -316,15 +316,21 @@ cannot_push(struct obj *otmp, coordxy sx, coordxy sy)
              */
             pline("However, you %s%s.",
                   willpickup ? "easily pick it up"
-                             : "maneuver over it",
+                             : Sokoban ? "could maneuver over it"
+                                       : "maneuver over it",
                   (canpickup && !willpickup)
                              ? " and could pick it up"
                              : "");
             /* similar to dropping everything and squeezing onto
                a Sokoban boulder's spot, moving to same breaks the
                Sokoban rules because on next step you could go
-               past it without pushing it to plug a pit or hole */
-            sokoban_guilt();
+               past it without pushing it to plug a pit or hole;
+               the hero gets to think twice about it */
+            if (Sokoban) {
+                if (y_n("Do so?") != 'y')
+                    return -1;
+                sokoban_guilt();
+            }
         }
         return 0;
     }
@@ -389,6 +395,11 @@ moverock_core(coordxy sx, coordxy sy)
             nomul(0);
             return -1;
         }
+
+        /* boulders stack; only one of a stack gets pushed (m<dir> below
+           pushes nothing, so it leaves the stack whole) */
+        if (otmp->quan > 1L && !svc.context.nopick)
+            otmp = splitobj(otmp, 1L);
 
         /* when otmp->next_boulder is 1, xname() will format it as
            "next boulder" instead of just "boulder"; affects
@@ -3355,6 +3366,16 @@ domove_core(void)
         return;
 
     if (u.uswallow) {
+        /* a phasing hero slips out of the engulfer under their own
+           power rather than waiting to be expelled on its turn */
+        if (Passes_walls) {
+            mtmp = u.ustuck;
+            You("exit %s, phasing right through %s %s!", mon_nam(mtmp),
+                mhis(mtmp), mbodypart(mtmp, STOMACH));
+            expels(mtmp, mtmp->data, FALSE);
+            nomul(0);
+            return;
+        }
         u.dx = u.dy = 0;
         x = u.ustuck->mx, y = u.ustuck->my;
         u_on_newpos(x, y); /* set u.ux,uy and handle CLIPPING */

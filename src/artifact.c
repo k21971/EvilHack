@@ -4376,6 +4376,11 @@ invoke_create_ammo(struct obj *obj)
     } else
         otmp->quan += rnd(5);
     otmp->owt = weight(otmp);
+    /* what is known of the launcher is known of what it makes */
+    otmp->known = obj->known;
+    otmp->rknown = obj->rknown;
+    if (obj->dknown)
+        observe_object(otmp);
     otmp->oprops_known |= obj->oprops_known;
     otmp = hold_another_object(otmp, "Suddenly %s out.",
                                aobjnam(otmp, "fall"), (char *) 0);
@@ -4558,9 +4563,11 @@ invoke_phasing(struct obj *obj)
     if (u.uswallow) {
         struct monst *mon = u.ustuck;
 
-        expels(mon, mon->data, FALSE);
+        /* said first, while the engulfer can still be named and before
+           whatever the hero lands on speaks up */
         You("exit %s, phasing right through %s %s!", mon_nam(mon),
             mhis(mon), mbodypart(mon, STOMACH));
+        expels(mon, mon->data, FALSE);
     }
     return ECMD_TIME;
 }

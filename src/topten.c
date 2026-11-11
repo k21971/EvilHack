@@ -1120,6 +1120,12 @@ outentry(int rank, struct toptenentry *t1, boolean so)
             Strcat(linebuf, "was crushed to death");
         } else if (!strncmp(t1->death, "petrified by ", 13)) {
             Strcat(linebuf, "turned to stone");
+        } else if (!strncmp(t1->death, "decapitated by ", 15)) {
+            Strcat(linebuf, "decapitated");
+        } else if (!strncmp(t1->death, "incinerated by ", 15)) {
+            Strcat(linebuf, "incinerated");
+        } else if (!strncmp(t1->death, "disintegrated by ", 17)) {
+            Strcat(linebuf, "disintegrated");
         } else
             Strcat(linebuf, "died");
 
@@ -1240,7 +1246,7 @@ score_wanted(
     int uid)
 {
     const char *arg, *nxt;
-    int i;
+    int i, want;
 
     if (current_ver && (t1->ver_major != VERSION_MAJOR
                         || t1->ver_minor != VERSION_MINOR
@@ -1290,8 +1296,13 @@ score_wanted(
         if (arg[0] == '-' && strchr("pru", arg[1]) && !arg[2]
             && i + 1 < playerct) {
             nxt = players[i + 1];
-            if ((arg[1] == 'p' && str2role(nxt) == str2role(t1->plrole))
-                || (arg[1] == 'r' && str2race(nxt) == str2race(t1->plrace))
+            /* a code that names no role or race selects nothing; without
+               the test it would equal every entry whose own code fails
+               to resolve */
+            if ((arg[1] == 'p' && (want = str2role(nxt)) >= 0
+                 && want == str2role(t1->plrole))
+                || (arg[1] == 'r' && (want = str2race(nxt)) >= 0
+                    && want == str2race(t1->plrace))
                 /* handle '-u name' */
                 || (arg[1] == 'u' && (!strcmp(nxt, "all")
                                       || !strncmp(t1->name, nxt, NAMSZ))))
@@ -1699,6 +1710,10 @@ tt_oname(struct obj *otmp, boolean *nocorpse)
                 mtmp->mintrinsics = 0;
             apply_race(mtmp, NON_PM);
             init_mplayer_erac(mtmp, TRUE, (short) racendx);
+            /* makemon() judged the rolled race; the record carries the
+               attitude of the race it names */
+            mtmp->mpeaceful = peace_minded(mtmp);
+            set_malign(mtmp);
             otmp = save_mtraits(otmp, mtmp);
             mongone(mtmp);
             /* a racial corpse weighs what its race does */

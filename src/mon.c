@@ -1374,7 +1374,13 @@ minliquid_core(struct monst *mtmp)
                     return 0;
             }
             if (!(resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {
-                if (cansee(mtmp->mx, mtmp->my))
+                if (engulfing_u(mtmp))
+                    /* a stunned or confused engulfer can lunge at a
+                       hero who is above lava */
+                    pline("%s %s as %s rushes in and forces you out.",
+                          Monnam(mtmp), on_fire(mtmp, ON_FIRE_DEAD),
+                          hliquid("lava"));
+                else if (cansee(mtmp->mx, mtmp->my))
                     pline_mon(mtmp, "%s %s.", Monnam(mtmp),
                               on_fire(mtmp, ON_FIRE_DEAD));
                 /* unlike fire -> melt ice -> pool, there's no way for the
