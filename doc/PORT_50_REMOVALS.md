@@ -339,6 +339,16 @@ tracker; sNNN = port session.
   master's dice by size, Rider and demon lord bonuses (s315,
   BUG-2952..2957). Kept from 5.0: the raised golem values and the
   2 HP floor (see section 3).
+- [x] Force bolt: 5.0's flat 2d12, to-hit base 10 and 5 Pw ->
+  master's attack-spell-skill scale: 2d6 / 2d12 / 2d16 / 2d20, base
+  8 / 10 / 20 / 30, and a Wizard pays 1 / 1 / 2 / 3 Pw (s316,
+  BUG-2958/2959, c1bec4a3c; listed by the 2026-11-11 audit). An
+  unskilled caster hits for less than on 5.0.
+- [x] Bare-handed stagger: 5.0's `!bigmonst` gate -> master's proc
+  on any size, half the time a "knocks ... senseless" confusion in
+  place of the stagger (s316, BUG-2965, c1bec4a3c; listed by the
+  2026-11-11 audit). `mhurtle()` still refuses to move a huge
+  monster.
 
 ### 2.4 Text and logs
 
@@ -377,6 +387,13 @@ tracker; sNNN = port session.
 - [x] `not_fully_identified()`: 5.0's "only armor, weapons and
   weapon-tools need rknown" -> master's "everything damageable but
   scrolls, spellbooks and potions" (s319, BUG-2979; master bfefc9a34).
+- [x] An angry shopkeeper's fixed "scum" in a price quote -> master's
+  eight-way insult, also used by a shopkeeper whose race the hero's
+  race hates or who faces an Infidel (s318, BUG-2974, 4f949ab6a;
+  listed by the 2026-11-11 audit).
+- [x] "There doesn't seem to be any sort of lock here." -> master's
+  "...any sort of pickable lock here." (s320, BUG-2987, da9110cab;
+  master 7acedb22e; listed by the 2026-11-11 audit).
 
 ### 2.5 Levels and content
 
