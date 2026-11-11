@@ -374,23 +374,55 @@ tracker; sNNN = port session.
   water rushes in and flushes you out") -> master's test that the
   engulfer can stand on the hero's square; by ruling only a stunned
   or confused engulfer still lunges, and its lava death, silent in
-  5.0, has a line (s323, BUG-3004 / 3019, commit pending; master
+  5.0, has a line (s323, BUG-3004 / 3019, 34b506fea; master
   3a0948837 + 23a2594bf).
 - [x] A phasing hero stayed inside an engulfer -> master's exit, on
   the engulfer's turn or the hero's own
-  (s323, BUG-3005..3007, commit pending; master b45cbbcad +
+  (s323, BUG-3005..3007, 34b506fea; master b45cbbcad +
   4c52be0cd).
 - [x] A rock-thrower in Sokoban stepped over a stuck boulder and took
   the Luck penalty unasked -> master's "could maneuver over it" and
-  "Do so?" (s323, BUG-3010, commit pending; master f03ad32ba).
+  "Do so?" (s323, BUG-3010, 34b506fea; master f03ad32ba).
 - [x] A disturbed grave's zombie or mummy rolled for peacefulness ->
-  always hostile (s323, BUG-3011, commit pending; master c1cd71c2f).
+  always hostile (s323, BUG-3011, 34b506fea; master c1cd71c2f).
 - [x] A slowing blow slowed on every hit -> master's one time in
   three, gazes excepted, for the hero's blows and between monsters
-  (s323, BUG-3017, commit pending; master 641e9bd79).
+  (s323, BUG-3017, 34b506fea; master 641e9bd79).
 - [x] Invoked ammo copied only the launcher's bless knowledge ->
   master's known / dknown / rknown too
-  (s323, BUG-3015, commit pending; master 042a0c296).
+  (s323, BUG-3015, 34b506fea; master 042a0c296).
+- [x] A blessed scroll of genocide wiped every genocidable species
+  of the class -> two species plus the hero's own role or race.
+  Master's limit; by ruling the two are picked at even odds, not by
+  master's loop, which favored the end of the class and could never
+  pick some species (s324, BUG-3042, commit pending; master's
+  SporkHack-derived do_class_genocide()).
+- [x] Digging down turned an ordinary trap into a pit with no word,
+  and blew up a magical one with no "Boom!" -> master's rule on
+  every level: the trap is destroyed first ("You destroy the dart
+  trap with your pick-axe."), a falling rock trap excepted
+  (s324, BUG-3033, commit pending; master 5666a8ef3 + 7ba42c5be +
+  7f328d740).
+- [x] A hard helmet stopped a scroll of earth's boulder at 2 damage
+  and the falling iron ball at 3 -> master's 2 off ("Your helmet
+  only slightly protects you."); rocks keep the cap. A helmet was
+  ignored under a cursed scroll -> it counts
+  (s324, BUG-3029..3031, commit pending; master eb73649b9 +
+  b9fe36fbc).
+- [x] Joust bonus a flat 2d10 -> master's 2d(5 + level / 3); a
+  ghost or vortex could be jousted and knocked back -> an ordinary
+  hit (s324, BUG-3024 / 3025, commit pending; master 6667cac6c +
+  daf50114f).
+- [x] A magic whistle was identified only when a pet was seen to
+  answer -> identified when blown, like the pea whistle, with "This
+  must be a magic whistle." (s324, BUG-3037, commit pending; master
+  65cd648f1).
+- [x] A magical eye corpse gave 200 turns of hallucination (its stun
+  gaze) -> master's Luck shift and nothing else
+  (s324, BUG-3027, commit pending; master ae8bf25d6 + 7f3663163).
+- [x] Jumping cost a Knight rnd(25) nutrition like everyone else ->
+  master's rnd(10) (s324, BUG-3021, commit pending; master
+  0085e9669).
 
 ### 2.4 Text and logs
 
@@ -440,6 +472,25 @@ tracker; sNNN = port session.
   printed even for a golem the hero cannot see ("It falls to
   pieces!") -> shown only when the hero sees it (s321, BUG-2999,
   e18f68c13; master ba46f54c8).
+- [x] Class genocide's "genocided class <c>" livelog and its one
+  refusal line per species -> master's livelog naming the species
+  and three grouped lines after the wipes
+  (s324, BUG-3042, commit pending; master 979fac14c + 6e7694b0e).
+  5.0's prompt, `?` list and
+  "declined to perform class genocide" line KEPT.
+- [x] "<Demon> appears in a cloud of smoke!" -> "cloud of
+  brimstone", and master's stench line for a blind hero. By ruling
+  5.0's frame stays: one line per summon, keyed on the arriving
+  monster, flash of light / vapor / flame for the others
+  (s324, BUG-3040, commit pending; master e197133c0).
+- [x] Monster class texts "umber hulk" and "human or elf" -> master's
+  "umber hulk or shambling horror" and "human or other humanoid",
+  Guidebook table included (s324, BUG-3047, commit pending).
+- [x] "You have turned to stone." as the fourth line of the hero's
+  stoning countdown -> master's "You have almost completely turned to
+  stone." (s324, BUG-3043, commit pending; master dacf253d8).
+- [x] "You die from your illness." for food poisoning -> master's
+  "sickness" (s324, BUG-3044, commit pending; master 65ed594dd).
 
 ### 2.5 Levels and content
 
@@ -512,6 +563,10 @@ tracker; sNNN = port session.
   swallow a hero above water, lava or open air and die there; kept
   for a stunned or confused engulfer only, master's refusal for the
   rest (ruled 2026-11-11, s323; see 2.3).
+- [r] Surviving fatal food poisoning: 5.0's Con-in-100 save
+  (63d3d7b68) kept, though master has none and removal was
+  recommended; its cost raised from Con -1 to Con -3 by the same
+  ruling (2026-11-11, s324, BUG-3044).
 
 ## 4. Open
 

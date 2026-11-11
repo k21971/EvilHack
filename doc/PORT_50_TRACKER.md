@@ -17,15 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-11, session 323: the beam
-  trap MED row and the audit's nine LOW rows closed, two more rows
-  found and closed in the slice, one LOW minted, after session
-  322's ray to-hit slice and session 321's water elemental / sea
-  dragon slice the same day;
+- Phase 2 status (refreshed 2026-11-11, session 324: the census's
+  last two LOW rows closed - eleven small behaviors and eight texts,
+  with the two-species genocide rule and about a dozen more master
+  behaviors found beside them - and three LOW rows minted, after
+  sessions 321 to 323 the same day;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 56 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 48 LOW):
-  704 rows closed, 56 open
+  prefix; 57 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 49 LOW):
+  706 rows closed, 57 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -37,8 +37,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 324 closed the last two census rows (BUG-3020..3049,
+    commit pending): a blessed scroll of genocide takes two species
+    of the class at even odds, not the whole class; digging down
+    destroys a trap first on every level and magical traps are
+    deleted before they explode; a hard helmet only softens a
+    boulder or the iron ball; no jumping while stunned, cheaper
+    jumps for Knights, level-scaled joust damage and no jousting
+    the unsolid; a phasing hero wobbles instead of being pushed or
+    unseated; containers flash on altars; magical eye and illithid
+    corpses; whistles identify when blown; graveyard pits are open
+    graves; the food-poisoning save stays at Con -3; brimstone,
+    hellfire, the frumious falchion and six other texts. Minted:
+    master's whip grab condition, master's ceiling() tower arm and
+    one residue row.
     Session 323 closed the beam trap row and the audit's nine LOW
-    rows (BUG-3003..3019, commit pending): a magic beam trap's
+    rows (BUG-3003..3019, 34b506fea): a magic beam trap's
     launch wall now flips with its level; a phasing hero leaves an
     engulfer, on its turn or their own; an engulfer has to be able
     to stand where the hero is, unless it is stunned or confused,
@@ -3153,8 +3167,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       reverts a polymorphed hero under the guard skips polyman()'s pool
       check until moveloop's per-move one. (h) Master's magic whistle
       refusal still identifies it ("This must be a magic whistle.");
-      the branch doesn't. (i) A hiding tortle's refusal reads "You
-      have no free claw." on both trees.
+      the branch doesn't. [RECORDED 2026-11-11, session 324,
+      BUG-3037: a whistle is now identified when it is blown; the
+      refusal still teaches nothing, by decision.] (i) A hiding
+      tortle's refusal reads "You have no free claw." on both trees.
 - [ ] LOW: base-material slice residue (minted 2026-11-03, session
       287, reviewer and batteries; record unless a ruling wants a
       change). (a) Stone bracers become a meat shield in W_ARMS even
@@ -8649,7 +8665,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       DEFERRED (owner rows): getroomtype() NOT ported - master's
       only consumer is its mapglyph.c per-room-type map coloring,
       which is Phase 4 on this tree, and porting an unused function
-      would be dead code; ZOO "you enter an ice cave!" arm
+      would be dead code [PORTED 2026-11-11, session 324, BUG-3035:
+      trapeffect_pit()'s open graves use it; the wall-color row
+      will share it]; ZOO "you enter an ice cave!" arm
       DISCHARGED (icequeen slice 2026-08-14, TODO-EVILHACK replaced
       by the Iniceq arm).
       PRE-EXISTING 5.0 QUIRK observed, not ours: a level created by
@@ -35266,7 +35284,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       and `launch` only - `launch2` shares the union with
       `launch_otyp`. Read in sp_lev.c and trap.c, not run.
       CLOSED 2026-11-11, session 323
-      (BUG-3003, commit pending).
+      (BUG-3003, 34b506fea).
       flip_level() flips `launch` for a magic beam trap through
       Flip_coord(), which leaves an unset (-1,-1) alone; `launch2`
       is not touched. Sweep: flip_level() is byte-identical to
@@ -35298,7 +35316,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       form (xorn, earth elemental) or already phasing when engulfed
       stays inside and can be digested.
       CLOSED 2026-11-11, session 323
-      (BUG-3005..3007, commit pending).
+      (BUG-3005..3007, 34b506fea).
       gulpmu()'s tail expels a Passes_walls hero and domove_core()
       lets one walk out on their own turn (with a nomul(0) master
       lacks, so a count stops there). The line is printed BEFORE
@@ -35319,7 +35337,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       AD_LUCK fall into AD_CONF ("looks confused"); the branch's
       mhitm_adtyping() has no AD_LUCK case.
       CLOSED 2026-11-11, session 323
-      (BUG-3009, commit pending).
+      (BUG-3009, 34b506fea).
       mhitm_adtyping() sends AD_LUCK to mhitm_ad_conf() when neither
       side is the hero. Battery, under Conflict: "The magical eye
       gazes at the gnome lord..." then "The gnome lord looks
@@ -35344,7 +35362,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       over it." and asks "Do so?" before sokoban_guilt(); the branch
       maneuvers and takes the Luck penalty unasked.
       CLOSED 2026-11-11, session 323
-      (BUG-3010, commit pending).
+      (BUG-3010, 34b506fea).
       Under Sokoban rules cannot_push() says "could maneuver over
       it" and asks "Do so?"; anything but y leaves the hero in
       place with no time passed and no penalty. The m<dir> arm stays
@@ -35359,7 +35377,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       so a Draugr or Vampire hero gets "The grave's owner is very
       upset!" and often a peaceful owner.
       CLOSED 2026-11-11, session 323
-      (BUG-3011, commit pending).
+      (BUG-3011, 34b506fea).
       MM_ANGRY on both. Battery (draugr Barbarian, five graves,
       three rolls forced by gdb): two zombies and two mummies, all
       mpeaceful 0.
@@ -35371,7 +35389,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       unknown -p or -r code matches every entry whose own code does
       not resolve - more reachable now that records keep race codes.
       CLOSED 2026-11-11, session 323
-      (BUG-3012 / 3013, commit pending).
+      (BUG-3012 / 3013, 34b506fea).
       outentry() has the three verbs; score_wanted() requires the
       -p / -r code to resolve before comparing, which vanilla 5.0
       does not (Upstream-reportable row added). The rest of
@@ -35389,7 +35407,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       effect (a walking engulfer taking a hero over water or lava) is
       untraced.
       CLOSED 2026-11-11, session 323
-      (BUG-3004 / 3019, commit pending).
+      (BUG-3004 / 3019, 34b506fea).
       Traced: without the guard a walking engulfer swallowed a hero
       who was above water, lava or open air and died there in
       minliquid() - a free kill - and a non-phaser could be set down
@@ -35423,7 +35441,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       rolled for the discarded random race (master does the same);
       stone to flesh on such a statue gives the wrong attitude.
       CLOSED 2026-11-11, session 323
-      (BUG-3008 / 3014, commit pending).
+      (BUG-3008 / 3014, 34b506fea).
       (1) RULED as recommended: a hero held in a form by Unchanging
       dies "digested by <monster>" with the belch, no corpse and no
       rising, like a hero in their own form. Battery (gnome lady,
@@ -35441,7 +35459,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the branch copies bknown and oprops_known only (vanilla's shape
       plus oprops).
       CLOSED 2026-11-11, session 323
-      (BUG-3015, commit pending).
+      (BUG-3015, 34b506fea).
       Master copies from the invoked launcher, not the quiver (this
       row's text was wrong): known and rknown are copied and dknown
       goes through observe_object(). Battery (Ranger, Longbow of
@@ -35456,7 +35474,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pushing; boulders merge on the branch too, so a stack a giant
       dropped moved, plugged a pit or sank whole.
       CLOSED 2026-11-11, session 323
-      (BUG-3016, commit pending).
+      (BUG-3016, 34b506fea).
       moverock_core() splits unless the move is m<dir>, which pushes
       nothing. Battery: two boulders dropped as a stack and pushed -
       one at (57,16), one left at (56,16), quan 1 each.
@@ -35468,7 +35486,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       blow on a monster. A hero defended against slowing also lost
       the hit line.
       CLOSED 2026-11-11, session 323
-      (BUG-3017 / 3018, commit pending).
+      (BUG-3017 / 3018, 34b506fea).
       Battery: skeleton warrior form, 33 landed slowing touches, 13
       slows.
 - [ ] LOW: 5.0's second line for a slowed monster (minted 2026-11-11,
@@ -35477,7 +35495,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       monster arms then add 5.0's "<Monster> slows down."; master's
       arms print nothing of their own. Two lines for one slow when
       the monster is seen, 5.0's line alone when it is only sensed.
-- [ ] LOW: small master behaviors unported (minted 2026-11-09, session
+- [x] LOW: small master behaviors unported (minted 2026-11-09, session
       315 census): #jump fails when stunned or confused (78d9fc27b); a
       phasing hero is not hurtled (624e7d268); a container dropped on
       an altar flashes for its contents (1cab63768); magical eye
@@ -35489,7 +35507,102 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       from held (33cc2bac2); the pea whistle identifies itself
       (65cd648f1); wizard-mode teleport into a no-teleport spot
       (c693341e0).
-- [ ] LOW: master texts unported (minted 2026-11-09, session 315
+      CLOSED 2026-11-11, session 324 (BUG-3020..3039 and 3049,
+      commit pending). Each cited commit was read whole against
+      master HEAD; ten ported, one refused, and nine more master
+      behaviors found beside them.
+      (1) #jump (BUG-3020): stunned never, confused fails 1 in 5,
+      "You trip over your own feet." / "You haphazardly yank the
+      reins." and a steed noise; the move is spent. Beside it
+      (BUG-3021): Knights pay rnd(10) hunger per jump, others
+      rnd(25) (0085e9669).
+      (2) Phasing (BUG-3022): hurtle() "You briefly wobble in
+      place."; a phasing rider is not unseated and a cursed-saddle
+      steed not pushed (mhitm_knockback(), mbhitm()). The commit's
+      monster half was reverted on master by daf50114f, whose joust
+      gate was missing: an unsolid target cannot be jousted
+      (BUG-3024). hurtle()'s float / hurtle wording (BUG-3023,
+      8180a2faa). Joust bonus 2d(5 + level / 3), was 2d10 (BUG-3025,
+      6667cac6c).
+      (3) Altar (BUG-3026): "From inside the sack, you see an amber
+      flash." and its plurals, black, multi-colored and funky
+      purple-smelling forms; contents become BUC-known and re-merge.
+      Containers only, coins skipped.
+      (4) Magical eye corpse (BUG-3027): Luck -1..+2, and no more
+      hallucination from its stun gaze. Illithid corpses are brain
+      food (BUG-3028, 51e82856d).
+      (5) Helmets (BUG-3029..3031): a hard helm takes 2 off a
+      scroll of earth's boulder, hero and monster, and off the
+      falling iron ball (was a cap of 2 and a flat 3); rocks keep
+      the cap; a helmet counts under a cursed scroll (b9fe36fbc).
+      (6) Digging (BUG-3032..3034): a flying hero under a real
+      ceiling loosens a rock, or strikes it with an axe. RULED
+      (AskUserQuestion): digging down destroys any trap but a
+      falling rock trap first on EVERY level, a magical one with
+      "Boom!" (5666a8ef3 + 7ba42c5be); the branch did so only on
+      undiggable floors. Not carried from master: its silent destroy
+      of a crafted magical trap and its endless "too hard to dig in"
+      for a rock trap on an undiggable floor (a pit is dug). The
+      trap is deleted before the blast in dig(), dighole() and
+      zap.c maybe_explode_trap(): the blast can kill a steed, the
+      dismount springs the trap and frees it (read, not reproduced).
+      (7) Open graves (BUG-3035): getroomtype() ported; "You fall
+      into an open grave!", "your open grave", the cozy and dirt-nap
+      lines; master's "a open grave" and its role-monster undead
+      test not carried.
+      (8) float_up() / float_down() arms (3cf5fb284): NOT ported.
+      They fixed an amulet-of-flying line from when the amulet
+      called these functions (master stopped in 89c485d66, 2020-07;
+      the branch never did); at master HEAD they only misfire.
+      (9) uunstick(boolean) (BUG-3036): "You are no longer held by
+      <monster>." for a hero who was the one held.
+      (10) Whistles (BUG-3037): identified when blown, "This must be
+      a pea whistle." / "... a magic whistle."; not on the refusals
+      (master's tail does). Eucalyptus update_inventory()
+      (BUG-3038, master 584ef3754).
+      (11) Wizard teleport override (BUG-3039), with a fuzzer skip
+      and a monster-square refusal master lacks.
+      BATTERY (tester A, installed playground; Knight and Draugr
+      Barbarian): dart / arrow / web "You destroy a dart trap with
+      your pick-axe." and no pit; magic, teleportation and polymorph
+      traps "Boom!" for 26-31 HP; a pony killed by the blast and a
+      polymorph trap never stepped on, both clean with the trap
+      gone; a rock trap becomes a pit on an ordinary floor and in
+      Sokoban, where a second dig says "too hard to dig in"; wands
+      of digging and cancellation zapped down on a magic trap blast
+      and remove it. Phasing: wobble on a kick recoil, a hill
+      giant's knockback on foot, mounted on a plain and a cursed
+      saddle, and a wand of striking; every control without phasing
+      was pushed or unseated. Jousting: 25 successful joust rolls
+      against a ghost all became ordinary hits; bonus 3-10 at levels
+      1-2 and 2-30 at level 30 (18 of 101 above 20). Jump: stunned
+      trips / yanks the reins (pony neighs), confused 6 trips in 25;
+      hunger per jump at most 10 for the Knight over 15 jumps, up to
+      25 for the Barbarian over 16. Flying dig-up: rock damage 1-2
+      under a hard helm, 1-6 without, "You strike the ceiling with
+      your axe.", "You can't reach the sky." on the Plane of Air.
+      Graves in Pri-fila's morgue: an open grave / your open grave,
+      spiked and corridor pits unchanged, the cozy line for a Draugr
+      and for a zombie form, "You carefully lower yourself into the
+      open grave." uunstick(0) / (1) by gdb gave both texts; a held
+      vampire bat killed and risen gave the clutches line. Teleport:
+      the prompt on a wall square, y lands, n and a monster's square
+      give "Sorry...". Tester B (playground copy; Valkyries, an
+      Infidel): all altar forms incl. gold not counted, a locked box
+      and an unseen-contents box silent, hallucination both ways;
+      magical eye Luck deltas over 12 corpses -1 +1 +1 +2 0 +1 -1
+      +1 -1 +2 -1 +2 and a tin, no hallucination; illithid "Yum!"
+      four times of five; boulder through a dwarvish helm 9 5 2 1
+      12 8 14 1 14 6, rocks 2 and 2, cursed scroll 3 12 16, the
+      dwarf's helmet line seen and the clang unseen, a real door
+      rockfall trap, the iron ball 26 25 24 24 24; whistles incl.
+      the pet-arrival case (the line exactly once), cursed hum,
+      zombie-form refusal unidentified, verbose off silent, and the
+      leaf's curses inventory line reading uncursed with the glow.
+      Paniclog absent in both playgrounds. One brief premise wrong:
+      grabbing a second monster releases the first through
+      escape_from_sticky_mon(), not uunstick().
+- [x] LOW: master texts unported (minted 2026-11-09, session 315
       census): [DONE 2026-11-10, session 317, BUG-2973,
       e4ea8815d: engulfer expel lines for steam, fire and antimatter
       vortices and "with a woosh" - mhitu.c expels(); battery saw
@@ -35502,6 +35615,63 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       descriptions. ADDED 2026-11-11 (audit): "The psionic energy is
       released!" when a psionic wave cast is cancelled at the
       direction prompt (ccb87c9d7; the branch says "magical").
+      CLOSED 2026-11-11, session 324
+      (BUG-3040..3048, commit pending).
+      (1) Summons (BUG-3040), RULED brimstone in 5.0's
+      frame: a demon arrives "in a cloud of brimstone", a blind
+      hero gets "You notice a noxious sulfuric stench in the air!"
+      once per summon; keyed on the arriving monster, one line per
+      summon, angels and elementals keep 5.0's words. (2) "torrent
+      of hellfire" for an Infidel (BUG-3041); 5.0's "plume of smoke"
+      kept. (3) Class genocide (BUG-3042): the text led to the rule
+      under it - master wipes at most two species, the branch wiped
+      the class. RULED two species at even odds (master's loop is
+      biased and can never pick some); grouped refusal lines and the
+      species-naming livelog ported; see the Phase 5 hdgn rider (d).
+      (4) "You have almost completely turned to stone." (BUG-3043);
+      the monster ladder stays with the gradual-stoning engine
+      (Phase 5 hdgn rider (a)). (5) "die from your sickness" /
+      "illness" by kind (BUG-3044). Beside it, 5.0's Con-in-100
+      save from fatal food poisoning, which master lacks: RULED
+      (free text) kept, at Con -3 instead of -1; the line reads
+      "recovered from your sickness". The battery then found the
+      save left u.usick_type set (vanilla 5.0, upstream row;
+      BUG-3049, fixed). (6) "The frumious falchion" while Vorpal
+      Blade's appearance is unknown (BUG-3045). (7) Whip "out of the
+      sky / water above / flames above" (BUG-3046); the commit's
+      grab condition is a new row. (8) U "umber hulk or shambling
+      horror", @ "human or other humanoid", with the Guidebook
+      table (BUG-3047). (9) "The psionic energy is released!"
+      (BUG-3048).
+      BATTERY (tester B): hezrou, succubus, horned and barbed devils
+      "appears in a cloud of brimstone!" (one line for a pair), the
+      stench three times blindfolded, Angel "flash of light", water
+      demon "vapor", a bone devil's skeleton "smoke" and no stench;
+      Infidel "torrent of hellfire", the three other alignments
+      unchanged. Genocide: twelve fresh h scrolls wiped exactly two
+      each, all eleven pool species turning up (master mind flayers
+      and flinds twice each), then "You aren't permitted to genocide
+      dwarves, illithids, Gollum." and "A dark magic prevents you
+      from genociding alhoons."; a second scroll added "Already
+      nonexistent: dwarf royals, master mind flayers."; t took both
+      of its two, l its one, then "All such monsters are already
+      nonexistent."; L after Vecna two of four; e never beholders;
+      a dwarvish hero's h took dwarves and two more and died after
+      the last wipe; @ as a hill orc gave three list lines cut at
+      commas; livelog "performed her first genocide (dwarf royals
+      and master mind flayers)", "genocided gnolls and gnoll
+      clerics". Food poisoning at Con 25: 2 recoveries in 12 (Con 25
+      to 22), disease 4 of 4 "You die from your illness.", at Con 3
+      a recovery took maximum Con 10 to 7. Tester A: whip lines on
+      three planes byte-checked; "The frumious falchion decapitates
+      the jabberwock!" then "Vorpal Blade decapitates ...". Stoning
+      ladder, psionic ESC as a mind flayer, `/` on U and @, and the
+      in-game Guidebook table all read as written. Retest after the
+      usick_type fix (one tester): a recovery left u.usick_type 0 and
+      Sick 0 (Con 25 to 22); a disease given afterwards showed
+      TermIll only, and vomiting neither printed "You feel somewhat
+      better." nor lengthened its timer (20 to 11 over 9 turns); a
+      food poisoning death and both ordinary cures unchanged.
 - [x] LOW: master records unported (minted 2026-11-09, session 315
       census): the dumplog "Time information" block and
       iso8601_duration() (63f550127); the "digested by" death reason
@@ -35543,6 +35713,48 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       matched the branch only in part and about 400 master-only local
       names (lists in the session scratchpad are gone after the
       session; rerun the string census to regenerate).
+- [ ] LOW: master's whip grab condition unported (minted 2026-11-11,
+      session 324, census of master 8e1817da0): a whip flicked down
+      reaches the floor for a hero who is `!grounded()` or water
+      walking over liquid as well as levitating, flying or riding,
+      and over lava the whip takes lava_damage(). On the branch
+      5.0's "You cause a small splash." arm returns first for any
+      pool or lava square (fire_damage() over lava), so those
+      squares never reach the grab.
+- [ ] LOW, verify: master's ceiling() says "rock cavern" for an AIR
+      square inside Vlad's Tower (minted 2026-11-11, session 324,
+      explorer; master engrave.c). The branch's ceiling() has no
+      such arm and says "sky" for any AIR square; whether the
+      branch tower has AIR squares is unread.
+- [ ] LOW: census slice 7 residue (minted 2026-11-11, session 324,
+      plan stress test, reviewer and batteries; record unless a
+      ruling wants a change). (a) The stun arm of jump() sits before
+      the engulfed / underwater / held refusals, so a stunned hero
+      there trips and loses the move (master the same). (b) The
+      hero's own role and race are wiped on top of the two picked
+      species; master counted them toward the two. (c) A wand of
+      digging zapped down on a magical trap blasts it with no
+      "Boom!" line (dighole()'s arm; dig() has the line). (d) A
+      trap's blast next to a secret door reads "Your bolt reveals a
+      secret door.  The door absorbs your bolt!" (explode()'s
+      magic-missile type through zap_over_floor(); vanilla wording).
+      (e) A non-human hero's `/` lookup of @ ("human or other
+      humanoid or you") offers no "More info?": the data lookup
+      needs exactly one match (vanilla 5.0; data.base's comment
+      still describes the old key match). (f) "Somehow, The
+      frumious falchion misses you wildly." keeps its capital
+      (master the same). (g) A grappling hook still runs
+      spoteffects() after a phasing wobble (master the same, as for
+      a Punished hero). (h) drop_boulder_on_player()'s
+      helmet_protects is TRUE at all four callers (kept for master
+      parity). (i) msummon()'s brimstone and stench key on the
+      arriving monster by ruling, so the Wizard's summoned demons
+      get them and a bone devil's skeleton does not. (j) An adjacent
+      hill giant holding a wand of striking never zapped it in about
+      40 turns and did at once from three squares (battery
+      observation, unread). (k) Observed joust rates 54% at Skilled
+      (83 of 154) and 76% at Expert (76 of 100) against 60 / 80;
+      joust() is untouched and both are within two deviations.
 - [x] SWEEP: monstseesu() SETTER parity with master (BUG-2949..
       2951) - CLOSED 2026-11-09 (session 314, 766bdc794, tracker
       24c04706c;
@@ -38361,6 +38573,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       class %c"). The hdgn slice's in-loop alhoon/beholder skips
       are built for the 5.0 loop shape - re-reconcile them if this
       ports.
+      LANDED 2026-11-11 (session 324, BUG-3042, commit pending) by
+      ruling as two species at EVEN odds, not master's biased loop;
+      the alhoon / beholder skips became geno_dark_protected(),
+      which keeps them out of the pick pool and lists them in the
+      grouped dark-magic line. Recorded: a class whose only live
+      species is dark-protected still uses the scroll up (it counts
+      in goodcnt; master the same).
       (e) dat/luahelper luanames is stale (pre-adoption list still
       names asmodeus/baalz/juiblex; no gehennom tiers/goblintown/
       icequeen/purgatory/hdgn) - stale-by-precedent since the
@@ -39015,8 +39234,11 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-10 | #loot with autounlock set to untrap but not apply-key: do_loot_cont() calls pick_lock() with a Null tool; once "Check <box> for a trap?" is declined (or tknown already says no trap) the arm `else if (autounlock && (flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0)` is skipped and the generic arm asks "There is <a box> here; unlock it?" for the zeroed dummy tool; yes starts a 50-turn picklock() occupation with chance 0 that can only be given up. Fix: make the arm `else if (autounlock)`, so a Null tool answers 'q'. The door branch is not affected (doopen_indir() only calls with a real key). Read in Official_nh50 b0c09c878 src/lock.c (same three-arm chain), not reproduced there yet; BUG-2988, src/lock.c, branch commit da9110cab | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | A rock mole walks between undiggable iron bars: passes_bars() admits a metallivore so that it can eat its way through, but mfndpos()'s gate that keeps bar-eaters off W_NONDIGGABLE bars lists only dmgtype AD_RUST / AD_CORR, so a rock mole (MZ_SMALL, not verysmall) is let onto the square, m_move() declines to eat the undiggable bars and prints "passes between the iron bars". Fix: add `|| (metallivorous(mdat) && !passes_walls(mdat))` to the gate's attack test; the passes_walls() term keeps a xorn, which phases through undiggable bars today, from being turned away (the branch does this through its own eats_bars() helper, which also carries EvilHack rulings - a vanilla patch should not copy it). Read in Official_nh50 b0c09c878 src/mon.c, src/mondata.c and src/monmove.c (same three pieces), not reproduced there; on the branch a rock mole stayed outside undiggable bars for 31 turns after the fix, the before case was not run; BUG-2998, src/mon.c, branch commit e18f68c13 | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | A fireball that reaches the edge of the Plane of Air prints "The fireball vanishes into the aether!" and then explodes anyway: dobuzz() sets `type = ZT_WAND(ZT_FIRE); /* skip pending fireball */` before the break, but since 5212e4b3d (2024, the reflected poison gas fix) the tail tests the set-once `fireball` boolean where it used to test `type == ZT_SPELL(ZT_FIRE)`, so the rewrite skips nothing and explode() runs at the last square with the rewritten type. Only the ray form does this (an Unskilled or Basic cast). Fix: clear `fireball` beside the type rewrite, or have the tail test the type again. Read in Official_nh50 b0c09c878 src/zap.c (same lines as the branch), not reproduced; 3.6 and EvilHack master skip the explosion; no BUG id yet (Phase 2 LOW row, session 322) | found; not fixed on the branch; not sent; triage pending |
-| 2026-11-11 | `nethack -s -p <code>` / `-s -r <code>` with a code that names no role or race lists every record entry whose own code also fails to resolve: score_wanted() compares `str2role(nxt) == str2role(t1->plrole)` (and the str2race() pair), and both sides are ROLE_NONE (-1) for an unknown argument and an old or foreign entry (a pre-3.3.0 record line, a role or race this binary does not have). Fix: require the command-line code to resolve first - `(want = str2role(nxt)) >= 0 && want == str2role(t1->plrole)`, the same for races. Read in Official_nh50 b0c09c878 src/topten.c score_wanted() (same two comparisons), not reproduced there; on the branch a seeded record with an entry of codes "Zzz" / "Qqq" is no longer listed by `-p Xyz` or `-r Xyz`; EvilHack master fixed it as 881fd6aef; BUG-3013, src/topten.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-11 | An engulfer that dies in lava with the hero inside frees the hero with no message: minliquid_core()'s water branch says "<Monster> sinks as water rushes in and flushes you out." when `engulfing_u(mtmp)`, but the lava branch has only the burn line gated on cansee(), which a swallowed hero never passes. Reached when a walking engulfer (a purple worm, say) swallows a hero who is levitating or flying over lava: on its next move it is gone and the hero is simply outside again. Fix: give the lava branch its own engulfed-hero line before the monster dies (the branch prints "<Monster> burns to a crisp as lava rushes in and forces you out.", built from on_fire()'s death verb, and skips the plain burn line in that case). Read in Official_nh50 b0c09c878 src/mon.c minliquid_core() (lava branch: cansee() line only; water branch: the "rushes in" line), not reproduced there; a message gap, not a state bug; BUG-3019, src/mon.c, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | `nethack -s -p <code>` / `-s -r <code>` with a code that names no role or race lists every record entry whose own code also fails to resolve: score_wanted() compares `str2role(nxt) == str2role(t1->plrole)` (and the str2race() pair), and both sides are ROLE_NONE (-1) for an unknown argument and an old or foreign entry (a pre-3.3.0 record line, a role or race this binary does not have). Fix: require the command-line code to resolve first - `(want = str2role(nxt)) >= 0 && want == str2role(t1->plrole)`, the same for races. Read in Official_nh50 b0c09c878 src/topten.c score_wanted() (same two comparisons), not reproduced there; on the branch a seeded record with an entry of codes "Zzz" / "Qqq" is no longer listed by `-p Xyz` or `-r Xyz`; EvilHack master fixed it as 881fd6aef; BUG-3013, src/topten.c, branch 34b506fea | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | An engulfer that dies in lava with the hero inside frees the hero with no message: minliquid_core()'s water branch says "<Monster> sinks as water rushes in and flushes you out." when `engulfing_u(mtmp)`, but the lava branch has only the burn line gated on cansee(), which a swallowed hero never passes. Reached when a walking engulfer (a purple worm, say) swallows a hero who is levitating or flying over lava: on its next move it is gone and the hero is simply outside again. Fix: give the lava branch its own engulfed-hero line before the monster dies (the branch prints "<Monster> burns to a crisp as lava rushes in and forces you out.", built from on_fire()'s death verb, and skips the plain burn line in that case). Read in Official_nh50 b0c09c878 src/mon.c minliquid_core() (lava branch: cansee() line only; water branch: the "rushes in" line), not reproduced there; a message gap, not a state bug; BUG-3019, src/mon.c, branch 34b506fea | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | A magical trap is exploded before it is deleted, in dig.c dighole() and zap.c maybe_explode_trap(): `explode(...); deltrap(ttmp);`. explode() damages the steed on the hero's square; a steed it kills dismounts the hero through dismount_steed() -> float_down(), which calls dotrap() for a trap not met on arrival; a polymorph trap, a level teleporter and one magic trap in 15 delete themselves there; the caller then runs deltrap() on the freed trap ("deltrap: no preceding trap!" or a use-after-free). Needs a mounted hero over a magical trap made under them or reached by a hurtle, and a blast that kills the steed. Fix: delete the trap first, then explode. Each link read in Official_nh50 b0c09c878 and on the branch, NOT reproduced (the branch battery ran the mounted dig on the fixed build only) - reproduce on vanilla before cutting a patch; BUG-3034, src/dig.c + src/zap.c, branch commit pending | fixed on the branch; not sent; needs a vanilla repro |
+| 2026-11-11 | Surviving fatal food poisoning leaves the sickness kind set: nh_timeout()'s SICK case calls make_sick(0, NULL, FALSE, SICK_ALL) after the countdown has already decremented Sick to 0, so make_sick()'s `old && (type & u.usick_type)` cure arm is skipped and u.usick_type keeps SICK_VOMITABLE (upstream 63d3d7b68, 2019). A later illness of the other kind then shows FoodPois beside TermIll, and vomiting "partly cures" it and doubles the remaining timer. Seen on the branch by gdb (u.usick_type 1 with Sick 0 after "You have recovered"); the vanilla code is the same. Fix: clear u.usick_type in the recovery arm; BUG-3049, src/timeout.c, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | A blessed eucalyptus leaf whose blessing wears off when blown (1 in 49) keeps "blessed" on a permanent inventory window: doapply() calls set_bknown() - which refreshes the window - and then unbless(), which does not. Fix: update_inventory() after unbless(). Seen fixed under curses perm_invent on the branch; not run on vanilla; BUG-3038, src/apply.c, branch commit pending | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -39422,6 +39644,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-11 | Water elemental / sea dragon slice (Phase 2 session 321, AskUserQuestion x6 with ten questions - one the slice pick, one a battery launch ask; nine as recommended or confirmed, one a hybrid). (1) HERO RUST HIT: a hero in water elemental or sea dragon form keeps the bite's or claw's damage and rusts the target's armor (rejected: master's rust-only, zero damage). (2) SWAMP DRAGON: 1 in 50 per eel roll, placed beside the eel with MM_ADJACENTOK (rejected: in place of the eel; master's dead same-square line; none). (3) HERO AT BARS: a hero in those forms flows through and the bars stay (rejected: master's chewing). (4) METAL EATERS, free text "merge of master and branch: allow rock moles to eat through iron bars, xorn's phase through the bars; bars remain", confirmed by a second question as: rock moles eat and destroy bars (5.0 kept), a xorn phases through and the bars remain (master), undiggable bars stop a rock mole (rejected: bars always remain; the two pure options). (5) CAGE BARS: the three water bodies flow through undiggable bars too, monster and hero (rejected: monsters as on 0.9.3; neither passes). (6) XORN MEAL: a xorn-form hero standing on bars may still eat them with the eat command, 5.0's prompt (rejected: xorns never eat bars). (7) Battery: launch both testers. Session calls, plan-approved: the hero's Underwater obstacle arm exempts the three forms at bars (under ruling 5); c0efa08e3's sea dragon wantpool terms and 501e23bec's four `&& weapon` removals folded as master parity; no rust between monsters, gray oozes and black puddings still stopped by undiggable bars, and the cornered-monster attack reaching a pool-bound sea dragon recorded; the reviewer's "falls to pieces!" visibility gate folded. BUG-2989..2999. |
 | 2026-11-11 | Ray to-hit slice (Phase 2 session 322, AskUserQuestion x4 with four questions - one the slice pick, one a battery launch ask; all as recommended). (1) FORMULA: both master cd5c574bb terms exactly - zap_hit() rolls `-chance < AC + bonus` for every ray, the ones aimed at the hero included (AC 0 80% -> 95%, AC -20 30% -> 43%), and spell_hit_bonus() adds the hero's level up to 15 to the hero's ray spells (rejected: the roll shift only; the level term only; keep vanilla). (2) WAND ARM: master's wand arm, unreachable since 2019 because a wand passes spell type 0, goes live - the hero's own wand rays and fire / frost horn blasts get +3 with no wielded weapon, the Dex adjustment and the level term (XL 5 bare-handed vs AC -10: 67% -> 93%); a buff over 0.9.3's live feel, taken as master's intent (rejected: leave it dead and record; delete the dead arm). RECORDED, not asked: monster rays, beam traps (monster ray types on the branch), the hero's dragon breath and a ray hitting the hero get no bonus; the steed arm keeps the caster's bonus; master's off-by-one that sent the magic missile spell through the wand arm stays fixed (BUG-1714). BUG-3000..3002. |
 | 2026-11-11 | Audit LOW batch and beam trap slice (Phase 2 session 323, AskUserQuestion x4 with seven questions - one the slice pick, one a battery launch ask; five as recommended, one against, one a hybrid). (1) SLICE: the audit's nine LOW rows plus session 322's beam trap MED in one slice (rejected: the LOW batch alone, the MED alone). (2) BARE-HANDED TRAINING: KEEP 5.0, over the recommended master shape - a bare-handed or martial arts hit that rolls its minimum trains nothing (one martial arts hit in four, one plain bare-handed hit in two; a Monk needs about 80 landed hits from Basic to Skilled where 0.9.3 takes 60); the damage bonus is given either way; no code change (rejected: master's every-hit training). (3) UNCHANGING DIGESTION: a hero held in a form by Unchanging who is totally digested dies "digested by <monster>" with the belch, no corpse and no rising, as a hero in their own form does (rejected: keep "killed while stuck in creature form" and only drop the body; leave as is). (4) ENGULF GUARD, a hybrid: free text "option 1 unless the engulfer is stunned or confused. if stunned/confused, engulfer follows 5.0 rules", re-asked with the four things master's goodpos() guard refuses and confirmed as HAZARDS ONLY - a stunned or confused engulfer ignores water, lava and open air, swallows the hero and dies there as in 5.0; a square another monster shares, a boulder square and rock around a phasing hero stay refused for every engulfer (rejected: the whole guard skipped when dazed; water and lava only; no exception; shared-square case only; no guard). (5) LAVA LINE, asked after the battery found a dazed engulfer's lava death silent: "<Monster> burns to a crisp as lava rushes in and forces you out.", built from the monster's own on_fire() death verb (rejected: one fixed string; leave it silent). (6) Battery: launch the testers. Session calls, plan-approved: the phasing exit line is printed before expels() at all three sites, where master prints it after (trap and pickup lines came first and a blinded hero's engulfer read "it"); domove_core()'s phasing exit adds a nomul(0) master lacks; no choke countdown starts for a hero about to phase out; tt_oname() re-rolls the attitude for the entry's race (master keeps the discarded race's roll); invoked ammo takes dknown through observe_object(); two stress-test finds folded - one boulder split off a stack before a push, and master's one-in-three slowing roll for a blow between monsters. Folded after the review, beyond the plan's "anything missing becomes a row": the same one-in-three roll for the hero's own slowing blow and the hit line a defended hero lost (same master commit 641e9bd79, same function). Recorded: a dazed monster with room to move wanders and does not attack, so the exception shows only when the engulfer is boxed in; bars are not accessible(), so a vortex no longer engulfs a hero standing in iron bars (master parity); 5.0's mergable() lets known invoked arrows merge into an unidentified stack of the same enchantment and mark it known; a vanilla teleport trap's teledest is not flipped by #wizfliplevel. BUG-3003..3019. |
+| 2026-11-11 | Census slice 7 (Phase 2 session 324, AskUserQuestion x5 with seven questions - one the slice pick, one a battery launch ask, one the catch-up merge; five as recommended, one free-text hybrid). (1) CLASS GENOCIDE: a blessed scroll takes TWO species of the class at even odds plus the hero's own role or race - the intent of master's comment; master's own loop (weighted to the end of the class, some species never picked) and 5.0's whole-class wipe both rejected. (2) FOOD POISONING: 5.0's Con-in-100 save from fatal food poisoning KEPT with its cost raised from Con -1 to Con -3 (free text "option 2 but make the cost more: -3 hit to Con"; removal was recommended). (3) DEMON SUMMON TEXT: brimstone in 5.0's frame - keyed on the arriving demon, one line per summon, a stench line for a blind hero. (4) DIG DOWN ON A TRAP: master's destroy-first rule on every level, confirmed after the correction that 5.0 already explodes magical traps anywhere. (5) CATCH-UP MERGE: next session, on its own (upstream acfb7ea97, 77 commits past base, none of #1719..#1733 landed, 14 conflicted files in a read-only trial, one new gameplay change to rule on: zombifying corpses count as fully rotten). RECORDED with the approved plan, not asked: master's stun-jump position; joust damage 2d(5 + level / 3); a whistle identified only when blown; the magical eye's lost hallucination; 3cf5fb284's float arms refused as dead; "an open grave" and the race-aware undead test; a pit for a rock trap on an undiggable floor; crafted magical traps explode; flying dig-up only under a real ceiling; a phasing rider keeps the saddle; the teleport override's fuzzer and monster guards; the helmet under a cursed scroll of earth; "plume of smoke" kept; the Guidebook's two table lines. Found by the battery and fixed: the save left u.usick_type set (vanilla). BUG-3020..3049. |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
