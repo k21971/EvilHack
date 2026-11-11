@@ -349,6 +349,17 @@ tracker; sNNN = port session.
   place of the stagger (s316, BUG-2965, c1bec4a3c; listed by the
   2026-11-11 audit). `mhurtle()` still refuses to move a huge
   monster.
+- [x] Iron bars: 5.0's water elemental "eats through the iron bars"
+  (by its rust attack) and so does its xorn (as a metal eater) ->
+  both go through and the bars stay standing, monster or hero
+  form; the water bodies pass undiggable bars too (s321,
+  BUG-2995..2997, commit pending; master 6529613d9 for the monster
+  water bodies, rulings for the rest). A rock mole's bar eating is
+  kept (see section 3).
+- [x] Passive counter-effects: vanilla's "only when a weapon, glove
+  or boot object was passed in" test on the fire, acid, rust and
+  corrosion arms -> master's: a bare-handed hit reaches the worn
+  gloves (s321, BUG-2992, commit pending; master 501e23bec).
 
 ### 2.4 Text and logs
 
@@ -394,6 +405,10 @@ tracker; sNNN = port session.
 - [x] "There doesn't seem to be any sort of lock here." -> master's
   "...any sort of pickable lock here." (s320, BUG-2987, da9110cab;
   master 7acedb22e; listed by the 2026-11-11 audit).
+- [x] "<Golem> falls to pieces!" from the hero's rust or rot hit,
+  printed even for a golem the hero cannot see ("It falls to
+  pieces!") -> shown only when the hero sees it (s321, BUG-2999,
+  commit pending; master ba46f54c8).
 
 ### 2.5 Levels and content
 
@@ -452,6 +467,11 @@ tracker; sNNN = port session.
   120; master 40 / 50 / 60 / 60 / 80) and 5.0's "every die rolled a 1
   gets +1" floor when master's hit dice were ported (s315,
   2026-11-09).
+- [r] Rock moles eat iron bars: 5.0's metal-eater rule kept for the
+  rock mole, monster and hero form, over master's "bars stop a rock
+  mole"; undiggable bars now stop it (they did not on 5.0). A
+  xorn-form hero's deliberate bar meal (the eat command while
+  standing on bars) is kept too (ruled 2026-11-11, s321).
 
 ## 4. Open
 
