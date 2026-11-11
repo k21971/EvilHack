@@ -368,7 +368,29 @@ tracker; sNNN = port session.
   their level up to 15; and by ruling the hero's own wand rays and
   horn blasts get that level term, the Dex adjustment and +3 with
   empty hands, the arm master wrote but never reached for a wand
-  (s322, BUG-3000..3002, commit pending; master cd5c574bb).
+  (s322, BUG-3000..3002, 4542b9892; master cd5c574bb).
+- [x] Engulfing over a hazard: any walking engulfer swallowed a hero
+  who was above water, lava or open air and died there ("sinks as
+  water rushes in and flushes you out") -> master's test that the
+  engulfer can stand on the hero's square; by ruling only a stunned
+  or confused engulfer still lunges, and its lava death, silent in
+  5.0, has a line (s323, BUG-3004 / 3019, commit pending; master
+  3a0948837 + 23a2594bf).
+- [x] A phasing hero stayed inside an engulfer -> master's exit, on
+  the engulfer's turn or the hero's own
+  (s323, BUG-3005..3007, commit pending; master b45cbbcad +
+  4c52be0cd).
+- [x] A rock-thrower in Sokoban stepped over a stuck boulder and took
+  the Luck penalty unasked -> master's "could maneuver over it" and
+  "Do so?" (s323, BUG-3010, commit pending; master f03ad32ba).
+- [x] A disturbed grave's zombie or mummy rolled for peacefulness ->
+  always hostile (s323, BUG-3011, commit pending; master c1cd71c2f).
+- [x] A slowing blow slowed on every hit -> master's one time in
+  three, gazes excepted, for the hero's blows and between monsters
+  (s323, BUG-3017, commit pending; master 641e9bd79).
+- [x] Invoked ammo copied only the launcher's bless knowledge ->
+  master's known / dknown / rknown too
+  (s323, BUG-3015, commit pending; master 042a0c296).
 
 ### 2.4 Text and logs
 
@@ -481,6 +503,15 @@ tracker; sNNN = port session.
   mole"; undiggable bars now stop it (they did not on 5.0). A
   xorn-form hero's deliberate bar meal (the eat command while
   standing on bars) is kept too (ruled 2026-11-11, s321).
+- [r] Bare-handed training on a minimum roll: 5.0 trains nothing
+  when a bare-handed or martial arts hit rolls its minimum (one hit
+  in four for martial arts, one in two bare-handed); kept over
+  master's every-hit training, the damage bonus being given either
+  way (ruled 2026-11-11, s323).
+- [r] A dazed engulfer over a hazard: 5.0 lets any walking engulfer
+  swallow a hero above water, lava or open air and die there; kept
+  for a stunned or confused engulfer only, master's refusal for the
+  rest (ruled 2026-11-11, s323; see 2.3).
 
 ## 4. Open
 
