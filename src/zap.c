@@ -4919,8 +4919,9 @@ spell_damage_bonus(
 }
 
 /*
- * Generate the to-hit bonus for a spell.  Based on the hero's skill in
- * spell class and dexterity.
+ * Generate the to-hit bonus for a spell or a wand. Based on the hero's
+ * skill in spell class (free hands, for a wand), dexterity and
+ * experience level
  */
 staticfn int
 spell_hit_bonus(int skill, boolean is_wand)
@@ -4961,6 +4962,9 @@ spell_hit_bonus(int skill, boolean is_wand)
     else
         /* Even increment for dexterous heroes (see weapon.c abon) */
         hit_bon += dex - 14;
+
+    /* experience matters */
+    hit_bon += (u.ulevel < 15) ? u.ulevel : 15;
 
     return hit_bon;
 }
@@ -6526,10 +6530,10 @@ staticfn int
 zap_hit(
     int ac,
     int type, /* either hero cast spell type or 0 */
-    boolean is_wand)
+    boolean is_wand) /* the hero's own wand zap or horn blast */
 {
     int chance = rn2(20);
-    int spell_bonus = type ? spell_hit_bonus(type, is_wand) : 0;
+    int spell_bonus = (type || is_wand) ? spell_hit_bonus(type, is_wand) : 0;
 
     /* small chance for naked target to avoid being hit */
     if (!chance)
@@ -6538,7 +6542,7 @@ zap_hit(
     /* very high armor protection does not achieve invulnerability */
     ac = AC_VALUE(ac);
 
-    return (3 - chance < ac + spell_bonus);
+    return (-chance < ac + spell_bonus);
 }
 
 /* disintegration routine for a monster's inventory when the monster
@@ -6658,6 +6662,8 @@ dobuzz(
     coord save_bhitpos;
     boolean shopdamage = FALSE,
             fireball = (type == ZT_SPELL(ZT_FIRE)), /* set once */
+            /* the hero's wand zap or fire / frost horn blast; a beam
+               trap fires a monster's ray type */
             is_wand = (type >= 0 && type < BZ_U_SPELL(0));
     struct obj *otmp;
     int spell_type;
