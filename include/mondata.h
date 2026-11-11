@@ -685,6 +685,12 @@
 #define can_corrode(ptr) \
     ((ptr) == &mons[PM_IRON_GOLEM] || (ptr) == &mons[PM_IRON_PIERCER])
 
+/* a body made almost entirely of water: its blows rust what they
+   strike and it flows through iron bars rather than eating them */
+#define is_watery(ptr) \
+    ((ptr) == &mons[PM_WATER_ELEMENTAL]                                      \
+     || (ptr) == &mons[PM_BABY_SEA_DRAGON] || (ptr) == &mons[PM_SEA_DRAGON])
+
 /* various monsters move faster underwater vs on land */
 #define is_fast_underwater(ptr) \
     (is_tortle(ptr) || (ptr) == &mons[PM_WATER_TROLL]                        \

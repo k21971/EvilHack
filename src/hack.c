@@ -1080,7 +1080,10 @@ test_move(
         } else if (IS_TREES(tmpr->typ)
                    && Passes_trees && may_passtree(x, y)) {
             ; /* do nothing */
-        } else if (Underwater) {
+        } else if (Underwater
+                   /* a body of water flows through bars from a pool too */
+                   && !(tmpr->typ == IRONBARS
+                        && is_watery(gy.youmonst.data))) {
             /* note: if water_friction() changes direction due to
                turbulence, new target destination will always be water,
                so we won't get here, hence don't need to worry about
@@ -1089,10 +1092,9 @@ test_move(
                 There("is an obstacle there.");
             return FALSE;
         } else if (tmpr->typ == IRONBARS) {
-            if (mode == DO_MOVE
-                && (dmgtype(gy.youmonst.data, AD_RUST)
-                    || dmgtype(gy.youmonst.data, AD_CORR)
-                    || metallivorous(gy.youmonst.data))
+            /* a form that eats bars chews its way in; a body of water
+               or a wall-phaser goes through and leaves them standing */
+            if (mode == DO_MOVE && eats_bars(gy.youmonst.data)
                 && still_chewing(x, y)) {
                 return FALSE;
             }

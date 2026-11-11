@@ -913,6 +913,12 @@ mkswamp(void) /* Michiel Huisjes & Fred de Wilde */
                                                  ? &mons[PM_PIRANHA]
                                                  : &mons[PM_ELECTRIC_EEL],
                                            sx, sy, NO_MM_FLAGS);
+                            /* now and then a sea dragon shares the swamp;
+                               the eel has this pool, so the dragon takes
+                               the nearest free spot */
+                            if (!rn2(50))
+                                (void) makemon(&mons[PM_SEA_DRAGON],
+                                               sx, sy, MM_ADJACENTOK);
                             eelct++;
                         }
                     } else {

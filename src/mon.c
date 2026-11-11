@@ -3430,7 +3430,10 @@ mfndpos(
     (void)memset((genericptr_t) data, 0, sizeof(struct mfndposdata));
 
     nodiag = NODIAG(mdat - mons);
-    wantpool = (mdat->mlet == S_EEL);
+    /* sea dragons keep to the water like eels; only one on land with
+       no pool beside it is offered land squares */
+    wantpool = (mdat->mlet == S_EEL || mdat == &mons[PM_BABY_SEA_DRAGON]
+                || mdat == &mons[PM_SEA_DRAGON]);
     wantpuddle = (mdat->mlet == S_EEL);
     wantsewage = (mdat == &mons[PM_GIANT_LEECH]);
     poolok = ((!Is_waterlevel(&u.uz)
@@ -3498,12 +3501,12 @@ mfndpos(
                 continue;
             if (IS_WATERWALL(ntyp) && !is_swimmer(mdat))
                 continue;
-            /* KMH -- Added iron bars */
+            /* KMH -- Added iron bars; a monster that gets through bars
+               by eating them has no way through undiggable ones */
             if (ntyp == IRONBARS
                 && (!(flag & ALLOW_BARS)
                     || ((levl[nx][ny].wall_info & W_NONDIGGABLE)
-                        && (dmgtype(mdat, AD_RUST)
-                            || dmgtype(mdat, AD_CORR)))))
+                        && eats_bars(mdat))))
                 continue;
             if (IS_DOOR(ntyp)
                 /* an amorphous creature can only move under/through a

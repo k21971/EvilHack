@@ -759,6 +759,17 @@ passes_bars(struct permonst *mptr)
                       || (slithy(mptr) && !bigmonst(mptr)));
 }
 
+/* returns True if monster destroys iron bars by moving onto them: rust
+   and corrosion eat them away and so does a rock mole; a body of water
+   flows through and a wall-phaser passes through, leaving them standing */
+boolean
+eats_bars(struct permonst *mptr)
+{
+    return (boolean) ((dmgtype(mptr, AD_RUST) || dmgtype(mptr, AD_CORR)
+                       || metallivorous(mptr))
+                      && !passes_walls(mptr) && !is_watery(mptr));
+}
+
 /* returns True if monster can blow (whistle, etc) */
 boolean
 can_blow(struct monst *mtmp)

@@ -3842,16 +3842,23 @@ mhitm_ad_rust(
         if (completelyrusts(pd)) { /* iron golem */
             /* note: the life-saved case is hypothetical because
                life-saving doesn't work for golems */
-            pline("%s %s to pieces!", Monnam(mdef),
-                  !mlifesaver(mdef) ? "falls" : "starts to fall");
+            if (canseemon(mdef))
+                pline("%s %s to pieces!", Monnam(mdef),
+                      !mlifesaver(mdef) ? "falls" : "starts to fall");
             xkilled(mdef, XKILL_NOMSG);
             mhm->hitflags |= M_ATTK_DEF_DIED;
         }
         erode_armor(mdef, ERODE_RUST);
-        mhm->damage = 0; /* damageum(), int tmp */
+        /* a rust attack deals no damage of its own; the physical blow
+           of a watery body, which mhitm_ad_phys() sends here, keeps
+           its damage unless the target has just fallen to pieces */
+        if (mattk->adtyp == AD_RUST || DEADMONSTER(mdef))
+            mhm->damage = 0; /* damageum(), int tmp */
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
-        hitmsg(magr, mattk);
+        /* a physical blow that also rusts has given its own line */
+        if (mattk->adtyp == AD_RUST)
+            hitmsg(magr, mattk);
         if (magr->mcan) {
             return;
         }
@@ -3922,8 +3929,9 @@ mhitm_ad_dcay(
     if (magr == &gy.youmonst) {
         /* uhitm */
         if (completelyrots(pd)) { /* wood golem or leather golem */
-            pline("%s %s to pieces!", Monnam(mdef),
-                  !mlifesaver(mdef) ? "falls" : "starts to fall");
+            if (canseemon(mdef))
+                pline("%s %s to pieces!", Monnam(mdef),
+                      !mlifesaver(mdef) ? "falls" : "starts to fall");
             xkilled(mdef, XKILL_NOMSG);
         }
         erode_armor(mdef, ERODE_ROT);
@@ -6819,6 +6827,9 @@ mhitm_ad_phys(
                     mhm->damage = 1;
             }
         }
+        /* a body of water also rusts the armor it strikes */
+        if (is_watery(pa))
+            mhitm_ad_rust(magr, mattk, mdef, mhm);
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         /* a neothelid holds its prey with the first of its tentacles */
@@ -7063,6 +7074,10 @@ mhitm_ad_phys(
                 hitmsg(magr, mattk);
                 mhm->hitflags |= M_ATTK_HIT;
             }
+            /* a body of water also rusts the armor it strikes; the
+               blow's damage still lands */
+            if (!DEADMONSTER(magr) && is_watery(pa))
+                mhitm_ad_rust(magr, mattk, mdef, mhm);
         }
     } else {
         /* mhitm */
@@ -8949,7 +8964,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                                            armorpenalty, mattk, dieroll);
             /* originalweapon points to an equipment slot which might
                now be empty if the weapon was destroyed during the hit;
-               passive(,weapon,...) won't call passive_obj() in that case */
+               passive(,weapon,...) then has passive_obj() pick whatever
+               is left to erode, the gloves when the hands are empty */
             weapon = *originalweapon; /* might receive passive erosion */
             if (!monster_survived) {
                 /* enemy dead, before any special abilities used */
@@ -9564,7 +9580,7 @@ passive(
      */
     switch (mattk[i].adtyp) {
     case AD_FIRE:
-        if (mhitb && !mon->mcan && weapon && !Underwater) {
+        if (mhitb && !mon->mcan && !Underwater) {
             if (aatyp == AT_KICK) {
                 if (uarmf && !rn2(6))
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_BURN,
@@ -9607,7 +9623,7 @@ passive(
            parameter references */
         if (weapon && !o_on(wep_id, gi.invent))
             weapon = (struct obj *) 0;
-        if (mhitb && weapon && !Underwater) {
+        if (mhitb && !Underwater) {
             if (aatyp == AT_KICK) {
                 if (uarmf && !rn2(6))
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_CORRODE,
@@ -9643,7 +9659,14 @@ passive(
         }
         break;
     case AD_RUST:
-        if (mhitb && !mon->mcan && weapon) {
+        if (mhitb && !mon->mcan) {
+            if (is_watery(mon->data) && rn2(2)) {
+                if (Blind || !flags.verbose)
+                    You("are splashed!");
+                else
+                    You("are splashed by %s water!",
+                        s_suffix(mon_nam(mon)));
+            }
             if (aatyp == AT_KICK) {
                 if (uarmf)
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_RUST,
@@ -9654,7 +9677,7 @@ passive(
         }
         break;
     case AD_CORR:
-        if (mhitb && !mon->mcan && weapon) {
+        if (mhitb && !mon->mcan) {
             if (aatyp == AT_KICK) {
                 if (uarmf)
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_CORRODE,

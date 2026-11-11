@@ -2431,11 +2431,11 @@ postmov(
 
         } else if (levl[mtmp->mx][mtmp->my].typ == IRONBARS) {
             /* 3.6.2: was using may_dig() but that doesn't handle bars;
-               AD_RUST catches rust monsters but metallivorous() is
-                   needed for xorns and rock moles */
+               eats_bars() covers rust and corrosion attackers and rock
+               moles, and leaves out a body of water and a xorn, which
+               go through the bars without harming them */
             if (!(levl[mtmp->mx][mtmp->my].wall_info & W_NONDIGGABLE)
-                && (dmgtype(ptr, AD_RUST) || dmgtype(ptr, AD_CORR)
-                    || metallivorous(ptr))) {
+                && eats_bars(ptr)) {
                 if (canseemon(mtmp))
                     pline_mon(mtmp, "%s eats through the iron bars.",
                               Monnam(mtmp));
@@ -2451,7 +2451,8 @@ postmov(
                 Norep("%s %s %s the iron bars.", Monnam(mtmp),
                       /* pluralization fakes verb conjugation */
                       makeplural(locomotion(ptr, "pass")),
-                      passes_walls(ptr) ? "through" : "between");
+                      (passes_walls(ptr) || unsolid(ptr)) ? "through"
+                                                          : "between");
         } /* doors and bars */
 
         /* possibly dig */

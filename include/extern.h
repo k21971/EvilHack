@@ -2144,6 +2144,7 @@ extern boolean mon_hates_blessings(struct monst *) NONNULLARG1;
 extern boolean hates_blessings(const struct permonst *) NONNULLARG1;
 extern boolean mon_hates_light(struct monst *) NONNULLARG1;
 extern boolean passes_bars(struct permonst *) NONNULLARG1;
+extern boolean eats_bars(struct permonst *) NONNULLARG1;
 extern boolean can_blow(struct monst *) NONNULLARG1;
 extern boolean can_chant(struct monst *) NONNULLARG1;
 extern boolean can_be_strangled(struct monst *) NONNULLARG1;
