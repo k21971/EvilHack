@@ -4501,6 +4501,19 @@ in_rooms(coordxy x, coordxy y, int typewanted)
     return ptr;
 }
 
+/* the kind of room (x,y) lies in, as the level was made; unlike rtype,
+   which is reset to OROOM once many special rooms have been entered */
+int
+getroomtype(coordxy x, coordxy y)
+{
+    int rno = levl[x][y].roomno;
+
+    if (rno >= ROOMOFFSET)
+        return svr.rooms[rno - ROOMOFFSET].orig_rtype;
+    /* not a room */
+    return OROOM;
+}
+
 /* is (x,y) in a town? */
 boolean
 in_town(coordxy x, coordxy y)

@@ -3945,7 +3945,9 @@ artifact_hit(
 
             if (youattack && engulfing_u(mdef))
                 return FALSE;
-            wepdesc = artilist[ART_VORPAL_BLADE].name;
+            /* a blade the hero has not looked at goes unnamed */
+            wepdesc = otmp->dknown ? artilist[ART_VORPAL_BLADE].name
+                                   : "The frumious falchion";
             if (!youdefend) {
                 if (!has_head(mdef->data) || gn.notonhead || u.uswallow) {
                     if (youattack)

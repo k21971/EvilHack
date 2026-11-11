@@ -5037,12 +5037,15 @@ maybe_explode_trap(
         } else if (is_magical_trap(ttmp->ttyp)) {
             int seeit = cansee(x, y);
 
+            /* hero-crafted magical traps carry their crafting
+               component as ammo; the explosion consumes it.  The trap
+               goes before the blast, which can unseat the hero onto it
+               and use it up */
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+            newsym(x, y);
             /* note: this explosion mustn't destroy otmp */
             explode(x, y, -WAN_CANCELLATION,
                     20 + d(3, 6), TRAP_EXPLODE, EXPL_MAGICAL);
-            /* hero-crafted magical traps carry their crafting
-               component as ammo; the explosion consumes it */
-            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
             newsym(x, y);
             if (seeit)
                 *learn_it = TRUE;

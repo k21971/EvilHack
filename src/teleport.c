@@ -975,7 +975,12 @@ scrolltele(struct obj *scroll)
                 return; /* abort */
             /* possible extensions: introduce a small error if
                magic power is low; allow transfer to solid rock */
-            if (teleok(cc.x, cc.y, FALSE)) {
+            /* debug mode can force a spot teleport refuses, though not
+               one a monster stands on; the fuzzer does not get to */
+            if (teleok(cc.x, cc.y, FALSE)
+                || (wizard && !iflags.debug_fuzzer && !m_at(cc.x, cc.y)
+                    && y_n("You can't normally teleport here.  Do it anyway?")
+                       == 'y')) {
                 /* for scroll, discover it regardless of destination */
                 teleds(cc.x, cc.y, TELEDS_TELEPORT);
                 if (u_at(iflags.travelcc.x, iflags.travelcc.y))

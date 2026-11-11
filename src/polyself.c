@@ -433,7 +433,7 @@ polyman(const char *fmt, const char *arg)
     u.uundetected = 0;
 
     if (sticking)
-        uunstick();
+        uunstick(TRUE);
     find_ac();
     if (was_mimicking) {
         if (gm.multi < 0)
@@ -1473,7 +1473,7 @@ polymon(int mntmp)
         pline("%s loses its grip on you.", ustuckNam);
     } else if (sticking && !sticks(gy.youmonst.data)) {
         /* was holding onto u.ustuck but no longer capable of that */
-        uunstick();
+        uunstick(TRUE);
     }
 
     if (u.usteed) {
@@ -2829,8 +2829,10 @@ domindblast(void)
     return ECMD_TIME;
 }
 
+/* end a hold between the hero and u.ustuck, saying which of the two
+   had been doing the holding */
 void
-uunstick(void)
+uunstick(boolean player_was_holder)
 {
     struct monst *mtmp = u.ustuck;
 
@@ -2839,7 +2841,10 @@ uunstick(void)
         return;
     }
     set_ustuck((struct monst *) 0); /* before pline() */
-    pline("%s is no longer in your clutches.", Monnam(mtmp));
+    if (player_was_holder)
+        pline("%s is no longer in your clutches.", Monnam(mtmp));
+    else
+        You("are no longer held by %s.", mon_nam(mtmp));
 }
 
 void

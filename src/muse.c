@@ -2615,7 +2615,11 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                     struct obj *saddle = u.usteed
                                          ? which_armor(u.usteed, W_SADDLE)
                                          : (struct obj *) 0;
-                    boolean unseat = (u.usteed
+                    /* a phasing rider gives the force nothing to push:
+                       no unseating and no shove for the steed, just
+                       hurtle()'s wobble */
+                    boolean phasing = Passes_walls ? TRUE : FALSE,
+                            unseat = (u.usteed && !phasing
                                       && !(saddle && saddle->cursed));
 
                     pline_The("force of %s knocks you %s!",
@@ -2629,7 +2633,7 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                         u.dx = kx;
                         u.dy = ky;
                         dismount_steed(DISMOUNT_KNOCKED);
-                    } else if (u.usteed) {
+                    } else if (u.usteed && !phasing) {
                         /* stuck to a cursed saddle: steed and rider go */
                         mhurtle(u.usteed, kx, ky, 1);
                     } else {
@@ -3530,7 +3534,7 @@ use_offensive(struct monst *mtmp)
         }
         /* Attack the player */
         if (distmin(mmx, mmy, u.ux, u.uy) == 1 && !is_cursed) {
-            drop_boulder_on_player(confused, !is_cursed, FALSE, TRUE);
+            drop_boulder_on_player(confused, TRUE, FALSE, TRUE);
         }
 
         return (DEADMONSTER(mtmp)) ? 1 : 2;

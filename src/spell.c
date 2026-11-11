@@ -2347,7 +2347,9 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
                  * spelleffects() is organized means that aborting with
                  * "nevermind" is not an option.
                  */
-                pline_The("magical energy is released!");
+                pline_The("%s energy is released!",
+                          (otyp == SPE_PSIONIC_WAVE) ? "psionic"
+                                                     : "magical");
             }
             if (!u.dx && !u.dy && !u.dz) {
                 if ((damage = zapyourself(pseudo, TRUE)) != 0) {

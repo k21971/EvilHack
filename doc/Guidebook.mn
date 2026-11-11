@@ -60,7 +60,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 November 9, 2026
+.ds f2 November 11, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -6234,7 +6234,7 @@ g	S_gremlin	(gremlin)
 \.	S_hodbridge	(horizontal lowered drawbridge)
 |	S_hodoor	(open door in horizontal wall)
 \(ha	S_hole	(hole)
-@	S_human	(human or elf)
+@	S_human	(human or other humanoid)
 h	S_humanoid	(humanoid)
 \-	S_hwall	(horizontal wall)
 \.	S_ice	(ice)
@@ -6328,7 +6328,7 @@ t	S_trapper	(trapper or lurker above)
 T	S_troll	(troll)
 |	S_trwall	(wall)
 \-	S_tuwall	(wall)
-U	S_umber	(umber hulk)
+U	S_umber	(umber hulk or shambling horror)
 \ 	S_unexplored	(unexplored terrain)
 u	S_unicorn	(unicorn or horse)
 <	S_upladder	(ladder up)

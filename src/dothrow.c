@@ -1225,6 +1225,11 @@ hurtle(int dx, int dy, int range, boolean verbose)
         You_feel("a tug from the iron ball.");
         nomul(0);
         return;
+    } else if (Passes_walls) {
+        /* a phasing hero gives the push nothing solid to move */
+        You("briefly wobble in place.");
+        nomul(0);
+        return;
     } else if (u.utrap) {
         You("are anchored by the %s.",
             (u.utraptype == TT_WEB) ? "web"
@@ -1256,7 +1261,7 @@ hurtle(int dx, int dy, int range, boolean verbose)
     gn.nomovemsg = ""; /* it just happens */
     if (verbose)
         You("%s in the opposite direction.",
-            (range > 1) ? "hurtle" : "float");
+            (range > 1 || !(Flying || Levitation)) ? "hurtle" : "float");
     /* if we're in the midst of shooting multiple projectiles, stop */
     endmultishot(TRUE);
     sokoban_guilt();

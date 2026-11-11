@@ -503,6 +503,60 @@ doaltarobj(struct obj *obj)
         if (obj->oclass != COIN_CLASS)
             obj->bknown = 1; /* ok to bypass set_bknown() */
     }
+
+    /* an open container whose contents are known shows their flashes
+       too, one level deep */
+    if (Is_container(obj) && Has_contents(obj) && !obj->olocked
+        && obj->cknown) {
+        int nblessed = 0, ncursed = 0;
+        struct obj *otmp, *cobj, *nobj;
+
+        for (otmp = obj->cobj; otmp; otmp = nobj) {
+            nobj = otmp->nobj;
+            if (otmp->oclass == COIN_CLASS)
+                continue; /* coins don't have bless/curse status */
+            if (otmp->blessed)
+                nblessed++;
+            if (otmp->cursed)
+                ncursed++;
+            if (!Hallucination && !otmp->bknown) {
+                otmp->bknown = 1; /* ok to bypass set_bknown() */
+                /* it may now stack with one already known */
+                for (cobj = obj->cobj; cobj; cobj = cobj->nobj)
+                    if (merged(&cobj, &otmp))
+                        break;
+            }
+        }
+        /* even when hallucinating, no flash at all means everything
+           inside is uncursed */
+        if (Hallucination && nblessed + ncursed == 0) {
+            for (otmp = obj->cobj; otmp; otmp = nobj) {
+                nobj = otmp->nobj;
+                if (otmp->oclass == COIN_CLASS || otmp->bknown)
+                    continue;
+                otmp->bknown = 1; /* ok to bypass set_bknown() */
+                for (cobj = obj->cobj; cobj; cobj = cobj->nobj)
+                    if (merged(&cobj, &otmp))
+                        break;
+            }
+        }
+        if (nblessed + ncursed > 0) {
+            const char *color;
+
+            if (Hallucination)
+                color = "funky purple-smelling";
+            else if (nblessed == 0)
+                color = hcolor(NH_BLACK);
+            else if (ncursed == 0)
+                color = hcolor(NH_AMBER);
+            else
+                color = "multi-colored";
+
+            pline("From inside %s, you see %s flash%s.", the(xname(obj)),
+                  (nblessed + ncursed == 1) ? an(color) : color,
+                  (nblessed + ncursed == 1) ? "" : "es");
+        }
+    }
 }
 
 /* If obj is neither formally identified nor informally called something

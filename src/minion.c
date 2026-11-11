@@ -62,7 +62,7 @@ msummon(struct monst *mon)
 {
     struct permonst *ptr;
     int dtype = NON_PM, cnt = 0, result = 0, census;
-    boolean xlight;
+    boolean xlight, stench = FALSE;
     aligntyp atyp;
     struct monst *mtmp;
 
@@ -188,9 +188,14 @@ msummon(struct monst *mon)
                 pline("%s appears in a %s of %s!", Amonnam(mtmp),
                       cloud, what);
             }
+            /* a demon's arrival is smelled when it cannot be seen */
+            if (Blind && is_demon(mtmp->data))
+                stench = TRUE;
         }
         cnt--;
     }
+    if (stench)
+        You("notice a noxious sulfuric stench in the air!");
 
     if (xlight) {
         /* Note: if we forced --More-- here, the 'A's would be visible for

@@ -2095,7 +2095,9 @@ consume_offering(struct obj *otmp)
                 ? "flash of light"
                 : (u.ualign.type == A_NEUTRAL)
                     ? "plume of smoke"
-                    : "burst of flame");
+                    : (u.ualign.type == A_NONE)
+                        ? "torrent of hellfire"
+                        : "burst of flame");
     if (carried(otmp))
         useup(otmp);
     else

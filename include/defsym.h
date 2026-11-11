@@ -357,14 +357,14 @@
     MONSYM(45, 'S', SNAKE, S_SNAKE, "snake")
     MONSYM(46, 'T', TROLL, S_TROLL, "troll")
     /* umber hulk */
-    MONSYM(47, 'U', UMBER, S_UMBER, "umber hulk")
+    MONSYM(47, 'U', UMBER, S_UMBER, "umber hulk or shambling horror")
     MONSYM(48, 'V', VAMPIRE, S_VAMPIRE, "vampire")
     MONSYM(49, 'W', WRAITH, S_WRAITH, "wraith")
     MONSYM(50, 'X', XORN, S_XORN, "xorn")
     /* apelike creature includes owlbear, monkey */
     MONSYM(51, 'Y', YETI, S_YETI, "apelike creature")
     MONSYM(52, 'Z', ZOMBIE, S_ZOMBIE, "zombie")
-    MONSYM(53, '@', HUMAN, S_HUMAN, "human or elf")
+    MONSYM(53, '@', HUMAN, S_HUMAN, "human or other humanoid")
     /* space symbol*/
     MONSYM(54, ' ', GHOST, S_GHOST, "ghost")
     MONSYM(55, '\'', GOLEM, S_GOLEM, "golem")

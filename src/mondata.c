@@ -1925,7 +1925,8 @@ msummon_environ(struct permonst *mptr, const char **cloud)
         what = "light";
         break;
     default:
-        what = "smoke";
+        /* demons come with the reek of the pit */
+        what = is_demon(mptr) ? "brimstone" : "smoke";
         break;
     }
     return what;

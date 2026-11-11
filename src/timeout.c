@@ -161,11 +161,11 @@ phasing_dialogue(void)
 
 /* He is being petrified - dialogue by inmet!tower */
 static NEARDATA const char *const stoned_texts[] = {
-    "You are slowing down.",            /* 5 */
-    "Your limbs are stiffening.",       /* 4 */
-    "Your limbs have turned to stone.", /* 3 */
-    "You have turned to stone.",        /* 2 */
-    "You are a statue."                 /* 1 */
+    "You are slowing down.",                       /* 5 */
+    "Your limbs are stiffening.",                  /* 4 */
+    "Your limbs have turned to stone.",            /* 3 */
+    "You have almost completely turned to stone.", /* 2 */
+    "You are a statue."                            /* 1 */
 };
 
 staticfn void
@@ -204,7 +204,7 @@ stoned_dialogue(void)
         if (Wounded_legs && !u.usteed)
             heal_legs(2);
         break;
-    case 2: /* turned to stone */
+    case 2: /* almost completely turned to stone */
         if ((HDeaf & TIMEOUT) > 0L && (HDeaf & TIMEOUT) < 5L)
             set_itimeout(&HDeaf, 5L); /* avoid Hear_again at tail end */
         /* if also vomiting or turning into slime, stop those (no messages) */
@@ -829,16 +829,23 @@ nh_timeout(void)
                 break;
             case SICK:
                 /* hero might be able to bounce back from food poisoning,
-                   but not other forms of illness */
+                   but not other forms of illness; it costs dearly */
                 if ((u.usick_type & (SICK_NONVOMITABLE | SICK_ZOMBIE)) == 0
                     && rn2(100) < ACURR(A_CON)) {
-                    You("have recovered from your illness.");
+                    You("have recovered from your sickness.");
+                    /* the countdown has already run Sick out, so
+                       make_sick() sees no sickness to cure and would
+                       leave its kind behind for the next one */
+                    u.usick_type = 0;
                     make_sick(0, NULL, FALSE, SICK_ALL);
                     exercise(A_CON, FALSE);
-                    adjattrib(A_CON, -1, 1);
+                    adjattrib(A_CON, -3, 1);
                     break;
                 }
-                urgent_pline("You die from your illness.");
+                /* as in the countdown, food poisoning is a sickness */
+                urgent_pline("You die from your %s.",
+                             ((u.usick_type & SICK_NONVOMITABLE) == 0)
+                                 ? "sickness" : "illness");
                 if (kptr && kptr->name[0]) {
                     svk.killer.format = kptr->format;
                     Strcpy(svk.killer.name, kptr->name);

@@ -10,6 +10,7 @@ staticfn int use_towel(struct obj *);
 staticfn boolean its_dead(coordxy, coordxy, int *, struct obj *);
 staticfn int use_stethoscope(struct obj *);
 staticfn void use_eight_ball(struct obj **);
+staticfn void whistle_learned(int, boolean);
 staticfn void use_whistle(struct obj *);
 staticfn void use_magic_whistle(struct obj *);
 staticfn void magic_whistled(struct obj *);
@@ -546,6 +547,18 @@ use_eight_ball(struct obj **optr)
 static const char whistle_str[] = "produce a %s whistling sound.",
                   alt_whistle_str[] = "produce a %s, sharp vibration.";
 
+/* blowing a whistle tells the hero which kind it is; 'was_known' is the
+   type's discovery state from before the blow */
+staticfn void
+whistle_learned(int otyp, boolean was_known)
+{
+    makeknown(otyp);
+    if (flags.verbose && !was_known && objects[otyp].oc_name_known) {
+        pline("This must be %s.", an(simple_typename(otyp)));
+        update_inventory();
+    }
+}
+
 staticfn void
 use_whistle(struct obj *obj)
 {
@@ -562,6 +575,10 @@ use_whistle(struct obj *obj)
             You(whistle_str, obj->cursed ? "shrill" : "high");
         Soundeffect(se_shrill_whistle, 50);
         wake_nearby(TRUE);
+        /* a leaf blown as a whistle has nothing to learn */
+        if (obj->otyp == PEA_WHISTLE)
+            whistle_learned(PEA_WHISTLE,
+                            objects[PEA_WHISTLE].oc_name_known != 0);
         if (obj->cursed)
             vault_summon_gd();
     }
@@ -570,6 +587,12 @@ use_whistle(struct obj *obj)
 staticfn void
 use_magic_whistle(struct obj *obj)
 {
+    /* read before the blow: magic_whistled() discovers the whistle
+       itself when pets are seen to answer, and the hum's teleport can
+       land the hero anywhere */
+    int otyp = obj->otyp;
+    boolean was_known = (objects[otyp].oc_name_known != 0);
+
     if (!can_blow(&gy.youmonst)) {
         You("are incapable of using the whistle.");
     } else if (!u_handsy()) {
@@ -580,6 +603,7 @@ use_magic_whistle(struct obj *obj)
         wake_nearby(TRUE);
         if (!rn2(2) && !noteleport_level(&gy.youmonst))
             tele_to_rnd_pet();
+        whistle_learned(otyp, was_known);
     } else {
         /* it's magic!  it works underwater too (at a higher pitch) */
         You(Deaf ? alt_whistle_str : whistle_str,
@@ -588,6 +612,7 @@ use_magic_whistle(struct obj *obj)
               : "strange");
         Soundeffect(se_shrill_whistle, 80);
         magic_whistled(obj);
+        whistle_learned(otyp, was_known);
     }
 }
 
@@ -707,8 +732,9 @@ magic_whistled(struct obj *obj)
      */
     buf[0] = '\0';
     if (!already_discovered) {
-        /* message(s) were handled by rloc(); if only noticeable change was
-           pet(s) disappearing, the magic whistle won't become discovered */
+        /* message(s) were handled by rloc(); the whistle is discovered
+           here when pets were seen to answer, and by our caller once
+           the blow is over when none were */
         if (shift + appear + trapped > 0)
             makeknown(obj->otyp);
     } else {
@@ -2241,6 +2267,29 @@ jump(int magic) /* 0=Physical, otherwise skill level */
            by ..." message; straining against vegetation takes time, as
            for the hero's own entanglement */
         return u.usteed->mentangled ? ECMD_TIME : ECMD_OK;
+    } else if (Stunned || (Confusion && !rn2(5))) {
+        /* a stunned hero cannot jump at all and a confused one botches
+           it one time in five, as with ordinary movement */
+        if (u.usteed) {
+            You("haphazardly yank the reins.");
+            /* as for a pulled leash */
+            if (u.usteed->data->msound != MS_SILENT) {
+                switch (rn2(3)) {
+                case 0:
+                    growl(u.usteed);
+                    break;
+                case 1:
+                    yelp(u.usteed);
+                    break;
+                default:
+                    whimper(u.usteed);
+                    break;
+                }
+            }
+        } else {
+            You("trip over your own %s.", makeplural(body_part(FOOT)));
+        }
+        return ECMD_TIME;
     } else if (u.uswallow) {
         if (magic) {
             You("bounce around a little.");
@@ -2418,7 +2467,8 @@ jump(int magic) /* 0=Physical, otherwise skill level */
         nomul(-1);
         gm.multi_reason = "jumping around";
         gn.nomovemsg = "";
-        morehungry(rnd(25));
+        /* Knights get it for cheaper */
+        morehungry(rnd(Role_if(PM_KNIGHT) ? 10 : 25));
         return ECMD_TIME;
     }
 }
@@ -3837,7 +3887,14 @@ use_whip(struct obj **objp)
         There("is too much resistance to flick your bullwhip.");
 
     } else if (u.dz < 0) {
-        You("flick a bug off of the %s.", ceiling(u.ux, u.uy));
+        /* a bug comes "out of" open sky, water or flames overhead and
+           "off of" a ceiling */
+        const char *overhead = ceiling(u.ux, u.uy);
+
+        You("flick a bug %s of the %s.",
+            (!strncmpi(overhead, "sky", 3) || strstri(overhead, " above"))
+                ? "out" : "off",
+            overhead);
 
     } else if (!u.dz && (IS_WATERWALL(levl[rx][ry].typ)
                          || levl[rx][ry].typ == LAVAWALL)) {
@@ -5518,6 +5575,8 @@ doapply(void)
                     set_bknown(obj, 1);
                 }
                 unbless(obj);
+                /* the leaf's inventory line still says blessed */
+                update_inventory();
             }
         } else {
             use_whistle(obj);

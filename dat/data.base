@@ -3219,7 +3219,8 @@ humanoid
 	tribal nature, and will fiercely defend their lairs.  Usually
 	hostile, they may even band together to raid and pillage
 	human settlements.
-# takes "human or elf or you" when specifying '@' as a dwarf, gnome, or orc
+# takes "human or other humanoid or you" when specifying '@' as a dwarf,
+# gnome, or orc
 human
 chieftain
 *guard

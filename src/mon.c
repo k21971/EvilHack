@@ -4325,7 +4325,7 @@ icequeenrevive(struct monst *mtmp)
         else if (over)
             set_ustuck((struct monst *) 0);
         else
-            uunstick();
+            uunstick(sticks(gy.youmonst.data));
     }
     /* freed of the curse, she gets down from a steed she rode as the
        queen; it keeps its own attitude */
@@ -5315,7 +5315,7 @@ vamprises(struct monst *mtmp)
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
             else
-                uunstick();
+                uunstick(sticks(gy.youmonst.data));
         }
 
         if (!newcham(mtmp, &mons[mndx], NO_NC_FLAGS))
@@ -5675,7 +5675,7 @@ mondead(struct monst *mtmp)
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
             else
-                uunstick();
+                uunstick(sticks(gy.youmonst.data));
         }
         return;
     }
@@ -5732,7 +5732,7 @@ mondead(struct monst *mtmp)
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
             else
-                uunstick();
+                uunstick(sticks(gy.youmonst.data));
         }
         if (was_player_kill) {
             mtmp->mpeaceful = 0;
@@ -5782,7 +5782,7 @@ mondead(struct monst *mtmp)
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
             else
-                uunstick();
+                uunstick(sticks(gy.youmonst.data));
         }
         newsym(mtmp->mx, mtmp->my);
         gv.vamp_rise_msg = TRUE;

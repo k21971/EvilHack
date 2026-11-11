@@ -57,6 +57,10 @@ staticfn void seffect_mail(struct obj **);
 staticfn boolean cursed_obj_filter(struct obj *);
 staticfn void set_lit(coordxy, coordxy, genericptr);
 staticfn void geno_refusal(const char *, const char *, int);
+staticfn boolean geno_dark_protected(int);
+staticfn boolean geno_class_pool(int);
+staticfn void geno_list_add(char *, size_t, const char *, const char *);
+staticfn void geno_list_show(const char *, char *);
 staticfn void do_class_genocide(void);
 staticfn void do_stinking_cloud(struct obj *, boolean);
 staticfn boolean create_particular_parse(char *,
@@ -2588,7 +2592,8 @@ seffect_earth(struct obj **sobjp)
             }
         /* Attack the player */
         if (!sblessed) {
-            drop_boulder_on_player(confused, !scursed, TRUE, FALSE);
+            /* a helmet counts whatever the scroll's curse state */
+            drop_boulder_on_player(confused, TRUE, TRUE, FALSE);
         } else if (!nboulders)
             pline("But nothing else happens.");
     }
@@ -3084,9 +3089,16 @@ drop_boulder_on_player(
                 ; /* the helm is gone; glass armor more often just
                      cracks, in which case it still protects */
             } else if (hard_helmet(uarmh)) {
-                pline("Fortunately, you are wearing a hard helmet.");
-                if (dmg > 2)
-                    dmg = 2;
+                if (otmp2->owt >= 400) {
+                    /* a boulder; a hard helm only softens it */
+                    Your("helmet only slightly protects you.");
+                    if (dmg > 2)
+                        dmg -= 2;
+                } else {
+                    pline("Fortunately, you are wearing a hard helmet.");
+                    if (dmg > 2)
+                        dmg = 2;
+                }
             } else if (flags.verbose) {
                 pline("%s does not protect you.", Yname2(uarmh));
             }
@@ -3144,13 +3156,21 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
                 ; /* the helm is gone; glass armor more often just
                      cracks, in which case it still protects */
             } else if (hard_helmet(helmet)) {
-                if (canspotmon(mtmp))
-                    pline("Fortunately, %s is wearing a hard helmet.",
-                          mon_nam(mtmp));
-                else if (!Deaf)
+                boolean heavy = (otmp2->owt >= 400);
+
+                /* a hard helm stops rocks but only softens a boulder */
+                if (canspotmon(mtmp)) {
+                    if (heavy)
+                        pline("%s helmet is only slightly protective.",
+                              s_suffix(Monnam(mtmp)));
+                    else
+                        pline("Fortunately, %s is wearing a hard helmet.",
+                              mon_nam(mtmp));
+                } else if (!Deaf) {
                     You_hear("a clanging sound.");
+                }
                 if (mdmg > 2)
-                    mdmg = 2;
+                    mdmg = heavy ? mdmg - 2 : 2;
             } else {
                 if (canspotmon(mtmp))
                     pline("%s's %s does not protect %s.", Monnam(mtmp),
@@ -3534,13 +3554,81 @@ litroom(
     return;
 }
 
+/* does a living boss's dark magic keep this species from genocide? */
+staticfn boolean
+geno_dark_protected(int mndx)
+{
+    return (boolean) ((!u.uevent.uvecna && mndx == PM_ALHOON)
+                      || (!u.uevent.utalgath && mndx == PM_BEHOLDER));
+}
+
+/* can a class genocide's random pick land on this species; the hero's
+   own role and race are not in the pool, they always go */
+staticfn boolean
+geno_class_pool(int mndx)
+{
+    return (boolean) (!Your_Own_Role(mndx) && !Your_Own_Race(mndx)
+                      && !geno_dark_protected(mndx)
+                      && (mons[mndx].geno & G_GENO) != 0
+                      && !(svm.mvitals[mndx].mvflags & G_GENOD));
+}
+
+/* add a name to one of do_class_genocide()'s lists; one that does not
+   fit is left out rather than cut short */
+staticfn void
+geno_list_add(char *list, size_t listsz, const char *sep, const char *nam)
+{
+    size_t len = strlen(list);
+
+    if (len + (len ? strlen(sep) : 0) + strlen(nam) < listsz) {
+        if (len)
+            Strcat(list, sep);
+        Strcat(list, nam);
+    }
+}
+
+/* the longest stretch of names geno_list_show() puts on one line */
+#define GENO_LINE_MAX 180
+
+/* print one of do_class_genocide()'s feedback lists after its lead-in;
+   a long list goes out in pieces, each ending at a comma, so that no
+   line outgrows a message buffer */
+staticfn void
+geno_list_show(const char *lead, char *list)
+{
+    char *p = list, *q, *cut;
+
+    while (*p) {
+        cut = (char *) 0;
+        if (strlen(p) > GENO_LINE_MAX) {
+            /* the last separator within reach */
+            for (q = p; (q = strstr(q, ", ")) != 0
+                        && (q - p) <= GENO_LINE_MAX; q += 2)
+                cut = q;
+        }
+        if (!cut) {
+            pline("%s %s.", lead, p);
+            break;
+        }
+        *cut = '\0';
+        pline("%s %s,", lead, p);
+        p = cut + 2;
+    }
+}
+
+#undef GENO_LINE_MAX
+
 staticfn void
 do_class_genocide(void)
 {
     int i, j, immunecnt, gonecnt, goodcnt, class, feel_dead = 0;
-    int ll_done = 0;
+    int npool, pick1, pick2, idx;
     char buf[BUFSZ], promptbuf[QBUFSZ];
+    /* feedback lists; a class can hold dozens of species */
+    char immune_buf[BUFSZ * 4], gone_buf[BUFSZ * 4], dark_buf[BUFSZ],
+         killed_buf[BUFSZ];
     boolean gameover = FALSE; /* true iff killed self */
+    boolean first_geno;       /* no genocide before this one */
 
     buf[0] = '\0'; /* for EDIT_GETLIN */
     for (j = 0; ; j++) {
@@ -3635,41 +3723,67 @@ do_class_genocide(void)
             continue;
         }
 
-        for (i = LOW_PM; i < NUMMONS; i++) {
+        /* a blessed scroll takes two species of the class, picked
+           evenly from those open to genocide, plus the hero's own role
+           or race when the class holds them */
+        first_geno = !num_genocides();
+        npool = 0;
+        for (i = LOW_PM; i < NUMMONS; i++)
+            if (mons[i].mlet == class && geno_class_pool(i))
+                npool++;
+        pick1 = pick2 = -1; /* a pool of two or fewer goes whole */
+        if (npool > 2) {
+            pick1 = rn2(npool);
+            pick2 = rn2(npool - 1);
+            if (pick2 >= pick1)
+                pick2++;
+        }
+
+        /* log the doomed species before the first of them goes; the
+           hero can die partway through the wiping */
+        killed_buf[0] = '\0';
+        for (idx = 0, i = LOW_PM; i < NUMMONS; i++) {
+            boolean pool;
+
+            if (mons[i].mlet != class)
+                continue;
+            pool = geno_class_pool(i);
+            if (Your_Own_Role(i) || Your_Own_Race(i)
+                || (pool && (npool <= 2 || idx == pick1 || idx == pick2)))
+                geno_list_add(killed_buf, sizeof killed_buf, " and ",
+                              makeplural(mons[i].pmnames[NEUTRAL]));
+            if (pool)
+                idx++;
+        }
+        if (*killed_buf) {
+            if (first_geno)
+                livelog_printf(LL_CONDUCT | LL_GENOCIDE,
+                               "performed %s first genocide (%s)",
+                               uhis(), killed_buf);
+            else
+                livelog_printf(LL_GENOCIDE, "genocided %s", killed_buf);
+        }
+
+        immune_buf[0] = gone_buf[0] = dark_buf[0] = '\0';
+        for (idx = 0, i = LOW_PM; i < NUMMONS; i++) {
             if (mons[i].mlet == class) {
                 char nam[BUFSZ];
+                boolean pool, take;
 
                 Strcpy(nam, makeplural(mons[i].pmnames[NEUTRAL]));
                 /* Although "genus" is Latin for race, the hero benefits
                  * from both race and role; thus genocide affects either.
+                 * The hero's own forms always go, and this test must be
+                 * first since player monsters might have G_GENOD or
+                 * !G_GENO.
                  */
-                if (!u.uevent.uvecna && i == PM_ALHOON) {
-                    /* rides class 'h' but answers to Vecna */
-                    if (!gameover)
-                        pline("A dark magic prevents you from genociding"
-                              " %s.", nam);
-                    continue;
-                } else if (!u.uevent.utalgath && i == PM_BEHOLDER) {
-                    if (!gameover)
-                        pline("A dark magic prevents you from genociding"
-                              " %s.", nam);
-                    continue;
-                } else if (Your_Own_Role(i) || Your_Own_Race(i)
-                    || ((mons[i].geno & G_GENO)
-                        && !(svm.mvitals[i].mvflags & G_GENOD))) {
-                    /* This check must be first since player monsters might
-                     * have G_GENOD or !G_GENO.
-                     */
-                    if (!ll_done++) {
-                        if (!num_genocides())
-                            livelog_printf(LL_CONDUCT | LL_GENOCIDE,
-                                     "performed %s first genocide (class %c)",
-                                           uhis(), def_monsyms[class].sym);
-                        else
-                            livelog_printf(LL_GENOCIDE, "genocided class %c",
-                                           def_monsyms[class].sym);
-                    }
-
+                take = (Your_Own_Role(i) || Your_Own_Race(i));
+                pool = geno_class_pool(i);
+                if (pool) {
+                    take = (npool <= 2 || idx == pick1 || idx == pick2);
+                    idx++;
+                }
+                if (take) {
                     svm.mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
                     kill_genocided_monsters();
                     update_inventory(); /* eggs & tins */
@@ -3703,10 +3817,14 @@ do_class_genocide(void)
                             gameover = TRUE;
                         }
                     }
+                } else if (pool) {
+                    ; /* passed over this time */
+                } else if (geno_dark_protected(i)) {
+                    /* alhoons ride class 'h' but answer to Vecna */
+                    geno_list_add(dark_buf, sizeof dark_buf, ", ", nam);
                 } else if (svm.mvitals[i].mvflags & G_GENOD) {
-                    if (!gameover)
-                        pline("%s are already nonexistent.", upstart(nam));
-                } else if (!gameover) {
+                    geno_list_add(gone_buf, sizeof gone_buf, ", ", nam);
+                } else {
                     /* suppress feedback about quest beings except
                        for those applicable to our own role */
                     if ((mons[i].msound != MS_LEADER
@@ -3722,6 +3840,7 @@ do_class_genocide(void)
                         && ((i != PM_TEMPLAR && i != PM_CHAMPION
                              && i != PM_AGENT) || Role_if(PM_INFIDEL))) {
                         boolean named, uniq;
+                        char mnam[BUFSZ];
 
                         named = type_is_pname(&mons[i]) ? TRUE : FALSE;
                         uniq = (mons[i].geno & G_UNIQ) ? TRUE : FALSE;
@@ -3729,12 +3848,26 @@ do_class_genocide(void)
                         if (i == PM_HIGH_PRIEST)
                             uniq = FALSE;
 
-                        You("aren't permitted to genocide %s%s.",
-                            (uniq && !named) ? "the " : "",
-                            (uniq || named) ? mons[i].pmnames[NEUTRAL] : nam);
+                        Sprintf(mnam, "%s%s",
+                                (uniq && !named) ? "the " : "",
+                                (uniq || named) ? mons[i].pmnames[NEUTRAL]
+                                                : nam);
+                        geno_list_add(immune_buf, sizeof immune_buf, ", ",
+                                      mnam);
                     }
                 }
             }
+        }
+        /* tell of the species that were refused, grouped by reason */
+        if (!gameover) {
+            if (*immune_buf)
+                geno_list_show("You aren't permitted to genocide",
+                               immune_buf);
+            if (*dark_buf)
+                geno_list_show("A dark magic prevents you from genociding",
+                               dark_buf);
+            if (*gone_buf)
+                geno_list_show("Already nonexistent:", gone_buf);
         }
         if (gameover || u.uhp == -1) {
             svk.killer.format = KILLED_BY_AN;

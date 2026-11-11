@@ -59,8 +59,10 @@ ballfall(void)
             if (is_glass(uarmh) && break_glass_obj(uarmh)) {
                 ; /* the helm shattered; it protects nothing */
             } else if (hard_helmet(uarmh)) {
-                pline("Fortunately, you are wearing a hard helmet.");
-                dmg = 3;
+                /* the ball is heavy; a hard helm only softens it */
+                Your("helmet only slightly protects you.");
+                if (dmg > 2)
+                    dmg -= 2;
             } else if (flags.verbose)
                 pline("%s does not protect you.", Yname2(uarmh));
         }

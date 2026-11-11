@@ -443,24 +443,32 @@ dig(void)
             /* we haven't made any progress toward a pit yet */
             svc.context.digging.effort = 0;
             return 0;
-        } else if (ttmp && dcresult == DIGCHECK_PASSED_DESTROY_TRAP) {
+        } else if (ttmp && ttmp->ttyp != ROCKTRAP) {
+            /* any other trap is dug out before a pit can be started,
+               on any level; a falling rock trap's works are overhead,
+               so digging down under one just makes the pit */
             const char *ttmpname = trapname(ttmp->ttyp, FALSE);
+            boolean magical = is_magical_trap(ttmp->ttyp);
 
             if (ispick)
                 You("destroy %s with %s.",
                     ttmp->tseen ? the(ttmpname) : an(ttmpname),
                     yobjnam(uwep, (const char *) 0));
-            if (ttmp->ammo) {
+            /* the trap goes before any blast: an explosion can unseat
+               the hero onto the trap and use it up; a crafted magical
+               trap carries its component as ammo and blows up like any
+               other */
+            if (ttmp->ammo)
                 deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
-            } else if (is_magical_trap(ttmp->ttyp)) {
+            else
+                deltrap(ttmp);
+            newsym(dpx, dpy);
+            if (magical) {
                 pline("Boom!");
                 explode(dpx, dpy, 0, 20 + d(3, 6),
                         TRAP_EXPLODE, EXPL_MAGICAL);
                 /* same distance as exploding land mine */
                 wake_nearto(dpx, dpy, 400);
-                deltrap(ttmp);
-            } else {
-                deltrap(ttmp);
             }
             newsym(dpx, dpy);
             /* we haven't made any progress toward a pit yet */
@@ -1066,9 +1074,13 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
         pline_The("%s %shere is too hard to dig in.", surface(dig_x, dig_y),
                   (dig_x != u.ux || dig_y != u.uy) ? "t" : "");
     } else if (ttmp && is_magical_trap(ttmp->ttyp)) {
-        explode(dig_x, dig_y, 0, 20 + d(3, 6), TRAP_EXPLODE, EXPL_MAGICAL);
-        /* crafted magical traps carry their component as ammo */
+        /* crafted magical traps carry their component as ammo; the
+           trap goes before the blast, which can unseat the hero onto
+           it and use it up */
         deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+        ttmp = (struct trap *) 0;
+        newsym(dig_x, dig_y);
+        explode(dig_x, dig_y, 0, 20 + d(3, 6), TRAP_EXPLODE, EXPL_MAGICAL);
         newsym(dig_x, dig_y);
     } else if (is_lava(dig_x, dig_y) || is_damp_terrain(dig_x, dig_y)) {
         pline_The("%s sloshes furiously for a moment, then subsides.",
@@ -1372,6 +1384,28 @@ use_pick_axe2(struct obj *obj)
             } else {
                 You("strike %s with %s, but nothing else happens.",
                     trap->tseen ? the(trapnm) : an(trapnm),
+                    yobjnam(obj, (const char *) 0));
+            }
+        } else if (Flying && has_ceiling(&u.uz)
+                   && !IS_AIR(levl[u.ux][u.uy].typ)) {
+            /* a flyer can reach a real ceiling, with the same result
+               as zapping a wand of digging at it */
+            if (ispick) {
+                struct obj *otmp;
+                int dmg;
+
+                You("loosen a rock from the %s.", ceiling(u.ux, u.uy));
+                pline("It falls on your %s!", body_part(HEAD));
+                dmg = rnd(hard_helmet(uarmh) ? 2 : 6);
+                losehp(Maybe_Half_Phys(dmg), "falling rock", KILLED_BY_AN);
+                otmp = mksobj_at(ROCK, u.ux, u.uy, FALSE, FALSE);
+                if (otmp) {
+                    (void) xname(otmp); /* set dknown, maybe bknown */
+                    stackobj(otmp);
+                }
+                newsym(u.ux, u.uy);
+            } else {
+                You("strike the %s with %s.", ceiling(u.ux, u.uy),
                     yobjnam(obj, (const char *) 0));
             }
         } else {

@@ -2519,6 +2519,9 @@ trapeffect_pit(
         boolean adj_pit = adj_nonconjoined_pit(trap);
         boolean already_known = trap->tseen ? TRUE : FALSE;
         boolean deliberate = FALSE;
+        /* a plain pit in a graveyard is an open grave */
+        boolean is_grave = (ttype != SPIKED_PIT
+                            && getroomtype(trap->tx, trap->ty) == MORGUE);
         int steed_article = ARTICLE_THE;
 
         /* suppress article in various steed messages when using its
@@ -2560,8 +2563,9 @@ trapeffect_pit(
                                      (SUPPRESS_SADDLE | SUPPRESS_BARDING),
                                      FALSE));
             } else if (iflags.menu_requested && already_known) {
-                You("carefully %s into the pit.",
-                    u_locomotion("lower yourself"));
+                You("carefully %s into the %s.",
+                    u_locomotion("lower yourself"),
+                    is_grave ? "open grave" : "pit");
                 deliberate = TRUE;
             } else if (conj_pit) {
                 You("move into an adjacent pit.");
@@ -2572,8 +2576,14 @@ trapeffect_pit(
                 Strcpy(verbbuf,
                        !plunged ? "fall" : (Flying ? "dive" : "plunge"));
             }
-            if (*verbbuf)
-                You("%s into %s pit!", verbbuf, a_your[trap->madeby_u]);
+            if (*verbbuf) {
+                if (is_grave)
+                    You("%s into %s open grave!", verbbuf,
+                        trap->madeby_u ? "your" : "an");
+                else
+                    You("%s into %s pit!", verbbuf,
+                        a_your[trap->madeby_u]);
+            }
         }
         /* wumpus reference */
         if (Role_if(PM_RANGER) && !trap->madeby_u && !trap->once
@@ -2582,6 +2592,13 @@ trapeffect_pit(
             trap->once = 1;
         } else if (u.umonnum == PM_PIT_VIPER || u.umonnum == PM_PIT_FIEND) {
             pline("How pitiful.  Isn't that the pits?");
+        } else if (is_grave) {
+            /* the hero's own undead race counts, not just a form */
+            if (maybe_polyd(is_undead(gy.youmonst.data),
+                            Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)))
+                pline("It seems quite cozy down here.");
+            else
+                pline("It's a little early for a dirt nap, isn't it?");
         }
         if (relevant_spikes && wearing_iron_shoes(mtmp)) {
             pline("%s protects you from the sharp iron spikes.", Yname2(uarmf));

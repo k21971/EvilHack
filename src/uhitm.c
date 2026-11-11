@@ -1570,6 +1570,10 @@ hmon_hitmon_weapon_melee(
         /* exercise skill even for minimal damage hits */
         if (hmd->jousting)
             hmd->train_weapon_skill = TRUE;
+        /* an unsolid target gives the lance nothing to drive against:
+           an ordinary hit, with no bonus and no knockback */
+        if (unsolid(mon->data))
+            hmd->jousting = 0;
     }
     if (hmd->thrown == HMON_THROWN
         && (is_ammo(obj) || is_missile(obj))) {
@@ -2306,7 +2310,8 @@ hmon_hitmon_jousting(
     struct monst *mon, /* target */
     struct obj *obj) /* lance; obj is not NULL */
 {
-    hmd->dmg += d(2, (obj == uwep) ? 10 : 2); /* [was in dmgval()] */
+    /* the bonus grows with the jouster's experience */
+    hmd->dmg += d(2, (obj == uwep) ? 5 + (u.ulevel / 3) : 2);
     You("joust %s%s", mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
     /* if this hit just broke the never-hit-with-wielded-weapon conduct
        (handled by caller...), give a livelog message for that now */
@@ -8741,8 +8746,10 @@ mhitm_knockback(
             return FALSE;
     }
 
-    /* if hero is stuck to a cursed saddle, knock the steed back */
-    if (u_def && u.usteed) {
+    /* if hero is stuck to a cursed saddle, knock the steed back; a
+       phasing rider gives the blow nothing to push and stays seated
+       (hurtle() tells of the wobble) */
+    if (u_def && u.usteed && !Passes_walls) {
         if ((otmp = which_armor(u.usteed, W_SADDLE)) != 0 && otmp->cursed) {
             mdef = u.usteed;
             was_u = TRUE;
@@ -8787,6 +8794,7 @@ mhitm_knockback(
 
     /* subtly vary the message text if monster won't actually move */
     knockedhow = dismount ? "out of your saddle"
+                 : (u_def && Passes_walls) ? "back"
                  : will_hurtle(mdef, defx + dx, defy + dy) ? "backward"
                    : "back";
 
@@ -9321,7 +9329,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                    and may even be attacking a different monster now) */
                 if (byhand && uwep && u.ustuck
                     && !(sticks(u.ustuck->data) || u.uswallow))
-                    uunstick();
+                    uunstick(TRUE);
                 continue; /* not 'break'; bypass passive counter-attack */
             }
             /* automatic if prev two attacks succeed, or if
@@ -9388,7 +9396,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                    holding something else; yields feedback
                    "<u.ustuck> is no longer in your clutches" */
                 if (u.ustuck && u.ustuck != mon)
-                    uunstick();
+                    uunstick(TRUE);
                 You("grab %s!", mon_nam(mon));
                 set_ustuck(mon);
                 if (mon->mundetected) {
