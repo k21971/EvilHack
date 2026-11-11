@@ -353,13 +353,22 @@ tracker; sNNN = port session.
   (by its rust attack) and so does its xorn (as a metal eater) ->
   both go through and the bars stay standing, monster or hero
   form; the water bodies pass undiggable bars too (s321,
-  BUG-2995..2997, commit pending; master 6529613d9 for the monster
+  BUG-2995..2997, e18f68c13; master 6529613d9 for the monster
   water bodies, rulings for the rest). A rock mole's bar eating is
   kept (see section 3).
 - [x] Passive counter-effects: vanilla's "only when a weapon, glove
   or boot object was passed in" test on the fire, acid, rust and
   corrosion arms -> master's: a bare-handed hit reaches the worn
-  gloves (s321, BUG-2992, commit pending; master 501e23bec).
+  gloves (s321, BUG-2992, e18f68c13; master 501e23bec).
+- [x] Ray to-hit: vanilla's `3 - chance < AC + bonus` roll, with
+  no bonus at all for a wand -> master's `-chance` roll, so a ray
+  lands up to 15 points more often against AC 2 or better, the
+  ones aimed at the hero included (AC 0: 80% -> 95%, AC -20: 30%
+  -> 43%; no change at AC 3 or worse); the hero's ray spells add
+  their level up to 15; and by ruling the hero's own wand rays and
+  horn blasts get that level term, the Dex adjustment and +3 with
+  empty hands, the arm master wrote but never reached for a wand
+  (s322, BUG-3000..3002, commit pending; master cd5c574bb).
 
 ### 2.4 Text and logs
 
@@ -408,7 +417,7 @@ tracker; sNNN = port session.
 - [x] "<Golem> falls to pieces!" from the hero's rust or rot hit,
   printed even for a golem the hero cannot see ("It falls to
   pieces!") -> shown only when the hero sees it (s321, BUG-2999,
-  commit pending; master ba46f54c8).
+  e18f68c13; master ba46f54c8).
 
 ### 2.5 Levels and content
 

@@ -17,14 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-11, session 321: the water
-  elemental / sea dragon MED row closed and three LOW rows minted,
-  after the same day's audit of the ten 2026-11-10 commits, which
-  minted eleven rows;
+- Phase 2 status (refreshed 2026-11-11, session 322: the ray
+  to-hit MED row closed, one MED and one LOW row minted from the
+  reviewer's reading, after session 321's water elemental / sea
+  dragon slice and the same day's audit of the ten 2026-11-10
+  commits, which minted eleven rows;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 64 = 0 HIGH + 2 MED + 3 SWEEP + 4 untagged + 55 LOW):
-  691 rows closed, 64 open
+  prefix; 65 = 0 HIGH + 2 MED + 3 SWEEP + 4 untagged + 56 LOW):
+  692 rows closed, 65 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -35,9 +36,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
   - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4) and ray to-hit (needs a ruling).
+    stays with Phase 4) and the magic beam trap's launch point on
+    a flipped level (minted by session 322; six Gehennom variants
+    place the trap by name and may flip).
+    Session 322 closed the ray to-hit row
+    (BUG-3000..3002, commit pending):
+    every ray rolls master's `-chance`, so it lands up to 15
+    points more often against AC 2 or better, the ones aimed at
+    the hero included; the hero's ray spells add their level up to
+    15; and the hero's own wand rays and horn blasts get the wand
+    bonus master wrote in 2019 but no wand ever reached (+3 with
+    empty hands, Dex, level). Minted: the beam trap row above and
+    a vanilla fireball that still explodes after vanishing off the
+    Plane of Air.
     Session 321 closed the water elemental / sea dragon row
-    (BUG-2989..2999, commit pending): their bites and claws rust
+    (BUG-2989..2999, e18f68c13): their bites and claws rust
     armor, monster or hero form, and the hero's keep their damage;
     hitting one splashes; a bare-handed hit reaches the gloves
     again; one swamp eel in fifty brings a sea dragon; sea dragons
@@ -35089,7 +35102,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       out."); the branch has no such arm, so the ordinary floor loop
       offers the container whole. Read by the reviewer, not run.
       Random safes make it more likely to be met.
-- [ ] MED, needs a ruling: ray to-hit keeps vanilla's formula (minted
+- [x] MED, needs a ruling: ray to-hit keeps vanilla's formula (minted
       2026-11-11 by the audit of the 2026-11-10 commits; master
       cd5c574bb). Master's spell_hit_bonus() ends `hit_bon +=
       (u.ulevel < 15) ? u.ulevel : 15` and its zap_hit() returns
@@ -35098,6 +35111,40 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       aimed at the hero included (the branch is the easier game
       there). NUMERIC_SWEEP item 16 recorded only the Skilled / Expert
       values and the wand arm. Read in both trees, not run.
+      CLOSED 2026-11-11, session 322
+      (BUG-3000..3002, commit pending).
+      RULED, both as recommended. (1) Both master terms exactly:
+      zap_hit() rolls `-chance < AC + bonus` (BUG-3000) and
+      spell_hit_bonus() adds the hero's level up to 15 (BUG-3001).
+      Rays at the hero, exact odds: AC 0 80% -> 95%, AC -10 52.5% ->
+      67.5%, AC -20 30% -> 42.75%, AC -30 20% -> 28.5%; nothing
+      changes at AC 3 or worse. A hero's ray spell at XL 14 Expert
+      against AC -20: 56.8% -> 95%. (2) Master's wand arm, which no
+      wand has reached since 2019 because a wand passes spell type 0,
+      goes live (BUG-3002): zap_hit() asks for the bonus when `type ||
+      is_wand`, so the hero's own wand rays and fire / frost horn
+      blasts get +3 with no wielded weapon, the Dex adjustment and
+      the level term (XL 5 bare-handed against AC -10: 67.5% ->
+      93.5%). Nothing else reaches the arm: beam traps fire monster
+      ray types on the branch, and monster rays, the hero's dragon
+      breath and any ray hitting the hero roll with no bonus. The
+      hero's own bounced ray keeps its bonus against the steed, as
+      bounced spells do on master. The rest of cd5c574bb (dothrow.c,
+      mhitu.c, weapon.c) was already on the branch. Reviewer PASS, no
+      HIGH or MED; its two finds outside the diff are the beam trap
+      launch row (MED) and the Plane of Air fireball row (LOW) below.
+      Battery (one tester, human Wizard, Dex 12, 5 legs PASS, 0 FAIL,
+      paniclog absent): 2000 gdb calls of the roll per AC gave 1993 /
+      1907 / 1338 / 866 hits at AC 10 / 0 / -10 / -20 (expected 1990 /
+      1900 / 1350 / 855; vanilla's roll gives 1600 / 1050 / 600 at
+      the last three); spell bonus 1 at XL 1 Basic, 20 at XL 14
+      Expert, 21 at XL 20 Expert (the cap), 11 Unskilled, 19 Skilled,
+      and 21 read live on a magic missile cast; wand bonus at XL 20
+      15 wielding a staff and 18 bare-handed, both read live on a
+      wand of magic missile, 18 on a frost horn blast; bonus 0 for
+      the hero's own ray bounced back onto the hero, a monster's wand
+      at a monster and at the hero, red dragon breath and a beam
+      trap.
 - [x] MED: water elemental and sea dragon residue (minted 2026-11-11,
       audit; master 75bea3916 + c0efa08e3, of which session 317 ported
       the water ray only, and 6529613d9). (1) A landed melee hit from
@@ -35114,8 +35161,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       with iron-bar room walls ported, and master says "through" for
       any unsolid monster where the branch tests passes_walls() only.
       Read in both trees, not run.
-      CLOSED 2026-11-11, session 321 (BUG-2989..2999, commit
-      pending). (1) Rust on hit (BUG-2989 / 2990): the three water
+      CLOSED 2026-11-11, session 321 (BUG-2989..2999,
+      e18f68c13). (1) Rust on hit (BUG-2989 / 2990): the three water
       bodies' bites and claws rust a piece of the hero's armor
       unless the attacker is cancelled; an iron golem hero rusts
       back to its own form; the damage still lands. RULED (as
@@ -35185,6 +35232,33 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ansimpleoname() in place of a distance-based xname() in three
       mon.c item lines. The two "falls to pieces!" gates landed with
       BUG-2999; the rest are unread against the branch.
+- [ ] MED: a flipped level leaves a magic beam trap's launch point
+      behind (minted 2026-11-11, session 322, reviewer; no master
+      shape - 3.6 does not flip levels). maketrap() picks the beam's
+      launch wall when the trap is made; flip_level() then moves the
+      trap but flips `launch` only for ROLLING_BOULDER_TRAP. On the
+      flipped level the stale square is either not a wall, so the
+      trap clicks and deletes itself, or some other wall, so the beam
+      comes from the wrong place and can miss the trap square.
+      Reached by des.trap("magic beam") in hella-2, hella-3, hellb-3,
+      hellc-1, hellc-2 and hellc-3 (all free to flip on both axes, so
+      three games in four; the sanctum is noflip), and on any other
+      flipped special level by sp_lev.c's rndtrap() or a filled room
+      from depth 12 on (ordinary random levels are not flipped -
+      load_special() is the only flip in play, des.finalize_level()
+      being test-only - so the themerms.lua room is safe). Fix
+      shape: flip `launch` for MAGIC_BEAM_TRAP_SET too,
+      and `launch` only - `launch2` shares the union with
+      `launch_otyp`. Read in sp_lev.c and trap.c, not run.
+- [ ] LOW: a fireball that leaves the Plane of Air still explodes
+      (minted 2026-11-11, session 322, reviewer; vanilla 5.0 bug,
+      upstream candidate). dobuzz() prints "The fireball vanishes into
+      the aether!" and sets `type = ZT_WAND(ZT_FIRE)` to skip the
+      pending explosion, but since vanilla 5212e4b3d the tail tests
+      the set-once `fireball` flag, so explode() runs anyway at the
+      last square. Master's tail tests `type == ZT_SPELL(ZT_FIRE)` and
+      skips it. An Unskilled or Basic fireball cast (the ray form) on
+      the Plane of Air. Read in both trees and Official_nh50, not run.
 - [ ] LOW: a phasing hero cannot leave an engulfer (minted 2026-11-11,
       audit; master b45cbbcad in gulpmu()'s tail and 4c52be0cd in
       domove()'s swallowed block, master BUG-1213): "You exit
@@ -38779,7 +38853,8 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-07 | sfctool.c: when create_dstfile() fails it calls close_nhfile() on the NULL it returned (close_nhfile() dereferences it; gcc -O2 -Wnonnull flags the call). Official_nh50 b0c09c878; no BUG id (Phase 6 sfctool residue row) | found; not fixed on the branch; not sent; triage pending |
 | 2026-11-09 | nhl_gamestate() copies `u` to gg.gmst_ubak only after its store loop has setnotworn()ed and freeinv()ed the kit, and the restore memcpy()s that stripped copy over the re-seated kit: after the tutorial every worn item shows worn but gives nothing (a Wizard's cloak of magic resistance: ANTIMAGIC ext 0, no MR in ^X) until taken off and put back on; carried-artifact grants, u.uhave and luck the same way. Fix: copy `u` before the loop (keep the re-seat before the restore memcpy). The init_uhunger() after the memcpy is redundant in vanilla (removed on the branch for a non-900 start; leave it out of the patch). Official_nh50 b0c09c878; BUG-2931, src/nhlua.c, branch commit 6d67bd6c9 | fixed on the branch; not sent; triage pending |
 | 2026-11-10 | #loot with autounlock set to untrap but not apply-key: do_loot_cont() calls pick_lock() with a Null tool; once "Check <box> for a trap?" is declined (or tknown already says no trap) the arm `else if (autounlock && (flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0)` is skipped and the generic arm asks "There is <a box> here; unlock it?" for the zeroed dummy tool; yes starts a 50-turn picklock() occupation with chance 0 that can only be given up. Fix: make the arm `else if (autounlock)`, so a Null tool answers 'q'. The door branch is not affected (doopen_indir() only calls with a real key). Read in Official_nh50 b0c09c878 src/lock.c (same three-arm chain), not reproduced there yet; BUG-2988, src/lock.c, branch commit da9110cab | fixed on the branch; not sent; triage pending |
-| 2026-11-11 | A rock mole walks between undiggable iron bars: passes_bars() admits a metallivore so that it can eat its way through, but mfndpos()'s gate that keeps bar-eaters off W_NONDIGGABLE bars lists only dmgtype AD_RUST / AD_CORR, so a rock mole (MZ_SMALL, not verysmall) is let onto the square, m_move() declines to eat the undiggable bars and prints "passes between the iron bars". Fix: add `|| (metallivorous(mdat) && !passes_walls(mdat))` to the gate's attack test; the passes_walls() term keeps a xorn, which phases through undiggable bars today, from being turned away (the branch does this through its own eats_bars() helper, which also carries EvilHack rulings - a vanilla patch should not copy it). Read in Official_nh50 b0c09c878 src/mon.c, src/mondata.c and src/monmove.c (same three pieces), not reproduced there; on the branch a rock mole stayed outside undiggable bars for 31 turns after the fix, the before case was not run; BUG-2998, src/mon.c, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | A rock mole walks between undiggable iron bars: passes_bars() admits a metallivore so that it can eat its way through, but mfndpos()'s gate that keeps bar-eaters off W_NONDIGGABLE bars lists only dmgtype AD_RUST / AD_CORR, so a rock mole (MZ_SMALL, not verysmall) is let onto the square, m_move() declines to eat the undiggable bars and prints "passes between the iron bars". Fix: add `|| (metallivorous(mdat) && !passes_walls(mdat))` to the gate's attack test; the passes_walls() term keeps a xorn, which phases through undiggable bars today, from being turned away (the branch does this through its own eats_bars() helper, which also carries EvilHack rulings - a vanilla patch should not copy it). Read in Official_nh50 b0c09c878 src/mon.c, src/mondata.c and src/monmove.c (same three pieces), not reproduced there; on the branch a rock mole stayed outside undiggable bars for 31 turns after the fix, the before case was not run; BUG-2998, src/mon.c, branch commit e18f68c13 | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | A fireball that reaches the edge of the Plane of Air prints "The fireball vanishes into the aether!" and then explodes anyway: dobuzz() sets `type = ZT_WAND(ZT_FIRE); /* skip pending fireball */` before the break, but since 5212e4b3d (2024, the reflected poison gas fix) the tail tests the set-once `fireball` boolean where it used to test `type == ZT_SPELL(ZT_FIRE)`, so the rewrite skips nothing and explode() runs at the last square with the rewritten type. Only the ray form does this (an Unskilled or Basic cast). Fix: clear `fireball` beside the type rewrite, or have the tail test the type again. Read in Official_nh50 b0c09c878 src/zap.c (same lines as the branch), not reproduced; 3.6 and EvilHack master skip the explosion; no BUG id yet (Phase 2 LOW row, session 322) | found; not fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -39183,6 +39258,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-10 | Interface and records slice (Phase 2 session 319, AskUserQuestion x9: slice pick, seven rulings, battery launch; eight as recommended; row added 2026-11-11 by the audit). (1) DUMPLOG SKILLS: the dumplog skill list shows the same rows as #enhance. (2) NOT FULLY IDENTIFIED: master's bfefc9a34 rule (anything damageable but scrolls, spellbooks and potions needs rknown). (3) DUPLICATE UNIQUES: master's two messages plus a recount, so a u.uhave flag clears only when the last copy leaves. (4) NO-CORPSE RACE: no scoreboard corpse at all (a crowned Infidel is a demon; master's caller ignored its own refusal); a dug grave then reads "The grave is unoccupied.  Strange...". (5) TIME FORMAT: uniform units, 03d:04h:10m:22s. (6) DIGESTED HERO does not rise (u.ugrave_arise = -3). (7) DIGESTION TEXT: belch only - the one pick against the recommendation (master's no extra lines): the maintainer kept the belch and dropped "You die...". |
 | 2026-11-10 | Level generation slice (Phase 2 session 320, AskUserQuestion x4: slice pick, two rulings, battery launch; all as recommended; row added 2026-11-11 by the audit). (1) IRON SAFES: the whole master subsystem - generation at master's three sites, stethoscope cracking, wording, the #loot offer. (2) IRON-BAR WALLS: master's whole-map scan, 5.0 themed rooms included (a Mausoleum cell can get a barred wall). |
 | 2026-11-11 | Water elemental / sea dragon slice (Phase 2 session 321, AskUserQuestion x6 with ten questions - one the slice pick, one a battery launch ask; nine as recommended or confirmed, one a hybrid). (1) HERO RUST HIT: a hero in water elemental or sea dragon form keeps the bite's or claw's damage and rusts the target's armor (rejected: master's rust-only, zero damage). (2) SWAMP DRAGON: 1 in 50 per eel roll, placed beside the eel with MM_ADJACENTOK (rejected: in place of the eel; master's dead same-square line; none). (3) HERO AT BARS: a hero in those forms flows through and the bars stay (rejected: master's chewing). (4) METAL EATERS, free text "merge of master and branch: allow rock moles to eat through iron bars, xorn's phase through the bars; bars remain", confirmed by a second question as: rock moles eat and destroy bars (5.0 kept), a xorn phases through and the bars remain (master), undiggable bars stop a rock mole (rejected: bars always remain; the two pure options). (5) CAGE BARS: the three water bodies flow through undiggable bars too, monster and hero (rejected: monsters as on 0.9.3; neither passes). (6) XORN MEAL: a xorn-form hero standing on bars may still eat them with the eat command, 5.0's prompt (rejected: xorns never eat bars). (7) Battery: launch both testers. Session calls, plan-approved: the hero's Underwater obstacle arm exempts the three forms at bars (under ruling 5); c0efa08e3's sea dragon wantpool terms and 501e23bec's four `&& weapon` removals folded as master parity; no rust between monsters, gray oozes and black puddings still stopped by undiggable bars, and the cornered-monster attack reaching a pool-bound sea dragon recorded; the reviewer's "falls to pieces!" visibility gate folded. BUG-2989..2999. |
+| 2026-11-11 | Ray to-hit slice (Phase 2 session 322, AskUserQuestion x4 with four questions - one the slice pick, one a battery launch ask; all as recommended). (1) FORMULA: both master cd5c574bb terms exactly - zap_hit() rolls `-chance < AC + bonus` for every ray, the ones aimed at the hero included (AC 0 80% -> 95%, AC -20 30% -> 43%), and spell_hit_bonus() adds the hero's level up to 15 to the hero's ray spells (rejected: the roll shift only; the level term only; keep vanilla). (2) WAND ARM: master's wand arm, unreachable since 2019 because a wand passes spell type 0, goes live - the hero's own wand rays and fire / frost horn blasts get +3 with no wielded weapon, the Dex adjustment and the level term (XL 5 bare-handed vs AC -10: 67% -> 93%); a buff over 0.9.3's live feel, taken as master's intent (rejected: leave it dead and record; delete the dead arm). RECORDED, not asked: monster rays, beam traps (monster ray types on the branch), the hero's dragon breath and a ray hitting the hero get no bonus; the steed arm keeps the caster's bonus; master's off-by-one that sent the magic missile spell through the wand arm stays fixed (BUG-1714). BUG-3000..3002. |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
