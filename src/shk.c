@@ -55,8 +55,8 @@ staticfn void kops_gone(boolean);
 #define ANGRY(mon) (!NOTANGRY(mon))
 #define IS_SHOP(x) (svr.rooms[x].rtype >= SHOPBASE)
 
-/* a shopkeeper whose race hates the hero's, or any shopkeeper facing
-   an Infidel, stays in business but is rude about it */
+/* a shopkeeper of a race the hero's race hates, or any shopkeeper
+   facing an Infidel, stays in business but is rude about it */
 #define hostile_shk(mon) \
     ((erac_race_hostile(mon) || u.ualign.type == A_NONE) \
      && !is_izchak(mon, FALSE))
