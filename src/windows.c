@@ -1652,9 +1652,12 @@ html_print_glyph(
     }
     if (x == u.ux && y == u.uy)
         fprintf(dumphtml_file, SPAN_E);
-    if (desc_found)
-       fprintf(dumphtml_file,
-               "<span class=\"tooltiptext\">%s</span></div>", firstmatch);
+    if (desc_found) {
+        /* description can include player-assigned names */
+        fprintf(dumphtml_file, "<span class=\"tooltiptext\">");
+        html_dump_str(dumphtml_file, firstmatch);
+        fprintf(dumphtml_file, "</span></div>");
+    }
     if (x == COLNO-1) /* end row - 2 trailing spaces and newline: */
         fprintf(dumphtml_file, "  </span>\n");
 }
@@ -2028,11 +2031,15 @@ dump_headers(void)
     fprintf(dumphtml_file, "<!DOCTYPE html>\n");
     fprintf(dumphtml_file, "<html lang=\"en\">\n<head>\n");
     fprintf(dumphtml_file, "<meta charset=\"utf-8\">\n");
-    fprintf(dumphtml_file, "<title>NetHack %s (%s)</title>\n",
-            version_string(vers, sizeof vers), svp.plname);
+    /* the player name goes through the same escaping as the body text */
+    fprintf(dumphtml_file, "<title>NetHack %s (",
+            version_string(vers, sizeof vers));
+    html_dump_str(dumphtml_file, svp.plname);
+    fprintf(dumphtml_file, ")</title>\n");
     fprintf(dumphtml_file,
-            "<meta name=\"generator\" content=\"NetHack %s (%s)\">\n",
-            vers, svp.plname);
+            "<meta name=\"generator\" content=\"NetHack %s (", vers);
+    html_dump_str(dumphtml_file, svp.plname);
+    fprintf(dumphtml_file, ")\">\n");
     fprintf(dumphtml_file, "<meta name=\"date\" content=\"%s\">\n", iso8601);
     fprintf(dumphtml_file,
             "<meta name=\"viewport\""
