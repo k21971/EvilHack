@@ -395,34 +395,43 @@ tracker; sNNN = port session.
   of the class -> two species plus the hero's own role or race.
   Master's limit; by ruling the two are picked at even odds, not by
   master's loop, which favored the end of the class and could never
-  pick some species (s324, BUG-3042, commit pending; master's
+  pick some species (s324, BUG-3042, f4d0860b9; master's
   SporkHack-derived do_class_genocide()).
 - [x] Digging down turned an ordinary trap into a pit with no word,
   and blew up a magical one with no "Boom!" -> master's rule on
   every level: the trap is destroyed first ("You destroy the dart
   trap with your pick-axe."), a falling rock trap excepted
-  (s324, BUG-3033, commit pending; master 5666a8ef3 + 7ba42c5be +
+  (s324, BUG-3033, f4d0860b9; master 5666a8ef3 + 7ba42c5be +
   7f328d740).
 - [x] A hard helmet stopped a scroll of earth's boulder at 2 damage
   and the falling iron ball at 3 -> master's 2 off ("Your helmet
   only slightly protects you."); rocks keep the cap. A helmet was
   ignored under a cursed scroll -> it counts
-  (s324, BUG-3029..3031, commit pending; master eb73649b9 +
+  (s324, BUG-3029..3031, f4d0860b9; master eb73649b9 +
   b9fe36fbc).
 - [x] Joust bonus a flat 2d10 -> master's 2d(5 + level / 3); a
   ghost or vortex could be jousted and knocked back -> an ordinary
-  hit (s324, BUG-3024 / 3025, commit pending; master 6667cac6c +
+  hit (s324, BUG-3024 / 3025, f4d0860b9; master 6667cac6c +
   daf50114f).
 - [x] A magic whistle was identified only when a pet was seen to
   answer -> identified when blown, like the pea whistle, with "This
-  must be a magic whistle." (s324, BUG-3037, commit pending; master
+  must be a magic whistle." (s324, BUG-3037, f4d0860b9; master
   65cd648f1).
 - [x] A magical eye corpse gave 200 turns of hallucination (its stun
   gaze) -> master's Luck shift and nothing else
-  (s324, BUG-3027, commit pending; master ae8bf25d6 + 7f3663163).
+  (s324, BUG-3027, f4d0860b9; master ae8bf25d6 + 7f3663163).
 - [x] Jumping cost a Knight rnd(25) nutrition like everyone else ->
-  master's rnd(10) (s324, BUG-3021, commit pending; master
+  master's rnd(10) (s324, BUG-3021, f4d0860b9; master
   0085e9669).
+- [x] A corpse about to rise as a zombie eaten as five points more
+  rotten, and refused by every pet (upstream acfb7ea97, arrived with
+  catch-up 3) -> EvilHack's own rule, harsher than both trees by
+  ruling: the corpse of a zombie's kill carries the zombie sickness
+  for as long as it has its rising timer, as a real zombie's corpse
+  does; pets refuse it unless they resist sickness; a vampire is told
+  "The blood in this corpse is tainted!"; it does not stack, so the
+  timer cannot be shed that way (an ice box still stops it)
+  (s325, BUG-3050 / 3055, f4ba98734).
 
 ### 2.4 Text and logs
 
@@ -475,22 +484,22 @@ tracker; sNNN = port session.
 - [x] Class genocide's "genocided class <c>" livelog and its one
   refusal line per species -> master's livelog naming the species
   and three grouped lines after the wipes
-  (s324, BUG-3042, commit pending; master 979fac14c + 6e7694b0e).
+  (s324, BUG-3042, f4d0860b9; master 979fac14c + 6e7694b0e).
   5.0's prompt, `?` list and
   "declined to perform class genocide" line KEPT.
 - [x] "<Demon> appears in a cloud of smoke!" -> "cloud of
   brimstone", and master's stench line for a blind hero. By ruling
   5.0's frame stays: one line per summon, keyed on the arriving
   monster, flash of light / vapor / flame for the others
-  (s324, BUG-3040, commit pending; master e197133c0).
+  (s324, BUG-3040, f4d0860b9; master e197133c0).
 - [x] Monster class texts "umber hulk" and "human or elf" -> master's
   "umber hulk or shambling horror" and "human or other humanoid",
-  Guidebook table included (s324, BUG-3047, commit pending).
+  Guidebook table included (s324, BUG-3047, f4d0860b9).
 - [x] "You have turned to stone." as the fourth line of the hero's
   stoning countdown -> master's "You have almost completely turned to
-  stone." (s324, BUG-3043, commit pending; master dacf253d8).
+  stone." (s324, BUG-3043, f4d0860b9; master dacf253d8).
 - [x] "You die from your illness." for food poisoning -> master's
-  "sickness" (s324, BUG-3044, commit pending; master 65ed594dd).
+  "sickness" (s324, BUG-3044, f4d0860b9; master 65ed594dd).
 
 ### 2.5 Levels and content
 
@@ -522,6 +531,10 @@ tracker; sNNN = port session.
   50 (ruled 2026-10-18 as planned item 1.6), with the Double Trouble
   clone's `wizapp[]` disguises -> master's 12, the other half of
   master 04518bab7 (s259, BUG-2569 / 2570, 8b03f5d2c).
+- [x] Monk locate level: the lava formation drawn as water three
+  games in four (upstream acb0988fd, arrived with catch-up 3) ->
+  always lava. The second formation and the random pick KEPT
+  (s325, ruled, f4ba98734).
 
 ## 3. Reversed (5.0 kept after a removal was ruled or proposed)
 

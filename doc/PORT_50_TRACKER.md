@@ -17,15 +17,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-11, session 324: the census's
-  last two LOW rows closed - eleven small behaviors and eight texts,
-  with the two-species genocide rule and about a dozen more master
-  behaviors found beside them - and three LOW rows minted, after
-  sessions 321 to 323 the same day;
+- Phase 2 status (refreshed 2026-11-12, session 325: upstream
+  catch-up 3 merged - a Phase 4 row; no Phase 2 row closed, three
+  LOW rows minted - after session 324 closed the census's last two
+  LOW rows on 2026-11-11;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 57 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 49 LOW):
-  706 rows closed, 57 open
+  prefix; 60 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 52 LOW):
+  706 rows closed, 60 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -37,8 +36,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 325 merged official NetHack 5.0 fd4d169b6 (upstream
+    catch-up 3, BUG-3050..3055, f4ba98734; the Phase 4 row has
+    the detail): the corpse of a zombie's kill now carries the
+    zombie sickness while it is waiting to rise, a vampire will
+    not drink from one, and such a corpse no longer stacks; the
+    Monk locate level has a second lava formation; four upstream
+    bugs the merge brought or exposed are fixed (a mouse click
+    letting the next kick or zap reach across the map, shop
+    stocking tripping the shopkeeper debug line, the save file
+    tool not compiling, the "zombifying" wish). Minted:
+    edibility_prompts()'s own rot, a pet fetching a zombie's
+    kill, a refused vampire breaking conducts.
     Session 324 closed the last two census rows (BUG-3020..3049,
-    commit pending): a blessed scroll of genocide takes two species
+    f4d0860b9): a blessed scroll of genocide takes two species
     of the class at even odds, not the whole class; digging down
     destroys a trap first on every level and magical traps are
     deleted before they explode; a hard helmet only softens a
@@ -35508,7 +35519,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (65cd648f1); wizard-mode teleport into a no-teleport spot
       (c693341e0).
       CLOSED 2026-11-11, session 324 (BUG-3020..3039 and 3049,
-      commit pending). Each cited commit was read whole against
+      f4d0860b9). Each cited commit was read whole against
       master HEAD; ten ported, one refused, and nine more master
       behaviors found beside them.
       (1) #jump (BUG-3020): stunned never, confused fails 1 in 5,
@@ -35616,7 +35627,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       released!" when a psionic wave cast is cancelled at the
       direction prompt (ccb87c9d7; the branch says "magical").
       CLOSED 2026-11-11, session 324
-      (BUG-3040..3048, commit pending).
+      (BUG-3040..3048, f4d0860b9).
       (1) Summons (BUG-3040), RULED brimstone in 5.0's
       frame: a demon arrives "in a cloud of brimstone", a blind
       hero gets "You notice a noxious sulfuric stench in the air!"
@@ -35726,6 +35737,34 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       explorer; master engrave.c). The branch's ceiling() has no
       such arm and says "sky" for any AIR square; whether the
       branch tower has AIR squares is unread.
+- [ ] LOW: edibility_prompts() computes its own rot (minted
+      2026-11-12, session 325, catch-up 3 plan stress test).
+      eat.c edibility_prompts() repeats vanilla's
+      `(moves - age) / 10` with the curse / bless terms, so the
+      food-sense warning leaves out rot_amount()'s erosion term and
+      could disagree with eatcorpse() on an eroded corpse. Compare
+      with master's edibility_prompts() first; call rot_amount() if
+      master does.
+- [ ] LOW: a pet still fetches a zombie's kill (minted 2026-11-12,
+      session 325, catch-up 3 reviewer; record unless a ruling
+      wants a change). dogmove.c's carry test is
+      `!obj->zombie_corpse`, not zombie_infected(): a pet will not
+      eat a corpse that is about to rise (BUG-3050) but picks it
+      up, and it rises from the pet's pack. Master the same for the
+      carry. Left out of BUG-3050 on purpose, with pray.c's Draugr
+      kin test and muse.c.
+- [ ] LOW: a vampire refused a corpse still breaks conducts (minted
+      2026-11-12, session 325, catch-up 3 reviewer and battery).
+      eatcorpse() counts unvegan / unvegetarian (and can livelog
+      "consumed animal blood for the first time") before its
+      "There is no blood left in this corpse!" and "The blood in
+      this corpse has coagulated!" refusals, and doeat() has already
+      run touchfood() (stack split, the shop's bite charge); only
+      uconduct.food is put back. Seen: a Vampire trying a real
+      zombie's corpse went unvegan 0 -> 1 with nothing drunk. Master
+      has the same order. The new "tainted" refusal (BUG-3050) sits
+      in doeat() ahead of all of it; moving the two older ones there
+      would fix this.
 - [ ] LOW: census slice 7 residue (minted 2026-11-11, session 324,
       plan stress test, reviewer and batteries; record unless a
       ruling wants a change). (a) The stun arm of jump() sits before
@@ -37994,6 +38033,68 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       3d81810b0 (BUG-2640 + Tourist text tidy), 276e27571 (BUG-2641 /
       2642, master-shared, frozen-unfixed), 60487b7e3 (BUG-2639, the
       teleport.c half left out of 3d81810b0).
+- [x] UPSTREAM CATCH-UP 3 to official 5.0.1 work-in-progress -
+      MERGED 2026-11-12 (session 325; ruled 2026-11-11 to run on its
+      own; plan
+      /root/.claude/plans/maintenance-evilhack-50-upstream-catchup-3.md).
+      Merge f4ba98734 (parents 5b2708fea + official fd4d169b6, the
+      5.0.1 WIP head of 2026-11-11), merge base b0c09c878. Source was
+      official upstream through the `vanilla` remote: the Hardfought
+      fork still carries no 5.0.1 work. Range 79 commits / 848 files,
+      623 of them line-1 `$NHDT-Header$` rewrites; game code about 30
+      commits, nine of them our own PRs returning (#1710, #1711,
+      #1713..#1718, #1734). The pin moved the same day from acfb7ea97
+      to fd4d169b6 for two curses fixes (1bda9be5e restores mouse
+      input, fd4d169b6 the map scroll offset).
+      23 conflicted paths: trap.c x5 (lava_effects() takes upstream's
+      is_in_usignarr(); chest_trap()), lock.c x2, objnam.c, shk.c,
+      sp_lev.c, eat.c, quest.lua, patchlevel.h, Files, Guidebook x3,
+      evilhack.txt, mcastu.h, five level-file header lines and four
+      modify / delete (asmodeus, baalz, fakewiz1 / 2 stay deleted).
+      Rulings (decisions log 2026-11-12): the corpse of a zombie's
+      kill carries the zombie sickness while it has its rising timer
+      (BUG-3050; upstream acfb7ea97's rot rule not taken); a vampire
+      is refused with "The blood in this corpse is tainted!"; an ice
+      box still stops the timer; such a corpse no longer stacks
+      (BUG-3055); the Monk locate level takes the second formation
+      and keeps its lava; the shopkeeper debug line follows upstream
+      (c0f72bb00, both whitelist sets off).
+      Clean hunks fixed in the merge commit: savemonchn()'s new
+      dead-monster-with-inventory impossible skips the defeated Ice
+      Queen; rloc_to_core() waits for level_status.shkready
+      (BUG-3052, exposed by the whitelist removal); the clicked
+      button moves out of iflags.getdir_click (BUG-3053, upstream
+      6d0aae607); sfctool.c's stale get_plname_from_file() call
+      (BUG-3051, upstream too); the "zombifying" wish test
+      (BUG-3054); symparse_find() to upstream's form; the branch's
+      lava_protected() dropped; patchlevel.h keeps 1.0.0-0.
+      Checks: build 0 diagnostics, 19 touched files clean under
+      -DNONOSTATICFN, `make sfctool` builds, tile.c total_tiles_used
+      3164 unchanged, all 207 tracked .lua files parse, the 537
+      upstream-only files equal fd4d169b6 (seven are the branch's
+      renames), hints interdiff = linux.501's header line. Plan
+      stress test (one Plan agent: the Ice Queen, shkinit() and
+      click-flag items); reviewer CONDITIONAL PASS (one HIGH fixed -
+      the first click_to_cmd() fix; three LOW fixed, two recorded).
+      BATTERY (POST only, one evilhack-game-tester in a -d copy, then
+      a one-leg retest): shops (35 generations on shop levels,
+      Minetown and Orcus Town, and a soldier forced onto the keeper's
+      square: no debug line; a direct shop_keeper() call logs it),
+      Monk locate x11 (formation one 7, formation two 4, lava every
+      time), infected corpses (hero, sick-resistant hero, smell
+      warning, a natural zombie kill, Vampire with no conduct moved,
+      dogfood() 5 / 1 / 7 for a kitten, a baby green dragon and a
+      tame vampire, ice box, stacking both ways with the rise from
+      the pack), the Ice Queen under an idle checkpoint and a
+      kill-and-recover, lock prompts, save and restore,
+      #therecmdmenu and the click flag by gdb, the status highlight
+      menu and a curses start all PASS; the lava in-use protection
+      PASS on the retest (boots taken off over lava: nprotect 1, the
+      boots kept). paniclog: only the line from the deliberate
+      shop_keeper() call. Seven brief premises wrong, no code
+      defect. Minted: three Phase 2 LOW rows and five
+      Upstream-reportable rows. Official_nh50 fast-forwarded to
+      fd4d169b6; CLAUDE.md's repo table updated.
 - [ ] PLATFORM PARITY (maintainer directive 2026-09-03: when the
       latest 5.0 is pulled in, EvilHack must reach FULL support on
       every platform 5.0 supports - not just tty/curses on Linux).
@@ -38573,7 +38674,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       class %c"). The hdgn slice's in-loop alhoon/beholder skips
       are built for the 5.0 loop shape - re-reconcile them if this
       ports.
-      LANDED 2026-11-11 (session 324, BUG-3042, commit pending) by
+      LANDED 2026-11-11 (session 324, BUG-3042, f4d0860b9) by
       ruling as two species at EVEN odds, not master's biased loop;
       the alhoon / beholder skips became geno_dark_protected(),
       which keeps them out of the pick pool and lists them in the
@@ -39236,9 +39337,14 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-11 | A fireball that reaches the edge of the Plane of Air prints "The fireball vanishes into the aether!" and then explodes anyway: dobuzz() sets `type = ZT_WAND(ZT_FIRE); /* skip pending fireball */` before the break, but since 5212e4b3d (2024, the reflected poison gas fix) the tail tests the set-once `fireball` boolean where it used to test `type == ZT_SPELL(ZT_FIRE)`, so the rewrite skips nothing and explode() runs at the last square with the rewritten type. Only the ray form does this (an Unskilled or Basic cast). Fix: clear `fireball` beside the type rewrite, or have the tail test the type again. Read in Official_nh50 b0c09c878 src/zap.c (same lines as the branch), not reproduced; 3.6 and EvilHack master skip the explosion; no BUG id yet (Phase 2 LOW row, session 322) | found; not fixed on the branch; not sent; triage pending |
 | 2026-11-11 | `nethack -s -p <code>` / `-s -r <code>` with a code that names no role or race lists every record entry whose own code also fails to resolve: score_wanted() compares `str2role(nxt) == str2role(t1->plrole)` (and the str2race() pair), and both sides are ROLE_NONE (-1) for an unknown argument and an old or foreign entry (a pre-3.3.0 record line, a role or race this binary does not have). Fix: require the command-line code to resolve first - `(want = str2role(nxt)) >= 0 && want == str2role(t1->plrole)`, the same for races. Read in Official_nh50 b0c09c878 src/topten.c score_wanted() (same two comparisons), not reproduced there; on the branch a seeded record with an entry of codes "Zzz" / "Qqq" is no longer listed by `-p Xyz` or `-r Xyz`; EvilHack master fixed it as 881fd6aef; BUG-3013, src/topten.c, branch 34b506fea | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | An engulfer that dies in lava with the hero inside frees the hero with no message: minliquid_core()'s water branch says "<Monster> sinks as water rushes in and flushes you out." when `engulfing_u(mtmp)`, but the lava branch has only the burn line gated on cansee(), which a swallowed hero never passes. Reached when a walking engulfer (a purple worm, say) swallows a hero who is levitating or flying over lava: on its next move it is gone and the hero is simply outside again. Fix: give the lava branch its own engulfed-hero line before the monster dies (the branch prints "<Monster> burns to a crisp as lava rushes in and forces you out.", built from on_fire()'s death verb, and skips the plain burn line in that case). Read in Official_nh50 b0c09c878 src/mon.c minliquid_core() (lava branch: cansee() line only; water branch: the "rushes in" line), not reproduced there; a message gap, not a state bug; BUG-3019, src/mon.c, branch 34b506fea | fixed on the branch; not sent; triage pending |
-| 2026-11-11 | A magical trap is exploded before it is deleted, in dig.c dighole() and zap.c maybe_explode_trap(): `explode(...); deltrap(ttmp);`. explode() damages the steed on the hero's square; a steed it kills dismounts the hero through dismount_steed() -> float_down(), which calls dotrap() for a trap not met on arrival; a polymorph trap, a level teleporter and one magic trap in 15 delete themselves there; the caller then runs deltrap() on the freed trap ("deltrap: no preceding trap!" or a use-after-free). Needs a mounted hero over a magical trap made under them or reached by a hurtle, and a blast that kills the steed. Fix: delete the trap first, then explode. Each link read in Official_nh50 b0c09c878 and on the branch, NOT reproduced (the branch battery ran the mounted dig on the fixed build only) - reproduce on vanilla before cutting a patch; BUG-3034, src/dig.c + src/zap.c, branch commit pending | fixed on the branch; not sent; needs a vanilla repro |
-| 2026-11-11 | Surviving fatal food poisoning leaves the sickness kind set: nh_timeout()'s SICK case calls make_sick(0, NULL, FALSE, SICK_ALL) after the countdown has already decremented Sick to 0, so make_sick()'s `old && (type & u.usick_type)` cure arm is skipped and u.usick_type keeps SICK_VOMITABLE (upstream 63d3d7b68, 2019). A later illness of the other kind then shows FoodPois beside TermIll, and vomiting "partly cures" it and doubles the remaining timer. Seen on the branch by gdb (u.usick_type 1 with Sick 0 after "You have recovered"); the vanilla code is the same. Fix: clear u.usick_type in the recovery arm; BUG-3049, src/timeout.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-11 | A blessed eucalyptus leaf whose blessing wears off when blown (1 in 49) keeps "blessed" on a permanent inventory window: doapply() calls set_bknown() - which refreshes the window - and then unbless(), which does not. Fix: update_inventory() after unbless(). Seen fixed under curses perm_invent on the branch; not run on vanilla; BUG-3038, src/apply.c, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | A magical trap is exploded before it is deleted, in dig.c dighole() and zap.c maybe_explode_trap(): `explode(...); deltrap(ttmp);`. explode() damages the steed on the hero's square; a steed it kills dismounts the hero through dismount_steed() -> float_down(), which calls dotrap() for a trap not met on arrival; a polymorph trap, a level teleporter and one magic trap in 15 delete themselves there; the caller then runs deltrap() on the freed trap ("deltrap: no preceding trap!" or a use-after-free). Needs a mounted hero over a magical trap made under them or reached by a hurtle, and a blast that kills the steed. Fix: delete the trap first, then explode. Each link read in Official_nh50 b0c09c878 and on the branch, NOT reproduced (the branch battery ran the mounted dig on the fixed build only) - reproduce on vanilla before cutting a patch; BUG-3034, src/dig.c + src/zap.c, branch commit f4d0860b9 | fixed on the branch; not sent; needs a vanilla repro |
+| 2026-11-11 | Surviving fatal food poisoning leaves the sickness kind set: nh_timeout()'s SICK case calls make_sick(0, NULL, FALSE, SICK_ALL) after the countdown has already decremented Sick to 0, so make_sick()'s `old && (type & u.usick_type)` cure arm is skipped and u.usick_type keeps SICK_VOMITABLE (upstream 63d3d7b68, 2019). A later illness of the other kind then shows FoodPois beside TermIll, and vomiting "partly cures" it and doubles the remaining timer. Seen on the branch by gdb (u.usick_type 1 with Sick 0 after "You have recovered"); the vanilla code is the same. Fix: clear u.usick_type in the recovery arm; BUG-3049, src/timeout.c, branch commit f4d0860b9 | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | A blessed eucalyptus leaf whose blessing wears off when blown (1 in 49) keeps "blessed" on a permanent inventory window: doapply() calls set_bknown() - which refreshes the window - and then unbless(), which does not. Fix: update_inventory() after unbless(). Seen fixed under curses perm_invent on the branch; not run on vanilla; BUG-3038, src/apply.c, branch commit f4d0860b9 | fixed on the branch; not sent; triage pending |
+| 2026-11-12 | util/sfctool.c no longer compiles: 4406d4965 / 3cb4992e9 gave get_plname_from_file() a `size_t bufsz` argument and an int result (callers must hand a negative result to plnabort()), but sfctool.c still calls the three-argument form. The tool is optional (`make sfctool`), so `make all` never sees it. Official fd4d169b6. Fix: pass `sizeof plname` and check the result; BUG-3051, util/sfctool.c, branch commit f4ba98734 | fixed on the branch; not sent; triage pending |
+| 2026-11-12 | Stocking a shop asks the unstocked shop for its keeper: shknam.c shkinit() relocates whoever stands on the keeper's square (`rloc(m_at(sx, sy), RLOC_NOMSG)`) before `sroom->resident` is set, and teleport.c rloc_to_core()'s shoplifting block calls find_objowner() -> shop_keeper() for any monster carrying something. Since c0f72bb00 / fe162e30e commented out both `gw.whitelist_shk` sets, that query prints shop_keeper()'s "debug: untrustworthy null shkp" impossible in wizard mode (WIP builds) - a panic under the fuzzer. Needs a monster with inventory on that one square: levels that declare shops by region and then place such monsters at random (Orcus Town, Minetown, the Tourist locate and goal levels). Read on the branch and in fd4d169b6; not reproduced on vanilla. Fix: `level_status.shkready &&` on the block, as place_object() has; BUG-3052, src/teleport.c, branch commit f4ba98734 | fixed on the branch; not sent; needs a vanilla repro; triage pending |
+| 2026-11-12 | A mouse click lets the next direction prompt return a far offset: 6d0aae607 has click_to_cmd() set `iflags.getdir_click = mod` for every bound button, and only dotherecmdmenu() clears it. getdir() takes a non-zero getdir_click as leave to skip its sgn() clamp on a `_` (getpos) pick. After a right-click look (button 2 is bound to clicklook by default) the next #kick / zap / apply aimed with `_` gets the raw offset (a click during getpos() itself is harmless: it runs with the mouse buttons unbound): dokick() kicks the monster at u.ux + u.dx with only an isok() test, rays step by the offset. Live for curses players since 1bda9be5e restored mouse input. Read in fd4d169b6; not reproduced on vanilla. Fix: keep the clicked button in its own cmd.c variable that click_to_cmd() writes and dotherecmdmenu() reads and zeroes, and write getdir_click only around dotherecmdmenu()'s own getdir(); BUG-3053, src/cmd.c, branch commit f4ba98734 | fixed on the branch; not sent; needs a vanilla repro; triage pending |
+| 2026-11-12 | Wishing for a "zombifying <monster> corpse" starts a zombify timer for any monster: readobjnam() tests `d.zombify && zombie_form(&mons[d.mntmp])`, and zombie_form() returns NON_PM (-1, true) for a monster with no zombie form. A "zombifying newt corpse" carries a ZOMBIFY_MON timer (visible in #timeout) and, since acfb7ea97, eats as five points more rotten. Same line in fd4d169b6. Fix: `!= NON_PM`; BUG-3054, src/objnam.c, branch commit f4ba98734 | fixed on the branch; not sent; triage pending |
+| 2026-11-12 | Stacking keeps a zombie's kill from rising: merged() stops the absorbed object's timers ("really should merge the timeouts"), and mergable() keeps corpses apart only for is_reviver() species, so picking up a corpse that carries a ZOMBIFY_MON timer while holding a plain corpse of the same species leaves an ordinary stack - no zombie, and since acfb7ea97 no rot penalty either. Read in fd4d169b6 (invent.c has no zombify test); EvilHack master the same. Fix: a corpse with a ZOMBIFY_MON timer does not merge, beside the revivable-corpse rule; BUG-3055, src/invent.c, branch commit f4ba98734 | fixed on the branch; not sent; needs a vanilla repro; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -39645,6 +39751,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-11 | Ray to-hit slice (Phase 2 session 322, AskUserQuestion x4 with four questions - one the slice pick, one a battery launch ask; all as recommended). (1) FORMULA: both master cd5c574bb terms exactly - zap_hit() rolls `-chance < AC + bonus` for every ray, the ones aimed at the hero included (AC 0 80% -> 95%, AC -20 30% -> 43%), and spell_hit_bonus() adds the hero's level up to 15 to the hero's ray spells (rejected: the roll shift only; the level term only; keep vanilla). (2) WAND ARM: master's wand arm, unreachable since 2019 because a wand passes spell type 0, goes live - the hero's own wand rays and fire / frost horn blasts get +3 with no wielded weapon, the Dex adjustment and the level term (XL 5 bare-handed vs AC -10: 67% -> 93%); a buff over 0.9.3's live feel, taken as master's intent (rejected: leave it dead and record; delete the dead arm). RECORDED, not asked: monster rays, beam traps (monster ray types on the branch), the hero's dragon breath and a ray hitting the hero get no bonus; the steed arm keeps the caster's bonus; master's off-by-one that sent the magic missile spell through the wand arm stays fixed (BUG-1714). BUG-3000..3002. |
 | 2026-11-11 | Audit LOW batch and beam trap slice (Phase 2 session 323, AskUserQuestion x4 with seven questions - one the slice pick, one a battery launch ask; five as recommended, one against, one a hybrid). (1) SLICE: the audit's nine LOW rows plus session 322's beam trap MED in one slice (rejected: the LOW batch alone, the MED alone). (2) BARE-HANDED TRAINING: KEEP 5.0, over the recommended master shape - a bare-handed or martial arts hit that rolls its minimum trains nothing (one martial arts hit in four, one plain bare-handed hit in two; a Monk needs about 80 landed hits from Basic to Skilled where 0.9.3 takes 60); the damage bonus is given either way; no code change (rejected: master's every-hit training). (3) UNCHANGING DIGESTION: a hero held in a form by Unchanging who is totally digested dies "digested by <monster>" with the belch, no corpse and no rising, as a hero in their own form does (rejected: keep "killed while stuck in creature form" and only drop the body; leave as is). (4) ENGULF GUARD, a hybrid: free text "option 1 unless the engulfer is stunned or confused. if stunned/confused, engulfer follows 5.0 rules", re-asked with the four things master's goodpos() guard refuses and confirmed as HAZARDS ONLY - a stunned or confused engulfer ignores water, lava and open air, swallows the hero and dies there as in 5.0; a square another monster shares, a boulder square and rock around a phasing hero stay refused for every engulfer (rejected: the whole guard skipped when dazed; water and lava only; no exception; shared-square case only; no guard). (5) LAVA LINE, asked after the battery found a dazed engulfer's lava death silent: "<Monster> burns to a crisp as lava rushes in and forces you out.", built from the monster's own on_fire() death verb (rejected: one fixed string; leave it silent). (6) Battery: launch the testers. Session calls, plan-approved: the phasing exit line is printed before expels() at all three sites, where master prints it after (trap and pickup lines came first and a blinded hero's engulfer read "it"); domove_core()'s phasing exit adds a nomul(0) master lacks; no choke countdown starts for a hero about to phase out; tt_oname() re-rolls the attitude for the entry's race (master keeps the discarded race's roll); invoked ammo takes dknown through observe_object(); two stress-test finds folded - one boulder split off a stack before a push, and master's one-in-three slowing roll for a blow between monsters. Folded after the review, beyond the plan's "anything missing becomes a row": the same one-in-three roll for the hero's own slowing blow and the hit line a defended hero lost (same master commit 641e9bd79, same function). Recorded: a dazed monster with room to move wanders and does not attack, so the exception shows only when the engulfer is boxed in; bars are not accessible(), so a vortex no longer engulfs a hero standing in iron bars (master parity); 5.0's mergable() lets known invoked arrows merge into an unidentified stack of the same enchantment and mark it known; a vanilla teleport trap's teledest is not flipped by #wizfliplevel. BUG-3003..3019. |
 | 2026-11-11 | Census slice 7 (Phase 2 session 324, AskUserQuestion x5 with seven questions - one the slice pick, one a battery launch ask, one the catch-up merge; five as recommended, one free-text hybrid). (1) CLASS GENOCIDE: a blessed scroll takes TWO species of the class at even odds plus the hero's own role or race - the intent of master's comment; master's own loop (weighted to the end of the class, some species never picked) and 5.0's whole-class wipe both rejected. (2) FOOD POISONING: 5.0's Con-in-100 save from fatal food poisoning KEPT with its cost raised from Con -1 to Con -3 (free text "option 2 but make the cost more: -3 hit to Con"; removal was recommended). (3) DEMON SUMMON TEXT: brimstone in 5.0's frame - keyed on the arriving demon, one line per summon, a stench line for a blind hero. (4) DIG DOWN ON A TRAP: master's destroy-first rule on every level, confirmed after the correction that 5.0 already explodes magical traps anywhere. (5) CATCH-UP MERGE: next session, on its own (upstream acfb7ea97, 77 commits past base, none of #1719..#1733 landed, 14 conflicted files in a read-only trial, one new gameplay change to rule on: zombifying corpses count as fully rotten). RECORDED with the approved plan, not asked: master's stun-jump position; joust damage 2d(5 + level / 3); a whistle identified only when blown; the magical eye's lost hallucination; 3cf5fb284's float arms refused as dead; "an open grave" and the race-aware undead test; a pit for a rock trap on an undiggable floor; crafted magical traps explode; flying dig-up only under a real ceiling; a phasing rider keeps the saddle; the teleport override's fuzzer and monster guards; the helmet under a cursed scroll of earth; "plume of smoke" kept; the Guidebook's two table lines. Found by the battery and fixed: the save left u.usick_type set (vanilla). BUG-3020..3049. |
+| 2026-11-12 | Upstream catch-up 3 (Phase 4 / session 325, AskUserQuestion x5 with nine questions; seven as recommended, one harsher than recommended, one re-asked after a premise correction). (1) ZOMBIE VICTIM CORPSES: upstream acfb7ea97's rot rule NOT taken and master's "safe meat" not kept (recommended) - the maintainer picked "infected like a zombie corpse": the corpse of a zombie's kill carries the zombie sickness while it has its ZOMBIFY_MON timer; pets refuse it unless sick-resistant. (2) MONK LOCATE: upstream's second formation and random pick taken, its 3-in-4 lava-to-water swap left out. (3) SHOPKEEPER DEBUG LINE: follow upstream (c0f72bb00's narrower test, both whitelist sets off); callers that trip it are fixed. (4) BATTERY: one tester. (5) VAMPIRE: a victim corpse is refused with the new line "The blood in this corpse is tainted!"; asked twice - the first question said a real zombie's corpse has no blood (wrong: it is the base species' corpse aged 100 turns and reads "coagulated"), and on the corrected question the maintainer kept the new line for victim corpses only. (6) ICE BOX: the timer rule stands - an iced corpse never rises and is plain meat afterwards. (7) STACKING: closed - a corpse about to rise no longer stacks (0.9.3 let stacking strip the timer). RECORDED with the approved plan, not asked: the pin moved from acfb7ea97 to fd4d169b6 the same day for two curses mouse fixes; a tame vampire follows ruling 5; a sick-resistant lich- or zombie-form hero loses a victim corpse to "an odd sensation"; the infection is not extended to pet carrying, the Draugr kin sacrifice or muse.c; upstream's stray doc work files and .gitattributes ride along; doc/evilhack.txt's footer date follows the cleanly merged evilhack.6. BUG-3050..3055; merge f4ba98734. |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
