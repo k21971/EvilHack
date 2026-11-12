@@ -439,14 +439,14 @@ tracker; sNNN = port session.
   Medusa's gaze, a polymorphed hero's own touch and a monster
   touching a petrifier stay instant. By ruling "<Monster> is slowing
   down." shows once, at the hit
-  (s326, BUG-3056..3061, commit pending; master 2f58ace93 and the
+  (s326, BUG-3056..3061, 3f3dbf7ed; master 2f58ace93 and the
   commits that shaped it since).
 - [x] A beholder's or Tal'Gath's gaze turned a monster to stone on
   every gaze -> master's 1 time in 3, and gradual
-  (s326, BUG-3058, commit pending; master 903bff9ee + 1c704a9a7).
+  (s326, BUG-3058, 3f3dbf7ed; master 903bff9ee + 1c704a9a7).
 - [x] A monster's wielded petrifying corpse also did weapon damage,
   with the gauntlet, artifact, rust and poison riders -> master's
-  flat 1 (s326, BUG-3057, commit pending).
+  flat 1 (s326, BUG-3057, 3f3dbf7ed).
 
 ### 2.4 Text and logs
 
@@ -519,7 +519,7 @@ tracker; sNNN = port session.
   stone." on an instant petrification, and again when a monster ate
   or drank its cure -> gone, as on master; the line belongs to the
   start of the countdown
-  (s326, BUG-3062 / 3068, commit pending; master 17488cfcc).
+  (s326, BUG-3062 / 3068, 3f3dbf7ed; master 17488cfcc).
 
 ### 2.5 Levels and content
 

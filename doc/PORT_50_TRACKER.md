@@ -17,10 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-12, session 326: master's
-  monster gradual stoning ported - two Phase 5 rider rows closed, no
-  Phase 2 row closed, two LOW rows minted - after session 325 merged
-  upstream catch-up 3 the same day;
+- Phase 2 status (refreshed 2026-11-12, session 327: the HTML
+  dumplog escapes player-given names - a note on the Phase 4 HTML
+  dumplog row, no row closed or minted - after session 326 ported
+  master's monster gradual stoning (two Phase 5 rider rows closed, no
+  Phase 2 row closed, two LOW rows minted) and session 325 merged
+  upstream catch-up 3, all the same day;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
   prefix; 62 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 54 LOW):
@@ -36,8 +38,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 327 made the HTML dumplog escape player-given names
+    (BUG-3078, commit pending; the Phase 4 HTML dumplog row has the
+    detail): a pet, monster or object name, or the player's own,
+    with markup in it was written into the dump's map hover text,
+    title and generator tag as live HTML, and names left in bones
+    carried it into other players' dumps. No row closed or minted.
     Session 326 ported master's monster gradual stoning
-    (BUG-3056..3075, commit pending; the Phase 5 Hdgn riders row
+    (BUG-3056..3075, 3f3dbf7ed; the Phase 5 Hdgn riders row
     has the detail and closed with it, as did the Light-guard
     riders row): a monster hit by a stoning touch, bite, beholder
     gaze or corpse weapon, by the hero's cockatrice corpse or egg,
@@ -38346,6 +38354,26 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       fe90af7aa: master's MG_RIDDEN -> HL_INVERSE arm (5.0's tty draws
       no ridden highlight either - decide together) and the
       extended-color inverse spans (extcolor_256_rgb()).
+      ESCAPING LANDED 2026-11-12 (session 327, BUG-3078, commit
+      pending): html_print_glyph() wrote the map hover text with a
+      raw %s, and dump_headers() the player name into the title and
+      the generator meta tag, so a pet, monster or object name (or
+      the player's own) with markup in it became live HTML in the
+      dump; names in bones carried it to other players' dumps. All
+      three go through html_dump_str() now. Reported by a player
+      against 0.9.3. Hardfought fork code, absent from Official_nh50
+      (no upstream row); patch files cut for the NetHack50 fork and
+      TNNT, which share the three writes. The BUG-1096 guards above
+      were NOT taken with it: neither new call can pass NULL (the
+      hover text starts as "unknown" and is only ever given constants
+      or buffers; plname is an array). The "NetHack" wording in the
+      title and generator tag also stays with this row.
+      BATTERY PASS (game-tester, two normal-mode games past turn
+      100, a hero named q<i>z, a kitten named with a script tag from
+      the rc file, a dagger named a&b "q" 'r'): before, the dump's
+      map held a live script element and an i element and the title
+      and generator tag the raw name; after, no such element, the
+      name escaped in both, and the hover texts read back as typed.
 - [ ] TILE-ART DRIFT: win/share/other.txt is behind the branch's
       cmap enum and every tile from the first branch-only symbol
       onward resolves to the WRONG ART. Own item (minted
@@ -38554,7 +38582,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       shield goes through extract_from_minvent(), which ends a shield
       of light's burn before the worn mask clears (battery T1: lamplit
       0, no light source left). The munstone() strip loop stays open.
-      CLOSED 2026-11-12, session 326 (BUG-3063, commit pending): the
+      CLOSED 2026-11-12, session 326 (BUG-3063, 3f3dbf7ed): the
       munstone() spellcaster arm landed with the gradual-stoning
       port, shaped by ruling - only the pack items stone to flesh
       really changes are run through the spell and taken off, each
@@ -38775,7 +38803,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       mhitm_ad_disn() honours the BUG-1313 damage-zero contract this
       row asked for.
       CLOSED 2026-11-12, session 326
-      (BUG-3056..3075, commit pending).
+      (BUG-3056..3075, 3f3dbf7ed).
       (a) LANDED - master's monster gradual stoning:
       start_mon_stoning() / stop_mon_stoning() and
       m_stone_countdown(), run first in m_calcdistress() (BUG-3056);
@@ -39876,6 +39904,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-11 | Census slice 7 (Phase 2 session 324, AskUserQuestion x5 with seven questions - one the slice pick, one a battery launch ask, one the catch-up merge; five as recommended, one free-text hybrid). (1) CLASS GENOCIDE: a blessed scroll takes TWO species of the class at even odds plus the hero's own role or race - the intent of master's comment; master's own loop (weighted to the end of the class, some species never picked) and 5.0's whole-class wipe both rejected. (2) FOOD POISONING: 5.0's Con-in-100 save from fatal food poisoning KEPT with its cost raised from Con -1 to Con -3 (free text "option 2 but make the cost more: -3 hit to Con"; removal was recommended). (3) DEMON SUMMON TEXT: brimstone in 5.0's frame - keyed on the arriving demon, one line per summon, a stench line for a blind hero. (4) DIG DOWN ON A TRAP: master's destroy-first rule on every level, confirmed after the correction that 5.0 already explodes magical traps anywhere. (5) CATCH-UP MERGE: next session, on its own (upstream acfb7ea97, 77 commits past base, none of #1719..#1733 landed, 14 conflicted files in a read-only trial, one new gameplay change to rule on: zombifying corpses count as fully rotten). RECORDED with the approved plan, not asked: master's stun-jump position; joust damage 2d(5 + level / 3); a whistle identified only when blown; the magical eye's lost hallucination; 3cf5fb284's float arms refused as dead; "an open grave" and the race-aware undead test; a pit for a rock trap on an undiggable floor; crafted magical traps explode; flying dig-up only under a real ceiling; a phasing rider keeps the saddle; the teleport override's fuzzer and monster guards; the helmet under a cursed scroll of earth; "plume of smoke" kept; the Guidebook's two table lines. Found by the battery and fixed: the save left u.usick_type set (vanilla). BUG-3020..3049. |
 | 2026-11-12 | Upstream catch-up 3 (Phase 4 / session 325, AskUserQuestion x5 with nine questions; seven as recommended, one harsher than recommended, one re-asked after a premise correction). (1) ZOMBIE VICTIM CORPSES: upstream acfb7ea97's rot rule NOT taken and master's "safe meat" not kept (recommended) - the maintainer picked "infected like a zombie corpse": the corpse of a zombie's kill carries the zombie sickness while it has its ZOMBIFY_MON timer; pets refuse it unless sick-resistant. (2) MONK LOCATE: upstream's second formation and random pick taken, its 3-in-4 lava-to-water swap left out. (3) SHOPKEEPER DEBUG LINE: follow upstream (c0f72bb00's narrower test, both whitelist sets off); callers that trip it are fixed. (4) BATTERY: one tester. (5) VAMPIRE: a victim corpse is refused with the new line "The blood in this corpse is tainted!"; asked twice - the first question said a real zombie's corpse has no blood (wrong: it is the base species' corpse aged 100 turns and reads "coagulated"), and on the corrected question the maintainer kept the new line for victim corpses only. (6) ICE BOX: the timer rule stands - an iced corpse never rises and is plain meat afterwards. (7) STACKING: closed - a corpse about to rise no longer stacks (0.9.3 let stacking strip the timer). RECORDED with the approved plan, not asked: the pin moved from acfb7ea97 to fd4d169b6 the same day for two curses mouse fixes; a tame vampire follows ruling 5; a sick-resistant lich- or zombie-form hero loses a victim corpse to "an odd sensation"; the infection is not extended to pet carrying, the Draugr kin sacrifice or muse.c; upstream's stray doc work files and .gitattributes ride along; doc/evilhack.txt's footer date follows the cleanly merged evilhack.6. BUG-3050..3055; merge f4ba98734. |
 | 2026-11-12 | Monster gradual stoning (Phase 2 session 326, AskUserQuestion x6 with seven questions: the slice pick, four rulings, the battery launch; all as recommended). (1) SLICE: master's monster gradual stoning (Phase 5 Hdgn rider (a)), picked over the recent LOW batch, the verify rows and the SWEEP rows. (2) SELF-CURE: a stoning spellcaster's own stone to flesh runs only over the pack items the spell really changes and takes only those off; master's loop takes off everything it wears and wields and nothing puts it back, so a cockatrice corpse stripped a caster's life saving and reflection (rejected; a third option, strip then re-dress, also rejected). (3) FIRST LINE: "<Monster> is slowing down." prints once, at the hit, for every source, and the countdown's first step is silent; master printed it at a monster's hit and again next turn, and only next turn for the hero's own hits. (4) STONED WIZARD: found turning to stone on the migrating list at his next return, the Wizard shakes it off and arrives; master parks a stone-limbed Wizard for good when the hero leaves his level (rejected, with "he finishes off-stage"). (5) STONING PET: a pet that is turning to stone eats a lizard or acidic corpse however satiated; master's satiation gate excepts only intrinsic corpses, so a full pet turned to stone beside its cure (found by the battery). (6) BATTERY: two testers in parallel. RECORDED with the approved plan, not asked: still instant - Medusa's gaze, a polymorphed hero's own touch, a monster touching a petrifier, passive stoning, every minstapetrify() caller; a golem or ent changes form at once at every producer; the beholder's 1-in-3 roll comes before the victim's cure (deviation); no pet credit for a gradual stoning (row minted); a thrown egg credits the hero only on the hero's move; a revived or split monster starts clean; the cure is a helpful gesture and never overrides a paralysis; bones clear the hero-credit flags; the countdown pauses off the level; the folded-in leftovers (the basilisk, monmulti(), the trap guards) and the one dropped (master's dead honey badger line). BUG-3056..3075. |
+| 2026-11-12 | HTML dumplog escaping (Phase 4 / session 327, AskUserQuestion x1: the scope; as recommended). (1) SCOPE: fix and test the branch, and cut patch files for the Hardfought NetHack50 fork and TNNT, which share the three unescaped writes - picked over branch only and forks only; the forks are deployed and the branch pushed in whichever order the maintainer chooses. RECORDED with the approved plan, not asked: master's BUG-1096 NULL guards stay with the Phase 4 HTML dumplog rider (neither new call can pass NULL); the "NetHack" wording in the title and generator tag stays with that row too; no REMOVALS line and no upstream row (Hardfought fork code, absent from Official_nh50). BUG-3078. |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
