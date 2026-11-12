@@ -2920,8 +2920,9 @@ char *supplemental_name;
                             return;
                         }
 
+                        /* both strings can be most of a getlin() answer */
                         Sprintf(titlebuf,
-                                "Encyclopedia entry for \"%s\" (matched to \"%s\"):",
+                                "Encyclopedia entry for \"%.100s\" (matched to \"%.100s\"):",
                                 encycl_matched, matcher);
                         putstr(datawin, ATR_BOLD, titlebuf);
                         putstr(datawin, ATR_NONE, "");

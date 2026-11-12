@@ -3086,10 +3086,12 @@ boolean printdun;
             Sprintf(eos(buf), " [%s]", slev->proto);
     }
     /* [perhaps print custom annotation on its own line when it's long] */
-    if (mptr->custom)
-        Sprintf(eos(buf), " \"%s\"", mptr->custom);
+    if (mptr->custom) /* which can be as long as a getlin() answer */
+        (void) snprintf(eos(buf), sizeof buf - strlen(buf), " \"%s\"",
+                        mptr->custom);
     if (on_level(&u.uz, &mptr->lev))
-        Sprintf(eos(buf), " <- You %s here.",
+        (void) snprintf(eos(buf), sizeof buf - strlen(buf),
+                " <- You %s here.",
                 (!final || (final == 1 && how == ASCENDED)) ? "are"
                   : (final == 1 && how == ESCAPED) ? "left from"
                     : "were");
@@ -3267,7 +3269,7 @@ boolean printdun;
                 (void) strsubst(tmpbuf, " herself", " yourself");
                 (void) strsubst(tmpbuf, " his ", " your ");
                 (void) strsubst(tmpbuf, " her ", " your ");
-                Sprintf(buf, "%s%syou, %s%c", PREFIX, TAB, tmpbuf,
+                Sprintf(buf, "%s%syou, %.235s%c", PREFIX, TAB, tmpbuf,
                         --kncnt ? ',' : '.');
                 putstr(win, ATR_PREFORM, buf);
             }

@@ -984,7 +984,9 @@ int *matchlen;
     int i;
     int mntmp = NON_PM;
     char *s, *str, *term;
-    char buf[BUFSZ];
+    /* a few of the rewrites below (" baron" -> " sovereign") make the
+       string longer, so leave some slack beyond a full getlin() answer */
+    char buf[BUFSZ + 8];
     int len, slen;
 
     str = strcpy(buf, in_str);

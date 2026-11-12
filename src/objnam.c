@@ -3434,7 +3434,7 @@ boolean retry_inverted; /* optional extra "of" handling */
         if (!strncmpi(u_str, detect_SP, sizeof detect_SP - 1)) {
             /* convert "detect <foo>s" into "<foo> detection" */
             p = makesingular(u_str + sizeof detect_SP - 1);
-            Strcat(strcpy(buf, p), SP_detection);
+            (void) snprintf(buf, sizeof buf, "%s%s", p, SP_detection);
             /* caller may be looping through objects[], so avoid
                churning through all the obufs */
             releaseobuf(p);
@@ -3781,7 +3781,7 @@ int material;
        random item, made of that material, from the set of items that can be
        made of that material, but this was never a feature anyway; it would give
        a totally random object even if the material-object combo was invalid */
-    if (!strcmp(str, matstr)) {
+    if (!strcmpi(str, matstr)) {
         return TRUE;
     }
     /* does it match some object? */
@@ -4433,7 +4433,10 @@ struct obj *no_wish;
         if (strcmp(bp, sng)) {
             if (cnt == 1)
                 cnt = 2;
-            Strcpy(bp, sng);
+            /* a few singulars are longer than their plural (mice ->
+               mouse); bp is somewhere inside the caller's BUFSZ */
+            if ((bp - origbp) + strlen(sng) < BUFSZ)
+                Strcpy(bp, sng);
         }
     }
 
@@ -4659,8 +4662,10 @@ struct obj *no_wish;
         } else { /* try to construct canonical form */
             char tbuf[BUFSZ];
 
-            Strcpy(tbuf, "worthless piece of ");
-            Strcat(tbuf, g); /* assume it starts with the color */
+            /* assume it starts with the color; the result goes back into
+               the caller's BUFSZ buffer, which bp may be partway into */
+            (void) snprintf(tbuf, sizeof tbuf - (bp - origbp),
+                            "worthless piece of %s", g);
             Strcpy(bp, tbuf);
         }
     }
