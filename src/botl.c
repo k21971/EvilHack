@@ -3417,6 +3417,9 @@ choose_value:
         getlin(buf, inbuf);
         if (inbuf[0] == '\0' || inbuf[0] == '\033')
             goto choose_behavior;
+        /* the value gets echoed back in BUFSZ-sized menu lines and
+           prompts; curses will accept far more than any number needs */
+        inbuf[QBUFSZ - 1] = '\0';
 
         inp = numstart = trimspaces(inbuf);
         if (!*inp)
