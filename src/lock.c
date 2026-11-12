@@ -592,9 +592,14 @@ struct obj *container; /* container, for autounlock */
                     verb = "pick";
 
                 if (autounlock) {
-                    Sprintf(qbuf, "%s it with %s?",
-                            otmp->otyp == IRON_SAFE ? "Crack" : "Unlock",
-                            yname(pick));
+                    /* pick might have both a type name and its own
+                       name; either one can be 62 characters long */
+                    (void) safe_qbuf(qbuf,
+                                     (otmp->otyp == IRON_SAFE)
+                                         ? "Crack it with "
+                                         : "Unlock it with ",
+                                     "?", pick, yname, ysimple_name,
+                                     "your tool");
                     c = yn(qbuf);
                     if (c == 'n')
                         return 0;
@@ -762,10 +767,12 @@ struct obj *container; /* container, for autounlock */
                 return PICKLOCK_LEARNED_SOMETHING;
             }
 
-            Sprintf(qbuf, "%s it%s%s?",
+            Sprintf(qbuf, "%s it%s",
                     (door->doormask & D_LOCKED) ? "Unlock" : "Lock",
-                    autounlock ? " with " : "",
-                    autounlock ? yname(pick) : "");
+                    autounlock ? " with " : "?");
+            if (autounlock)
+                (void) safe_qbuf(qbuf, qbuf, "?", pick, yname,
+                                 ysimple_name, "your tool");
 
             c = yn(qbuf);
             if (c == 'n')
