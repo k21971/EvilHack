@@ -17,14 +17,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-12, session 325: upstream
-  catch-up 3 merged - a Phase 4 row; no Phase 2 row closed, three
-  LOW rows minted - after session 324 closed the census's last two
-  LOW rows on 2026-11-11;
+- Phase 2 status (refreshed 2026-11-12, session 326: master's
+  monster gradual stoning ported - two Phase 5 rider rows closed, no
+  Phase 2 row closed, two LOW rows minted - after session 325 merged
+  upstream catch-up 3 the same day;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 60 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 52 LOW):
-  706 rows closed, 60 open
+  prefix; 62 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 54 LOW):
+  706 rows closed, 62 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -36,6 +36,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 326 ported master's monster gradual stoning
+    (BUG-3056..3075, commit pending; the Phase 5 Hdgn riders row
+    has the detail and closed with it, as did the Light-guard
+    riders row): a monster hit by a stoning touch, bite, beholder
+    gaze or corpse weapon, by the hero's cockatrice corpse or egg,
+    or one that eats a petrifying corpse, turns to stone over five
+    turns instead of at once - slowing, limbs stiffening, limbs of
+    stone (it stops moving), almost stone, a statue - and the hero
+    gets the kill only for his own doing. It can cure itself (a
+    lizard or acidic corpse or acid it carries; a level 5+ caster
+    by its own stone to flesh, which by ruling takes off only its
+    stone gear), the hero can cure it by stone to flesh without
+    angering it, and a stoning pet eats a lizard corpse however
+    full it is (ruled). Medusa's gaze stays instant. By ruling the
+    slowing line shows once, and a stoned Wizard left on another
+    level comes back cured. Also restored: the basilisk petrifies
+    by corpse and touch, Medusa and mariliths shoot bigger
+    volleys, dark elven bows share the elven bonus. Minted: pet
+    credit for a stoning kill, and one residue row.
     Session 325 merged official NetHack 5.0 fd4d169b6 (upstream
     catch-up 3, BUG-3050..3055, f4ba98734; the Phase 4 row has
     the detail): the corpse of a zombie's kill now carries the
@@ -35794,6 +35813,48 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       observation, unread). (k) Observed joust rates 54% at Skilled
       (83 of 154) and 76% at Expert (76 of 100) against 60 / 80;
       joust() is untouched and both are within two deviations.
+- [ ] LOW: a pet's stoning kill earns the pet no credit (minted
+      2026-11-12, session 326, archive sweep; master BUG-1305's
+      deferral). The gradual stoning that replaced 5.0's instant arm
+      ends in a plain monstone() five turns after the pet's touch, so
+      nothing calls set_pet_killer(): no pet-kill livelog line for a
+      unique that a pet turns to stone, and no grow_up() for the
+      attacker. Master is the same. Crediting it needs the stoner's
+      m_id kept on the victim (a struct monst field; saves break
+      freely before 1.0.0). Medusa's instant gaze still credits a
+      tame Medusa.
+- [ ] LOW: gradual stoning residue (minted 2026-11-12, session 326,
+      plan stress test, reviewer and batteries; record unless a
+      ruling wants a change). (a) The countdown does not run while
+      its monster is off the level (migrating, or left behind on a
+      level the hero leaves); it resumes on return. Master the same;
+      only the Wizard is excepted (BUG-3070). (b) A stone-limbed
+      monster can still put on gear it carries (the gear pass tests
+      mfrozen, not mcanmove), and farlook says nothing of it. (c)
+      "You smell the odor of meat." prints wherever on the level a
+      caster cures itself. (d) A caster's cure fired on the hero's
+      move (a polymorphed hero's own touch) inside a shop can anger
+      the shopkeeper over the items it changes: poly_obj() tests
+      only whose move it is. A boulder it carries in Sokoban costs
+      the hero luck (sokoban_guilt()). (e) A worn stone item that
+      resists the spell (1 in 50) still comes off. (f) rouse_shk()'s
+      "can move again", priest_talk()'s "breaks out of his reverie!"
+      and help_monster_out()'s "stirs." still print for a
+      stone-limbed monster the guard keeps still. (g) An AD_CLOB
+      weapon attacker wielding a petrifying corpse can knock its
+      target back as well as start the stoning (master's goto skips
+      the knockback; it takes a gloved giant holding a cockatrice
+      corpse). (h) DEVIATION: the beholder's 1-in-3 roll comes
+      before the victim's cure and the golem change; master ran both
+      on every gaze. (i) xkilled() counts the kill conduct before
+      life saving decides (vanilla), so a hero-credited statue step
+      that life saving undoes breaks never-killed with no
+      experience (battery). (j) keepdogs()'s ascension / escape arm
+      sets mcanmove bare, as on master. (k) vamprises() and
+      vamp_stone() zero mstone but leave mstonebyu (the next
+      start_mon_stoning() rewrites it). (l) Master e0756a1f6's honey
+      badger line in searches_for_item() is dead at master HEAD (the
+      function returns early for an animal) and is not ported.
 - [x] SWEEP: monstseesu() SETTER parity with master (BUG-2949..
       2951) - CLOSED 2026-11-09 (session 314, 766bdc794, tracker
       24c04706c;
@@ -38477,7 +38538,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       carve-out, clasp-breaks+dropp instead of tears-apart+useup
       for non-wrapping cloaks - route with any future
       polyself/break_armor reconcile row.
-- [ ] Light-guard riders on unported features (minted 2026-08-14):
+- [x] Light-guard riders on unported features (minted 2026-08-14):
       master muse.c munstone() spellcaster inventory-strip loop
       (a BUG-1276 guard site; branch mon_consume_unstone has no
       strip loop) and master apply.c use_whip() worn-shield snatch
@@ -38493,6 +38554,14 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       shield goes through extract_from_minvent(), which ends a shield
       of light's burn before the worn mask clears (battery T1: lamplit
       0, no light source left). The munstone() strip loop stays open.
+      CLOSED 2026-11-12, session 326 (BUG-3063, commit pending): the
+      munstone() spellcaster arm landed with the gradual-stoning
+      port, shaped by ruling - only the pack items stone to flesh
+      really changes are run through the spell and taken off, each
+      through m_unwear_in_place(), which ends a lit artifact's burn
+      before its mask clears and unwields through mwepgone() /
+      mwep2gone(). Battery B5: a lich kept its amulet and suit; a
+      helmet set to MINERAL became an unworn meat helmet.
 - [x] Goblintown-slice riders on unported features (minted
       2026-08-14 by the goblintown slice): (a) master's
       m_initgrp() support-caster machinery (goblin/kobold/orc
@@ -38587,7 +38656,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       slippery-ice white term stays out for good: COLD_RES arrives as
       the primary through armor_provides_extrinsic() and master's uarm
       term would exempt a steed from the rider's suit.
-- [ ] Hdgn-slice riders on unported features (minted 2026-08-15 by
+- [x] Hdgn-slice riders on unported features (minted 2026-08-15 by
       the hdgn slice): (a) master's monster gradual-stoning
       subsystem is payload-partial on the branch - the mstone/
       mstonebyu fields, the cures and the can-act gates (were.c/
@@ -38705,6 +38774,60 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       together with do_stone_mon()'s non-gaze arm. The new
       mhitm_ad_disn() honours the BUG-1313 damage-zero contract this
       row asked for.
+      CLOSED 2026-11-12, session 326
+      (BUG-3056..3075, commit pending).
+      (a) LANDED - master's monster gradual stoning:
+      start_mon_stoning() / stop_mon_stoning() and
+      m_stone_countdown(), run first in m_calcdistress() (BUG-3056);
+      every producer converted - do_stone_mon() with Medusa's gaze
+      alone still instant, the mattackm() wielded-corpse block (the
+      2026-09-09 rider above), the corpse-weapon hit back at
+      master's flat 1 damage (BUG-3057), the beholder / Tal'Gath
+      gaze at 1 in 3 (BUG-3058), the hero's corpse and egg
+      (BUG-3059), the thrown egg (BUG-3060), the petrifying meal
+      (BUG-3061; with BUG-3059 this is the egg row's rider (e));
+      the cures - dochug()'s per-move munstone() and master's
+      cures-before-acid order (BUG-3062, the acidic-corpse row's
+      BUG-910 deferral), the caster's own stone to flesh (BUG-3063,
+      the Light-guard riders row), the hero's stone to flesh with
+      the zap_steed() line (BUG-3064, the 2026-10-10 rider), pets
+      (BUG-3065); ", solidifying" (BUG-3066); the wake guards
+      (BUG-3067 - nine added; the 2026-09-27 count of 7 guarded /
+      11 unguarded was stale, pray.c having been guarded by
+      BUG-2247, and angry_guards() is a branch-only tenth; the
+      lifesaved_monster() line of the 2026-10-11 update is among
+      them); the timer ends (BUG-3068, master BUG-838 / BUG-839);
+      the rumor (BUG-3075). The countdown runs before the Izchak
+      hook (the 2026-10-12 update). The message ladder held by the
+      texts row is master's.
+      RULINGS (AskUserQuestion x4 on behavior, all as recommended):
+      the caster's cure takes off only the stone items the spell
+      changes (master stripped it bare); "<Monster> is slowing
+      down." shows once, at the hit (master doubled it for a
+      monster's hit); a stoned Wizard found on the migrating list
+      shakes it off (master parked him for good, BUG-3070); a
+      stoning pet eats its cure however satiated (master's pet
+      walked past it, BUG-3065).
+      MASTER BUGS fixed on the branch only: hero credit for any
+      thrown egg (BUG-3060); a revived or split monster kept
+      petrifying (BUG-3069); the stone to flesh cure angered its
+      target (BUG-3064); the caster's cure at the hit left the
+      timer running (BUG-3063); five instant arms left a life-saved
+      victim petrifying (BUG-3068, monstone() now ends the
+      countdown); bones kept the four hero-credit flags (BUG-3071).
+      FOUND BESIDE IT and landed: the basilisk was missing from
+      touch_petrifies() (BUG-3072, no row had it); Medusa's and the
+      marilith's volleys and the dark elven craftsmanship terms in
+      monmulti() (BUG-3073); master BUG-911's missing-trap guards
+      (BUG-3074).
+      Reviewer PASS (seven LOW; three fixed). Battery: two testers
+      in parallel, 23 legs, then a five-leg retest on the final
+      binary; all PASS after two fixes (the dead honey badger line
+      removed; the satiated-pet ruling), paniclog absent, six brief
+      premises wrong and no code defect among them. Minted: LOW pet
+      credit for a stoning kill; LOW gradual stoning residue.
+      (e) verified current 2026-11-12: luanames matches all 197
+      dat/*.lua files with no dead pattern.
 
 ## Phase 6 - Infra and server
 
@@ -39752,6 +39875,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-11 | Audit LOW batch and beam trap slice (Phase 2 session 323, AskUserQuestion x4 with seven questions - one the slice pick, one a battery launch ask; five as recommended, one against, one a hybrid). (1) SLICE: the audit's nine LOW rows plus session 322's beam trap MED in one slice (rejected: the LOW batch alone, the MED alone). (2) BARE-HANDED TRAINING: KEEP 5.0, over the recommended master shape - a bare-handed or martial arts hit that rolls its minimum trains nothing (one martial arts hit in four, one plain bare-handed hit in two; a Monk needs about 80 landed hits from Basic to Skilled where 0.9.3 takes 60); the damage bonus is given either way; no code change (rejected: master's every-hit training). (3) UNCHANGING DIGESTION: a hero held in a form by Unchanging who is totally digested dies "digested by <monster>" with the belch, no corpse and no rising, as a hero in their own form does (rejected: keep "killed while stuck in creature form" and only drop the body; leave as is). (4) ENGULF GUARD, a hybrid: free text "option 1 unless the engulfer is stunned or confused. if stunned/confused, engulfer follows 5.0 rules", re-asked with the four things master's goodpos() guard refuses and confirmed as HAZARDS ONLY - a stunned or confused engulfer ignores water, lava and open air, swallows the hero and dies there as in 5.0; a square another monster shares, a boulder square and rock around a phasing hero stay refused for every engulfer (rejected: the whole guard skipped when dazed; water and lava only; no exception; shared-square case only; no guard). (5) LAVA LINE, asked after the battery found a dazed engulfer's lava death silent: "<Monster> burns to a crisp as lava rushes in and forces you out.", built from the monster's own on_fire() death verb (rejected: one fixed string; leave it silent). (6) Battery: launch the testers. Session calls, plan-approved: the phasing exit line is printed before expels() at all three sites, where master prints it after (trap and pickup lines came first and a blinded hero's engulfer read "it"); domove_core()'s phasing exit adds a nomul(0) master lacks; no choke countdown starts for a hero about to phase out; tt_oname() re-rolls the attitude for the entry's race (master keeps the discarded race's roll); invoked ammo takes dknown through observe_object(); two stress-test finds folded - one boulder split off a stack before a push, and master's one-in-three slowing roll for a blow between monsters. Folded after the review, beyond the plan's "anything missing becomes a row": the same one-in-three roll for the hero's own slowing blow and the hit line a defended hero lost (same master commit 641e9bd79, same function). Recorded: a dazed monster with room to move wanders and does not attack, so the exception shows only when the engulfer is boxed in; bars are not accessible(), so a vortex no longer engulfs a hero standing in iron bars (master parity); 5.0's mergable() lets known invoked arrows merge into an unidentified stack of the same enchantment and mark it known; a vanilla teleport trap's teledest is not flipped by #wizfliplevel. BUG-3003..3019. |
 | 2026-11-11 | Census slice 7 (Phase 2 session 324, AskUserQuestion x5 with seven questions - one the slice pick, one a battery launch ask, one the catch-up merge; five as recommended, one free-text hybrid). (1) CLASS GENOCIDE: a blessed scroll takes TWO species of the class at even odds plus the hero's own role or race - the intent of master's comment; master's own loop (weighted to the end of the class, some species never picked) and 5.0's whole-class wipe both rejected. (2) FOOD POISONING: 5.0's Con-in-100 save from fatal food poisoning KEPT with its cost raised from Con -1 to Con -3 (free text "option 2 but make the cost more: -3 hit to Con"; removal was recommended). (3) DEMON SUMMON TEXT: brimstone in 5.0's frame - keyed on the arriving demon, one line per summon, a stench line for a blind hero. (4) DIG DOWN ON A TRAP: master's destroy-first rule on every level, confirmed after the correction that 5.0 already explodes magical traps anywhere. (5) CATCH-UP MERGE: next session, on its own (upstream acfb7ea97, 77 commits past base, none of #1719..#1733 landed, 14 conflicted files in a read-only trial, one new gameplay change to rule on: zombifying corpses count as fully rotten). RECORDED with the approved plan, not asked: master's stun-jump position; joust damage 2d(5 + level / 3); a whistle identified only when blown; the magical eye's lost hallucination; 3cf5fb284's float arms refused as dead; "an open grave" and the race-aware undead test; a pit for a rock trap on an undiggable floor; crafted magical traps explode; flying dig-up only under a real ceiling; a phasing rider keeps the saddle; the teleport override's fuzzer and monster guards; the helmet under a cursed scroll of earth; "plume of smoke" kept; the Guidebook's two table lines. Found by the battery and fixed: the save left u.usick_type set (vanilla). BUG-3020..3049. |
 | 2026-11-12 | Upstream catch-up 3 (Phase 4 / session 325, AskUserQuestion x5 with nine questions; seven as recommended, one harsher than recommended, one re-asked after a premise correction). (1) ZOMBIE VICTIM CORPSES: upstream acfb7ea97's rot rule NOT taken and master's "safe meat" not kept (recommended) - the maintainer picked "infected like a zombie corpse": the corpse of a zombie's kill carries the zombie sickness while it has its ZOMBIFY_MON timer; pets refuse it unless sick-resistant. (2) MONK LOCATE: upstream's second formation and random pick taken, its 3-in-4 lava-to-water swap left out. (3) SHOPKEEPER DEBUG LINE: follow upstream (c0f72bb00's narrower test, both whitelist sets off); callers that trip it are fixed. (4) BATTERY: one tester. (5) VAMPIRE: a victim corpse is refused with the new line "The blood in this corpse is tainted!"; asked twice - the first question said a real zombie's corpse has no blood (wrong: it is the base species' corpse aged 100 turns and reads "coagulated"), and on the corrected question the maintainer kept the new line for victim corpses only. (6) ICE BOX: the timer rule stands - an iced corpse never rises and is plain meat afterwards. (7) STACKING: closed - a corpse about to rise no longer stacks (0.9.3 let stacking strip the timer). RECORDED with the approved plan, not asked: the pin moved from acfb7ea97 to fd4d169b6 the same day for two curses mouse fixes; a tame vampire follows ruling 5; a sick-resistant lich- or zombie-form hero loses a victim corpse to "an odd sensation"; the infection is not extended to pet carrying, the Draugr kin sacrifice or muse.c; upstream's stray doc work files and .gitattributes ride along; doc/evilhack.txt's footer date follows the cleanly merged evilhack.6. BUG-3050..3055; merge f4ba98734. |
+| 2026-11-12 | Monster gradual stoning (Phase 2 session 326, AskUserQuestion x6 with seven questions: the slice pick, four rulings, the battery launch; all as recommended). (1) SLICE: master's monster gradual stoning (Phase 5 Hdgn rider (a)), picked over the recent LOW batch, the verify rows and the SWEEP rows. (2) SELF-CURE: a stoning spellcaster's own stone to flesh runs only over the pack items the spell really changes and takes only those off; master's loop takes off everything it wears and wields and nothing puts it back, so a cockatrice corpse stripped a caster's life saving and reflection (rejected; a third option, strip then re-dress, also rejected). (3) FIRST LINE: "<Monster> is slowing down." prints once, at the hit, for every source, and the countdown's first step is silent; master printed it at a monster's hit and again next turn, and only next turn for the hero's own hits. (4) STONED WIZARD: found turning to stone on the migrating list at his next return, the Wizard shakes it off and arrives; master parks a stone-limbed Wizard for good when the hero leaves his level (rejected, with "he finishes off-stage"). (5) STONING PET: a pet that is turning to stone eats a lizard or acidic corpse however satiated; master's satiation gate excepts only intrinsic corpses, so a full pet turned to stone beside its cure (found by the battery). (6) BATTERY: two testers in parallel. RECORDED with the approved plan, not asked: still instant - Medusa's gaze, a polymorphed hero's own touch, a monster touching a petrifier, passive stoning, every minstapetrify() caller; a golem or ent changes form at once at every producer; the beholder's 1-in-3 roll comes before the victim's cure (deviation); no pet credit for a gradual stoning (row minted); a thrown egg credits the hero only on the hero's move; a revived or split monster starts clean; the cure is a helpful gesture and never overrides a paralysis; bones clear the hero-credit flags; the countdown pauses off the level; the folded-in leftovers (the basilisk, monmulti(), the trap guards) and the one dropped (master's dead honey badger line). BUG-3056..3075. |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |

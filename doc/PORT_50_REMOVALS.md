@@ -432,6 +432,21 @@ tracker; sNNN = port session.
   "The blood in this corpse is tainted!"; it does not stack, so the
   timer cannot be shed that way (an ice box still stops it)
   (s325, BUG-3050 / 3055, f4ba98734).
+- [x] A monster was turned to stone at once by another monster's
+  stoning touch, bite or corpse weapon, by the hero's cockatrice
+  corpse or egg, by a thrown egg and by a petrifying meal -> master's
+  five-turn countdown with its message ladder, cures and hero credit.
+  Medusa's gaze, a polymorphed hero's own touch and a monster
+  touching a petrifier stay instant. By ruling "<Monster> is slowing
+  down." shows once, at the hit
+  (s326, BUG-3056..3061, commit pending; master 2f58ace93 and the
+  commits that shaped it since).
+- [x] A beholder's or Tal'Gath's gaze turned a monster to stone on
+  every gaze -> master's 1 time in 3, and gradual
+  (s326, BUG-3058, commit pending; master 903bff9ee + 1c704a9a7).
+- [x] A monster's wielded petrifying corpse also did weapon damage,
+  with the gauntlet, artifact, rust and poison riders -> master's
+  flat 1 (s326, BUG-3057, commit pending).
 
 ### 2.4 Text and logs
 
@@ -500,6 +515,11 @@ tracker; sNNN = port session.
   stone." (s324, BUG-3043, f4d0860b9; master dacf253d8).
 - [x] "You die from your illness." for food poisoning -> master's
   "sickness" (s324, BUG-3044, f4d0860b9; master 65ed594dd).
+- [x] "<Monster> is slowing down." just before "<Monster> turns to
+  stone." on an instant petrification, and again when a monster ate
+  or drank its cure -> gone, as on master; the line belongs to the
+  start of the countdown
+  (s326, BUG-3062 / 3068, commit pending; master 17488cfcc).
 
 ### 2.5 Levels and content
 
