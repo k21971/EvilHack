@@ -653,7 +653,10 @@ curses_message_win_getline(const char *prompt, char *answer, int buffer)
         case '\n':
             (void) strncpy(answer, p_answer, buffer);
             answer[buffer - 1] = '\0';
-            Strcpy(toplines, tmpbuf);
+            /* prompt plus a full-length answer can be longer than
+               toplines[] */
+            (void) strncpy(toplines, tmpbuf, TBUFSZ - 1);
+            toplines[TBUFSZ - 1] = '\0';
             mesg_add_line(tmpbuf);
 #if 1
             /* position at end of current line so next message will be
