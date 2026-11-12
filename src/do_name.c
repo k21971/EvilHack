@@ -1190,8 +1190,9 @@ do_mname()
         pline("I see no monster there.");
         return;
     }
-    /* special case similar to the one in lookat() */
-    Sprintf(qbuf, "What do you want to call %s?",
+    /* special case similar to the one in lookat(); an already named
+       monster with a long description won't fit in qbuf[] untruncated */
+    Sprintf(qbuf, "What do you want to call %.100s?",
             distant_monnam(mtmp, ARTICLE_THE, monnambuf));
     /* use getlin() to get a name string from the player */
     if (!name_from_player(buf, qbuf, has_mname(mtmp) ? MNAME(mtmp) : NULL))
