@@ -273,23 +273,38 @@ const char *mesg;
 
 #if defined(SIGWINCH) && defined(CLIPPING)
 STATIC_DCL void FDECL(winch_handler, (int));
+STATIC_DCL void NDECL(tty_resized);
+
+/* set while tty_nhgetch() is waiting for a key; nothing else in the tty
+   code is running then, so a resize can be acted on straight away */
+static volatile int winch_waiting = 0;
+/* resize arrived at some other time; tty_nhgetch() will deal with it */
+static volatile int winch_pending = 0;
 
     /*
-     * This really ought to just set a flag like the hangup handler does,
-     * then check the flag at "safe" times, in case the signal arrives
-     * while something fragile is executing.  Better to have a brief period
-     * where display updates don't fit the new size than for tty internals
-     * to become corrupted.
-     *
-     * 'winch_seen' has been "notyet" for a long time....
+     * A resize frees and reallocates the status window and redraws the
+     * screen.  Doing that from the handler while tty code is in the
+     * middle of using those buffers leaves it holding freed pointers,
+     * so unless we're idle in tty_nhgetch() just note that it happened.
      */
 /*ARGUSED*/
 STATIC_OVL void
 winch_handler(sig_unused) /* signal handler is called with at least 1 arg */
 int sig_unused UNUSED;
 {
+    if (winch_waiting)
+        tty_resized();
+    else
+        winch_pending = 1;
+}
+
+STATIC_OVL void
+tty_resized()
+{
     int oldLI = LI, oldCO = CO, i;
     struct WinDesc *cw;
+
+    winch_pending = 0;
 
 #ifdef WINCHAIN
     {
@@ -3701,6 +3716,13 @@ tty_nhgetch()
     if (iflags.debug_fuzzer) {
         i = randomkey();
     } else {
+#if defined(SIGWINCH) && defined(CLIPPING)
+        /* from here until a key arrives the handler resizes directly;
+           set the flag first so that one arriving now isn't missed */
+        ++winch_waiting;
+        if (winch_pending && winch_waiting == 1)
+            tty_resized();
+#endif
 #ifdef UNIX
         i = (++nesting == 1)
               ? tgetch()
@@ -3709,6 +3731,9 @@ tty_nhgetch()
         --nesting;
 #else
         i = tgetch();
+#endif
+#if defined(SIGWINCH) && defined(CLIPPING)
+        --winch_waiting;
 #endif
     }
     if (!i)
