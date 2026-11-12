@@ -1,4 +1,5 @@
-/* NetHack 5.0	optlist.h */
+/* $NHDT-Header: NetHack 5.0 optlist.h 2026/08/19_11:16:57 NetHack-5.0:1.122 $ */
+/* Copyright (c) Michael Allison 2024. */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OPTLIST_H
@@ -946,6 +947,13 @@ static int optfn_##a(int, int, boolean, char *, char *);
                 No, Yes, Yes, No, NoAlias,
                 "the foreground/background colors of windows")
  /* NHOPTC(windowtype) -- moved to top */
+#ifdef WIN32
+#ifdef WIN32CON
+    NHOPTB(windowsterminal, Advanced, 0, opt_out, set_in_config,
+           On, Yes, No, No, NoAlias, &iflags.windowsterminal, Term_False,
+           (char *)0)
+#endif
+#endif
     NHOPTB(wizmgender, Advanced, 0, opt_in, set_wizonly,
            Off, Yes, No, No, NoAlias, &iflags.wizmgender, Term_False,
            (char *)0)

@@ -1,4 +1,4 @@
-/* NetHack 5.0	patchlevel.h	$NHDT-Date: 1781973085 2026/06/20 16:31:25 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.310 $ */
+/* $NHDT-Header: NetHack 5.0 patchlevel.h 2026/10/27_00:19:44 NetHack-5.0:1.314 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */

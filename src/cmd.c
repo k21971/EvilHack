@@ -1,4 +1,4 @@
-/* NetHack 5.0	cmd.c	$NHDT-Date: 1781973043 2026/06/20 16:30:43 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.772 $ */
+/* $NHDT-Header: NetHack 5.0 cmd.c 2026/09/30_14:47:34 NetHack-5.0:1.788 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -132,6 +132,7 @@ staticfn void mcmd_addmenu(winid, int, const char *);
 staticfn int there_cmd_menu_self(winid, coordxy, coordxy, int *);
 staticfn int there_cmd_menu_next2u(winid, coordxy, coordxy, int, int *);
 staticfn int there_cmd_menu_far(winid, coordxy, coordxy, int);
+staticfn boolean mousebtn_has_lookat(void);
 staticfn int there_cmd_menu_common(winid, coordxy, coordxy, int, int *);
 staticfn void act_on_act(int, coordxy, coordxy);
 staticfn char there_cmd_menu(coordxy, coordxy, int);
@@ -154,6 +155,10 @@ staticfn char *doc_extcmd_flagstr(winid, const struct ext_func_tab *);
 staticfn int dummyfunction(void);
 
 static const char *readchar_queue = "";
+/* button of the mouse click that queued #therecmdmenu, else 0; kept
+   apart from iflags.getdir_click, which getdir() takes as leave to
+   hand any command a far offset instead of a direction */
+static int therecmd_click = 0;
 
 /* for rejecting attempts to use wizard mode commands
  * Also used in wizcmds.c  */
@@ -4109,7 +4114,8 @@ getdir(const char *s)
     if (cmdq) {
         if (cmdq->typ == CMDQ_DIR) {
             if (!cmdq->dirz) {
-                dirsym = gc.Cmd.dirchars[xytodir(cmdq->dirx, cmdq->diry)];
+                dirsym = gc.Cmd.dirchars[xytodir(sgn(cmdq->dirx),
+                                                 sgn(cmdq->diry))];
             } else {
                 dirsym = gc.Cmd.dirchars[(cmdq->dirz > 0) ? DIR_DOWN
                                                           : DIR_UP];
@@ -4492,21 +4498,23 @@ dotherecmdmenu(void)
     coordxy x = gc.clicklook_cc.x;
     coordxy y = gc.clicklook_cc.y;
 
-    iflags.getdir_click = CLICK_1 | CLICK_2; /* allow 'far' click */
-
-    if (isok(x, y)) {
+    if (isok(x, y) && therecmd_click) {
+        click = therecmd_click;
+        therecmd_click = 0;
         if (x == u.ux && y == u.uy)
             ch = here_cmd_menu();
         else
-            ch = there_cmd_menu(x, y, iflags.getdir_click);
-        gc.clicklook_cc.x = gc.clicklook_cc.y = -1;
-        iflags.getdir_click = 0;
+            ch = there_cmd_menu(x, y, click);
         return (ch && ch != '\033') ? ECMD_TIME : ECMD_OK;
     }
 
+    iflags.getdir_click = CLICK_1 | CLICK_2; /* allow 'far' click in getdir */
     dir = getdir((const char *) 0);
     click = iflags.getdir_click;
     iflags.getdir_click = 0;
+    /* a click that answered getdir() has been used up here */
+    therecmd_click = 0;
+    gc.clicklook_cc.x = gc.clicklook_cc.y = -1;
 
     if (!dir || !isok(u.ux + u.dx, u.uy + u.dy))
         return ECMD_CANCEL;
@@ -4695,7 +4703,7 @@ staticfn int
 there_cmd_menu_next2u(
     winid win,
     coordxy x, coordxy y,
-    int mod,
+    int mod UNUSED,
     int *act)
 {
     int K = 0;
@@ -4728,7 +4736,7 @@ there_cmd_menu_next2u(
                          "Search the door for a trap"), ++K;
             /* [what about #force?] */
             mcmd_addmenu(win, MCMD_KICK_DOOR, "Kick the door"), ++K;
-        } else if ((dm & D_ISOPEN) && (mod == CLICK_2)) {
+        } else if ((dm & D_ISOPEN)) {
             mcmd_addmenu(win, MCMD_CLOSE_DOOR, "Close the door"), ++K;
         }
     }
@@ -4801,25 +4809,42 @@ there_cmd_menu_next2u(
         mcmd_addmenu(win, MCMD_ATTACK_NEXT2U, buf), ++K;
         /* attacking overrides any other automatic action */
         *act = MCMD_ATTACK_NEXT2U;
-    } else {
-        /* "Move %s", direction - handled below */
+    } else if (test_move(u.ux, u.uy, x-u.ux, y-u.uy, TEST_MOVE)) {
+        mcmd_addmenu(win, MCMD_MOVE_DIR, "Move here"); ++K;
+        *act = MCMD_MOVE_DIR;
     }
     return K;
 }
 
 staticfn int
-there_cmd_menu_far(winid win, coordxy x, coordxy y, int mod)
+there_cmd_menu_far(winid win,
+                   coordxy x, coordxy y,
+                   int mod UNUSED)
 {
     int K = 0;
 
-    if (mod == CLICK_1) {
-        if (linedup(u.ux, u.uy, x, y, 1)
-            && dist2(u.ux, u.uy, x, y) < 18*18)
-            mcmd_addmenu(win, MCMD_THROW_OBJ, "Throw something"), ++K;
+    if (linedup(u.ux, u.uy, x, y, 1)
+        && dist2(u.ux, u.uy, x, y) < 18*18)
+        mcmd_addmenu(win, MCMD_THROW_OBJ, "Throw something"), ++K;
 
+    if (dist2(u.ux, u.uy, x,y) > 2)
         mcmd_addmenu(win, MCMD_TRAVEL, "Travel here"), ++K;
-    }
+
     return K;
+}
+
+/* return TRUE iff at least one of the mouse buttons has
+   the clicklook command bound to it */
+staticfn boolean
+mousebtn_has_lookat(void)
+{
+    int i;
+
+    for (i = 0; i < NUM_MOUSE_BUTTONS; i++)
+        if (gc.Cmd.mousebtn[i] && gc.Cmd.mousebtn[i]->ef_funct == doclicklook)
+            return TRUE;
+
+    return FALSE;
 }
 
 staticfn int
@@ -4834,7 +4859,8 @@ there_cmd_menu_common(
     if (mod == CLICK_1 || mod == CLICK_2) { /* ignore iflags.clicklook here */
         /* for self, only include "look at map symbol" if it isn't the
            ordinary hero symbol (steed, invisible w/o see invisible, ?) */
-        if (!u_at(x, y) || Upolyd || glyph_at(x, y) != hero_glyph)
+        if (!mousebtn_has_lookat()
+            && (!u_at(x, y) || Upolyd || glyph_at(x, y) != hero_glyph))
             mcmd_addmenu(win, MCMD_LOOK_AT, "Look at map symbol"), ++K;
     }
     return K;
@@ -5126,8 +5152,12 @@ click_to_cmd(coordxy x, coordxy y, int mod)
     gc.clicklook_cc.x = x;
     gc.clicklook_cc.y = y;
 
-    if (gc.Cmd.mousebtn[mod-1])
+    if (gc.Cmd.mousebtn[mod-1]) {
         cmdq_add_ec(CQ_CANNED, gc.Cmd.mousebtn[mod-1]->ef_funct);
+        /* tell dotherecmdmenu() which button asked for it */
+        therecmd_click = (gc.Cmd.mousebtn[mod-1]->ef_funct
+                          == dotherecmdmenu) ? mod : 0;
+    }
 }
 
 staticfn int
@@ -5623,6 +5653,7 @@ doclicklook(void)
 
     svc.context.move = FALSE;
     auto_describe(gc.clicklook_cc.x, gc.clicklook_cc.y);
+    gc.clicklook_cc.x = gc.clicklook_cc.y = -1;
 
     return ECMD_OK;
 }

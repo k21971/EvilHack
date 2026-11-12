@@ -1,4 +1,4 @@
-/* NetHack 5.0	dog.c	$NHDT-Date: 1781973045 2026/06/20 16:30:45 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.197 $ */
+/* $NHDT-Header: NetHack 5.0 dog.c 2026/08/23_22:51:13 NetHack-5.0:1.200 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1570,6 +1570,8 @@ dogfood(struct monst *mon, struct obj *obj)
             boolean blood_corpse =
                 (obj->otyp == CORPSE
                  && has_blood(&safe_mons(obj->corpsenm))
+                 /* the blood of a zombie's kill is tainted */
+                 && !zombie_infected(obj)
                  && (!obj->odrained
                      || obj->oeaten > (unsigned) drain_level(obj))
                  && peek_at_iced_corpse_age(obj)
@@ -1636,8 +1638,8 @@ dogfood(struct monst *mon, struct obj *obj)
                     && !(resists_acid(mon) || defended(mon, AD_ACID)))
                 || (poisonous(fptr)
                     && !(resists_poison(mon) || defended(mon, AD_DRST)))
-                || (obj->zombie_corpse && !(resists_sick(mon)
-                                            || defended(mon, AD_DISE))))
+                || (zombie_infected(obj) && !(resists_sick(mon)
+                                              || defended(mon, AD_DISE))))
                 return POISON;
             /* avoid polymorph unless starving or abused (in which case the
                pet will consider it for a chance to become more powerful) */

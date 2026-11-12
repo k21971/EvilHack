@@ -1,4 +1,4 @@
-/* NetHack 5.0	teleport.c	$NHDT-Date: 1781973069 2026/06/20 16:31:09 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.246 $ */
+/* $NHDT-Header: NetHack 5.0 teleport.c 2026/06/20_16:31:09 NetHack-5.0:1.250 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1397,7 +1397,7 @@ level_tele(void)
             } else if (!strcmp(buf, "\033")) { /* cancelled */
                 return;
             }
-            if (wizard && (protolev = find_level(buf)) != 0) {
+            if (wizard && (protolev = find_level_substr(buf)) != 0) {
                 newlevel.dnum = protolev->dlevel.dnum;
                 newlevel.dlevel = protolev->dlevel.dlevel;
                 newlev = depth(&u.uz);
@@ -1972,8 +1972,11 @@ rloc_to_core(
        no_charge is easily possible and needs to be cleared if not in shop;
        a for-sale item is ordinary here--shk won't notice it leaving; if
        mtmp teleports from one shop into another, no_charge status sticks
-       and an item on the first shk's bill stays there */
-    if (mtmp->minvent && !costly_spot(x, y)) {
+       and an item on the first shk's bill stays there; not while the
+       level is being made, though: nothing is on a bill yet, and
+       stocking a shop relocates whoever stands on its keeper's spot
+       before that shop has a keeper to ask */
+    if (level_status.shkready && mtmp->minvent && !costly_spot(x, y)) {
         struct obj *otmp;
         struct monst *shkp = find_objowner(mtmp->minvent, oldx, oldy);
         boolean peaceful = !shkp || shkp->mpeaceful;

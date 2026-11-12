@@ -1,4 +1,4 @@
-/* NetHack 5.0	trap.c	$NHDT-Date: 1781973071 2026/06/20 16:31:11 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.645 $ */
+/* $NHDT-Header: NetHack 5.0 trap.c 2026/11/02_21:05:17 NetHack-5.0:1.653 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -61,7 +61,6 @@ staticfn void doicetrap(struct obj *);
 staticfn void domagictrap(void);
 staticfn void pot_acid_damage(struct obj *, boolean, boolean);
 staticfn boolean emergency_disrobe(boolean *);
-staticfn boolean lava_protected(unsigned, unsigned *, int);
 staticfn int untrap_prob(struct trap *);
 staticfn void move_into_trap(struct trap *);
 staticfn int try_disarm(struct trap *, boolean);
@@ -8966,19 +8965,6 @@ in_iceq_effects(void)
 
 static const char lava_killer[] = "molten lava";
 
-/* lava_effects(): is oid one of the items a caller had in use when the
-   hero fell in, which it expects to still hold afterwards? */
-staticfn boolean
-lava_protected(unsigned oid, unsigned *oids, int n)
-{
-    int i;
-
-    for (i = 0; i < n; ++i)
-        if (oids[i] == oid)
-            return TRUE;
-    return FALSE;
-}
-
 /* hero enters pool of molten lava; returns True if hero is killed and
    then life-saved (with teleport to safe spot), False for other survival;
    no return at all if hero dies and isn't life-saved */
@@ -9068,7 +9054,7 @@ lava_effects(void)
         ++burnmesgcount;
         iflags.in_lava_effects++; /* (see above) */
         (void) Boots_off();
-        if (!lava_protected(obj->o_id, protect_oid, nprotect))
+        if (!is_in_usignarr(obj->o_id, protect_oid, nprotect))
             useup(obj);
         iflags.in_lava_effects--;
         ++burncount;
@@ -9098,7 +9084,7 @@ lava_effects(void)
         for (obj = gi.invent; obj; obj = obj2) {
             obj2 = obj->nobj;
             nextoid = obj2 ? obj2->o_id : 0;
-            if (lava_protected(obj->o_id, protect_oid, nprotect)) {
+            if (is_in_usignarr(obj->o_id, protect_oid, nprotect)) {
                 /* skip protected item; caller expects to retain access */
                 obj->in_use = 1; /* was cleared when recording protect_oid */
             } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD

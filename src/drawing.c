@@ -1,4 +1,5 @@
-/* NetHack 5.0	drawing.c	$NHDT-Date: 1781973047 2026/06/20 16:30:47 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.97 $ */
+/* $NHDT-Header: NetHack 5.0 drawing.c 2026/10/31_22:59:35 NetHack-5.0:1.100 $ */
+/* Copyright (c) Michael Allison 2022. */
 /* Copyright (c) NetHack Development Team 1992.                   */
 /* NetHack may be freely redistributed.  See license for details. */
 

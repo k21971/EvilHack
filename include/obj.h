@@ -1,4 +1,4 @@
-/* NetHack 5.0	obj.h	$NHDT-Date: 1781973084 2026/06/20 16:31:24 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.131 $ */
+/* $NHDT-Header: NetHack 5.0 obj.h 2026/06/20_22:26:43 NetHack-5.0:1.133 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -440,6 +440,12 @@ struct obj {
    corpse has 250 nutrition, a vampire feeding [draining blood] from
    its corpse will receive 125 nutrition from it (250 / 2 = 125) */
 #define drain_level(corpse) (mons[(corpse)->corpsenm].cnutrit / 2)
+/* a corpse that carries the zombie sickness: a real zombie's own
+   corpse, or the corpse of a zombie's kill that is about to rise as
+   one (the timed test spares the timer list walk for most objects) */
+#define zombie_infected(o) \
+    ((o)->zombie_corpse                                                 \
+     || ((o)->timed && obj_has_timer((o), ZOMBIFY_MON)))
 #define Is_pudding(o) \
     (o->otyp == GLOB_OF_GRAY_OOZE || o->otyp == GLOB_OF_BROWN_PUDDING   \
      || o->otyp == GLOB_OF_GREEN_SLIME || o->otyp == GLOB_OF_BLACK_PUDDING)

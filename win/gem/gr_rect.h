@@ -1,7 +1,6 @@
-/* gr_rect.h */
-/*
- * $NHDT-Date: 1432512809 2015/05/25 00:13:29 $  $NHDT-Branch: master $:$NHDT-Revision: 1.4 $
- */
+/* $NHDT-Header: NetHack 5.0 gr_rect.h 2026/09/30_14:47:34 NetHack-5.0:1.10 $ */
+/* Copyright (c) Ingo Paschke 2026. */
+/* NetHack may be freely redistributed.  See license for details. */
 #include <e_gem.h>
 /********** structs **********/
 typedef struct {

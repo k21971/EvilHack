@@ -1,4 +1,4 @@
-/* NetHack 5.0	extern.h	$NHDT-Date: 1778886716 2026/05/15 15:11:56 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.1558 $ */
+/* $NHDT-Header: NetHack 5.0 extern.h 2026/10/17_14:49:13 NetHack-5.0:1.1583 $ */
 /* Copyright (c) Steve Creps, 1988.                               */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -979,6 +979,7 @@ extern void restore_dungeon(NHFILE *) NONNULLARG1;
 extern void insert_branch(branch *, boolean) NONNULLARG1;
 extern void init_dungeons(void);
 extern s_level *find_level(const char *) NONNULLARG1;
+extern s_level *find_level_substr(const char *) NONNULLARG1;
 extern s_level *Is_special(d_level *) NONNULLARG1;
 extern branch *Is_branchlev(d_level *) NONNULLARG1;
 extern boolean builds_up(d_level *) NONNULLARG1;
@@ -2293,7 +2294,8 @@ extern int dosuspend(void);
 extern void nt_regularize(char *);
 extern int(*nt_kbhit)(void);
 extern void Delay(int);
-boolean get_user_home_folder(char *, size_t);
+extern boolean get_user_home_folder(char *, size_t);
+extern boolean WindowsTerminalActive(void);
 # ifdef CRASHREPORT
 struct CRctxt;
 extern struct CRctxt *ctxp;
@@ -2483,6 +2485,10 @@ extern int set_keyhandling_via_option(void);
 extern void tty_utf8graphics_fixup(void);
 extern void tty_ibmgraphics_fixup(void);
 #endif /* ENHANCED_SYMBOLS */
+#ifdef WIN32CON
+extern const char *win32con_topl_fixup(const char *);
+#endif
+extern boolean wincon_WindowsTerminalActive(void);
 #endif /* WIN32 */
 
 /* ### o_init.c ### */
@@ -3089,7 +3095,8 @@ extern int dorecover(NHFILE *) NONNULLARG1;
 extern void restcemetery(NHFILE *, struct cemetery **) NONNULLARG12;
 extern void trickery(char *) NO_NNARGS;
 extern void getlev(NHFILE *, int, xint8) NONNULLARG1;
-extern void get_plname_from_file(NHFILE *, char *, boolean) NONNULLARG12;
+extern int get_plname_from_file(NHFILE *, char *, size_t, boolean) NONNULLARG12;
+ATTRNORETURN extern void plnabort(int) NORETURN;
 #ifdef SELECTSAVED
 extern int restore_menu(winid);
 #endif

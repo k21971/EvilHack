@@ -1,4 +1,4 @@
-/* NetHack 5.0	dungeon.c	$NHDT-Date: 1781973047 2026/06/20 16:30:47 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.239 $ */
+/* $NHDT-Header: NetHack 5.0 dungeon.c 2026/11/02_21:05:17 NetHack-5.0:1.243 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -314,6 +314,25 @@ find_level(const char *s)
         if (!strcmpi(s, curr->proto))
             break;
     return curr;
+}
+
+/* like find_level, but match partial file proto name,
+   eg. finds quest levels easier */
+s_level *
+find_level_substr(const char *s)
+{
+    s_level *curr = NULL;
+
+    if ((curr = find_level(s)) != 0) {
+        return curr;
+    } else {
+        char qbuf[QBUFSZ];
+
+        Snprintf(qbuf, sizeof qbuf, "%s-%s", gu.urole.filecode, s);
+        if ((curr = find_level(qbuf)) != 0)
+            return curr;
+    }
+    return NULL;
 }
 
 /* Find the branch that links the named dungeon. */

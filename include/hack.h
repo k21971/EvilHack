@@ -1,4 +1,4 @@
-/* NetHack 5.0	hack.h	$NHDT-Date: 1781973080 2026/06/20 16:31:20 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.299 $ */
+/* $NHDT-Header: NetHack 5.0 hack.h 2026/10/27_11:20:36 NetHack-5.0:1.309 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1551,6 +1551,9 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define MENU_COMBINATION 1
 #define MENU_FULL 2
 #define MENU_PARTIAL 3
+
+/* sizeof YYYYMMDDHHMMSS */
+#define NHDATELEN 14
 
 /* flags to control teleds() */
 #define TELEDS_NO_FLAGS   0

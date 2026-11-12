@@ -1,6 +1,7 @@
-/*
- * $NHDT-Date: 1432512809 2015/05/25 00:13:29 $  $NHDT-Branch: master $:$NHDT-Revision: 1.5 $
- */
+/* $NHDT-Header: NetHack 5.0 load_img.c 2026/11/07_02:51:19 NetHack-5.0:1.11 $ */
+/* Copyright (c) Ingo Paschke 2026. */
+/* NetHack may be freely redistributed.  See license for details. */
+
 #define __TCC_COMPAT__
 #include <stdio.h>
 #include <string.h>

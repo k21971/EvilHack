@@ -1,4 +1,4 @@
-/* NetHack 5.0	objnam.c	$NHDT-Date: 1781973060 2026/06/20 16:31:00 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.464 $ */
+/* $NHDT-Header: NetHack 5.0 objnam.c 2026/11/02_21:05:17 NetHack-5.0:1.474 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -6410,7 +6410,7 @@ readobjnam(char *bp, struct obj *no_wish)
                     d.mntmp = genus(d.mntmp, 1);
                 set_corpsenm(d.otmp, d.mntmp);
             }
-            if (d.zombify && zombie_form(&mons[d.mntmp])) {
+            if (d.zombify && zombie_form(&mons[d.mntmp]) != NON_PM) {
                 (void) start_timer(rn1(5, 10), TIMER_OBJECT,
                                    ZOMBIFY_MON, obj_to_any(d.otmp));
             }

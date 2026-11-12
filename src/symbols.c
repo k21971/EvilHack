@@ -1,4 +1,5 @@
-/* NetHack 5.0	symbols.c	$NHDT-Date: 1781973069 2026/06/20 16:31:09 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.128 $ */
+/* $NHDT-Header: NetHack 5.0 symbols.c 2026/11/04_00:49:44 NetHack-5.0:1.136 $ */
+/* Copyright (c) Michael Allison 2024. */
 /* Copyright (c) NetHack Development Team 2020.                   */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -974,6 +975,11 @@ symparse_find(const void *bstr_, const void *rec_)
     for (i = 0; i < bstr->len; ++i) {
         char c1 = bstr->str[i];
         char c2 = (*rec)->name[i];
+
+        /* if c2=='\0' then 'rec' is a leading substring of 'bstr' */
+        if (!c2) /* i < bstr->len implies that c1 isn't '\0', so no match */
+            return 1; /* bstr > rec */
+
         if ('A' <= c1 && c1 <= 'Z') {
             c1 += 'a' - 'A';
         }
@@ -984,11 +990,12 @@ symparse_find(const void *bstr_, const void *rec_)
             return c1 - c2;
         }
     }
+    /* if 'rec' hasn't been exhausted, 'bstr' is a leading substring of it
+       rather than a match */
+    if ((*rec)->name[i])
+        return -1; /* bstr < rec */
 
-    /* the key is used up; a name that goes on past it only starts with
-       it (S_lava is not S_lavawall), and sorts after it as in
-       symparse_compare() */
-    return ((*rec)->name[bstr->len] != '\0') ? -1 : 0;
+    return 0;
 }
 
 /*
@@ -1036,6 +1043,10 @@ do_symset(boolean rogueflag)
             if (sl->handling == H_UTF8)
                 continue;
 #endif
+#ifdef WIN32CON
+            if ((sl->handling == H_UTF8) && !WindowsTerminalActive())
+                continue;
+#endif
             setcount++;
             /* find biggest name */
             thissize = sl->name ? (int) strlen(sl->name) : 0;
@@ -1072,6 +1083,10 @@ do_symset(boolean rogueflag)
 #endif
 #ifndef ENHANCED_SYMBOLS
             if (sl->handling == H_UTF8)
+                continue;
+#endif
+#ifdef WIN32CON
+            if ((sl->handling == H_UTF8) && !WindowsTerminalActive())
                 continue;
 #endif
             if (sl->name) {

@@ -1,4 +1,4 @@
-/* NetHack 5.0	save.c	$NHDT-Date: 1781973065 2026/06/20 16:31:05 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.263 $ */
+/* $NHDT-Header: NetHack 5.0 save.c 2026/10/27_11:20:36 NetHack-5.0:1.274 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -342,9 +342,9 @@ savegamestate(NHFILE *nhfp)
      */
     u.ustuck_mid = 0;
     u.usteed_mid = 0;
-    Sfo_char(nhfp, yyyymmddhhmmss(ubirthday), "gamestate-ubirthday", 14);
+    Sfo_char(nhfp, yyyymmddhhmmss(ubirthday), "gamestate-ubirthday", NHDATELEN);
     Sfo_long(nhfp, &urealtime.realtime, "gamestate-realtime");
-    Sfo_char(nhfp, yyyymmddhhmmss(urealtime.start_timing), "gamestate-start_timing", 14);
+    Sfo_char(nhfp, yyyymmddhhmmss(urealtime.start_timing), "gamestate-start_timing", NHDATELEN);
     /* this is the value to use for the next update of urealtime.realtime */
     urealtime.start_timing = urealtime.finish_time;
     save_killers(nhfp);
@@ -999,6 +999,11 @@ savemonchn(NHFILE *nhfp, struct monst *mtmp)
             && !(program_state.in_idlecheckpoint && DEADMONSTER(mtmp)
                  && !PARKEDMONSTER(mtmp) && !icequeen_pending(mtmp))) {
             mtmp->mnum = monsndx(mtmp->data);
+            /* a defeated Ice Queen keeps her kit until dmonsfree()
+               revives her */
+            if (DEADMONSTER(mtmp) && mtmp->minvent
+                && !icequeen_pending(mtmp))
+                impossible("Dead monster still has minvent");
             if (mtmp->ispriest)
                 forget_temple_entry(mtmp); /* EPRI() */
             savemon(nhfp, mtmp);

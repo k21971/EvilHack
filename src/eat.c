@@ -1,4 +1,4 @@
-/* NetHack 5.0	eat.c	$NHDT-Date: 1781973048 2026/06/20 16:30:48 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.354 $ */
+/* $NHDT-Header: NetHack 5.0 eat.c 2026/07/31_10:25:58 NetHack-5.0:1.358 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -2229,6 +2229,7 @@ eatcorpse(struct obj *otmp)
     boolean isvamp = (maybe_polyd(is_vampire(gy.youmonst.data),
                                   Race_if(PM_VAMPIRE)));
     boolean stoneable,
+            infected = zombie_infected(otmp),
             slimeable = (mnum == PM_GREEN_SLIME && !Slimed && !Unchanging
                          && !slimeproof(gy.youmonst.data)),
             glob = otmp->globby ? TRUE : FALSE;
@@ -2295,7 +2296,10 @@ eatcorpse(struct obj *otmp)
 
     /* 5.0: globs don't become tainted, they shrink away */
     if ((!glob && !stoneable && !slimeable && rotted > 5L)
-        || otmp->zombie_corpse) {
+        || otmp->zombie_corpse
+        /* a zombie's kill carries the sickness too, unless eating it
+           turns the eater to stone first */
+        || (infected && !stoneable)) {
         /* cannibalism is judged by the corpse's racial base */
         boolean cannibal = (has_omonst(otmp) && has_erac(OMONST(otmp)))
                            ? maybe_cannibal(ERAC(OMONST(otmp))->rmnum, FALSE)
@@ -2321,9 +2325,9 @@ eatcorpse(struct obj *otmp)
                   : vegetarian(&mons[mnum]) ? "protoplasm"
                     : "meat",
                   cannibal ? ", you cannibal" : "");
-            if (Sick_resistance && !otmp->zombie_corpse) {
+            if (Sick_resistance && !infected) {
                 pline("It doesn't seem at all sickening, though...");
-            } else if (!otmp->zombie_corpse) {
+            } else if (!infected) {
                 long sick_time;
 
                 sick_time = (long) rn1(10, 10);
@@ -3275,7 +3279,7 @@ edibility_prompts(struct obj *otmp)
      * order from most detrimental to least detrimental.
      */
     buf[0] = '\0';
-    if (cadaver && (rotted > 5L || otmp->zombie_corpse)
+    if (cadaver && (rotted > 5L || zombie_infected(otmp))
         && !Sick_resistance) {
         /* Tainted meat */
         Snprintf(buf, sizeof buf, "%s like %s could be tainted!",
@@ -3284,7 +3288,7 @@ edibility_prompts(struct obj *otmp)
         Snprintf(buf, sizeof buf,
                  "%s like %s could be something very dangerous!",
                  foodsmell, it_or_they);
-    } else if (cadaver && (rotted > 5L || otmp->zombie_corpse)
+    } else if (cadaver && (rotted > 5L || zombie_infected(otmp))
                && Sick_resistance
                && !(!Upolyd && Race_if(PM_DRAUGR))) {
         /* Tainted meat with Sick_resistance (testing for that is
@@ -3577,6 +3581,15 @@ doeat(void)
     }
     if (otmp->oclass != FOOD_CLASS)
         return doeat_nonfood(otmp);
+
+    /* a vampire will not drink from a zombie's kill that is about to
+       rise; say so before the meal counts for anything (a real
+       zombie's corpse is too old to drain, and eatcorpse() says that) */
+    if (isvamp && otmp->otyp == CORPSE && !otmp->zombie_corpse
+        && zombie_infected(otmp)) {
+        pline_The("blood in this corpse is tainted!");
+        return ECMD_OK;
+    }
 
     if (otmp == svc.context.victual.piece
         && isvamp != otmp->odrained)

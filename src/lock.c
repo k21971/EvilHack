@@ -1,4 +1,4 @@
-/* NetHack 5.0	lock.c	$NHDT-Date: 1781973052 2026/06/20 16:30:52 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.150 $ */
+/* $NHDT-Header: NetHack 5.0 lock.c 2026/11/02_21:05:17 NetHack-5.0:1.155 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -826,13 +826,16 @@ pick_lock(
                 return PICKLOCK_LEARNED_SOMETHING;
             }
 
-            Sprintf(qbuf, "%s it%s",
-                    (door->doormask & D_LOCKED) ? "Unlock" : "Lock",
-                    autounlock ? " with " : "?");
-            /* a long key name gets its simple name instead */
-            if (autounlock)
+            if (autounlock) {
+                Sprintf(qbuf, "%s it with ",
+                        (door->doormask & D_LOCKED) ? "Unlock" : "Lock");
+                /* a long key name gets shortened to fit */
                 (void) safe_qbuf(qbuf, qbuf, "?", pick, yname, ysimple_name,
                                  "that");
+            } else {
+                Sprintf(qbuf, "%s it?",
+                        (door->doormask & D_LOCKED) ? "Unlock" : "Lock");
+            }
             c = ynq(qbuf);
             if (c != 'y')
                 return PICKLOCK_DID_NOTHING;

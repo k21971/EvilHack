@@ -1,4 +1,4 @@
--- NetHack Tourist Tou-loca.lua	$NHDT-Date: 1781994874 2026/06/20 22:34:34 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.4 $
+-- $NHDT-Header: NetHack 5.0 Tou-loca.lua 2026/11/02_21:05:17 NetHack-5.0:1.11 $
 --	Copyright (c) 1989 by Jean-Christophe Collet
 --	Copyright (c) 1991,92 by M. Stephenson, P. Winner
 -- NetHack may be freely redistributed.  See license for details.
