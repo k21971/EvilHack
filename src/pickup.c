@@ -4255,12 +4255,14 @@ boolean *cancelled;
         exclude_it = !hands_available || (otmp->olocked && otmp->lknown);
         any = zeroany;
         any.a_obj = !exclude_it ? otmp : 0;
-        Sprintf(buf, "%s%s", !exclude_it ? "" : "    ", doname(otmp));
+        (void) snprintf(buf, sizeof buf, "%s%s",
+                        !exclude_it ? "" : "    ", doname(otmp));
         add_menu(win, NO_GLYPH, &any, !exclude_it ? otmp->invlet : 0, 0,
                  ATR_NONE, buf, MENU_UNSELECTED);
     }
 
-    Sprintf(buf, "Where to tip the contents of %s", doname(box));
+    (void) snprintf(buf, sizeof buf, "Where to tip the contents of %s",
+                    doname(box));
     end_menu(win, buf);
     n = select_menu(win, PICK_ONE, &pick_list);
     destroy_nhwindow(win);

@@ -432,16 +432,15 @@ E_phrase(etmp, verb)
 struct entity *etmp;
 const char *verb;
 {
-    static char wholebuf[80];
+    static char wholebuf[BUFSZ];
+    const char *who = is_u(etmp) ? "You" : Monnam(etmp->emon);
 
-    Strcpy(wholebuf, is_u(etmp) ? "You" : Monnam(etmp->emon));
+    /* a named monster doesn't leave much room in 80 characters */
     if (!verb || !*verb)
-        return wholebuf;
-    Strcat(wholebuf, " ");
-    if (is_u(etmp))
-        Strcat(wholebuf, verb);
+        (void) snprintf(wholebuf, sizeof wholebuf, "%s", who);
     else
-        Strcat(wholebuf, vtense((char *) 0, verb));
+        (void) snprintf(wholebuf, sizeof wholebuf, "%s %s", who,
+                        is_u(etmp) ? verb : vtense((char *) 0, verb));
     return wholebuf;
 }
 

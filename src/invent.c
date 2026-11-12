@@ -3840,7 +3840,7 @@ boolean picked_some;
         for (; otmp; otmp = otmp->nexthere) {
             if (otmp->otyp == CORPSE && will_feel_cockatrice(otmp, FALSE)) {
                 felt_cockatrice = TRUE;
-                Sprintf(buf, "%s...", doname(otmp));
+                (void) snprintf(buf, sizeof buf, "%s...", doname(otmp));
                 putstr(tmpwin, 0, buf);
                 break;
             }

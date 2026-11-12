@@ -311,6 +311,7 @@ int x, y, glyph;
 {
     struct obj *otmp = 0;
     boolean fakeobj = object_from_map(glyph, x, y, &otmp);
+    const char *where = "";
 
     if (otmp) {
         Strcpy(buf, (otmp->otyp != STRANGE_OBJECT)
@@ -325,17 +326,19 @@ int x, y, glyph;
         Strcpy(buf, something); /* sanity precaution */
 
     if (otmp && otmp->where == OBJ_BURIED)
-        Strcat(buf, " (buried)");
+        where = " (buried)";
     else if (levl[x][y].typ == STONE || levl[x][y].typ == SCORR)
-        Strcat(buf, " embedded in stone");
+        where = " embedded in stone";
     else if (IS_WALL(levl[x][y].typ) || levl[x][y].typ == SDOOR)
-        Strcat(buf, " embedded in a wall");
+        where = " embedded in a wall";
     else if (closed_door(x, y))
-        Strcat(buf, " embedded in a door");
+        where = " embedded in a door";
     else if (is_pool(x, y))
-        Strcat(buf, " in water");
+        where = " in water";
     else if (is_lava(x, y))
-        Strcat(buf, " in molten lava"); /* [can this ever happen?] */
+        where = " in molten lava"; /* [can this ever happen?] */
+    /* buf is BUFSZ and the object's description can already fill it */
+    (void) strncat(buf, where, BUFSZ - 1 - strlen(buf));
     return;
 }
 
@@ -348,7 +351,13 @@ int x, y;
     char *name, monnambuf[BUFSZ];
     boolean accurate = !Hallucination;
     char *mwounds;
+    /* The description is put together piece by piece without checking
+       lengths, and a named rider on a named steed with a few of the
+       optional clauses is longer than the caller's BUFSZ.  Assemble it
+       in something roomier and hand back as much as fits. */
+    char widebuf[4 * BUFSZ], *outbuf = buf;
 
+    buf = widebuf;
     if (!canspotmon(mtmp) && has_erid(mtmp)
         && canspotmon(ERID(mtmp)->mon_steed))
         mtmp = ERID(mtmp)->mon_steed;
@@ -457,6 +466,9 @@ int x, y;
        due to persistant monster detection he might remember something else */
     if (mtmp->mundetected || M_AP_TYPE(mtmp))
         mhidden_description(mtmp, FALSE, eos(buf));
+
+    (void) strncpy(outbuf, widebuf, BUFSZ - 1);
+    outbuf[BUFSZ - 1] = '\0';
 
     if (monbuf) {
         unsigned how_seen = howmonseen(mtmp);
@@ -3300,7 +3312,8 @@ struct permonst **for_supplement;
                 *for_supplement = pm;
             *firstmatch = look_buf;
             if (*(*firstmatch)) {
-                Sprintf(temp_buf, " (%s)", *firstmatch);
+                (void) snprintf(temp_buf, sizeof temp_buf, " (%s)",
+                                *firstmatch);
                 (void) strncat(out_str, temp_buf,
                                BUFSZ - strlen(out_str) - 1);
                 found = 1; /* we have something to look up */
@@ -3715,7 +3728,8 @@ boolean without_asking;
                     const char *txt;
 
                     if (strstri(textp[i], "%s") != 0) {
-                        Sprintf(buf, textp[i], subs++ ? gang : fullname);
+                        (void) snprintf(buf, sizeof buf, textp[i],
+                                        subs++ ? gang : fullname);
                         txt = buf;
                     } else
                         txt = textp[i];

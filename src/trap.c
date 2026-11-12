@@ -5925,7 +5925,7 @@ boolean disarm;
 {
     struct obj *otmp = obj, *otmp2;
     boolean yours = (mon == &youmonst);
-    char buf[80];
+    char buf[BUFSZ];
     const char *msg;
     coord cc;
 
@@ -5997,7 +5997,7 @@ boolean disarm;
 
             if (yours || canseemon(mon)) {
                 pline("%s!", Tobjnam(obj, "explode"));
-                Sprintf(buf, "exploding %s", xname(obj));
+                (void) snprintf(buf, sizeof buf, "exploding %s", xname(obj));
             } else if (!Deaf) {
                 You_hear("a distant explosion.");
             }

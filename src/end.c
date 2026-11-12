@@ -908,9 +908,10 @@ dump_plines()
                 /* Different message - output previous if any */
                 if (prev_msg) {
                     if (count > 1)
-                        Sprintf(buf, " %s (%dx)", prev_msg, count);
+                        (void) snprintf(buf, sizeof buf, " %s (%dx)",
+                                        prev_msg, count);
                     else
-                        Sprintf(buf, " %s", prev_msg);
+                        (void) snprintf(buf, sizeof buf, " %s", prev_msg);
                     putstr(0, 0, buf);
                 }
                 prev_msg = *strp;
@@ -922,9 +923,9 @@ dump_plines()
     /* Output final accumulated message */
     if (prev_msg) {
         if (count > 1)
-            Sprintf(buf, " %s (%dx)", prev_msg, count);
+            (void) snprintf(buf, sizeof buf, " %s (%dx)", prev_msg, count);
         else
-            Sprintf(buf, " %s", prev_msg);
+            (void) snprintf(buf, sizeof buf, " %s", prev_msg);
         putstr(0, 0, buf);
     }
 
