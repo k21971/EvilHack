@@ -972,6 +972,9 @@ curses_break_str(const char *str, int width, int line_num)
     char *retstr;
     int curline = 0;
     int strsize = (int) strlen(str) + 1;
+
+    if (width < 1) /* window was resized down to nothing */
+        width = 1;
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
     char substr[strsize];
     char curstr[strsize];
@@ -1044,6 +1047,9 @@ curses_str_remainder(const char *str, int width, int line_num)
     char *retstr;
     int curline = 0;
     int strsize = strlen(str) + 1;
+
+    if (width < 1)
+        width = 1;
 #if __STDC_VERSION__ >= 199901L
     char substr[strsize];
     char tmpstr[strsize];
