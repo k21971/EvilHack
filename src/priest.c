@@ -1402,7 +1402,7 @@ mstatusline(mtmp)
 struct monst *mtmp;
 {
     aligntyp alignment = mon_aligntyp(mtmp);
-    char info[BUFSZ], monnambuf[BUFSZ];
+    char info[2 * BUFSZ], monnambuf[BUFSZ];
 
     info[0] = 0;
     if (spot_is_dark(mtmp->mx, mtmp->my))
@@ -1548,7 +1548,7 @@ struct monst *mtmp;
 void
 ustatusline()
 {
-    char info[BUFSZ];
+    char info[2 * BUFSZ]; /* every condition at once is over BUFSZ */
     int gend = (Upolyd && is_neuter(youmonst.data)) ? 2
                                                     : (flags.female ? 1 : 0);
 

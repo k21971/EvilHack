@@ -167,9 +167,9 @@ int target, roll;
 
         if (flags.verbose && !nearmiss && blocker) {
             fmt = "%s %s %s";
-            Sprintf(buf, fmt, s_suffix(Monnam(mdef)),
-                    aobjnam(blocker, (char *) 0),
-                    (rn2(2) ? "blocks" : "deflects"));
+            (void) snprintf(buf, sizeof buf, fmt, s_suffix(Monnam(mdef)),
+                            aobjnam(blocker, (char *) 0),
+                            (rn2(2) ? "blocks" : "deflects"));
             pline("%s %s attack.", buf, s_suffix(mon_nam_too(magr, mdef)));
             /* called if attacker hates the material of the armor
                that deflected their attack */

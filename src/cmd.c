@@ -6649,15 +6649,16 @@ boolean doit;
     if (OBJ_AT(u.ux, u.uy)) {
         struct obj *otmp = level.objects[u.ux][u.uy];
 
-        Sprintf(buf, "Pick up %s", otmp->nexthere ? "items" : doname(otmp));
+        (void) snprintf(buf, sizeof buf, "Pick up %s",
+                        otmp->nexthere ? "items" : doname(otmp));
         add_herecmd_menuitem(win, dopickup, buf);
 
         if (Is_nonprize_container(otmp)) {
-            Sprintf(buf, "Loot %s", doname(otmp));
+            (void) snprintf(buf, sizeof buf, "Loot %s", doname(otmp));
             add_herecmd_menuitem(win, doloot, buf);
         }
         if (otmp->oclass == FOOD_CLASS) {
-            Sprintf(buf, "Eat %s", doname(otmp));
+            (void) snprintf(buf, sizeof buf, "Eat %s", doname(otmp));
             add_herecmd_menuitem(win, doeat, buf);
         }
     }

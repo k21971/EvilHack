@@ -4236,13 +4236,15 @@ boolean only_if_known_cursed; /* ignore covering unless known to be cursed */
                                   && !strcmp(shk_your(cloaktmp, uarmc),
                                              shk_your(suittmp, uarm)));
 
+            /* two long names might not fit in buf[] */
             *buf = '\0';
             if (uarmc)
                 Strcat(buf, yname(uarmc));
             if (uarm && uarmc)
-                Strcat(buf, " and ");
+                (void) strncat(buf, " and ", sizeof buf - 1 - strlen(buf));
             if (uarm)
-                Strcat(buf, sameprefix ? xname(uarm) : yname(uarm));
+                (void) strncat(buf, sameprefix ? xname(uarm) : yname(uarm),
+                               sizeof buf - 1 - strlen(buf));
             You(need_to_take_off_outer_armor, buf, verb, yname(obj));
         }
         return TRUE;

@@ -1940,8 +1940,8 @@ struct monst *mtmp;
             /* engulf */
             ++ecount;
             if (ecount == 1)
-                Sprintf(buf, "%s engulfs %s.", Monnam(mtmp),
-                        distant_name(otmp, doname));
+                (void) snprintf(buf, sizeof buf, "%s engulfs %s.",
+                                Monnam(mtmp), distant_name(otmp, doname));
             else if (ecount == 2)
                 Sprintf(buf, "%s engulfs several objects.", Monnam(mtmp));
             obj_extract_self(otmp);
@@ -2141,8 +2141,8 @@ struct monst *mtmp;
             /* engulf */
             ++ecount;
             if (ecount == 1)
-                Sprintf(buf, "%s engulfs %s.", Monnam(mtmp),
-                        distant_name(otmp, doname));
+                (void) snprintf(buf, sizeof buf, "%s engulfs %s.",
+                                Monnam(mtmp), distant_name(otmp, doname));
             else if (ecount == 2)
                 Sprintf(buf, "%s engulfs several objects.", Monnam(mtmp));
             obj_extract_self(otmp);

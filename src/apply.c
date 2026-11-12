@@ -2399,11 +2399,12 @@ long timeout;
         if (mtmp->mundetected) {
             if (hides_under(mtmp->data)
                 && concealed_spot(mtmp->mx, mtmp->my)) {
-                Sprintf(and_vanish, " and %s under %s%s",
-                        locomotion(mtmp->data, "crawl"),
-                        (mshelter ? "" : "the "),
-                        (mshelter ? doname(mshelter) :
-                         explain_terrain(mtmp->mx, mtmp->my)));
+                (void) snprintf(and_vanish, sizeof and_vanish,
+                                " and %s under %s%s",
+                                locomotion(mtmp->data, "crawl"),
+                                (mshelter ? "" : "the "),
+                                (mshelter ? doname(mshelter) :
+                                 explain_terrain(mtmp->mx, mtmp->my)));
             } else if (mtmp->data->mlet == S_MIMIC
                        || mtmp->data->mlet == S_EEL
                        || mtmp->data == &mons[PM_GIANT_LEECH]) {

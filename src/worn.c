@@ -1111,7 +1111,8 @@ boolean racialexception;
             char buf[BUFSZ];
 
             if (old)
-                Sprintf(buf, " removes %s and", distant_name(old, doname));
+                (void) snprintf(buf, sizeof buf, " removes %s and",
+                                distant_name(old, doname));
             else
                 buf[0] = '\0';
             pline("%s%s puts on %s.", Monnam(mon), buf,
