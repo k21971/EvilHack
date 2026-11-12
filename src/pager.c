@@ -3224,7 +3224,8 @@ struct permonst **for_supplement;
             /* Kludge: warning trumps boulders on the display.
                Reveal the boulder too or player can get confused */
             if (looked && sobj_at(BOULDER, cc.x, cc.y))
-                Strcat(out_str, " co-located with a boulder");
+                (void) strncat(out_str, " co-located with a boulder",
+                               BUFSZ - 1 - strlen(out_str));
             break; /* out of for loop*/
         }
     }

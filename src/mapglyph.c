@@ -671,6 +671,8 @@ const char *str;
                             gv = (gv * 16) + ((int) (dp - hex) / 2);
                         else
                             break;
+                    if (gv >= MAX_GLYPH) /* not one of ours */
+                        gv = cmap_to_glyph(S_stone);
                     so = mapglyph(gv, &ch, &oc, &os, 0, 0, 0);
                     if (SYMHANDLING(H_UTF8) && showsyms[so] > 0x7F) {
                         int uc = get_unicode_codepoint(showsyms[so]);
