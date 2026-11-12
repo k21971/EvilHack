@@ -4872,7 +4872,7 @@ tty_show_color_palette()
 
     /* Header kept to 3 lines (TERM+COLORTERM merged, Detected, blank)
        so the full demo fits in an 80x24 terminal */
-    Sprintf(buf, "  TERM = %s  COLORTERM = %s",
+    Sprintf(buf, "  TERM = %.100s  COLORTERM = %.100s",
             envterm ? envterm : "(unset)",
             cterm ? cterm : "(unset)");
     xputs(buf);

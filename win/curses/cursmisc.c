@@ -655,7 +655,7 @@ curses_show_color_palette()
     erase();
 
     /* Header */
-    Sprintf(buf, "  TERM = %s  COLORTERM = %s",
+    Sprintf(buf, "  TERM = %.100s  COLORTERM = %.100s",
             envterm ? envterm : "(unset)",
             cterm ? cterm : "(unset)");
     mvwaddstr(win, y++, 0, buf);

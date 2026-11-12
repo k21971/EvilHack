@@ -72,7 +72,11 @@ getlin_hook_proc hook;
 
     for (;;) {
         (void) fflush(stdout);
-        Strcat(strcat(strcpy(toplines, query), " "), obufp);
+        /* query and input together can be longer than toplines[] */
+        toplines[0] = '\0';
+        (void) strncat(toplines, query, TBUFSZ - 2);
+        Strcat(toplines, " ");
+        (void) strncat(toplines, obufp, TBUFSZ - 1 - strlen(toplines));
         c = pgetchar();
         if (c == '\033' || c == EOF) {
             if (c == '\033' && obufp[0] != '\0') {
