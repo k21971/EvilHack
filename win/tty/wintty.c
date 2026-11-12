@@ -3152,6 +3152,8 @@ const char *prompt; /* prompt to for menu */
 
     /* 52: 'a'..'z' and 'A'..'Z'; avoids selector duplication within a page */
     lmax = min(52, (int) ttyDisplay->rows - 1);    /* # lines per page */
+    if (lmax < 1) /* one-line terminal */
+        lmax = 1;
     cw->npages = (cw->nitems + (lmax - 1)) / lmax; /* # of pages */
     /*
      * TODO?

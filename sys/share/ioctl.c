@@ -111,6 +111,12 @@ getwindowsz()
             LI = ttsz.ws_row;
         if (ttsz.ws_col)
             CO = ttsz.ws_col;
+        /* the tty port keeps these in shorts and sizes buffers from
+           them, so don't trust an absurd size reported by the terminal */
+        if (LI > 1000)
+            LI = 1000;
+        if (CO > 1000)
+            CO = 1000;
     }
 #endif
 }
