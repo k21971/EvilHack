@@ -3820,16 +3820,21 @@ mstatusline(struct monst *mtmp)
         Strcat(info, ", withering away");
     if (mtmp->msleeping)
         Strcat(info, ", asleep");
+    /* a monster turning to stone says so in place of whatever else
+       is keeping it from moving; a sleeper gives no second reason */
+    if (mtmp->mstone)
+        Strcat(info, ", solidifying");
 #if 0 /* unfortunately mfrozen covers temporary sleep and being busy
        * (donning armor, for instance) as well as paralysis */
-    else if (mtmp->mfrozen)
+    else if (!mtmp->msleeping && mtmp->mfrozen)
         Strcat(info, ", paralyzed");
 #else
-    else if (mtmp->mfrozen || !mtmp->mcanmove)
+    else if (!mtmp->msleeping && (mtmp->mfrozen || !mtmp->mcanmove))
         Strcat(info, ", can't move");
 #endif
     /* [arbitrary reason why it isn't moving] */
-    else if ((mtmp->mstrategy & STRAT_WAITMASK) != 0)
+    else if (!mtmp->msleeping
+             && (mtmp->mstrategy & STRAT_WAITMASK) != 0)
         Strcat(info, ", meditating");
     if (mtmp->mflee)
         Strcat(info, ", scared");

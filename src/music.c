@@ -44,7 +44,9 @@ staticfn void
 awaken_scare(struct monst *mtmp, boolean scary)
 {
     mtmp->msleeping = 0;
-    mtmp->mcanmove = 1;
+    /* limbs that have turned to stone stay still */
+    if (!mtmp->mstone || mtmp->mstone > 2)
+        mtmp->mcanmove = 1;
     mtmp->mfrozen = 0;
     /* may scare some monsters -- waiting monsters excluded */
     if (!unique_corpstat(mtmp->data)
@@ -180,7 +182,8 @@ awaken_soldiers(struct monst *bugler  /* monster that played instrument */)
             if (!mtmp->mtame)
                 mtmp->mpeaceful = 0;
             mtmp->msleeping = mtmp->mfrozen = 0;
-            mtmp->mcanmove = 1;
+            if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */

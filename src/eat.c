@@ -1851,7 +1851,8 @@ consume_tin(const char *mesg)
         }
 
         which = 0; /* 0=>plural, 1=>as-is, 2=>"the" prefix */
-        if ((mnum == PM_COCKATRICE || mnum == PM_CHICKATRICE)
+        if ((mnum == PM_COCKATRICE || mnum == PM_CHICKATRICE
+             || mnum == PM_BASILISK)
             && (Stone_resistance || Hallucination)) {
             what = "chicken";
             which = 1; /* suppress pluralization */
@@ -2420,7 +2421,8 @@ eatcorpse(struct obj *otmp)
         if (retcode < 2 && otmp->odrained
             && otmp->oeaten < (unsigned) drain_level(otmp))
             otmp->oeaten = (unsigned) drain_level(otmp);
-    } else if ((mnum == PM_COCKATRICE || mnum == PM_CHICKATRICE)
+    } else if ((mnum == PM_COCKATRICE || mnum == PM_CHICKATRICE
+                || mnum == PM_BASILISK)
                && (Stone_resistance || Hallucination)) {
         pline("This tastes just like chicken!");
     } else if (mnum == PM_FLOATING_EYE && u.umonnum == PM_RAVEN) {

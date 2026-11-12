@@ -2825,6 +2825,9 @@ clone_mon(
     m2->mwither = 0;
     m2->mdiseased = 0;
     m2->mdiseasetime = 0;
+    /* nor is a petrification under way; this also frees limbs the
+       parent has already lost the use of */
+    stop_mon_stoning(m2);
     m2->mentangled = 0;
     m2->mentangletime = 0;
     /* rage is per-monster state, not inherited */

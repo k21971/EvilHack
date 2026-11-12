@@ -877,7 +877,19 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             learn_it = TRUE;
         break;
     case SPE_STONE_TO_FLESH:
-        if (mtmp->data->mlet == S_GOLEM) {
+        if (mtmp->mstone) {
+            /* stops a petrification under way; a kindness, so it does
+               not anger the target or count as an attack on it */
+            stop_mon_stoning(mtmp);
+            helpful_gesture = TRUE;
+            if (!canseemon(mtmp)) {
+                ; /* no feedback */
+            } else if (Hallucination) {
+                pline("What a pity - you just ruined a future piece of art!");
+            } else {
+                pline_mon(mtmp, "%s seems limber!", Monnam(mtmp));
+            }
+        } else if (mtmp->data->mlet == S_GOLEM) {
             const char *mesg;
             char *name = Monnam(mtmp); /* before possible polymorph */
 
@@ -1320,6 +1332,9 @@ montraits(
         mtmp2->mwither = 0;
         mtmp2->mdiseased = 0;
         mtmp2->mdiseasetime = 0;
+        /* nor does a petrification it died in the middle of resume */
+        mtmp2->mstone = 0;
+        mtmp2->mstonebyu = 0;
         mtmp2->mentangled = 0;
         mtmp2->mentangletime = 0;
         mtmp2->msummoned = 0;
@@ -2725,6 +2740,47 @@ poly_obj(struct obj *obj, int id)
     return otmp;
 }
 
+/* could stone to flesh do anything to this object?  FALSE for the
+   ones it never changes whatever the dice say; an ordinary object
+   that passes may still resist. stone_to_flesh_obj() starts from this
+   test, and a spellcasting monster curing its own petrification uses
+   it to pick the pack items its spell is run over */
+boolean
+stone_to_flesh_changes(struct obj *obj)
+{
+    /* judged by the object's own material */
+    if (obj->material != MINERAL && obj->material != GEMSTONE)
+        return FALSE;
+    /* dragon-scaled armor merged into a dragon form is part of that
+       body; poly_obj() can't take it off */
+    if (obj == uskin)
+        return FALSE;
+    /* artifacts always resist */
+    if (obj->oartifact || obj_indestructible(obj))
+        return FALSE;
+    switch (objects[obj->otyp].oc_class) {
+    case ROCK_CLASS: /* boulders and statues */
+    case TOOL_CLASS: /* figurines */
+        return (boolean) (obj->otyp == BOULDER || obj->otyp == STATUE
+                          || obj->otyp == FIGURINE);
+    case RING_CLASS:
+    case WAND_CLASS:
+    case GEM_CLASS:
+    case WEAPON_CLASS:
+        return TRUE;
+    case ARMOR_CLASS:
+        /* crystal plate mail resists nearly all magic; cloaks and
+           shirts are never made of stone */
+        if (is_suit(obj))
+            return (boolean) (obj->otyp != CRYSTAL_PLATE_MAIL);
+        return (boolean) (is_helmet(obj) || is_shield(obj)
+                          || is_gloves(obj) || is_boots(obj));
+    default:
+        break;
+    }
+    return valid_obj_material(obj, FLESH);
+}
+
 /* stone-to-flesh spell hits and maybe transforms or animates obj */
 staticfn int
 stone_to_flesh_obj(struct obj *obj) /* nonnull */
@@ -2736,14 +2792,10 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
     boolean smell = FALSE, golem_xform = FALSE, ent_xform = FALSE;
     int res = 1; /* affected object by default */
 
-    /* judged by the object's own material */
-    if (obj->material != MINERAL && obj->material != GEMSTONE)
+    /* not stone, or something the spell never changes */
+    if (!stone_to_flesh_changes(obj))
         return 0;
-    /* dragon-scaled armor merged into a dragon form is part of that
-       body; poly_obj() can't take it off */
-    if (obj == uskin)
-        return 0;
-    /* artifacts always resist; ordinary items rarely do */
+    /* ordinary items rarely resist */
     if (obj_resists(obj, 2, 100))
         return 0;
 
@@ -4223,6 +4275,7 @@ zap_steed(struct obj *obj) /* wand or spell */
     /* Default processing via bhitm() for these */
     case SPE_CURE_SICKNESS:
     case SPE_RESTORE_ABILITY:
+    case SPE_STONE_TO_FLESH:
     case WAN_MAKE_INVISIBLE:
     case WAN_CANCELLATION:
     case SPE_CANCELLATION:

@@ -667,26 +667,15 @@ mattackm(
                     && !(resists_ston(mdef) || defended(mdef, AD_STON))) {
                     /* a wielded petrifying corpse also stones the target
                        of a non-physical weapon attack, whose damage
-                       handler never looks at the weapon; there is no
-                       gradual-stoning countdown for monsters yet, so the
-                       blow petrifies outright, the way do_stone_mon()
-                       resolves a physical hit */
-                    if (munstone(mdef, FALSE)) {
-                        ; /* ate a cure, which may itself have been fatal */
-                    } else if (poly_when_stoned(mdef->data)) {
-                        mon_to_stone(mdef);
-                    } else {
-                        if (gv.vis && canseemon(mdef))
-                            pline_mon(mdef, "%s turns to stone!",
-                                      Monnam(mdef));
-                        if (magr->mtame)
-                            set_pet_killer(magr);
-                        monstone(mdef);
-                    }
+                       handler never looks at the weapon; a physical hit
+                       has already been through do_stone_mon(), and a
+                       target that is turning to stone is left to it */
+                    start_mon_stoning(mdef, FALSE);
+                    /* a golem's or an ent's change of form can be
+                       fatal: a handless one lets its own wielded
+                       cockatrice corpse touch it */
                     if (DEADMONSTER(mdef))
-                        res[i] = (M_ATTK_DEF_DIED
-                                  | (grow_up(magr, mdef) ? 0
-                                                         : M_ATTK_AGR_DIED));
+                        res[i] |= M_ATTK_DEF_DIED;
                     break;
                 }
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
@@ -1127,6 +1116,11 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
     boolean archon = (magr->data == &mons[PM_ARCHON]
                       && mattk->adtyp == AD_BLND),
             altmesg = (archon && !magr->mcansee);
+
+    /* a beholder's or Tal'Gath's petrifying gaze takes hold one time
+       in three; the rest of the time it passes without notice */
+    if (mattk->adtyp == AD_STON && magr->data != &mons[PM_MEDUSA] && rn2(3))
+        return M_ATTK_MISS;
 
     /* bring target out of hiding even if hero doesn't see it happen (this
        is already done in pre_mm_attack() and shouldn't be needed here) */

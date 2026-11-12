@@ -1579,9 +1579,12 @@ dogfood(struct monst *mon, struct obj *obj)
 
             if (!blood_corpse)
                 return TABU;
+            /* however full, one that is turning to stone still wants
+               the blood that would stop it */
             if (mon->mtame && !mon->isminion
                 && EDOG(mon)->hungrytime >= svm.moves + DOG_SATIATED
-                && !can_give_new_mintrinsic(fptr, mon))
+                && !can_give_new_mintrinsic(fptr, mon)
+                && !(mon->mstone && cures_stoning(mon, obj, TRUE)))
                 return MANFOOD;
             return DOGFOOD;
         }
@@ -1608,6 +1611,11 @@ dogfood(struct monst *mon, struct obj *obj)
                 return stale_egg(obj) ? CADAVER : starving ? ACCFOOD : POISON;
             return TABU;
         }
+
+        /* lizards cure stoning; ghouls won't eat them even then, the
+           way elves prefer starvation to cannibalism */
+        if (obj->otyp == CORPSE && fptr == &mons[PM_LIZARD] && mon->mstone)
+            return DOGFOOD;
 
         /* gnomes hate eggs */
         if (obj->otyp == EGG && racial_gnome(mon))

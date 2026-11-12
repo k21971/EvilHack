@@ -4201,6 +4201,7 @@ passiveum(
             }
             pline_mon(mtmp, "%s turns to stone!", Monnam(mtmp));
             gs.stoned = 1;
+            stop_mon_stoning(mtmp); /* end any lingering countdown */
             xkilled(mtmp, XKILL_NOMSG);
             if (!DEADMONSTER(mtmp))
                 return M_ATTK_HIT;

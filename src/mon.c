@@ -11,6 +11,7 @@ staticfn void sanity_check_single_mon(struct monst *, boolean, const char *);
 staticfn struct obj *make_corpse(struct monst *, unsigned);
 staticfn int minliquid_core(struct monst *);
 staticfn void m_calcdistress(struct monst *);
+staticfn void m_stone_countdown(struct monst *);
 staticfn int mloot_container(struct monst *, struct obj *,
                              boolean) NONNULLARG12;
 staticfn int mopen_container(struct monst *, struct obj *) NONNULLARG12;
@@ -1557,9 +1558,78 @@ growing_original_vine(struct monst *mtmp)
                       && mtmp->mhp >= (mtmp->mhpmax * 2) / 3);
 }
 
+/* one step of a monster's petrification countdown, modelled on the
+   hero's own: it loses its speed, its limbs stiffen and then turn to
+   stone, which stops it moving, and on the fifth step it is a statue */
+staticfn void
+m_stone_countdown(struct monst *mtmp)
+{
+    if (resists_ston(mtmp) || defended(mtmp, AD_STON)) {
+        /* gained resistance since the stoning took hold */
+        stop_mon_stoning(mtmp);
+    } else if (poly_when_stoned(mtmp->data)) {
+        /* became a golem or an ent since then */
+        stop_mon_stoning(mtmp);
+        mon_to_stone(mtmp);
+    } else {
+        const char *limbs = nolimbs(mtmp->data) ? "extremities" : "limbs";
+
+        switch (mtmp->mstone--) {
+        case 5:
+            /* takes away intrinsic speed without a message;
+               start_mon_stoning() has already said it is slowing down */
+            mon_adjust_speed(mtmp, -4, (struct obj *) 0);
+            break;
+        case 4:
+            if (canspotmon(mtmp))
+                pline_mon(mtmp, "%s %s are stiffening.",
+                          s_suffix(Monnam(mtmp)), limbs);
+            break;
+        case 3:
+            if (canspotmon(mtmp))
+                pline_mon(mtmp, "%s %s have turned to stone.",
+                          s_suffix(Monnam(mtmp)), limbs);
+            mtmp->mcanmove = 0;
+            break;
+        case 2:
+            if (canspotmon(mtmp))
+                pline_mon(mtmp, "%s has almost completely turned to stone.",
+                          Monnam(mtmp));
+            mtmp->mcanmove = 0;
+            break;
+        case 1:
+            if (canspotmon(mtmp))
+                pline_mon(mtmp, "%s is a statue.", Monnam(mtmp));
+            if (mtmp->mstonebyu) {
+                /* the statue step was announced above */
+                mtmp->mstonebyu = 0;
+                gs.stoned = TRUE;
+                xkilled(mtmp, XKILL_NOMSG);
+            } else {
+                monstone(mtmp);
+            }
+            break;
+        }
+    }
+    /* a survivor of the last step (life saving, a vampire or sandestin
+       back in its own shape) has the use of its limbs again */
+    if (!mtmp->mstone && !mtmp->mfrozen)
+        mtmp->mcanmove = 1;
+}
+
 staticfn void
 m_calcdistress(struct monst *mtmp)
 {
+    /* a monster turning to stone gets one step closer; this comes first
+       because the illness blocks below return early and the Izchak test
+       further down reads the count this step leaves */
+    if (mtmp->mstone) {
+        m_stone_countdown(mtmp);
+        /* the last step kills it; a form change on the way can too */
+        if (mon_lost_in_rloc(mtmp))
+            return;
+    }
+
     /* must check non-moving monsters once/turn in case they managed
        to end up in water or lava; note: when not in liquid they regen,
        shape-shift, timeout temporary maladies just like other monsters */
@@ -1697,7 +1767,10 @@ m_calcdistress(struct monst *mtmp)
     /* gradually time out temporary problems */
     if (mtmp->mblinded && !--mtmp->mblinded)
         mtmp->mcansee = 1;
-    if (mtmp->mfrozen && !--mtmp->mfrozen)
+    /* limbs that have turned to stone stay still when a paralysis or
+       a busy spell runs out */
+    if (mtmp->mfrozen && !--mtmp->mfrozen
+        && (!mtmp->mstone || mtmp->mstone > 2))
         mtmp->mcanmove = 1;
     if (mtmp->mfleetim && !--mtmp->mfleetim)
         mtmp->mflee = 0;
@@ -2144,8 +2217,8 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
     } else if (otmp == uchain) {
         unpunish(); /* frees uchain */
     } else {
-        boolean deadmimic, slimer, unsick, pyro_egg;
-        int poly, grow, heal, eyes, mstone, vis = canseemon(mtmp);
+        boolean deadmimic, slimer, unsick, unstone, pyro_egg;
+        int poly, grow, heal, eyes, stoner, vis = canseemon(mtmp);
         int corpsenm = (otmp->otyp == CORPSE ? otmp->corpsenm : NON_PM);
 
         deadmimic = (otmp->otyp == CORPSE && (corpsenm == PM_SMALL_MIMIC
@@ -2159,11 +2232,13 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
         slimer = (otmp->otyp == GLOB_OF_GREEN_SLIME);
         unsick = (otmp->otyp == EUCALYPTUS_LEAF
                   && (mtmp->msick || mtmp->mdiseased));
+        /* a lizard or an acidic meal stops a petrification under way */
+        unstone = (mtmp->mstone && cures_stoning(mtmp, otmp, TRUE));
         poly = polyfood(otmp);
         grow = mlevelgain(otmp);
         heal = mhealup(otmp);
         eyes = (otmp->otyp == CARROT);
-        mstone = mstoning(otmp);
+        stoner = mstoning(otmp);
         delobj(otmp); /* munch */
         if (poly || slimer) {
             struct permonst *ptr = slimer ? &mons[PM_GREEN_SLIME] : 0;
@@ -2175,15 +2250,20 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
                 || !ispet)
                 (void) grow_up(mtmp, (struct monst *) 0);
         }
-        if (mstone) {
-            if (poly_when_stoned(mtmp->data)) {
-                mon_to_stone(mtmp);
-            } else if (!(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
-                if (vis)
-                    pline_mon(mtmp, "%s turns to stone!",
-                              Monnam(mtmp));
-                monstone(mtmp);
-            }
+        /* the form change or the growth above may have killed it */
+        if (DEADMONSTER(mtmp))
+            return;
+        if (stoner) {
+            /* a petrifying meal: a golem or an ent changes at once,
+               anything else that is not resistant starts turning to
+               stone */
+            start_mon_stoning(mtmp, FALSE);
+            if (DEADMONSTER(mtmp))
+                return;
+        }
+        if (unstone) {
+            stop_mon_stoning(mtmp);
+            mon_unstone_msg(mtmp);
         }
         if (unsick) {
             mtmp->msick = mtmp->mdiseased = 0;
@@ -5253,7 +5333,9 @@ lifesaved_monster(struct monst *mtmp)
         check_gear_next_turn(mtmp);
 
         surviver = !(svm.mvitals[monsndx(mtmp->data)].mvflags & G_GENOD);
-        mtmp->mcanmove = 1;
+        /* life saving does not undo limbs already turned to stone */
+        if (!mtmp->mstone || mtmp->mstone > 2)
+            mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         if (mtmp->mtame && !mtmp->isminion) {
             wary_dog(mtmp, !surviver);
@@ -5307,6 +5389,7 @@ vamprises(struct monst *mtmp)
                  spec_death ? "reconstitutes" : "transforms");
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
+        mtmp->mstone = 0;
         set_mon_min_mhpmax(mtmp, 10); /* mtmp->mhpmax=max(m_lev+1,10) */
         mtmp->mhp = mtmp->mhpmax;
         /* mtmp==u.ustuck can happen if previously a fog cloud or if
@@ -6106,6 +6189,10 @@ monstone(struct monst *mdef)
     coordxy x = mdef->mx, y = mdef->my;
     boolean wasinside = FALSE;
 
+    /* being turned to stone now ends any countdown toward it, so that
+       a monster which life saving brings back is not still petrifying */
+    stop_mon_stoning(mdef);
+
     /* vampshifter reverts to vampire;
        3.6.3: also used to unshift shape-changed sandestin */
     if (!vamp_stone(mdef)) {
@@ -6799,6 +6886,46 @@ mon_to_stone(struct monst *mtmp)
         impossible("Can't polystone %s!", a_monnam(mtmp));
 }
 
+/* a petrifying effect has taken hold of a monster: a golem or an ent
+   changes into its stone form at once, anything else begins the
+   five-turn countdown that m_stone_countdown() runs; byu records
+   whether the hero is to be credited with the statue. A resistant
+   monster and one that is already turning to stone are left alone;
+   the monster may be dead on return (the form change can kill) */
+void
+start_mon_stoning(struct monst *mtmp, boolean byu)
+{
+    if (mtmp->mstone || resists_ston(mtmp) || defended(mtmp, AD_STON))
+        return;
+    if (poly_when_stoned(mtmp->data)) {
+        mon_to_stone(mtmp);
+        return;
+    }
+    mtmp->mstone = 5;
+    mtmp->mstonebyu = byu ? 1 : 0;
+    /* said once, here; the countdown's own first step is silent */
+    if (canseemon(mtmp) && mtmp->data->mmove)
+        pline_mon(mtmp, "%s is slowing down.", Monnam(mtmp));
+}
+
+/* end a monster's petrification countdown, whatever stopped it, and
+   give back the use of limbs that had already turned to stone; a
+   paralysis or sleep that is still running keeps it helpless */
+void
+stop_mon_stoning(struct monst *mtmp)
+{
+    boolean stiff;
+
+    if (!mtmp->mstone)
+        return;
+    /* the countdown takes mcanmove away at its last two steps */
+    stiff = (mtmp->mstone <= 2);
+    mtmp->mstone = 0;
+    mtmp->mstonebyu = 0;
+    if (stiff && !mtmp->mfrozen)
+        mtmp->mcanmove = 1;
+}
+
 boolean
 vamp_stone(struct monst *mtmp)
 {
@@ -6823,6 +6950,7 @@ vamp_stone(struct monst *mtmp)
                     surface(x, y));
             mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
+            mtmp->mstone = 0;
             set_mon_min_mhpmax(mtmp, 10); /* mtmp->mhpmax=max(m_lev+1,10) */
             mtmp->mhp = mtmp->mhpmax;
             /* this can happen if previously a fog cloud */
@@ -6858,6 +6986,7 @@ vamp_stone(struct monst *mtmp)
            they revert to innate shape rather than become a statue */
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
+        mtmp->mstone = 0;
         set_mon_min_mhpmax(mtmp, 10); /* mtmp->mhpmax=max(mtmp->m_lev+1,10) */
         mtmp->mhp = mtmp->mhpmax;
         (void) newcham(mtmp, &mons[mtmp->cham], NC_SHOW_MSG);

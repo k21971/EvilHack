@@ -986,6 +986,10 @@ resurrect(void)
                 elapsed /= 50L;
                 if (mtmp->msleeping && rn2((int) elapsed + 1))
                     mtmp->msleeping = 0;
+                /* he shakes off a petrification rather than sit out
+                   the game with limbs of stone; its countdown does
+                   not run while he is away */
+                stop_mon_stoning(mtmp);
                 if (mtmp->mfrozen == 1) /* would unfreeze on next move */
                     mtmp->mfrozen = 0, mtmp->mcanmove = 1;
                 if (!helpless(mtmp)) {

@@ -835,6 +835,10 @@ savebones(int how, time_t when, struct obj *corpse)
         mtmp->mlstmv = 0L;
         if (mtmp->mtame)
             mtmp->mtame = mtmp->mpeaceful = 0;
+        /* nor is the next hero to be credited with, or blamed for, a
+           death this one set in motion */
+        mtmp->mstonebyu = mtmp->msickbyu = mtmp->mdiseabyu = 0;
+        mtmp->mwither_from_u = 0;
         /* observations about the current hero won't apply to future game */
         mtmp->seen_resistance = M_SEEN_NOTHING;
         /* nor has the next hero seen an object-mimic's look up close;

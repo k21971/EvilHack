@@ -558,6 +558,9 @@ dog_eat(struct monst *mtmp,
     long oprice;
     char objnambuf[BUFSZ], *obj_name;
     boolean vamp = is_vampire(mtmp->data);
+    /* a lizard or an acidic meal stops a petrification under way;
+       read now, the blood-draining arm can lose the object */
+    boolean unstone = (mtmp->mstone && cures_stoning(mtmp, obj, TRUE));
 
     objnambuf[0] = '\0';
     if (edog->hungrytime < svm.moves)
@@ -689,6 +692,11 @@ dog_eat(struct monst *mtmp,
         /* the blood gives what eating the corpse would have */
         if (ismnum(corpsenm))
             mon_givit(mtmp, &mons[corpsenm]);
+        /* m_consume_obj() sees to this for a pet that eats */
+        if (unstone) {
+            stop_mon_stoning(mtmp);
+            mon_unstone_msg(mtmp);
+        }
     } else {
         /* It's a reward if it's DOGFOOD and the player dropped/threw it.
            We know the player had it if invlet is set. -dlc */
@@ -828,7 +836,8 @@ dog_quaff_blood(struct monst *mtmp, struct edog *edog)
 }
 
 /* a deeply satiated pet leaves food alone, unless it is a corpse that
-   would give the pet an intrinsic it lacks */
+   would give the pet an intrinsic it lacks, or the pet is turning to
+   stone and the food would stop that */
 staticfn boolean
 dog_too_full(struct monst *mtmp, struct edog *edog, struct obj *obj)
 {
@@ -836,6 +845,8 @@ dog_too_full(struct monst *mtmp, struct edog *edog, struct obj *obj)
         return FALSE;
     if (obj->otyp == CORPSE && ismnum(obj->corpsenm)
         && can_give_new_mintrinsic(&mons[obj->corpsenm], mtmp))
+        return FALSE;
+    if (mtmp->mstone && cures_stoning(mtmp, obj, TRUE))
         return FALSE;
     return TRUE;
 }

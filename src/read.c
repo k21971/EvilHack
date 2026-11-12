@@ -2034,7 +2034,8 @@ seffect_scare_monster(struct obj **sobjp)
         if (cansee(mtmp->mx, mtmp->my)) {
             if (confused || scursed) {
                 mtmp->mflee = mtmp->mfrozen = mtmp->msleeping = 0;
-                mtmp->mcanmove = 1;
+                if (!mtmp->mstone || mtmp->mstone > 2)
+                    mtmp->mcanmove = 1;
             } else if (!resist(mtmp, sobj->oclass, 0, NOTELL)
                        /* some monsters are immune */
                        && onscary(0, 0, mtmp))

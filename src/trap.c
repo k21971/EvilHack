@@ -1047,6 +1047,8 @@ animate_statue(
     else
         mon->mundetected = FALSE;
     mon->msleeping = 0;
+    /* clear any slow-stoning timer left over from its first life */
+    stop_mon_stoning(mon);
     if (cause == ANIMATE_NORMAL || cause == ANIMATE_SHATTER) {
         /* trap always releases hostile monster */
         mon->mtame = 0; /* (might be petrified pet tossed onto trap) */
@@ -4616,6 +4618,9 @@ instapetrify(const char *str)
 void
 minstapetrify(struct monst *mon, boolean byplayer)
 {
+    /* end any countdown already under way; this one is at once */
+    stop_mon_stoning(mon);
+
     if (resists_ston(mon) || defended(mon, AD_STON))
         return;
     if (poly_when_stoned(mon->data)) {
@@ -4624,10 +4629,6 @@ minstapetrify(struct monst *mon, boolean byplayer)
     }
     if (!vamp_stone(mon))
         return;
-
-    /* give a "<mon> is slowing down" message and also remove
-       intrinsic speed (comparable to similar effect on the hero) */
-    mon_adjust_speed(mon, -3, (struct obj *) 0);
 
     if (cansee(mon->mx, mon->my))
         pline_mon(mon, "%s turns to stone.", Monnam(mon));
@@ -7144,8 +7145,10 @@ help_monster_out(
         mtmp->msleeping = 0;
         pline("%s awakens.", Monnam(mtmp));
     } else if (mtmp->mfrozen && !rn2(mtmp->mfrozen)) {
-        /* After such manhandling, perhaps the effect wears off */
-        mtmp->mcanmove = 1;
+        /* After such manhandling, perhaps the effect wears off;
+           limbs that have turned to stone stay still */
+        if (!mtmp->mstone || mtmp->mstone > 2)
+            mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
         pline("%s stirs.", Monnam(mtmp));
     }

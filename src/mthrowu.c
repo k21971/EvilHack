@@ -331,17 +331,25 @@ monmulti(
         /* fake players treated as skilled (regardless of role limits) */
         else if (is_mplayer(mtmp->data))
             multishot++;
+        /* Medusa is an expert archer */
+        else if (mtmp->data == &mons[PM_MEDUSA])
+            multishot += 2;
+        /* mariliths have multiple pairs of limbs */
+        else if (mtmp->data == &mons[PM_MARILITH])
+            multishot += 2;
 
         /* this portion is different from hero multishot; from slash'em?
          */
-        /* Elven Craftsmanship makes for light, quick bows */
-        if (otmp->otyp == ELVEN_ARROW && !otmp->cursed)
+        /* Elvenkind Craftsmanship makes for light, quick bows */
+        if ((otmp->otyp == ELVEN_ARROW || otmp->otyp == DARK_ELVEN_ARROW)
+            && !otmp->cursed)
             multishot++;
         /* for arrow, we checked bow&arrow when entering block, but for
            bow, so far we've only validated that otmp is a weapon stack;
            need to verify that it's a stack of arrows rather than darts */
-        if (mwep && mwep->otyp == ELVEN_BOW && ammo_and_launcher(otmp, mwep)
-            && !mwep->cursed)
+        if (mwep
+            && (mwep->otyp == ELVEN_BOW || mwep->otyp == DARK_ELVEN_BOW)
+            && ammo_and_launcher(otmp, mwep) && !mwep->cursed)
             multishot++;
         /* 1/3 of launcher enchantment */
         if (ammo_and_launcher(otmp, mwep) && mwep->spe > 1)
@@ -748,10 +756,13 @@ ohitmon(
             }
         }
         if (otmp->otyp == EGG && safe_touch_petrifies(otmp->corpsenm)) {
-            if (!munstone(mtmp, FALSE))
-                minstapetrify(mtmp, FALSE);
+            /* the target starts turning to stone (a golem or an ent
+               changes form at once); the hero is credited on the same
+               test as for the missile's damage below */
             if (resists_ston(mtmp) || defended(mtmp, AD_STON))
                 damage = 0;
+            else
+                start_mon_stoning(mtmp, !svc.context.mon_moving);
         }
 
         /* might already be dead (if petrified) */

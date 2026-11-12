@@ -48,6 +48,7 @@ staticfn void you_aggravate(struct monst *);
 #if 0
 staticfn boolean necrophiliac(struct obj *, boolean);
 #endif
+staticfn void m_unwear_in_place(struct monst *, struct obj *);
 staticfn void mon_consume_unstone(struct monst *, struct obj *, boolean,
                                 boolean);
 staticfn boolean mcould_eat_tin(struct monst *);
@@ -1739,14 +1740,16 @@ use_defensive(struct monst *mtmp)
         if (Is_botlevel(&u.uz))
             return 0;
         m_flee(mtmp);
+        /* the trap can be gone by the time the monster acts on it */
         t = t_at(gt.trapx, gt.trapy);
-        if (vis) {
+        if (vis && t) {
             pline_mon(mtmp, "%s %s into a %s!", Monnam(mtmp),
                   vtense(fakename[0], locomotion(mtmp->data, "jump")),
                   trapname(t->ttyp, FALSE));
         }
         /* if trap was in a concealed niche, it's no longer concealed */
-        reveal_trap(t, vis);
+        if (t)
+            reveal_trap(t, vis);
 
         /*  don't use rloc_to() because worm tails must "move" */
         remove_monster(mtmp->mx, mtmp->my);
@@ -1840,14 +1843,16 @@ use_defensive(struct monst *mtmp)
         return 2;
     case MUSE_TELEPORT_TRAP:
         m_flee(mtmp);
+        /* the trap can be gone by the time the monster acts on it */
         t = t_at(gt.trapx, gt.trapy);
-        if (vis) {
+        if (vis && t) {
             pline_mon(mtmp, "%s %s onto a %s!", Monnam(mtmp),
                   vtense(fakename[0], locomotion(mtmp->data, "jump")),
                   trapname(t->ttyp, FALSE));
         }
         /* if trap was in a concealed niche, it's no longer concealed */
-        reveal_trap(t, vis);
+        if (t)
+            reveal_trap(t, vis);
         /*  don't use rloc_to() because worm tails must "move" */
         remove_monster(mtmp->mx, mtmp->my);
         newsym(mtmp->mx, mtmp->my); /* update old location */
@@ -1945,15 +1950,16 @@ use_defensive(struct monst *mtmp)
     case MUSE_LIZARD_CORPSE:
         if (!otmp)
             panic(MissingDefensiveItem, "lizard corpse");
-        /* not actually called for its unstoning effect */
-        mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
+        /* picked for confusion or stun; it stops a petrification
+           under way as well */
+        mon_consume_unstone(mtmp, otmp, FALSE, mtmp->mstone ? TRUE : FALSE);
         return 2;
     case MUSE_ACIDIC_CORPSE:
         if (!otmp)
             panic(MissingDefensiveItem, "acidic corpse");
         /* find_defensive() offers an untinned one only to a monster that
-           resists acid; not called for its unstoning effect either */
-        mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
+           resists acid; like the lizard, it stops a petrification too */
+        mon_consume_unstone(mtmp, otmp, FALSE, mtmp->mstone ? TRUE : FALSE);
         return DEADMONSTER(mtmp) ? 1 : 2;
     case MUSE_EUCALYPTUS_LEAF:
         if (!otmp)
@@ -4350,6 +4356,11 @@ use_misc(struct monst *mtmp)
         return 2;
     case MUSE_POLY_TRAP:
         t = t_at(gt.trapx, gt.trapy);
+        if (!t) {
+            impossible("MUSE_POLY_TRAP: trap vanished at <%d,%d>",
+                       gt.trapx, gt.trapy);
+            return 0;
+        }
         vistrapspot = cansee(t->tx, t->ty);
         if (vis || vistrapspot)
             seetrap(t);
@@ -5212,7 +5223,49 @@ mcureblindness(struct monst *mon, boolean verbos)
     }
 }
 
-/* TRUE if the monster ate something */
+/* take a worn or wielded item off its monster without moving it out
+   of the pack: extract_from_minvent()'s bookkeeping, less the
+   extraction */
+staticfn void
+m_unwear_in_place(struct monst *mon, struct obj *obj)
+{
+    long unwornmask;
+
+    /* these end an artifact's light and leave the monster looking for
+       a weapon again */
+    if ((obj->owornmask & W_WEP) != 0L && MON_WEP(mon) == obj)
+        mwepgone(mon);
+    if ((obj->owornmask & W_SWAPWEP) != 0L && MON_WEP2(mon) == obj)
+        mwep2gone(mon);
+    unwornmask = obj->owornmask;
+    if (!unwornmask)
+        return;
+    /* a lit artifact goes out before its mask clears; artifact_light()
+       reads the mask */
+    if (obj->lamplit && artifact_light(obj))
+        end_burn(obj, FALSE);
+    obj->owornmask = 0L;
+    update_mon_extrinsics(mon, obj, FALSE, TRUE);
+    mon->misc_worn_check &= ~unwornmask;
+    /* it may want something else in that slot */
+    check_gear_next_turn(mon);
+}
+
+/* a monster's petrification has just been stopped by something it
+   ate or drank; tell the hero if that was seen */
+void
+mon_unstone_msg(struct monst *mon)
+{
+    if (!canseemon(mon))
+        return;
+    if (Hallucination)
+        pline("What a pity - %s just ruined a future piece of art!",
+              mon_nam(mon));
+    else
+        pline_mon(mon, "%s seems limber!", Monnam(mon));
+}
+
+/* TRUE if the monster ate something or cast its cure */
 boolean
 munstone(struct monst *mon, boolean by_you)
 {
@@ -5224,6 +5277,47 @@ munstone(struct monst *mon, boolean by_you)
     if (mon->meating || helpless(mon))
         return FALSE;
     mon->mstrategy &= ~STRAT_WAITFORU;
+
+    /* a spellcaster of some skill turns the stone back to flesh, along
+       with whatever stone it is carrying */
+    if (is_spellcaster(mon) && !mon->mcan && !mon->mspec_used
+        && !mon->mconf && mon->m_lev >= 5) {
+        struct obj *otmp, *onext, *pseudo;
+
+        pseudo = mksobj(SPE_STONE_TO_FLESH, FALSE, FALSE);
+        pseudo->blessed = pseudo->cursed = 0;
+        mon->mspec_used += rn2(7);
+        if (canspotmon(mon)) {
+            pline_mon(mon, "%s casts a spell!", Monnam(mon));
+            if (Hallucination)
+                pline("Look!  The Pillsbury Doughboy!");
+            else
+                pline_mon(mon, "%s seems limber!", Monnam(mon));
+        }
+        stop_mon_stoning(mon);
+        for (otmp = mon->minvent; otmp; otmp = onext) {
+            onext = otmp->nobj;
+            /* only what the spell can change is touched, so the rest
+               of its gear stays on */
+            if (!stone_to_flesh_changes(otmp)
+                || (svc.context.bypasses && otmp->bypass))
+                continue;
+            /* a steed keeps its tack, and a figurine or statue come
+               to life inside a shop would be charged to the hero */
+            if ((otmp->owornmask & (W_SADDLE | W_BARDING)) != 0L
+                || ((otmp->otyp == FIGURINE || otmp->otyp == STATUE)
+                    && costly_spot(mon->mx, mon->my)))
+                continue;
+            /* the spell replaces the item, so it comes off first */
+            m_unwear_in_place(mon, otmp);
+            if (DEADMONSTER(mon))
+                break;
+            (void) bhito(otmp, pseudo);
+        }
+        obfree(pseudo, (struct obj *) 0);
+        mon->mlstmv = svm.moves; /* it takes a turn */
+        return TRUE;
+    }
 
     tinok = mcould_eat_tin(mon);
     for (obj = mon->minvent; obj; obj = obj->nobj) {
@@ -5250,11 +5344,6 @@ mon_consume_unstone(
             leaf = obj->otyp == EUCALYPTUS_LEAF;
     int nutrit = food ? dog_nutrition(mon, obj) : 0; /* also sets meating */
 
-    /* give a "<mon> is slowing down" message and also remove
-       intrinsic speed (comparable to similar effect on the hero) */
-    if (stoning)
-        mon_adjust_speed(mon, -3, (struct obj *) 0);
-
     if (vis) {
         long save_quan = obj->quan;
 
@@ -5272,31 +5361,14 @@ mon_consume_unstone(
     m_useup(mon, obj);
     /* obj is now gone */
 
-    if (acid && !tinned && !(resists_acid(mon) || defended(mon, AD_ACID))) {
-        damage_mon(mon, rnd(15), AD_ACID, FALSE);
-        if (vis)
-            pline_mon(mon, "%s has a very bad case of stomach acid.", Monnam(mon));
-        if (DEADMONSTER(mon)) {
-            pline_mon(mon, "%s dies!", Monnam(mon));
-            if (by_you)
-                /* hero gets credit (experience) and blame (possible loss
-                   of alignment and/or luck and/or telepathy depending on
-                   mon) for the kill but does not break pacifism conduct */
-                xkilled(mon, XKILL_NOMSG | XKILL_NOCONDUCT);
-            else
-                mondead(mon);
-            return;
-        }
+    /* the cures come before the acid: a monster that the acid kills
+       and life saving brings back must come back cured, not still
+       turning to stone */
+    if (stoning) {
+        stop_mon_stoning(mon);
+        mon_unstone_msg(mon);
     }
-    if (stoning && vis) {
-        if (Hallucination)
-            pline("What a pity - %s just ruined a future piece of art!",
-                  mon_nam(mon));
-        else
-            pline_mon(mon, "%s seems limber!", Monnam(mon));
-    }
-    /* lizard corpses cure confusion and stun; so do acidic ones, for a
-       monster that survives the meal */
+    /* lizard corpses cure confusion and stun; so do acidic ones */
     if ((lizard || acid) && (mon->mconf || mon->mstun)) {
         mon->mconf = 0;
         mon->mstun = 0;
@@ -5308,6 +5380,23 @@ mon_consume_unstone(
         mon->mdiseased = 0;
         if (vis)
             pline_mon(mon, "%s is no longer ill.", Monnam(mon));
+    }
+    if (acid && !tinned && !(resists_acid(mon) || defended(mon, AD_ACID))) {
+        damage_mon(mon, rnd(15), AD_ACID, FALSE);
+        if (vis)
+            pline_mon(mon, "%s has a very bad case of stomach acid.",
+                      Monnam(mon));
+        if (DEADMONSTER(mon)) {
+            pline_mon(mon, "%s dies!", Monnam(mon));
+            if (by_you)
+                /* hero gets credit (experience) and blame (possible loss
+                   of alignment and/or luck and/or telepathy depending on
+                   mon) for the kill but does not break pacifism conduct */
+                xkilled(mon, XKILL_NOMSG | XKILL_NOCONDUCT);
+            else
+                mondead(mon);
+            return;
+        }
     }
     if (mon->mtame && !mon->isminion && nutrit > 0) {
         struct edog *edog = EDOG(mon);

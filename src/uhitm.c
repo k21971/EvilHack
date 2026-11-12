@@ -405,7 +405,9 @@ mon_maybe_unparalyze(struct monst *mtmp)
 {
     if (!mtmp->mcanmove) {
         if (!rn2(10)) {
-            mtmp->mcanmove = 1;
+            /* limbs that have turned to stone stay still */
+            if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
         }
     }
@@ -1741,17 +1743,15 @@ hmon_hitmon_misc_obj(
                              obj->dknown ? CXN_PFX_THE
                              : CXN_ARTICLE));
             observe_object(obj);
-            /* the target is stoned below or cures itself; anger it
-               first so a stoning is scored against a hostile, and
-               hmon_hitmon()'s early return wakes a survivor; a
-               resistant target goes on to the ordinary hit */
-            if (!(resists_ston(mon) || defended(mon, AD_STON)))
-                setmangry(mon, TRUE);
-            if (!munstone(mon, TRUE))
-                minstapetrify(mon, TRUE);
+            /* a resistant target goes on to the ordinary hit; any
+               other begins turning to stone, the hero's doing (a golem
+               or an ent changes form at once, which can be fatal). It
+               is angered before the stoning line; hmon_hitmon()'s
+               early return wakes it */
             if (resists_ston(mon) || defended(mon, AD_STON))
                 break;
-            /* note: hp may be <= 0 even if munstoned==TRUE */
+            setmangry(mon, TRUE);
+            start_mon_stoning(mon, TRUE);
             hmd->doreturn = TRUE;
             hmd->retval = !DEADMONSTER(mon);
             return;
@@ -1803,12 +1803,10 @@ hmon_hitmon_misc_obj(
             obj->known = 1; /* (not much point...) */
             useup_eggs(obj);
             /* as for the cockatrice corpse above */
-            if (!(resists_ston(mon) || defended(mon, AD_STON)))
-                setmangry(mon, TRUE);
-            if (!munstone(mon, TRUE))
-                minstapetrify(mon, TRUE);
             if (resists_ston(mon) || defended(mon, AD_STON))
                 break;
+            setmangry(mon, TRUE);
+            start_mon_stoning(mon, TRUE);
             hmd->doreturn = TRUE;
             hmd->retval = !DEADMONSTER(mon);
             return;
@@ -6757,17 +6755,29 @@ do_stone_mon(
     struct attack *mattk,
     struct monst *mdef, struct mhitm_data *mhm)
 {
-    struct permonst *pd = mdef->data;
-
     /* may die from the acid if it eats a stone-curing corpse */
-    if (munstone(mdef, FALSE))
-        goto post_stone;
-    if (poly_when_stoned(pd)) {
-        mon_to_stone(mdef);
-        mhm->damage = 0;
-        return;
-    }
-    if (!(resists_ston(mdef) || defended(mdef, AD_STON))) {
+    if (!munstone(mdef, FALSE)) {
+        if (poly_when_stoned(mdef->data)) {
+            mon_to_stone(mdef);
+            mhm->damage = 0;
+            /* the new form can be fatal: a handless one lets a wielded
+               cockatrice corpse touch it */
+            if (DEADMONSTER(mdef)) {
+                mhm->hitflags = M_ATTK_DEF_DIED;
+                mhm->done = TRUE;
+            }
+            return;
+        }
+        if (resists_ston(mdef) || defended(mdef, AD_STON)
+            || mattk->aatyp != AT_GAZE || magr->data != &mons[PM_MEDUSA]) {
+            /* a touch, a bite, a beholder's gaze or a wielded corpse
+               starts the five-turn countdown, unless the defender is
+               resistant or already turning to stone */
+            start_mon_stoning(mdef, FALSE);
+            mhm->damage = (mattk->adtyp == AD_STON ? 0 : 1);
+            return;
+        }
+        /* Medusa's gaze alone still petrifies outright */
         if (gv.vis && canseemon(mdef))
             pline_mon(mdef, "%s turns to stone!", Monnam(mdef));
         /* both callers are on the monster-attacker path, so magr is
@@ -6775,20 +6785,19 @@ do_stone_mon(
         if (magr->mtame)
             set_pet_killer(magr);
         monstone(mdef);
- post_stone:
-        if (!DEADMONSTER(mdef)) {
-            mhm->hitflags = M_ATTK_MISS;
-            mhm->done = TRUE;
-            return;
-        } else if (mdef->mtame && !gv.vis) {
-            You(brief_feeling, "peculiarly sad");
-        }
-        mhm->hitflags = (M_ATTK_DEF_DIED
-                         | (grow_up(magr, mdef) ? 0 : M_ATTK_AGR_DIED));
+    }
+    /* the defender ate a cure, which may itself have been fatal, or
+       met Medusa's gaze */
+    if (!DEADMONSTER(mdef)) {
+        mhm->hitflags = M_ATTK_MISS;
         mhm->done = TRUE;
         return;
+    } else if (mdef->mtame && !gv.vis) {
+        You(brief_feeling, "peculiarly sad");
     }
-    mhm->damage = (mattk->adtyp == AD_STON ? 0 : 1);
+    mhm->hitflags = (M_ATTK_DEF_DIED
+                     | (grow_up(magr, mdef) ? 0 : M_ATTK_AGR_DIED));
+    mhm->done = TRUE;
 }
 
 void
@@ -7112,9 +7121,10 @@ mhitm_ad_phys(
 
             if (mwep->otyp == CORPSE
                 && touch_petrifies(&mons[mwep->corpsenm])) {
+                /* a corpse is no weapon: the blow does the token
+                   damage do_stone_mon() leaves and nothing more */
                 do_stone_mon(magr, mattk, mdef, mhm);
-                if (mhm->done)
-                    return;
+                return;
             }
 
             mhm->damage += dmgval(magr, mwep, mdef);

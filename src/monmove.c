@@ -1125,6 +1125,13 @@ dochug(struct monst *mtmp)
     if (mtmp->mstun && !rn2(10))
         mtmp->mstun = 0;
 
+    /* a monster that is turning to stone cures itself if it can: a
+       spell, or something it carries to eat or drink */
+    if (mtmp->mstone && munstone(mtmp, mtmp->mstonebyu)) {
+        mtmp->mstone = 0;
+        return 1; /* this is its move */
+    }
+
     /* sewage slow effect - purely position-based */
     if (mon_slowed_by_sewage(mtmp))
         mon_adjust_speed(mtmp, -2, (struct obj *) 0);
