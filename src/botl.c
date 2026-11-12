@@ -2043,13 +2043,15 @@ char *op;
 boolean from_configfile;
 {
 #define MAX_THRESH 21
-    char hsbuf[MAX_THRESH][QBUFSZ];
+    /* one spare row which is never filled in, so that the parsers
+       always find an empty string after the last field */
+    char hsbuf[MAX_THRESH + 1][QBUFSZ];
     boolean rslt, badopt = FALSE;
     int i, fldnum, ccount = 0;
     char c;
 
     fldnum = 0;
-    for (i = 0; i < MAX_THRESH; ++i) {
+    for (i = 0; i < SIZE(hsbuf); ++i) {
         hsbuf[i][0] = '\0';
     }
     while (*op && fldnum < MAX_THRESH && ccount < (QBUFSZ - 2)) {
@@ -2069,7 +2071,7 @@ boolean from_configfile;
                     break;
                 }
             }
-            for (i = 0; i < MAX_THRESH; ++i) {
+            for (i = 0; i < SIZE(hsbuf); ++i) {
                 hsbuf[i][0] = '\0';
             }
             fldnum = 0;
