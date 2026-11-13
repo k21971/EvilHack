@@ -17,19 +17,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-13, session 329: master's
-  underwater combat rules, the cold feet freeze with the salamanders'
-  lava and ice, the autoall_menu option and the container meal ported
-  - five rows closed, one residue row minted - after session 328, the
-  same day, audited master PRs #194-#198 and bounded the buffer
-  overruns still live on the branch, and after session 327 made the
-  HTML dumplog escape player-given names, session 326 ported master's
-  monster gradual stoning and session 325 merged upstream catch-up
-  3, all on 2026-11-12;
+- Phase 2 status (refreshed 2026-11-13, session 330: the race sweeps -
+  master's racial size tests, the zombie and beholder warning numbers,
+  the zombie moan and centaur race body parts - two SWEEP rows closed,
+  one residue row minted - after session 329, the same day, ported
+  master's underwater combat rules, the cold feet freeze, the
+  autoall_menu option and the container meal, session 328 audited
+  master PRs #194-#198, and after session 327 made the HTML dumplog
+  escape player-given names, session 326 ported master's monster
+  gradual stoning and session 325 merged upstream catch-up 3, all on
+  2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 60 = 0 HIGH + 1 MED + 3 SWEEP + 1 untagged + 55 LOW):
-  711 rows closed, 60 open
+  prefix; 59 = 0 HIGH + 1 MED + 1 SWEEP + 1 untagged + 56 LOW):
+  713 rows closed, 59 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -41,10 +42,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 330 closed the two race SWEEP rows (BUG-3111..3119,
+    commit pending; the rows have the classification and the
+    Decisions log the rulings). A giant-, centaur- or tortle-race
+    monster - soldier, watchman, shopkeeper, priest or player-monster
+    - is sized by its race again: the Tsurugi of Muramasa's natural 1
+    slices it deeply instead of cutting it in half, and as a pet it
+    "won't fit through" a tight diagonal swap. By ruling such a
+    monster does not walk that diagonal either. With Warning every
+    hostile zombie in range shows at least a 1 and a beholder a 5;
+    a zombie moans every time the hero's zap or boomerang reaches
+    it. By ruling, an unpolymorphed centaur hero and centaur-race
+    monsters get centaur body parts ("A bear trap closes on your rear
+    hoof!"). The rest of the census was already on the branch, moved
+    into 5.0 helpers, or ruled before. Minted: one residue row.
     Session 329 ported the 0.9.3 behaviors its rows still named
-    (BUG-3097..3110, commit pending; the Decisions log has the
-    rulings). Under water: only what is in the water can attack or
-    be attacked - a submerged hero climbs out toward a monster on
+    (BUG-3097..3110, 8bc94ee80, dbbbbc605 and c9b8b4087; the
+    Decisions log has the rulings). Under water: only what is in the
+    water can attack or be attacked - a submerged hero climbs out
+    toward a monster on
     the bank instead of hitting it, swims underneath one that flies
     or floats over the water, cannot reach one over lava, and never
     lands a kick; a swimmer on the bank cannot attack a submerged
@@ -557,8 +573,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 3 SWEEP: race-predicate census, inert persistent fields,
-    racial size macros.
+  - 1 SWEEP: inert persistent fields.
+    Session 330 closed the race-predicate census and the racial size
+    macros (BUG-3111..3119, commit pending).
     Session 314 closed the monstseesu() setter census (BUG-2949..
     2951): watchers learn acid resistance from a potion of acid
     drunk by or broken on a resistant hero; a hero underwater takes
@@ -8632,8 +8649,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       riders row) - verify no slice owns these before porting.
       [wantpool half DONE 2026-11-11, session 321, BUG-2994: the
       two sea dragon terms; wantlava / wantice still open here.]
-      CLOSED 2026-11-13, session 329 (commit pending): (b) the
-      underwater rules landed whole (BUG-3097..3100, 3102 - the
+      CLOSED 2026-11-13, session 329 (8bc94ee80; dbbbbc605 for (g)):
+      (b) the underwater rules landed whole (BUG-3097..3100, 3102 - the
       mattacku() gate, no fighting across the waterline, the swim
       under done after the hero's move so nothing shares a square,
       the kick; the Decisions log has the rulings); (c) and (e) had
@@ -18370,7 +18387,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       MED row below since 2026-10-20); mon_to_glyph already goes
       through racial_mndx. Discharged 2026-10-22 (session 251): the
       underline is a cell flag, so no peaceful glyph was needed.
-      CLOSED 2026-11-13, session 329 (commit pending): autoall_menu
+      CLOSED 2026-11-13, session 329 (c9b8b4087): autoall_menu
       wired (BUG-3108) - optlist.h, menu_drop(), menu_loot(),
       query_objlist()'s PICK_ALL (turned into PICK_ANY for the
       window port) and, by ruling, a lone 'A' accepted when the
@@ -28555,7 +28572,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       check. Controls identical on both builds: Wis in a form ("You
       must have been very observant.", 10 -> 11, back to 10 on
       rehumanize) and Int unpolymorphed (10 -> 11).
-- [ ] SWEEP: race-predicate site census (minted 2026-09-19, session
+- [x] SWEEP: race-predicate site census (minted 2026-09-19, session
       130, from session 129's census idea - same_race() and genus()
       were two instances of one class). RAW candidate list, method and
       the reasons it over-reports are in
@@ -28590,7 +28607,43 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       trees - the same family as the race tests made against
       youmonst.data. Note it when the sweep reaches polyself.c.
       LOW-MED.
-- [ ] SWEEP: racial size macros (minted 2026-10-15, session 229, from
+      CLOSED 2026-11-13, session 330 (commit pending). Re-run with the
+      doc's own awk method on both trees: 143 function pairs, about
+      29 sites short tree-wide. Netted per file (5.0 moved cmd.c's
+      enlightenment lines to insight.c and mhitu.c's hitmu() arms to
+      uhitm.c's mhitm_ad_*()), then classified site by site by three
+      Explore agents, every MISSING claim read in both trees.
+      PRESENT or MOVED: m_initweap() giant / tortle / drow kits (the
+      tables hold the quantity ranges now), steed.c (master's inner
+      tests were redundant), castmu() (soul_exempt), makedog() (three
+      blocks merged), u_init() / ini_inv() (skills_for_role(),
+      ini_inv_mkobj_filter()), retouch_object() (always_blasted),
+      trap.c (trapeffect_*()), canwearobj() (u_body_armor_misfit()),
+      priest.c's ustatusline() (insight.c), restgamestate()'s pole
+      test (set_unweapon()), mon_allowflags() (master's door and
+      doorbuster terms), m_respond() (dochug()'s zombie gate), and
+      snuff_light_source() (the drow Staff terms are dead on both
+      trees: artifact_light() is TRUE for the Staff). Ruled or fixed
+      before: role_init()'s drow gods (BUG-2843),
+      mm_2way_aggression()'s zombie arm (BUG-2069), damageum()'s
+      hell-p gate (deviation), canwearobj()'s hooves / tarsi
+      (BUG-1875), the aasimar arms (BUG-2556); master canwearobj()'s
+      giant Samurai `*mask = W_ARM` is dead on master. Ported:
+      master's zombie and beholder warning numbers (BUG-3114, 3115;
+      master 785716ffd, f059a60fd - every hostile zombie in range
+      warns as at least a 1, a beholder as a 5) and the zombie moan
+      on every hero zap or boomerang (BUG-3116; 5.0 had moved
+      dochug()'s 1 in 10 into m_respond(), where it caught bhitm()
+      and boomhit() too). The RIDER is FIXED by ruling (BUG-3117,
+      master frozen-unfixed): mbodypart() gives horse parts to an
+      unpolymorphed centaur-race hero and a centaur-race monster -
+      "rear hoof", "rear leg", "mane", "hide"; arms and hands stay
+      human. Recorded, not ported: wield.c ready_ok() offers boulders
+      by racial_throws_rocks(&gy.youmonst) where master's
+      dowieldquiver() read Race_if(PM_GIANT) (only the prompt's
+      suggestion list differs). Residue: the race sweeps residue LOW
+      two rows down.
+- [x] SWEEP: racial size macros (minted 2026-10-15, session 229, from
       the bearded axe slice, which found the branch whip and grapple
       reading the base form where master reads the racial one). The
       race-predicate SWEEP above covers is_ / racial_ predicates, not
@@ -28605,6 +28658,60 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       match. Classify each site (a 5.0 rewrite that dropped the
       racial term, a moved site, or a deliberate base-form test) and
       mint a row per real gap. LOW-MED.
+      CLOSED 2026-11-13, session 330 (commit pending). Recount:
+      master 31, branch 19 before and 29 after. Moved, not gaps:
+      sliparm() / breakarm() and dmgval() (bigmonst() of r_data()),
+      mpickstuff() x2 and likes_contents()
+      (mon_opens_container()), dog_move() / move_special() / m_move()
+      door flags (mon_allowflags()); 1e835fae5's other hunks are all
+      here. Ported (BUG-3111..3113, master 1e835fae5): the Tsurugi's
+      natural 1 slices a giant-, centaur- or tortle-race monster
+      deeply instead of cutting it in half; such a pet "won't fit
+      through" a tight diagonal swap; r_verysmall() at the swap's
+      boulder arm, mon_allowflags(), m_move(), can_blow() and both
+      ignore_boulders (no race is tiny, so those play the same). By
+      ruling, beyond master (master quirks, frozen-unfixed):
+      cant_squeeze_thru() reads the race as well, so such a monster
+      does not walk the diagonal either (BUG-3118), and the
+      polymorph trap's rider test matches the wand's (BUG-3119; dead
+      code after newcham()'s own mon_can_ride() dismount, which reads
+      r_bigmonst()). Reverse effect, as on master: a giant, centaur
+      or tortle hero enlarges its role's mons[] entry, so a
+      player-monster of that role used to count as big; it is judged
+      by its own race now. Battery: two testers, PRE d11de830f
+      against POST, every leg PASS, paniclog clean.
+- [ ] LOW: race sweeps residue (minted 2026-11-13, session 330, plan
+      stress test, reviewer and batteries; record unless a ruling
+      wants a change). (a) Base-form size tests master also leaves
+      unconverted, inert today (no race is tiny or slithy):
+      droppables()'s key test (dogmove.c), mfndpos() and goodpos()
+      vs_cantflyorswim(), passes_bars(). (b) A draugr-race monster
+      (the zombie race of Barbarian, Convict and Infidel
+      player-monsters) is missed by the zombie warning terms and the
+      moan arm, which test is_zombie(data) as master does;
+      racial_zombie() would catch it. (c) mbodypart()'s claw arm is
+      hero-only, so a tortle-, illithid-, draugr- or vampire-race
+      monster says "hand" (master the same). (d) A beholder drained
+      below level 4 fails _mon_warning() and never shows, though it
+      "always" warns as a 5 (master the same). (e) The zombie moan
+      follows the quivering blob's precedent (the hero's action always
+      gets a response), while the gnome and support caster arms keep
+      their dochug() gate on both paths by ruling (session 133;
+      2026-10-14); a later census should not "fix" one toward the
+      other. (f) A shopkeeper polymorphed into a zombie moans on every
+      shk.c extra move; a monster's potion of polymorph reaching
+      bhitm() moans 1 time in 10, where master moans every time. (g)
+      display_minventory() swaps gy.youmonst.data for a monster's
+      while Upolyd is FALSE, so a centaur-race hero's body_part()
+      gives horse parts for a non-humanoid wielder's hand text inside
+      it (the claw races leak the same way). (h) init_mplayer_erac()'s
+      NON_PM fallback keeps an erac with rmnum 0 (the giant ant, tiny);
+      unreachable in play (humans are always permitted and never
+      G_GONE). (i) Battery: ^G "tame racial <race> soldier" gave a
+      peaceful, not tame, soldier on both builds (check tamedog()'s
+      refusal before calling it a bug); the seen moan line reads
+      'mumbles, "BRAAAAAAAAINS...".' with a period after the quote
+      (master's text).
 - [x] LOW: uasmon_maxStr() gives EvilHack race families no race Str
       cap (BUG-2117) - FIXED 2026-10-03 (session 176, commit `Give
       EvilHack race forms their race's Str cap while polymorphed.` =
@@ -35250,7 +35357,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       out."); the branch has no such arm, so the ordinary floor loop
       offers the container whole. Read by the reviewer, not run.
       Random safes make it more likely to be met.
-      CLOSED 2026-11-13, session 329 (BUG-3109, commit pending). Not
+      CLOSED 2026-11-13, session 329 (BUG-3109, c9b8b4087). Not
       master's floorfood() arm: the ordinary floor question stays and
       doeat_nonfood() empties any container eaten off the floor
       first (spill_floor_meal(): Schroedinger's cat observed, ice box
@@ -38860,8 +38967,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       slippery-ice white term stays out for good: COLD_RES arrives as
       the primary through armor_provides_extrinsic() and master's uarm
       term would exempt a steed from the rider's suit.
-      (a) DONE 2026-11-13, session 329 (BUG-3103..3107, commit
-      pending): freeze_step(), has_cold_feet(),
+      (a) DONE 2026-11-13, session 329 (BUG-3103..3107,
+      dbbbbc605): freeze_step(), has_cold_feet(),
       maybe_freeze_underfoot() and master's six callers, the
       mhitm_ad_wrap() gate, the mfndpos() terms with wantlava /
       wantice. Known_lwalking's fire conjunct is gone and, by a new
@@ -39779,7 +39886,7 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-13 | curses shrunk below its start-up minimum: the 15 x 40 check runs at start-up only; at 12 x 4 the resize redraw (curs_reset_windows -> curses_last_messages -> curses_message_win_puts) reaches cursmisc.c curses_str_remainder() with a negative width and aborts on `assert(IndexOk(last_space, substr))`. curses_break_str(), curses_message_win_getline() (`buffer / width`) and cursdial.c curses_line_input_dialog() (`remaining_buf / prompt_width`) take the same widths. Same code in fd4d169b6; the abort reproduced on the branch. Fix: floor the widths; BUG-3092, win/curses/cursmisc.c + cursmesg.c + cursdial.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
 | 2026-11-13 | Class name one character too long: mondata.c name_to_monclass() singularizes its input (mice -> mouse) and name_to_monplus() `strcpy(buf, in_str)` into buf[BUFSZ]; a 255-character curses answer at the class genocide (also polymorph and the wizard create prompts) becomes 257 bytes. Same code in fd4d169b6; the branch fired under ASan (WRITE 257 in name_to_monplus). Fix: bounded copy; BUG-3094, src/mondata.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
 | 2026-11-13 | #wizloadlua / #wizloaddes: wizcmds.c `strcat(buf, ".lua")` onto a full getlin answer with no dot (253 characters, curses, wizard mode). Same code in fd4d169b6; the branch fired under ASan (WRITE 5 in wiz_load_lua). Fix: append only when it fits; BUG-3095, src/wizcmds.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | Underwater, an unseen monster out of the water: attack_checks() (uhitm.c) tests the DRAWN glyph for the remembered-unseen-monster 'I', and a submerged hero's map draws only adjacent water, so every move at an unseen monster on the bank says "Wait!  There's something there you can't see!" and spends the move; the 'I' it maps is never shown and never counts, and only F reaches the monster. Same code in fd4d169b6 (and in 3.6.7). Fix on the branch: while Underwater the remembered glyph counts too; BUG-3102, src/uhitm.c, branch commit pending | fixed on the branch; not sent; triage |
+| 2026-11-13 | Underwater, an unseen monster out of the water: attack_checks() (uhitm.c) tests the DRAWN glyph for the remembered-unseen-monster 'I', and a submerged hero's map draws only adjacent water, so every move at an unseen monster on the bank says "Wait!  There's something there you can't see!" and spends the move; the 'I' it maps is never shown and never counts, and only F reaches the monster. Same code in fd4d169b6 (and in 3.6.7). Fix on the branch: while Underwater the remembered glyph counts too; BUG-3102, src/uhitm.c, branch 8bc94ee80 | fixed on the branch; not sent; triage |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -40191,6 +40298,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-12 | HTML dumplog escaping (Phase 4 / session 327, AskUserQuestion x1: the scope; as recommended). (1) SCOPE: fix and test the branch, and cut patch files for the Hardfought NetHack50 fork and TNNT, which share the three unescaped writes - picked over branch only and forks only; the forks are deployed and the branch pushed in whichever order the maintainer chooses. RECORDED with the approved plan, not asked: master's BUG-1096 NULL guards stay with the Phase 4 HTML dumplog rider (neither new call can pass NULL); the "NetHack" wording in the title and generator tag stays with that row too; no REMOVALS line and no upstream row (Hardfought fork code, absent from Official_nh50). BUG-3078. |
 | 2026-11-13 | Master PRs #194-#198 buffer bounds (Phase 5 / session 328, AskUserQuestion x2 with three questions; two as recommended, one against). (1) #NAME PROMPT THAT DOES NOT FIT: drop the old name - "What do you want to call the invisible guardian naga hatchling?", the way safe_qbuf() falls back to a simpler object name; the old name is still the preloaded answer on an EDIT_GETLIN build (rejected: cut the description with "...", and the PR's plain cut at 100 characters). (2) TESTING: an AddressSanitizer battery before and after the fix, so that each "still live" claim made from reading is proved on the old build (rejected: after-only; no battery). (3) QUERY_CLASSES (BUG-3093, found by the planning sweep, in no PR, also in master 0.9.3): its own commit, pushed normally, no production hot patch - master stays frozen-unfixed (recommended and rejected: hold the push until production is patched; also rejected: fold it into the slice commit). Also instructed, no question asked: the blank lines the whitespace hook removed from the vanilla window-port files are put back, to keep those files quiet for upstream merges. No REMOVALS line (no 5.0 behavior or text gave way to master's). BUG-3079..3096. |
 | 2026-11-13 | Unported master behaviors (Phase 2 session 329, AskUserQuestion x6 with ten questions - one a battery launch ask; nine as recommended, one against, and one of the nine re-asked after I corrected its premise). (1) SLICE: the known 0.9.3 behaviors still missing (the recent bug LOWs, the race sweeps and the verify rows not taken). (2) SCOPE: all of it, three commits - the underwater rules, cold feet with the lava / ice pathing, autoall_menu with the container meal (rejected: without cold feet; cold feet only). (3) WATERLINE: as 0.9.3 plays - a submerged hero makes no attack on a monster on dry land and climbs out onto its square, the stock monster-on-your-square arm moving it aside. First asked on my wrong premise that master left two creatures on one square (the answer then: the hero stays put); re-asked with the real behavior. The twin rule comes with it: only a monster in the water attacks a submerged hero. (4) LAVA TARGET: refuse - "You cannot reach <mon> from under the water.", the move spent (rejected: 0.9.3's step into the lava). (5) UNSEEN BANK (asked after the battery): the remembered 'I' counts though the submerged map does not draw it, so the second bump climbs out (rejected: 0.9.3's and vanilla's "Wait!" on every bump). (6) WHIP: keep 5.0's "You cause a small splash." over liquid - AGAINST the recommendation of master's grab; no code. (7) MOUNTED ICE: master's exemption back - a wearer of white-scaled armor never slips, mounted or on foot; replaces the 2026-09-07 corollary, which predated the freeze. (8) LONE 'A': accepted when autoall_menu is on, in the drop and container menus only (rejected: 5.0's rejection). (9) Battery: three testers in parallel, then a one-tester retest. Session calls, plan-approved: the swim-under is done after the hero's move and only into the square the hero left; a flying swimmer is fought, not swum under; both outs sit ahead of the swing's side effects; walls of water and lava never freeze; the hero's freeze is gated on Flying / Levitation, a monster's is at its own square; a container eaten off the floor spills at the bite for any eater, a carried one is unchanged. | maintainer |
+| 2026-11-13 | Race sweeps (Phase 2 session 330, AskUserQuestion x5 with six questions - one a battery launch ask; all as recommended, one re-asked after I corrected its premise). (1) SLICE: the race sweeps - the racial size macros and race-predicate census SWEEP rows (the verify rows, the recent bug LOWs and the Icequeen riders not taken). (2) CENTAUR PARTS: fix the census row's mbodypart() rider in this slice - an unpolymorphed centaur-race hero and a centaur-race monster get horse parts ("rear hoof", "rear leg", "mane", "hide"), arms and hands human (rejected: a row of its own; record only). (3) SQUEEZE: monster walking matches the pet swap - cant_squeeze_thru() reads the racial size, so a giant-, centaur- or tortle-race monster does not walk a tight diagonal between rock or wall; beyond master, a master quirk (rejected: master's split). (4) POLY RIDER: the polymorph trap's "falls off" test reads the racial size like the wand's; first asked on my wrong premise that a re-rolled giant-race rider stayed mounted under the trap, re-asked once I found newcham()'s own mon_can_ride() dismount makes both arms dead but for a hero-role player-monster on an enlarged entry; same answer (rejected: leave the trap as master). (5) Battery: launch both testers. Session calls, plan-approved: master's r_verysmall() text ported at the six sites where no race makes it differ; the zombie moan follows the quivering blob's precedent (every time on the hero's action, 1 in 10 on the zombie's own turn), unlike the gnome and support arms' ruled both-path gates; mbodypart() keeps is_centaur() beside racial_centaur() for a centaur base with another erac; the recorded siblings and edge cases minted as one LOW record row. Commits pending; BUG-3111..3119. | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |

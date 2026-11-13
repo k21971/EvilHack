@@ -254,8 +254,8 @@ tracker; sNNN = port session.
 - [x] **A lone 'A' rejected in the drop and container category
   menus**: accepted when `autoall_menu` is on, where it leads to the
   item menu with everything selected; 5.0's "No relevant items
-  selected." stays with the option off (ruled s329, BUG-3108, commit
-  pending).
+  selected." stays with the option off (ruled s329, BUG-3108,
+  c9b8b4087).
 
 ### 2.2 Monster AI
 
@@ -281,14 +281,32 @@ tracker; sNNN = port session.
   random (s159, BUG-2024, 0612d2a42).
 - [x] Any swimmer attacking a submerged hero from dry land -> master's
   rule: only a monster that is in the water attacks one who is under
-  it (s329, BUG-3097, commit pending; master 442a2ac22).
+  it (s329, BUG-3097, 8bc94ee80; master 442a2ac22).
 - [x] Salamanders roaming off lava -> master's `wantlava`: one beside
   lava goes in and stays, as an eel does with water; the frost
-  salamander likewise with ice (s329, BUG-3107, commit pending;
+  salamander likewise with ice (s329, BUG-3107, dbbbbc605;
   master c839aa4a1, 113aae435).
+- [x] A giant-, centaur- or tortle-race monster sized by its base
+  form (a soldier is human-sized) -> by its race: as a pet it "won't
+  fit through" a tight diagonal swap between rock or wall (s330,
+  BUG-3112, commit pending; master 1e835fae5), and it does not walk
+  that diagonal either (ruled s330, BUG-3118, commit pending; beyond
+  master, whose walking test reads the base form).
+- [x] A zombie moaning 1 time in 10 when the hero's zap or boomerang
+  reaches it (5.0 moved dochug()'s roll into m_respond()) -> every
+  time; 1 in 10 on its own turns (s330, BUG-3116, commit pending;
+  master's m_respond()).
+- [x] Warning: the weakest zombies (base level 0-3) never shown, a
+  beholder shown by its level -> every hostile zombie in range warns
+  as at least a 1, a beholder as a 5 (s330, BUG-3114, 3115, commit
+  pending; master 785716ffd, f059a60fd).
 
 ### 2.3 Combat and magic rules -> master's
 
+- [x] The Tsurugi of Muramasa's natural 1 cutting a giant-, centaur-
+  or tortle-race monster in half -> "You slice deeply into" it for
+  double damage, as for any big monster (s330, BUG-3111, commit
+  pending; master 1e835fae5).
 - [x] Knockback: 5.0's size-gated knockback, Ogresmasher's 1 in 2, the
   hero knocking monsters back, the post-hurtle stun. Only AD_CLOB
   knocks back (s109, BUG-1819..1824).
@@ -463,14 +481,14 @@ tracker; sNNN = port session.
   rule: no attack on a monster on dry land (the hero climbs out
   toward it), one above the water is swum under, one over lava cannot
   be reached (the last by ruling; master steps into the lava)
-  (s329, BUG-3098, 3099, commit pending; master 442a2ac22 and the
+  (s329, BUG-3098, 3099, 8bc94ee80; master 442a2ac22 and the
   commits that shaped it since).
 - [x] "Wait!  There's something there you can't see!" on every move
   of a submerged hero at an unseen monster on the bank -> once; the
-  second move climbs out (ruled s329, BUG-3102, commit pending;
+  second move climbs out (ruled s329, BUG-3102, 8bc94ee80;
   beyond master, which repeats it too).
 - [x] A kick under water landing half the time -> never
-  (s329, BUG-3100, commit pending; master 95ed3591f).
+  (s329, BUG-3100, 8bc94ee80; master 95ed3591f).
 
 ### 2.4 Text and logs
 
