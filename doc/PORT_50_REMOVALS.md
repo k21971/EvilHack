@@ -565,7 +565,7 @@ tracker; sNNN = port session.
 - [x] A shopkeeper's price quote calling a non-human hero "sir" /
   "lady" (5.0 tests the role monster, which is always human) ->
   master's "creature"; elves, vampires and humans as before
-  (s331, BUG-3120, commit pending; master f18028dee).
+  (s331, BUG-3120, 362d8207a; master f18028dee).
 
 ### 2.5 Levels and content
 
