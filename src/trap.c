@@ -3305,7 +3305,7 @@ trapeffect_poly_trap(
                 return Trap_Killed_Mon;
             /* is the monster riding another monster? */
             if (has_erid(mtmp)
-                && (!humanoid(mtmp->data) || bigmonst(mtmp->data))) {
+                && (!humanoid(mtmp->data) || r_bigmonst(mtmp))) {
                 if (in_sight)
                     pline("%s falls off %s %s!", Monnam(mtmp), mhis(mtmp),
                           l_monnam(ERID(mtmp)->mon_steed));

@@ -2859,7 +2859,7 @@ m_move(struct monst *mtmp, int after)
 
     if (!Is_rogue_level(&u.uz))
         can_tunnel = racial_tunnels(mtmp);
-    can_open = !(nohands(ptr) || verysmall(ptr));
+    can_open = !(nohands(ptr) || r_verysmall(mtmp));
     can_unlock = ((can_open && monhaskey(mtmp, TRUE))
                   || mtmp->iswiz || is_rider(ptr));
     /* doorbuster = is_giant(ptr); */

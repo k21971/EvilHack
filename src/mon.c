@@ -3402,7 +3402,7 @@ long
 mon_allowflags(struct monst *mtmp)
 {
     long allowflags = 0L;
-    boolean can_open = !(nohands(mtmp->data) || verysmall(mtmp->data));
+    boolean can_open = !(nohands(mtmp->data) || r_verysmall(mtmp));
     boolean can_unlock = ((can_open && monhaskey(mtmp, TRUE))
                           || mtmp->iswiz || is_rider(mtmp->data));
     boolean doorbuster = racial_giant(mtmp);

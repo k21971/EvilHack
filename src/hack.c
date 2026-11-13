@@ -1034,7 +1034,7 @@ cant_squeeze_thru(struct monst *mon)
         return 0;
 
     /* too big? */
-    if (bigmonst(ptr)
+    if (r_bigmonst(mon)
         && !(amorphous(ptr) || is_whirly(ptr) || noncorporeal(ptr)
              || slithy(ptr) || can_fog(mon)))
         return 1;
@@ -2530,7 +2530,7 @@ domove_swap_with_pet(
         You("stop.  %s can't move diagonally.", YMonnam(mtmp));
         didnt_move = TRUE;
     } else if (u_with_boulder
-               && !(verysmall(mtmp->data)
+               && !(r_verysmall(mtmp)
                     && (!mtmp->minvent || curr_mon_load(mtmp) <= 600))) {
         /* can't swap places when pet won't fit there with the boulder */
         You("stop.  %s won't fit into the same spot that you're at.",
@@ -2538,7 +2538,7 @@ domove_swap_with_pet(
         didnt_move = TRUE;
     } else if (u.ux0 != x && u.uy0 != y && bad_rock(mtmp, x, u.uy0)
                && bad_rock(mtmp, u.ux0, y)
-               && (bigmonst(mtmp->data) || (curr_mon_load(mtmp) > 600))) {
+               && (r_bigmonst(mtmp) || (curr_mon_load(mtmp) > 600))) {
         /* can't swap places when pet won't fit thru the opening */
         You("stop.  %s won't fit through.", YMonnam(mtmp));
         didnt_move = TRUE;

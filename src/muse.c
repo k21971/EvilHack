@@ -969,7 +969,7 @@ find_defensive(struct monst *mtmp, boolean tryescape)
     } else {
         /* Note: trap doors take precedence over teleport traps. */
         coordxy xx, yy, i, locs[10][2];
-        boolean ignore_boulders = (verysmall(mtmp->data)
+        boolean ignore_boulders = (r_verysmall(mtmp)
                                    || racial_throws_rocks(mtmp)
                                    || passes_walls(mtmp->data)),
             diag_ok = !NODIAG(monsndx(mtmp->data));
@@ -3982,7 +3982,8 @@ find_misc(struct monst *mtmp)
         && !has_erid(mtmp) && !mtmp->ridden_by
         && (mtmp->cham == NON_PM)
         && mons[(pmidx = monsndx(mdat))].difficulty < 6) {
-        boolean ignore_boulders = (verysmall(mdat) || racial_throws_rocks(mtmp)
+        boolean ignore_boulders = (r_verysmall(mtmp)
+                                   || racial_throws_rocks(mtmp)
                                    || passes_walls(mdat)),
             diag_ok = !NODIAG(pmidx);
 

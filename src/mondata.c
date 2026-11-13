@@ -775,7 +775,7 @@ boolean
 can_blow(struct monst *mtmp)
 {
     if ((is_silent(mtmp->data) || mtmp->data->msound == MS_BUZZ)
-        && (breathless(mtmp->data) || verysmall(mtmp->data)
+        && (breathless(mtmp->data) || r_verysmall(mtmp)
             || !has_head(mtmp->data) || mtmp->data->mlet == S_EEL))
         return FALSE;
     if ((mtmp == &gy.youmonst) && Strangled)
