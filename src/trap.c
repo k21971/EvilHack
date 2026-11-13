@@ -4907,6 +4907,10 @@ float_down_core(
                       mon_nam(u.ustuck));
             set_ustuck((struct monst *) 0);
         }
+        /* water or lava freezes under cold feet as the hero comes down
+           onto it */
+        (void) maybe_freeze_underfoot(&gy.youmonst);
+
         /* kludge alert:
          * drown() and lava_effects() print various messages almost
          * every time they're called which conflict with the "fall
@@ -8987,6 +8991,9 @@ lava_effects(void)
         debugpline0("Skipping recursive lava_effects().");
         return FALSE;
     }
+    /* under cold feet the lava cools to solid floor */
+    if (maybe_freeze_underfoot(&gy.youmonst))
+        return TRUE;
     feel_newsym(u.ux, u.uy); /* in case Blind, map the lava here */
     burn_away_slime();
 

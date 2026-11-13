@@ -993,6 +993,93 @@ m_postmove_effect(struct monst *mtmp)
         create_gas_cloud(x, y, 1, 0, mtmp); /* harmless vapor */
 }
 
+/* water, sewage and lava freeze under one with cold feet (mtmp, which
+   may be the hero) standing on them: water turns to ice that will melt
+   again, lava to solid floor. Returns TRUE if the square changed */
+boolean
+maybe_freeze_underfoot(struct monst *mtmp)
+{
+    struct rm *lev;
+    struct monst *walker;
+    boolean is_you = (mtmp == &gy.youmonst), was_lava, shallow = FALSE;
+    coordxy x = is_you ? u.ux : mtmp->mx, y = is_you ? u.uy : mtmp->my;
+    const char *liq;
+
+    /* the terrain first: most squares are neither */
+    if (!isok(x, y) || (!is_damp_terrain(x, y) && !is_lava(x, y)))
+        return FALSE;
+    lev = &levl[x][y];
+    /* a wall of water or of lava is not a surface to freeze */
+    if (IS_WATERWALL(lev->typ) || lev->typ == LAVAWALL)
+        return FALSE;
+    /* nothing freezes under one who is off the ground, by its own lift
+       or by that of what it rides or carries */
+    if (is_you) {
+        if (Flying || Levitation || u.uswallow
+            || (u.usteed && (!grounded(u.usteed->data)
+                             || can_fly(u.usteed)
+                             || can_levitate(u.usteed))))
+            return FALSE;
+    } else if (!grounded(mtmp->data) || mon_airborne(mtmp)
+               || mon_steed_airborne(mtmp) || mon_rider_airborne(mtmp)
+               || (mtmp == u.usteed && (Flying || Levitation))) {
+        return FALSE;
+    }
+    if (!has_cold_feet(mtmp))
+        return FALSE;
+
+    was_lava = is_lava(x, y);
+    liq = was_lava ? "lava" : is_sewage(x, y) ? "sewage" : "water";
+
+    if (lev->typ == DRAWBRIDGE_UP) {
+        /* the span is raised; what lies under it is kept in the mask */
+        lev->drawbridgemask &= ~DB_UNDER;
+        lev->drawbridgemask |= was_lava ? DB_FLOOR : DB_ICE;
+    } else {
+        /* remember what the ice was so that melting restores it; the
+           terrain type says what is here, never the mask, whose bits
+           are shared with the drawbridge's */
+        shallow = (lev->typ == PUDDLE || lev->typ == SEWAGE);
+        lev->icedpool = was_lava ? 0
+                        : (lev->typ == POOL) ? ICED_POOL
+                          : (lev->typ == PUDDLE) ? ICED_PUDDLE
+                            : (lev->typ == SEWAGE) ? ICED_SEWAGE
+                              : ICED_MOAT;
+        lev->typ = was_lava ? ROOM : ICE;
+        /* shallow water is too thin to bury anything under */
+        if (!shallow)
+            bury_objs(x, y);
+    }
+    maybe_unhide_at(x, y);
+    newsym(x, y);
+
+    /* a rider's steed is the one standing on it; the feet are named as
+       the one with the cold feet has them */
+    walker = (is_you && u.usteed) ? u.usteed : mtmp;
+    if (is_you || canseemon(mtmp))
+        Norep("The %s %s under %s %s.", hliquid(liq),
+              was_lava ? "cools and solidifies" : "crackles and freezes",
+              (walker == &gy.youmonst) ? "your"
+                                       : s_suffix(y_monnam(walker)),
+              makeplural(mbodypart(mtmp, FOOT)));
+
+    if (!was_lava) {
+        start_melt_ice_timeout(x, y, 0L);
+        obj_ice_effects(x, y, TRUE);
+    }
+    if (is_you) {
+        disp.botl = TRUE; /* the ice condition */
+        if (u.uinwater) {
+            /* the water the hero was in is gone */
+            leave_vanished_water();
+        } else if (u.utrap && u.utraptype == TT_LAVA) {
+            /* so is the lava the hero was sinking into */
+            reset_utrap(TRUE);
+        }
+    }
+    return TRUE;
+}
+
 /* returns TRUE if monster is in sewage and should be slowed;
    handles all immunity checks for sewage movement penalty */
 staticfn boolean
@@ -1164,6 +1251,10 @@ dochug(struct monst *mtmp)
            the level */
         return mon_lost_in_rloc(mtmp) ? 1 : 0;
     }
+
+    /* water or lava under cold feet freezes, also for one that got here
+       without walking */
+    (void) maybe_freeze_underfoot(mtmp);
 
     /* some monsters have special abilities */
     m_respond(mtmp);
@@ -2461,6 +2552,9 @@ postmov(
                       (passes_walls(ptr) || unsolid(ptr)) ? "through"
                                                           : "between");
         } /* doors and bars */
+
+        /* water or lava it stepped onto freezes under cold feet */
+        (void) maybe_freeze_underfoot(mtmp);
 
         /* possibly dig */
         if (can_tunnel && may_dig(mtmp->mx, mtmp->my)

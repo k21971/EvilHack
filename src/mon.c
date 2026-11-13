@@ -3489,6 +3489,36 @@ mon_rider_airborne(struct monst *mtmp)
             && ERID(rider)->mon_steed == mtmp && mon_airborne(rider));
 }
 
+/* does water, sewage or lava freeze under mtmp (or the hero) as it
+   walks? White dragon-scaled body armor does it for whoever wears it,
+   and a few creatures of the cold do it by nature; see
+   maybe_freeze_underfoot() */
+boolean
+has_cold_feet(struct monst *mtmp)
+{
+    boolean is_you = (mtmp == &gy.youmonst);
+
+    if (Is_waterlevel(&u.uz))
+        return FALSE;
+
+    if (is_you) {
+        if (uarm && Is_dragon_scaled_armor(uarm)
+            && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)
+            return TRUE;
+    } else {
+        struct obj *otmp;
+
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+            if ((otmp->owornmask & W_ARMOR) != 0L
+                && Is_dragon_scaled_armor(otmp)
+                && Dragon_armor_to_scales(otmp) == WHITE_DRAGON_SCALES)
+                return TRUE;
+        }
+    }
+
+    return freeze_step(mtmp->data) ? TRUE : FALSE;
+}
+
 /* return number of acceptable neighbour positions */
 int
 mfndpos(
@@ -3502,7 +3532,8 @@ mfndpos(
     int cnt = 0;
     uchar ntyp;
     uchar nowtyp;
-    boolean wantpool, wantpuddle, wantsewage, poolok, lavaok, nodiag;
+    boolean wantpool, wantpuddle, wantlava, wantsewage, wantice;
+    boolean poolok, lavaok, nodiag, coldfeet;
     boolean rockok = FALSE, treeok = FALSE, thrudoor;
     int maxx, maxy;
     boolean poisongas_ok, in_poisongas;
@@ -3521,13 +3552,19 @@ mfndpos(
     wantpool = (mdat->mlet == S_EEL || mdat == &mons[PM_BABY_SEA_DRAGON]
                 || mdat == &mons[PM_SEA_DRAGON]);
     wantpuddle = (mdat->mlet == S_EEL);
+    /* a salamander keeps to lava and a frost salamander to ice the same
+       way */
+    wantlava = (mdat == &mons[PM_SALAMANDER]);
     wantsewage = (mdat == &mons[PM_GIANT_LEECH]);
+    wantice = (mdat == &mons[PM_FROST_SALAMANDER]);
+    /* water and lava freeze under cold feet, so both can be walked on */
+    coldfeet = has_cold_feet(mon);
     poolok = ((!Is_waterlevel(&u.uz)
                && (m_in_air(mon) || can_levitate(mon) || can_fly(mon)))
-              || (is_swimmer(mdat) && !wantpool)
+              || ((is_swimmer(mdat) || coldfeet) && !wantpool)
               || can_wwalk(mon));
     lavaok = (m_in_air(mon) || can_levitate(mon) || can_fly(mon)
-              || likes_lava(mdat));
+              || ((coldfeet || likes_lava(mdat)) && !wantlava));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
@@ -3557,7 +3594,8 @@ mfndpos(
     }
 
  nexttry: /* eels prefer the water, but if there is no water nearby,
-             they will crawl over land */
+             they will crawl over land; salamander types are the same
+             way about lava and ice */
     if (mon->mconf) {
         flag |= ALLOW_ALL;
         flag &= ~NOTONL;
@@ -3641,14 +3679,15 @@ mfndpos(
                      || can_fly(mon)))
                 continue;
             if ((poolok || is_pool(nx, ny) == wantpool)
+                && (lavaok || is_lava(nx, ny) == wantlava)
+                && (is_ice(nx, ny) == wantice || !wantice)
                 && (is_puddle(nx, ny) == wantpuddle || !wantpuddle)
                 && (is_sewage(nx, ny) == wantsewage || !wantsewage)
                 /* iron golems and longworms avoid shallow water, as do
                    monsters too small to keep their head above it */
                 && ((mdat != &mons[PM_IRON_GOLEM] && !is_longworm(mdat)
                      && !vs_cantflyorswim(mdat))
-                    || !(is_puddle(nx, ny) || is_sewage(nx, ny)))
-                && (lavaok || !is_lava(nx, ny))) {
+                    || !(is_puddle(nx, ny) || is_sewage(nx, ny)))) {
                 int dispx, dispy;
                 boolean monseeu = (mon->mcansee
                                    && (!Invis || mon_prop(mon, SEE_INVIS)));
@@ -3773,8 +3812,16 @@ mfndpos(
         wantpuddle = FALSE;
         goto nexttry;
     }
+    if (!cnt && wantlava && !is_lava(x, y)) {
+        wantlava = FALSE;
+        goto nexttry;
+    }
     if (!cnt && wantsewage && !is_sewage(x, y)) {
         wantsewage = FALSE;
+        goto nexttry;
+    }
+    if (!cnt && wantice && !is_ice(x, y)) {
+        wantice = FALSE;
         goto nexttry;
     }
     data->cnt = cnt;

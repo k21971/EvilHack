@@ -5825,8 +5825,12 @@ mhitm_ad_wrap(
                                      : "swings itself");
                 }
             } else if (u.ustuck == magr) {
+                /* water and lava freeze under cold feet, so one who has
+                   them is neither drowned nor dragged into lava */
+                boolean freeze = has_cold_feet(&gy.youmonst);
+
                 if (is_pool(magr->mx, magr->my) && !Swimming && !Amphibious
-                    && !Breathless
+                    && !Breathless && !freeze
                     && pa != &mons[PM_MIND_FLAYER_LARVA]) {
                     boolean moat = (levl[magr->mx][magr->my].typ != POOL)
                                    && !is_waterwall(magr->mx, magr->my)
@@ -5843,7 +5847,7 @@ mhitm_ad_wrap(
                     set_monster_killer(magr, TRUE);
                     done(DROWNING);
                 } else if (is_lava(magr->mx, magr->my)
-                           && !likes_fire(gy.youmonst.data)
+                           && !likes_fire(gy.youmonst.data) && !freeze
                            && pa != &mons[PM_MIND_FLAYER_LARVA]) {
                     char kbuf[BUFSZ];
 

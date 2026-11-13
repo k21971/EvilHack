@@ -79,18 +79,17 @@ staticfn int QSORTCALLBACK cmp_weights(const void *, const void *);
           && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES) \
       || HWwalking) \
      && !u.usteed)
-/* lava is only known-safe with full fire resistance, since a partial
-   percentage still burns in lava_effects(); the boots clause keeps its
-   own uarmf guard because Known_wwalking no longer implies boots.
-   White dragon-scaled armor is a water walking source, not a lava one:
-   its wearer still burns without full fire resistance */
+/* lava is only known-safe to a water walker with full fire resistance,
+   since a partial percentage still burns in lava_effects(); the boots
+   clause keeps its own uarmf guard because Known_wwalking no longer
+   implies boots. White dragon-scaled armor needs neither: lava cools to
+   solid floor under its wearer (has_cold_feet()) */
 #define Known_lwalking \
-    (((HWwalking \
-       || (uarm && Is_dragon_scaled_armor(uarm) \
-           && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) \
-      && how_resistant(FIRE_RES) == 100 && !u.usteed) \
+    ((HWwalking && how_resistant(FIRE_RES) == 100 && !u.usteed) \
      || (uarmf && Known_wwalking && how_resistant(FIRE_RES) == 100 \
-         && uarmf->oerodeproof && uarmf->rknown))
+         && uarmf->oerodeproof && uarmf->rknown) \
+     || (uarm && Is_dragon_scaled_armor(uarm) \
+         && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES))
 
 /* mode values for findtravelpath() */
 #define TRAVP_TRAVEL 0
@@ -3146,6 +3145,11 @@ slippery_ice_fumbling(void)
         if ((uarmf && objdescr_is(uarmf, "snow boots"))
             || (u.usteed ? resists_cold(iceskater)
                          : how_resistant(COLD_RES) == 100)
+            /* white dragon-scaled armor makes ice of the water its
+               wearer crosses, mounted or not, and keeps that wearer
+               from slipping on it */
+            || (uarm && Is_dragon_scaled_armor(uarm)
+                && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)
             || Flying
             || is_floater(iceskater->data) || is_clinger(iceskater->data)
             || is_whirly(iceskater->data)) {
@@ -3679,6 +3683,9 @@ domove_core(void)
     if (Punished) /* put back ball and chain */
         move_bc(0, bc_control, ballx, bally, chainx, chainy);
 
+    /* water or lava freezes under cold feet before the hero meets it */
+    (void) maybe_freeze_underfoot(&gy.youmonst);
+
     if (u.umoved)
         spoteffects(TRUE);
 
@@ -4041,6 +4048,10 @@ pooleffects(
        and still meets it */
     if (!u.ustuck && !Levitation && !Flying
         && !(u.utrap && u.utraptype == TT_ENTANGLED && !u.uinwater)) {
+        /* under cold feet it freezes first, and then there is nothing
+           to enter */
+        if (maybe_freeze_underfoot(&gy.youmonst))
+            return FALSE;
         if (is_pool_or_lava(u.ux, u.uy)
             || (shallow_water && verysmall(gy.youmonst.data))) {
             if (steed_keeps_dry()) {

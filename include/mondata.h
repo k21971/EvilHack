@@ -377,8 +377,11 @@
     ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_WOOLLY_MAMMOTH]        \
      || (ptr) == &mons[PM_SABER_TOOTHED_TIGER] || (ptr) == &mons[PM_ICE_NYMPH] \
      || (ptr) == &mons[PM_FROST_SALAMANDER] || (ptr) == &mons[PM_REVENANT])
-/* master also defines freeze_step() here; it rides the unported
-   has_cold_feet/maybe_freeze_underfoot walk-freezes-terrain feature */
+/* water, sewage and lava freeze under these as they walk; see
+   has_cold_feet() and maybe_freeze_underfoot() */
+#define freeze_step(ptr) \
+    ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_FROST_SALAMANDER] \
+     || (ptr) == &mons[PM_ABOMINABLE_SNOWMAN])
 #define likes_iceq(ptr) \
     ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_OWLBEAR]                  \
      || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WOLF_CUB]                    \
