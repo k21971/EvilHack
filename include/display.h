@@ -67,10 +67,13 @@
 /*
  * mon_warning() is used to warn of any dangerous monsters in your
  * vicinity, and a glyph representing the warning level is displayed.
+ * Zombies get a threshold one lower, so that even the weakest show.
  */
 #define _mon_warning(mon) \
-    (Warning && !(mon)->mpeaceful && (mdistu(mon) < 100)     \
-     && (((int) ((mon)->m_lev / 4)) >= svc.context.warnlevel))
+    (Warning && !(mon)->mpeaceful && (mdistu(mon) < 100)            \
+     && (((int) ((mon)->m_lev / 4))                                 \
+         >= (is_zombie((mon)->data) ? svc.context.warnlevel - 1     \
+                                    : svc.context.warnlevel)))
 
 /*
  * mon_visible()

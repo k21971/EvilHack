@@ -678,6 +678,12 @@ warning_of(struct monst *mon)
     if (mon_warning(mon)) {
         tmp = (int) (mon->m_lev / 4);    /* match display.h */
         wl = (tmp > WARNCOUNT - 1) ? WARNCOUNT - 1 : tmp;
+        /* beholders always warn as a 5, and even the weakest zombie
+           warns as a 1 (see _mon_warning()) */
+        if (mon->data == &mons[PM_BEHOLDER])
+            wl = 5;
+        if (is_zombie(mon->data) && mon->m_lev < 5)
+            wl = 1;
     }
     return wl;
 }

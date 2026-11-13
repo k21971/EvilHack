@@ -3018,7 +3018,10 @@ mbodypart(struct monst *mon, int part)
         return bird_parts[part];
     if (has_beak(mptr) && part == NOSE)
         return "beak";
-    if (is_centaur(mptr) || mptr->mlet == S_UNICORN
+    /* racial_centaur() also covers an unpolymorphed centaur hero (whose
+       data is the role monster) and a centaur-race monster; arms and
+       hands stay human through the humanoid test above */
+    if (is_centaur(mptr) || racial_centaur(mon) || mptr->mlet == S_UNICORN
         || mptr == &mons[PM_KI_RIN]
         || mptr == &mons[PM_ELDRITCH_KI_RIN]
         || (mptr == &mons[PM_ROTHE] && part != HAIR))

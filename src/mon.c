@@ -7500,7 +7500,9 @@ m_respond(struct monst *mtmp)
         m_respond_blob(mtmp);
     if (mtmp->data == &mons[PM_MEDUSA] && couldsee(mtmp->mx, mtmp->my))
         m_respond_medusa(mtmp);
-    if (is_zombie(mtmp->data) && !rn2(10))
+    /* a zombie moans one turn in ten on its own, and every time the
+       hero's action reaches it (bhitm(), boomhit()) */
+    if (is_zombie(mtmp->data) && (!svc.context.mon_moving || !rn2(10)))
         m_respond_zombie(mtmp);
     if (is_gnome(mtmp->data) && !is_undead(mtmp->data) && m_canseeu(mtmp))
         m_respond_gnome(mtmp);
