@@ -289,24 +289,24 @@ tracker; sNNN = port session.
 - [x] A giant-, centaur- or tortle-race monster sized by its base
   form (a soldier is human-sized) -> by its race: as a pet it "won't
   fit through" a tight diagonal swap between rock or wall (s330,
-  BUG-3112, commit pending; master 1e835fae5), and it does not walk
-  that diagonal either (ruled s330, BUG-3118, commit pending; beyond
+  BUG-3112, 0d366453d; master 1e835fae5), and it does not walk
+  that diagonal either (ruled s330, BUG-3118, 0d366453d; beyond
   master, whose walking test reads the base form).
 - [x] A zombie moaning 1 time in 10 when the hero's zap or boomerang
   reaches it (5.0 moved dochug()'s roll into m_respond()) -> every
-  time; 1 in 10 on its own turns (s330, BUG-3116, commit pending;
+  time; 1 in 10 on its own turns (s330, BUG-3116, 1fda3c886;
   master's m_respond()).
 - [x] Warning: the weakest zombies (base level 0-3) never shown, a
   beholder shown by its level -> every hostile zombie in range warns
-  as at least a 1, a beholder as a 5 (s330, BUG-3114, 3115, commit
-  pending; master 785716ffd, f059a60fd).
+  as at least a 1, a beholder as a 5 (s330, BUG-3114, 3115,
+  1fda3c886; master 785716ffd, f059a60fd).
 
 ### 2.3 Combat and magic rules -> master's
 
 - [x] The Tsurugi of Muramasa's natural 1 cutting a giant-, centaur-
   or tortle-race monster in half -> "You slice deeply into" it for
-  double damage, as for any big monster (s330, BUG-3111, commit
-  pending; master 1e835fae5).
+  double damage, as for any big monster (s330, BUG-3111,
+  0d366453d; master 1e835fae5).
 - [x] Knockback: 5.0's size-gated knockback, Ogresmasher's 1 in 2, the
   hero knocking monsters back, the post-hurtle stun. Only AD_CLOB
   knocks back (s109, BUG-1819..1824).
@@ -562,6 +562,10 @@ tracker; sNNN = port session.
   or drank its cure -> gone, as on master; the line belongs to the
   start of the countdown
   (s326, BUG-3062 / 3068, 3f3dbf7ed; master 17488cfcc).
+- [x] A shopkeeper's price quote calling a non-human hero "sir" /
+  "lady" (5.0 tests the role monster, which is always human) ->
+  master's "creature"; elves, vampires and humans as before
+  (s331, BUG-3120, commit pending; master f18028dee).
 
 ### 2.5 Levels and content
 
