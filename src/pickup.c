@@ -239,9 +239,13 @@ query_classes(
             } else {
                 oc_of_sym = def_char_to_objclass(sym);
                 if (strchr(ilets, sym)) {
-                    add_valid_menu_class(oc_of_sym);
-                    oclasses[oclassct++] = oc_of_sym;
-                    oclasses[oclassct] = '\0';
+                    /* a class typed more than once counts once; the
+                       caller's oclasses[] only has room for one of each */
+                    if (!strchr(oclasses, oc_of_sym)) {
+                        add_valid_menu_class(oc_of_sym);
+                        oclasses[oclassct++] = oc_of_sym;
+                        oclasses[oclassct] = '\0';
+                    }
                 } else {
                     if (!where)
                         where = !strcmp(action, "pick up") ? "here"
