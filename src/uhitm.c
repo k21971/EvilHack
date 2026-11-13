@@ -251,6 +251,11 @@ attack_checks(
      */
     if (!canspotmon(mtmp)
         && !glyph_is_warning(glyph) && !glyph_is_invisible(glyph)
+        /* a submerged hero's map draws nothing that is out of the
+           water, so the 'I' put there by an earlier bump is remembered
+           without being shown; it still means the hero knows */
+        && !(Underwater
+             && glyph_is_invisible(levl[gb.bhitpos.x][gb.bhitpos.y].glyph))
         && !(!Blind && mtmp->mundetected && hides_under(mtmp->data))
         /* an unseen rider on a steed you can see is not a surprise;
            the steed is drawn at the square and gives it away */
@@ -593,6 +598,26 @@ force_attack(struct monst *mtmp, boolean pets_too)
     return attacked;
 }
 
+/* is mtmp above the water the hero is under, so that the hero cannot
+   fight it and a move at it swims underneath it instead? */
+boolean
+u_swims_under(struct monst *mtmp)
+{
+    if (!Underwater || u.ustuck || u.uswallow || mtmp->minvis)
+        return FALSE;
+    /* the Plane of Water and a wall of water have no surface to be
+       above */
+    if (Is_waterlevel(&u.uz) || !is_pool(mtmp->mx, mtmp->my)
+        || is_waterwall(mtmp->mx, mtmp->my))
+        return FALSE;
+    /* a flying swimmer counts as in the water: it can attack the hero
+       there, so the hero can attack it */
+    if (mon_underwater(mtmp))
+        return FALSE;
+    return (!grounded(mtmp->data) || can_fly(mtmp) || can_levitate(mtmp)
+            || can_wwalk(mtmp) || mon_steed_airborne(mtmp));
+}
+
 /* try to attack; return False if monster evaded;
    u.dx and u.dy must be set */
 boolean
@@ -674,6 +699,28 @@ do_attack(struct monst *mtmp)
     gn.notonhead = (gb.bhitpos.x != mtmp->mx || gb.bhitpos.y != mtmp->my);
     if (attack_checks(mtmp, uwep))
         return TRUE;
+
+    /* while the hero is under the water only what is in the water can
+       be fought. A monster on a square that is not deep water is out of
+       reach: the hero makes no attack and domove() goes on to climb out
+       toward it, except that lava is no place to climb onto. These come
+       ahead of everything that belongs to a swing */
+    if (Underwater && !u.uswallow && !is_pool(mtmp->mx, mtmp->my)) {
+        if (is_lava(mtmp->mx, mtmp->my)) {
+            You("cannot reach %s from under the water.", mon_nam(mtmp));
+            goto atk_done;
+        }
+        return FALSE;
+    }
+    /* one above the water is swum under; domove() does the swimming
+       once the move is known to go through */
+    if (u_swims_under(mtmp)) {
+        if (svc.context.forcefight) {
+            You("flail wildly.");
+            goto atk_done;
+        }
+        return FALSE;
+    }
 
     if (Upolyd && noattacks(gy.youmonst.data)) {
         /* certain "pacifist" monsters don't attack */

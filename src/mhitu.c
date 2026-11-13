@@ -922,7 +922,10 @@ mattacku(struct monst *mtmp)
         nomul(0);
     if (DEADMONSTER(mtmp))
         return 1;
-    if (Underwater && !is_swimmer(mtmp->data))
+    /* while the hero is under the water only a monster that is in the
+       water can attack; a swimmer on dry land has to get in first. An
+       engulfer already holding the hero is past that */
+    if (Underwater && !mon_underwater(mtmp) && !engulfing_u(mtmp))
         return 0;
 
     /* If swallowed, can only be affected by u.ustuck */

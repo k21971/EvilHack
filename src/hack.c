@@ -35,11 +35,12 @@ staticfn boolean swim_declined(coordxy, coordxy);
 staticfn boolean swim_move_danger(coordxy, coordxy, boolean);
 staticfn boolean domove_bump_mon(struct monst *, int, boolean) NONNULLARG1;
 staticfn boolean domove_attackmon_at(struct monst *, coordxy, coordxy,
-                                   boolean *) NONNULLPTRS;
+                                   boolean *, boolean *) NONNULLPTRS;
 staticfn boolean domove_fight_ironbars(coordxy, coordxy);
 staticfn boolean domove_fight_web(coordxy, coordxy);
 staticfn boolean domove_swap_with_pet(struct monst *,
                                     coordxy, coordxy) NONNULLARG1;
+staticfn void domove_swim_under(struct monst *) NONNULLARG1;
 staticfn struct obj *wielded_fire_weapon(void);
 staticfn void domove_fight_burn(coordxy, coordxy, const char *,
                                 struct obj *) NONNULLARG3;
@@ -2304,13 +2305,15 @@ domove_bump_mon(struct monst *mtmp, int glyph, boolean travel_step)
 
 /* hero is moving, do we maybe attack a monster at (x,y)?
    returns TRUE if hero movement is used up.
-   sets displaceu, if hero and monster could swap places instead.
+   sets displaceu, if hero and monster could swap places instead;
+   sets swimunder, if a submerged hero passes beneath the monster.
 */
 staticfn boolean
 domove_attackmon_at(
     struct monst *mtmp,
     coordxy x, coordxy y,
-    boolean *displaceu)
+    boolean *displaceu,
+    boolean *swimunder)
 {
     /* assert(mtmp != NULL) */
     /* only attack if we know it's there
@@ -2342,6 +2345,23 @@ domove_attackmon_at(
         if (!*displaceu) {
             if (do_attack(mtmp))
                 return TRUE;
+            /* do_attack() makes no attack on a monster that is above
+               the water a submerged hero is in; the hero swims
+               underneath it instead, and it takes the square the hero
+               leaves. Whether it can is settled here; the exchange
+               waits until the move is known to go through */
+            if (m_at(x, y) == mtmp && !DEADMONSTER(mtmp)
+                && !is_safemon(mtmp) && u_swims_under(mtmp)) {
+                /* water is no obstacle to one that is above it, but a
+                   wall of water has no above to be in */
+                if (is_waterwall(u.ux0, u.uy0)
+                    || !goodpos(u.ux0, u.uy0, mtmp,
+                                GP_ALLOW_U | MM_IGNOREWATER)) {
+                    You_cant("maneuver around %s.", y_monnam(mtmp));
+                    return TRUE;
+                }
+                *swimunder = TRUE;
+            }
         }
     }
     return FALSE;
@@ -2455,6 +2475,29 @@ domove_fight_web(coordxy x, coordxy y)
     return FALSE;
 }
 
+/* a submerged hero has moved onto the square of a monster that is above
+   the water: the monster takes the square the hero just left */
+staticfn void
+domove_swim_under(struct monst *mtmp)
+{
+    char pnambuf[BUFSZ];
+
+    /* the square was tested before the move; should it no longer do,
+       the monster stays and spoteffects() moves it off the hero */
+    if (!u_swims_under(mtmp) || !isok(u.ux0, u.uy0)
+        || is_waterwall(u.ux0, u.uy0)
+        || !goodpos(u.ux0, u.uy0, mtmp, MM_IGNOREWATER))
+        return;
+
+    Strcpy(pnambuf, y_monnam(mtmp));
+    mtmp->mtrapped = 0;
+    mtmp->mentangled = 0;
+    /* rloc_to() looks after a worm's tail, a rider's steed and the
+       display; with mtrapped clear its own mintrap() does nothing */
+    rloc_to(mtmp, u.ux0, u.uy0);
+    You("swim underneath %s.", pnambuf);
+}
+
 /* maybe swap places with a pet? returns TRUE if swapped places */
 staticfn boolean
 domove_swap_with_pet(
@@ -2538,6 +2581,9 @@ domove_swap_with_pet(
         /* snapshot the species index up front; the drowned-or-died
            case below records the abuse event after the pet is dead */
         int pushed_mndx = monsndx(mtmp->data);
+        /* a submerged hero passes beneath one that is above the water;
+           read while it is still there */
+        boolean swam_under = u_swims_under(mtmp);
 
         mtmp->mtrapped = 0;
         remove_monster(x, y);
@@ -2547,7 +2593,9 @@ domove_swap_with_pet(
         /* a rider drags its steed along */
         update_monsteed(mtmp);
 
-        You("%s %s.", mtmp->mpeaceful ? "swap places with" : "frighten",
+        You("%s %s.",
+            swam_under ? "swim underneath"
+            : mtmp->mpeaceful ? "swap places with" : "frighten",
             x_monnam(mtmp,
                      mtmp->mtame ? ARTICLE_YOUR
                      : (!has_mgivenname(mtmp)
@@ -3353,6 +3401,7 @@ domove_core(void)
     int bc_control = 0;                 /* control for ball&chain */
     boolean cause_delay = FALSE,        /* dragging ball will skip a move */
             displaceu = FALSE,          /* involuntary swap */
+            swimunder = FALSE,          /* submerged, passing beneath */
             /* findtravelpath() ends travel before its last step */
             travel_step = svc.context.travel;
 
@@ -3452,7 +3501,7 @@ domove_core(void)
             return;
 
         /* attack monster */
-        if (domove_attackmon_at(mtmp, x, y, &displaceu))
+        if (domove_attackmon_at(mtmp, x, y, &displaceu, &swimunder))
             return;
     }
 
@@ -3576,6 +3625,8 @@ domove_core(void)
                     u.usteed->mx = u.ux, u.usteed->my = u.uy;
                 nomul(0);
             }
+        } else if (swimunder) {
+            domove_swim_under(mtmp);
         }
     }  /* mtmp != NULL */
 

@@ -3838,6 +3838,7 @@ extern void mon_maybe_unparalyze(struct monst *) NONNULLARG1;
 extern int find_roll_to_hit(struct monst *, uchar, struct obj *,
                             int *, int *) NONNULLARG145;
 extern boolean force_attack(struct monst *, boolean) NONNULLARG1;
+extern boolean u_swims_under(struct monst *) NONNULLARG1;
 extern boolean do_attack(struct monst *) NONNULLARG1;
 extern boolean hmon(struct monst *, struct obj *, int, int) NONNULLARG1;
 extern void nohandburn(void);
