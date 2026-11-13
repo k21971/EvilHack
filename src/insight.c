@@ -3739,7 +3739,9 @@ void
 mstatusline(struct monst *mtmp)
 {
     aligntyp alignment = mon_aligntyp(mtmp);
-    char info[BUFSZ], monnambuf[BUFSZ];
+    /* every clause at once comes to more than BUFSZ; pline() cuts the
+       finished line */
+    char info[2 * BUFSZ], monnambuf[BUFSZ];
 
     info[0] = 0;
     if (spot_is_dark(mtmp->mx, mtmp->my))
@@ -3924,7 +3926,8 @@ void
 ustatusline(void)
 {
     NhRegion *reg;
-    char info[BUFSZ];
+    /* every condition at once, with a long holder's name, is over BUFSZ */
+    char info[2 * BUFSZ];
     size_t ln;
 
     info[0] = '\0';

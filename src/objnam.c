@@ -73,6 +73,7 @@ staticfn int readobjnam_oilskin(struct _readobjnam_data *);
 staticfn int readobjnam_material(struct _readobjnam_data *);
 staticfn int readobjnam_preparse(struct _readobjnam_data *);
 staticfn void readobjnam_parse_charges(struct _readobjnam_data *);
+staticfn size_t readobjnam_room(struct _readobjnam_data *);
 staticfn int readobjnam_postparse1(struct _readobjnam_data *);
 staticfn int readobjnam_postparse2(struct _readobjnam_data *);
 staticfn int readobjnam_postparse3(struct _readobjnam_data *);
@@ -3877,7 +3878,7 @@ wishymatch(
         if (!strncmpi(u_str, detect_SP, sizeof detect_SP - 1)) {
             /* convert "detect <foo>s" into "<foo> detection" */
             p = makesingular(u_str + sizeof detect_SP - 1);
-            Strcat(strcpy(buf, p), SP_detection);
+            Snprintf(buf, sizeof buf, "%s%s", p, SP_detection);
             /* caller may be looping through objects[], so avoid
                churning through all the obufs */
             releaseobuf(p);
@@ -5238,6 +5239,20 @@ readobjnam_parse_charges(struct _readobjnam_data *d)
         d->rechrg = 7; /* recharge_limit */
 }
 
+/* number of bytes, terminator included, that d->bp may use from where it
+   points; it is either inside the caller's buffer (every caller passes
+   one of at least BUFSZ) or inside d->globbuf, and a wish that fills its
+   buffer leaves no room for the rewrites that make the text longer */
+staticfn size_t
+readobjnam_room(struct _readobjnam_data *d)
+{
+    if (d->bp >= d->globbuf && d->bp < d->globbuf + sizeof d->globbuf)
+        return sizeof d->globbuf - (size_t) (d->bp - d->globbuf);
+    if (d->bp >= d->origbp && d->bp < d->origbp + BUFSZ)
+        return (size_t) BUFSZ - (size_t) (d->bp - d->origbp);
+    return 0;
+}
+
 staticfn int
 readobjnam_postparse1(struct _readobjnam_data *d)
 {
@@ -5574,7 +5589,10 @@ readobjnam_postparse1(struct _readobjnam_data *d)
         if (strcmp(d->bp, sng)) {
             if (d->cnt == 1)
                 d->cnt = 2;
-            Strcpy(d->bp, sng);
+            /* a few singulars are longer than their plural
+               (mice -> mouse) */
+            if (strlen(sng) < readobjnam_room(d))
+                Strcpy(d->bp, sng);
         }
     }
 
@@ -5794,8 +5812,13 @@ readobjnam_postparse1(struct _readobjnam_data *d)
                 return 2; /*goto typfnd;*/
             } else if (d->trapped == 1 || *zp != '\0') {
                 /* "trapped <foo>" or "<foo> trap" (actually "<foo>*") */
-                /* use canonical trap spelling, skip object matching */
-                Strcpy(d->bp, trapname(beartrap ? BEAR_TRAP : LANDMINE, TRUE));
+                /* use canonical trap spelling, skip object matching;
+                   it is one character longer ("beartrap" -> "bear trap") */
+                const char *tn = trapname(beartrap ? BEAR_TRAP : LANDMINE,
+                                          TRUE);
+
+                if (strlen(tn) < readobjnam_room(d))
+                    Strcpy(d->bp, tn);
                 return 5; /*goto wiztrap;*/
             }
             /* [no prefix or suffix; we're going to end up matching
@@ -5860,11 +5883,15 @@ readobjnam_postparse2(struct _readobjnam_data *d)
             else
                 d->typ = 0; /* somebody changed objects[]? punt */
         } else { /* try to construct canonical form */
+            static const char wpo[] = "worthless piece of ";
             char tbuf[BUFSZ];
 
-            Strcpy(tbuf, "worthless piece of ");
-            Strcat(tbuf, s); /* assume it starts with the color */
-            Strcpy(d->bp, tbuf);
+            /* assume it starts with the color; the longer text goes
+               back where d->bp points, so only when it fits there */
+            if (strlen(s) + sizeof wpo <= readobjnam_room(d)) {
+                Snprintf(tbuf, sizeof tbuf, "%s%s", wpo, s);
+                Strcpy(d->bp, tbuf);
+            }
         }
     }
 

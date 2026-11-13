@@ -2892,10 +2892,14 @@ boolean
 proc_wizkit_line(char *buf)
 {
     struct obj *otmp;
+    char wishbuf[BUFSZ];
 
     if (strlen(buf) >= BUFSZ)
         buf[BUFSZ - 1] = '\0';
-    otmp = readobjnam(buf, (struct obj *) 0);
+    /* readobjnam() rewrites its argument in place, sometimes making it
+       longer, and expects BUFSZ of room; buf is only as big as the line */
+    Strcpy(wishbuf, buf);
+    otmp = readobjnam(wishbuf, (struct obj *) 0);
 
     if (otmp) {
         if (otmp != &hands_obj) {

@@ -670,6 +670,11 @@ curses_message_win_getline(const char *prompt, char *answer, int buffer)
     orig_cursor = curs_set(0);
 
     curses_get_window_size(MESSAGE_WIN, &height, &width);
+    /* a resize can leave the window smaller than the startup minimum */
+    if (height < 1)
+        height = 1;
+    if (width < 2)
+        width = 2;
     if (border) {
         /* height -= 2, width -= 2; -- sizes already account for border */
         border_space = 1;
@@ -700,6 +705,9 @@ curses_message_win_getline(const char *prompt, char *answer, int buffer)
 #endif
     nlines = curses_num_lines(tmpbuf, width);
     maxlines += nlines * 2;
+    /* in a very narrow window each character can end up on its own line */
+    if (maxlines < (int) strlen(prompt) + buffer + 2)
+        maxlines = (int) strlen(prompt) + buffer + 2;
     linestarts = (char **) alloc((unsigned) (maxlines * sizeof (char *)));
     linestarts[0] = tmpbuf;
 
@@ -834,7 +842,10 @@ curses_message_win_getline(const char *prompt, char *answer, int buffer)
         case '\n':
             (void) strncpy(answer, p_answer, buffer);
             answer[buffer - 1] = '\0';
-            Strcpy(gt.toplines, tmpbuf);
+            /* prompt plus a full-length answer can be longer than
+               toplines[]; message history still gets all of it */
+            (void) strncpy(gt.toplines, tmpbuf, sizeof gt.toplines - 1);
+            gt.toplines[sizeof gt.toplines - 1] = '\0';
             mesg_add_line(tmpbuf);
 #if 1
             /* position at end of current line so next message will be

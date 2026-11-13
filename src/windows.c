@@ -2456,6 +2456,10 @@ decode_glyph(const char *str, int *glyph_ptr)
             } else
                 break;
         }
+        /* four hex digits can name a glyph that doesn't exist; treat
+           that like a failed check so that callers leave the text alone */
+        if (*glyph_ptr >= MAX_GLYPH)
+            return 0;
         return retval;
     }
     return 0;

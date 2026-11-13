@@ -248,8 +248,20 @@ do_mgivenname(void)
         return;
     }
     /* special case similar to the one in lookat() */
-    Sprintf(qbuf, "What do you want to call %s?",
-            distant_monnam(mtmp, ARTICLE_THE, monnambuf));
+    {
+        static const char callpfx[] = "What do you want to call ";
+        /* room for the description: qbuf[] less prefix, '?' and '\0' */
+        int room = (int) (sizeof qbuf - sizeof callpfx - 1);
+        const char *desc = distant_monnam(mtmp, ARTICLE_THE, monnambuf);
+
+        /* an existing name can make the description too long for
+           qbuf[]; ask about the creature without it then, the way
+           safe_qbuf() falls back to a simpler object name */
+        if ((int) strlen(desc) > room)
+            desc = x_monnam(mtmp, ARTICLE_THE, (char *) 0, SUPPRESS_NAME,
+                            FALSE);
+        Snprintf(qbuf, sizeof qbuf, "%s%.*s?", callpfx, room, desc);
+    }
     /* use getlin() to get a name string from the player */
     if (!name_from_player(buf, qbuf,
                           has_mgivenname(mtmp) ? MGIVENNAME(mtmp) : NULL))

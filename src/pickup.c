@@ -2808,7 +2808,9 @@ loot_mon(struct monst *mtmp, int *passed_info, boolean *mon_interact)
         /* Wizard mode: allow looting non-tame monsters */
         if (passed_info)
             *passed_info = 1;
-        Sprintf(qbuf, "Do you want to take something from %s?", mon_nam(mtmp));
+        /* the name is bounded so that the prompt always fits qbuf[] */
+        Sprintf(qbuf, "Do you want to take something from %.80s?",
+                mon_nam(mtmp));
         if ((c = yn_function(qbuf, ynqchars, 'n', TRUE)) == 'y') {
             if (mon_interact)
                 *mon_interact = TRUE;
@@ -2816,7 +2818,8 @@ loot_mon(struct monst *mtmp, int *passed_info, boolean *mon_interact)
         } else if (c == 'q') {
             return 0;
         }
-        Sprintf(qbuf, "Do you want to give something to %s?", mon_nam(mtmp));
+        Sprintf(qbuf, "Do you want to give something to %.80s?",
+                mon_nam(mtmp));
         if ((c = yn_function(qbuf, ynqchars, 'n', TRUE)) == 'y') {
             if (mon_interact)
                 *mon_interact = TRUE;

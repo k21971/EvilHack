@@ -140,6 +140,10 @@ curses_line_input_dialog(
         if ((prompt_width + 2) > map_width)
             maxwidth = map_width - 2;
     }
+    /* a resize can leave the terminal or the map narrower than this
+       needs; the wrapping below divides by the width */
+    if (maxwidth < 1)
+        maxwidth = 1;
 
     if (prompt_width > maxwidth) {
         prompt_height = curses_num_lines(prompt, maxwidth);

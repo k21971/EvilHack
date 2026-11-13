@@ -355,7 +355,7 @@ l_obj_new_readobjnam(lua_State *L)
         char buf[BUFSZ];
         struct obj *otmp;
 
-        Sprintf(buf, "%s", luaL_checkstring(L, 1));
+        Snprintf(buf, sizeof buf, "%s", luaL_checkstring(L, 1));
         lua_pop(L, 1);
         if ((otmp = readobjnam(buf, NULL)) == &hands_obj)
             otmp = NULL;

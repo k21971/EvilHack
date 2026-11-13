@@ -369,6 +369,9 @@ curses_break_str(const char *str, int width, int line_num)
         strcpy(substr, str);
 #endif
 
+    if (width < 1) /* window was resized down to nothing */
+        width = 1;
+
     while (curline < line_num) {
         if (strlen(substr) == 0) {
             break;
@@ -443,6 +446,9 @@ curses_str_remainder(const char *str, int width, int line_num)
     } else
         strcpy(substr, str);
 #endif
+
+    if (width < 1) /* window was resized down to nothing */
+        width = 1;
 
     while (curline < line_num) {
         if (strlen(substr) == 0) {

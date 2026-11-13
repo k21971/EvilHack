@@ -78,7 +78,8 @@ hooked_tty_getlin(
 
     for (;;) {
         (void) fflush(stdout);
-        Strcat(strcat(strcpy(gt.toplines, query), " "), obufp);
+        /* query and input together can be longer than toplines[] */
+        Snprintf(gt.toplines, sizeof gt.toplines, "%s %s", query, obufp);
         term_curs_set(1);
         c = pgetchar();
         term_curs_set(0);

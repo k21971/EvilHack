@@ -2696,6 +2696,8 @@ tty_end_menu(
 
     /* 52: 'a'..'z' and 'A'..'Z'; avoids selector duplication within a page */
     lmax = min(52, (int) ttyDisplay->rows - 1);    /* # lines per page */
+    if (lmax < 1) /* one-line terminal */
+        lmax = 1;
     cw->npages = (cw->nitems + (lmax - 1)) / lmax; /* # of pages */
     /*
      * TODO?
@@ -2733,7 +2735,8 @@ tty_end_menu(
         /* cut off any lines that are too long */
         len = strlen(curr->str) + 2; /* extra space at beg & end */
         if (len > (int) ttyDisplay->cols) {
-            curr->str[ttyDisplay->cols - 2] = 0;
+            /* max(): a one-column terminal mustn't index before str[] */
+            curr->str[max((int) ttyDisplay->cols - 2, 0)] = 0;
             len = ttyDisplay->cols;
         }
         if (len > cw->cols)

@@ -402,16 +402,15 @@ e_nam(struct entity *etmp)
 staticfn const char *
 E_phrase(struct entity *etmp, const char *verb)
 {
-    static char wholebuf[80];
+    /* a named monster's Monnam() alone can be close to 80 characters */
+    static char wholebuf[BUFSZ];
+    const char *who = is_u(etmp) ? "You" : Monnam(etmp->emon);
 
-    Strcpy(wholebuf, is_u(etmp) ? "You" : Monnam(etmp->emon));
     if (!verb || !*verb)
-        return wholebuf;
-    Strcat(wholebuf, " ");
-    if (is_u(etmp))
-        Strcat(wholebuf, verb);
+        Snprintf(wholebuf, sizeof wholebuf, "%s", who);
     else
-        Strcat(wholebuf, vtense((char *) 0, verb));
+        Snprintf(wholebuf, sizeof wholebuf, "%s %s", who,
+                 is_u(etmp) ? verb : vtense((char *) 0, verb));
     return wholebuf;
 }
 

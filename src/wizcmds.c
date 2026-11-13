@@ -365,8 +365,9 @@ wiz_load_lua(void)
         getlin("Load which lua file?", buf);
         if (buf[0] == '\033' || buf[0] == '\0')
             return ECMD_CANCEL;
-        if (!strchr(buf, '.'))
-            strcat(buf, ".lua");
+        /* a full line of input has no room left for the suffix */
+        if (!strchr(buf, '.') && strlen(buf) + sizeof ".lua" <= sizeof buf)
+            Strcat(buf, ".lua");
         (void) load_lua(buf, &sbi);
     } else
         pline(unavailcmd, ecname_from_fn(wiz_load_lua));
@@ -384,8 +385,9 @@ wiz_load_splua(void)
         getlin("Load which des lua file?", buf);
         if (buf[0] == '\033' || buf[0] == '\0')
             return ECMD_CANCEL;
-        if (!strchr(buf, '.'))
-            strcat(buf, ".lua");
+        /* a full line of input has no room left for the suffix */
+        if (!strchr(buf, '.') && strlen(buf) + sizeof ".lua" <= sizeof buf)
+            Strcat(buf, ".lua");
 
         lspo_reset_level(NULL);
         (void) load_special(buf);

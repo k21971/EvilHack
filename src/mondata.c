@@ -1233,7 +1233,11 @@ name_to_monplus(
     if (remainder_p)
         *remainder_p = (const char *) 0;
 
-    str = strcpy(buf, in_str);
+    /* callers that singularize first (mice -> mouse) can pass a string
+       one character longer than a full line of input */
+    (void) strncpy(buf, in_str, sizeof buf - 1);
+    buf[sizeof buf - 1] = '\0';
+    str = buf;
 
     if (!strncmp(str, "a ", 2))
         str += 2;

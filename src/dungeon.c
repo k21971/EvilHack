@@ -3741,13 +3741,27 @@ print_mapseen(
             Sprintf(eos(buf), " [%s]", slev->proto);
     }
     /* [perhaps print custom annotation on its own line when it's long] */
-    if (mptr->custom)
-        Sprintf(eos(buf), " \"%s\"", mptr->custom);
-    if (on_level(&u.uz, &mptr->lev))
-        Sprintf(eos(buf), " <- You %s here.",
-                (final <= 0 || (final == 1 && how == ASCENDED)) ? "are"
-                  : (final == 1 && how == ESCAPED) ? "left from"
-                    : "were");
+    {
+        char herebuf[QBUFSZ];
+
+        herebuf[0] = '\0';
+        if (on_level(&u.uz, &mptr->lev))
+            Sprintf(herebuf, " <- You %s here.",
+                    (final <= 0 || (final == 1 && how == ASCENDED)) ? "are"
+                      : (final == 1 && how == ESCAPED) ? "left from"
+                        : "were");
+        if (mptr->custom) {
+            /* an annotation can be as long as a getlin() answer; bound
+               it rather than the line, so the "You are here" marker
+               stays; 3: a space and two quote marks */
+            int room = (int) (sizeof buf - 1 - strlen(buf)
+                              - strlen(herebuf)) - 3;
+
+            Snprintf(eos(buf), sizeof buf - strlen(buf), " \"%.*s\"",
+                     max(room, 0), mptr->custom);
+        }
+        Snprintf(eos(buf), sizeof buf - strlen(buf), "%s", herebuf);
+    }
 
     any = cg.zeroany;
     if (final == -1)

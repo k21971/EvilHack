@@ -3885,8 +3885,11 @@ do_screen_description(
             }
             /* Kludge: warning trumps boulders on the display.
                Reveal the boulder too or player can get confused */
-            if (looked && sobj_at(BOULDER, cc.x, cc.y))
-                Strcat(out_str, " co-located with a boulder");
+            if (looked && sobj_at(BOULDER, cc.x, cc.y)) {
+                /* append_str() may already have filled out_str */
+                (void) strncat(out_str, " co-located with a boulder",
+                               BUFSZ - 1 - strlen(out_str));
+            }
             break; /* out of for loop*/
         }
     }
@@ -4688,7 +4691,8 @@ do_supplemental_info(
                     const char *txt;
 
                     if (strstri(textp[i], "%s") != 0) {
-                        Sprintf(buf, textp[i], subs++ ? gang : fullname);
+                        Snprintf(buf, sizeof buf, textp[i],
+                                 subs++ ? gang : fullname);
                         txt = buf;
                     } else
                         txt = textp[i];
