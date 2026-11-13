@@ -4055,7 +4055,10 @@ append_honorific(char *buf)
     else if (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)))
         Strcat(buf, (flags.female) ? " hiril" : " hir");
     else
-        Strcat(buf, !is_human(gy.youmonst.data) ? " creature"
+        /* an unpolymorphed hero's data is the role monster, which is
+           flagged human whatever the hero's race */
+        Strcat(buf, !maybe_polyd(is_human(gy.youmonst.data),
+                                 Race_if(PM_HUMAN)) ? " creature"
                       : (flags.female) ? " lady"
                         : " sir");
 }
