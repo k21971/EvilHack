@@ -17,17 +17,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-13, session 328: master PRs
-  #194-#198 audited and the buffer overruns still live on the branch
-  bounded - a Phase 5 row minted and closed, two LOW rows minted, no
-  Phase 2 row closed - after session 327 made the HTML dumplog
-  escape player-given names, session 326 ported master's monster
-  gradual stoning and session 325 merged upstream catch-up 3, all
-  on 2026-11-12;
+- Phase 2 status (refreshed 2026-11-13, session 329: master's
+  underwater combat rules, the cold feet freeze with the salamanders'
+  lava and ice, the autoall_menu option and the container meal ported
+  - five rows closed, one residue row minted - after session 328, the
+  same day, audited master PRs #194-#198 and bounded the buffer
+  overruns still live on the branch, and after session 327 made the
+  HTML dumplog escape player-given names, session 326 ported master's
+  monster gradual stoning and session 325 merged upstream catch-up
+  3, all on 2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 64 = 0 HIGH + 1 MED + 3 SWEEP + 4 untagged + 56 LOW):
-  706 rows closed, 64 open
+  prefix; 60 = 0 HIGH + 1 MED + 3 SWEEP + 1 untagged + 55 LOW):
+  711 rows closed, 60 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -39,12 +41,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 329 ported the 0.9.3 behaviors its rows still named
+    (BUG-3097..3110, commit pending; the Decisions log has the
+    rulings). Under water: only what is in the water can attack or
+    be attacked - a submerged hero climbs out toward a monster on
+    the bank instead of hitting it, swims underneath one that flies
+    or floats over the water, cannot reach one over lava, and never
+    lands a kick; a swimmer on the bank cannot attack a submerged
+    hero. By ruling a second bump at an unseen bank monster climbs
+    out too (0.9.3 and vanilla say "Wait!" every time). Cold feet:
+    water, sewage and lava freeze under white dragon-scaled armor
+    (hero or monster), snow golems, frost salamanders and abominable
+    snowmen - ice that melts again, lava to floor for good; the
+    wearer is not drowned by an eel or pulled into lava by a
+    salamander and, by ruling, never slips on ice, mounted or not;
+    salamanders keep to lava and frost salamanders to ice. The
+    autoall_menu option shows the 'A' menu choice's items already
+    selected instead of acting at once (a lone 'A' is accepted with
+    it on, by ruling). A container eaten off the floor spills its
+    contents first. A cave lizard form can kick. Ruled the other
+    way: the whip keeps 5.0's splash over liquid. Closed: the
+    Damp-sweep riders, the Ownerless option wirings, the Bare-enexto
+    audit, the metal-eater container and the whip rows; the Icequeen
+    cold feet rider is done. Minted: one residue row.
     Session 328 audited the five pull requests a player opened
     against frozen master (#194-#198: fixed buffers overrun by long
     names, by long typed input under curses, and by odd terminal
     sizes) and bounded what was still live on the branch
-    (BUG-3079..3096, commit pending; the Phase 5 "Master PRs
-    #194-#198" row has the detail). #194 and about half of #198
+    (BUG-3079..3096, db4924abd for BUG-3093 and 3fee9f6a3 for the
+    rest; the Phase 5 "Master PRs #194-#198" row has the detail).
+    #194 and about half of #198
     were already fixed here; the rest, plus four more found by the
     planning sweeps and the reviewer, are vanilla 5.0 bugs the
     branch inherited. The worst is not in any PR: with the
@@ -8571,7 +8597,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       restored (BUG-1599); polymorphed-eel hero drain exemption =
       BUG-1598 (BUG-1524's hero twin); ZT_COLD hidden-hider unhide
       arm = BUG-1601 (BUG-819 family).
-- [ ] Damp-sweep riders on unported features (minted 2026-08-20 by
+- [x] Damp-sweep riders on unported features (minted 2026-08-20 by
       the sweep's reviewer rounds; each re-carries its damp arm when
       the owning feature ports):
       (a) flint-sparks fear arm (master apply.c use_stone: animals/
@@ -8606,6 +8632,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       riders row) - verify no slice owns these before porting.
       [wantpool half DONE 2026-11-11, session 321, BUG-2994: the
       two sea dragon terms; wantlava / wantice still open here.]
+      CLOSED 2026-11-13, session 329 (commit pending): (b) the
+      underwater rules landed whole (BUG-3097..3100, 3102 - the
+      mattacku() gate, no fighting across the waterline, the swim
+      under done after the hero's move so nothing shares a square,
+      the kick; the Decisions log has the rulings); (c) and (e) had
+      landed already (extra_pref() a951ed2a4 BUG-2426, the boots
+      wish bbec1411e BUG-2913, the leech terms 72384c29e BUG-1766)
+      and were never marked; (g) wantlava / wantice and the cold
+      feet terms landed with the freeze-underfoot feature (BUG-3103,
+      3107; Icequeen rider (a)). Battery A1-A12 and retest R1-R5: no
+      attack on a submerged hero from the bank in 20 turns (jackal,
+      crocodile), the climb-out with "A jackal attacks you by
+      surprise!", "You attack nothing." for F, the swim under a
+      floating eye (also Punished, and tame), "You flail wildly.",
+      "You cannot reach the giant hawk from under the water.", an
+      invisible flyer and a flying swimmer fought, the engulfed hero
+      fighting normally, 20 kicks of 20 failing, a cave lizard
+      kicking; a blocked diagonal left the flyer where it was. The
+      one failure - "Wait!" on every bump at an unseen bank monster,
+      as on master - was ruled and fixed (BUG-3102); the retest got
+      "Wait!" once, then the climb.
       sp_lev room-name table (rtype drives runtime behavior, so
       needed regardless of level source). The rndvault C
       machinery (struct _rndvault registry: fname/freq/mindepth,
@@ -16443,7 +16490,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       u_collide_m = BUG-575, whip + grapple = BUG-559, sp_lev
       retry = BUG-536, vault guard, clone_mon, u_teleport_mon),
       skip list per master's BUG-560 audit.
-- [ ] Bare-enexto residue audit (NEW 2026-07-31, replaces the old
+- [x] Bare-enexto residue audit (NEW 2026-07-31, replaces the old
       "~59 call sites" AUDIT RIDER; LOW). After the sweep, ~24
       bare enexto() calls remain and all are believed-correct
       fakemon users: pre-creation PM_*/corpsenm spawns (mcastu,
@@ -16461,6 +16508,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       escape, mon.c larva-host steed displacement, uhitm.c
       underwater swim-under displace. The hooked-axe pit escape
       ARRIVED 2026-10-15 as enexto_core_mon (session 229, BUG-2361).
+      CLOSED 2026-11-13, session 329: the larva-host displacement
+      arrived as enexto_core_mon (mon.c), and the swim-under needs
+      none - it is done in domove_core() after the hero's move and
+      only into the square the hero left (BUG-3099), so master's
+      fallback for a stale u.ux0 has nothing to serve. The re-audit
+      rule above stands.
 - [x] can_levitate/can_fly consumer sweep beyond goodpos/
       minliquid/mfndpos PORTED 2026-09-05 (minted 2026-07-31;
       MEDIUM after the BUG-1413 battery's live kill: steed.c's
@@ -18284,7 +18337,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Help Files Sync (Dec 28 2025), In-Game Guidebook Access +
       Forcefight Documentation (Feb 26 2026), Documentation and
       Guidebook Infrastructure (Feb-Mar 2026).
-- [ ] Ownerless option wirings NOT PORTED (minted 2026-08-28 by
+- [x] Ownerless option wirings NOT PORTED (minted 2026-08-28 by
       the Guidebook slice; LOW - the Phase 1 flag.h row's "wiring
       with subsystems" model left these with no owning subsystem
       row). Dangling flag.h/iflags fields with zero options.c
@@ -18317,6 +18370,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       MED row below since 2026-10-20); mon_to_glyph already goes
       through racial_mndx. Discharged 2026-10-22 (session 251): the
       underline is a cell flag, so no peaceful glyph was needed.
+      CLOSED 2026-11-13, session 329 (commit pending): autoall_menu
+      wired (BUG-3108) - optlist.h, menu_drop(), menu_loot(),
+      query_objlist()'s PICK_ALL (turned into PICK_ANY for the
+      window port) and, by ruling, a lone 'A' accepted when the
+      option is on; opthelp and both Guidebook sources carry it. The
+      paranoid default was already master's pray + quit (BUG-2411,
+      ac60731fc). Nothing is left on this row.
 - [x] MED: underline_peacefuls never ported (minted 2026-10-20,
       maintainer split from the LOW ownerless option wirings row
       above; port gap). Master 180371ffe (from xNetHack 29b2c92;
@@ -25823,6 +25883,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       changes and the unconditional unblock_point() calls (dig.c
       zap_dig walls, music.c, apply.c) never recalc for the
       submerged clause. Record only.
+      2026-11-13, session 329: the waterline rules use is_pool() as
+      master does; what that leaves a very small hero in a puddle is
+      item (a) of the session 329 residue row.
 - [x] MED: leaving the tutorial drops the worn kit's extrinsics -
       FIXED 2026-11-09 (session 311, commit `Fix: your worn kit works
       again after the tutorial.` = 6d67bd6c9; BUG-2931 vanilla 5.0
@@ -35180,13 +35243,28 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       6 safes of 27 room boxes, 14 safe coffers and no crystal
       chest, 49 levels at depth 12-15 gave no safe. Partial: the
       Fort Ludios safe was cracked after gdb moved it off the level.
-- [ ] LOW: a metal-eating hero eats a container's contents with it
+- [x] LOW: a metal-eating hero eats a container's contents with it
       (minted 2026-11-10, session 320, reviewer; master e82a64841):
       master's floorfood() asks about a metallic chest, large box or
       iron safe first and spills its contents ("Its contents fall
       out."); the branch has no such arm, so the ordinary floor loop
       offers the container whole. Read by the reviewer, not run.
       Random safes make it more likely to be met.
+      CLOSED 2026-11-13, session 329 (BUG-3109, commit pending). Not
+      master's floorfood() arm: the ordinary floor question stays and
+      doeat_nonfood() empties any container eaten off the floor
+      first (spill_floor_meal(): Schroedinger's cat observed, ice box
+      timers restarted, the container held in_use while its contents
+      land). So declining a chest no longer ends the floor questions,
+      a wooden box on top hides nothing, a rust monster form is not
+      asked about a chest it cannot eat, and a fire elemental form's
+      sack or ice box spills too. meatbox() got master a3e14ce0f's
+      stackobj() (BUG-3110). A container eaten from the pack still
+      takes its contents with it, as on master (residue row).
+      Battery C7-C11: safe, iron chest, silver chest not offered,
+      blind fire elemental (no line, contents on the floor), ice box
+      corpses with rot timers again, one of three items through a
+      trap door with the sack eaten.
 - [x] MED, needs a ruling: ray to-hit keeps vanilla's formula (minted
       2026-11-11 by the audit of the 2026-11-10 commits; master
       cd5c574bb). Master's spell_hit_bonus() ends `hit_bon +=
@@ -35765,7 +35843,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       matched the branch only in part and about 400 master-only local
       names (lists in the session scratchpad are gone after the
       session; rerun the string census to regenerate).
-- [ ] LOW: master's whip grab condition unported (minted 2026-11-11,
+- [x] LOW: master's whip grab condition unported (minted 2026-11-11,
       session 324, census of master 8e1817da0): a whip flicked down
       reaches the floor for a hero who is `!grounded()` or water
       walking over liquid as well as levitating, flying or riding,
@@ -35773,6 +35851,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       5.0's "You cause a small splash." arm returns first for any
       pool or lava square (fire_damage() over lava), so those
       squares never reach the grab.
+      CLOSED 2026-11-13, session 329, AS RULED: 5.0's "You cause a
+      small splash." stays for a whip flicked down over water or
+      lava (against the recommendation of master's grab); no code.
+      REMOVALS section 3 has the line.
 - [ ] LOW, verify: master's ceiling() says "rock cavern" for an AIR
       square inside Vlad's Tower (minted 2026-11-11, session 324,
       explorer; master engrave.c). The branch's ceiling() has no
@@ -35898,6 +35980,59 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       230); the branch has more clause kinds than vanilla (forges,
       magic chests, dead trees, grass, sand). Bound the macros
       and the temple / altar appends with Snprintf().
+- [ ] LOW: unported-behaviors slice residue (minted 2026-11-13,
+      session 329, plan stress tests, reviewer and batteries; record
+      unless a ruling wants a change). (a) The waterline tests use
+      is_pool() as master, so a very small hero submerged in a puddle
+      or sewage can neither attack nor be attacked by what wades
+      there. (b) A swimmer standing on the bank beside a submerged
+      hero never attacks and never steps into the water (it is
+      already adjacent, so it does not move; 15 turns in the battery
+      with an open pool beside both); one lined up at range holds
+      still the same way. Master the same. (c) A submerged Tortle is
+      not shown the land monsters beside it although the game counts
+      them seen (newsym() draws only water while submerged, both
+      trees). (d) The climb-out goes through the stock
+      monster-on-your-square arm: a visible piercer "drops", an
+      unseen or impaired hero "surprises" a peaceful and turns it
+      hostile with no penalty and no "Really attack?" (the first
+      bump at an unseen one has already angered it - "That was
+      careless of you.", Luck -2), shopkeepers and priests are moved
+      without the mundisplaceable() test, the hero lands in a trap
+      that holds the target; when the climb is refused (rock, a
+      squeeze) nothing prints and no time passes. (e) With safe_dog
+      off "Really attack?" can precede a swim-under. (f) A kick under
+      water fails before the direction is asked and takes no time
+      (master the same). (g) A flyer the game counts invisible, a
+      grounded monster that stands in water without swimming, and a
+      hero held by a land monster are fought or held one-sidedly, as
+      on master. (h) A salamander on the bank with the lava on its
+      far side from the hero stands still, as does one on a lone lava
+      square (both seen in the battery); a frost salamander that
+      freezes a lone pool under itself would stay on it (not seen:
+      off the ice it walked). Master the same. (i) A monster in a
+      white-scaled suit gets no water walking from it (hero only,
+      both trees) and drowns if its own ice melts; given a way round
+      it walks around water. (j) The other minliquid() callers (pet
+      swap, mhurtle(), melting ice, flowing liquid) and
+      hurtle_step()'s and the drawbridge's direct drown() bite before
+      any freeze. (k) A hero sunk in lava who puts the suit on still
+      sinks. (l) Mounted, the suit's wearer is asked "Really enter
+      the water?" with paranoid swim on (Known_wwalking's !u.usteed,
+      master's) though the water freezes. (m) The freeze buries the
+      hero's own iron ball lying in the pool and leaves the hero
+      chained to it, as a cold ray does. (n) A salamander picks up
+      and wears a white-scaled suit like any other monster. (o) A
+      container eaten out of the pack takes its contents with it
+      (master the same). (p) spill_floor_meal() does not re-test the
+      eater after the spill; erode_obj()'s, fire_damage()'s and
+      meatbox()'s spills do not observe Schroedinger's cat. (q) tty
+      marks a preselected menu entry with '*' until it is toggled.
+      (r) With cmdassist on the "(ignored unless ...)" hint shows on
+      every category menu (5.0). (s) A snow golem and an abominable
+      snowman cannot be polymorphed into, so of the cold-footed forms
+      only the frost salamander is a hero's ("under your rear
+      regions").
 - [x] SWEEP: monstseesu() SETTER parity with master (BUG-2949..
       2951) - CLOSED 2026-11-09 (session 314, 766bdc794, tracker
       24c04706c;
@@ -38725,6 +38860,23 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       slippery-ice white term stays out for good: COLD_RES arrives as
       the primary through armor_provides_extrinsic() and master's uarm
       term would exempt a steed from the rider's suit.
+      (a) DONE 2026-11-13, session 329 (BUG-3103..3107, commit
+      pending): freeze_step(), has_cold_feet(),
+      maybe_freeze_underfoot() and master's six callers, the
+      mhitm_ad_wrap() gate, the mfndpos() terms with wantlava /
+      wantice. Known_lwalking's fire conjunct is gone and, by a new
+      ruling, master's slippery-ice term is back (a wearer never
+      slips, mounted or not - the 2026-09-07 corollary predated the
+      freeze). Beyond master: walls of water and lava do not freeze,
+      the hero is gated on Flying / Levitation and not on the form,
+      a monster's freeze is at its own square (master used the
+      hero's steed's), monster riders use the branch's lift helpers.
+      Battery B1-B11: pool, moat, puddle, sewage, lava, a raised
+      drawbridge, mounted with no slip in 20 steps (11 of 20 slipped
+      without the suit), both walls refused, a snow golem and a
+      suited orc crossing, the eel's and the salamander's holds, the
+      salamander entering the lava and staying. (b), (e) and (f)
+      keep this row open.
 - [x] Hdgn-slice riders on unported features (minted 2026-08-15 by
       the hdgn slice): (a) master's monster gradual-stoning
       subsystem is payload-partial on the branch - the mstone/
@@ -38898,7 +39050,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       (e) verified current 2026-11-12: luanames matches all 197
       dat/*.lua files with no dead pattern.
 - [x] Master PRs #194-#198: buffer bounds (minted+DONE 2026-11-13,
-      session 328; BUG-3079..3096, commit pending; two code
+      session 328; BUG-3079..3096, db4924abd and 3fee9f6a3; two code
       commits, BUG-3093 alone in the first). A player opened five
       pull requests against frozen master: fixed buffers overrun by
       long player-given names, by long typed input (the curses
@@ -39610,23 +39762,24 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-12 | A mouse click lets the next direction prompt return a far offset: 6d0aae607 has click_to_cmd() set `iflags.getdir_click = mod` for every bound button, and only dotherecmdmenu() clears it. getdir() takes a non-zero getdir_click as leave to skip its sgn() clamp on a `_` (getpos) pick. After a right-click look (button 2 is bound to clicklook by default) the next #kick / zap / apply aimed with `_` gets the raw offset (a click during getpos() itself is harmless: it runs with the mouse buttons unbound): dokick() kicks the monster at u.ux + u.dx with only an isok() test, rays step by the offset. Live for curses players since 1bda9be5e restored mouse input. Read in fd4d169b6; not reproduced on vanilla. Fix: keep the clicked button in its own cmd.c variable that click_to_cmd() writes and dotherecmdmenu() reads and zeroes, and write getdir_click only around dotherecmdmenu()'s own getdir(); BUG-3053, src/cmd.c, branch commit f4ba98734 | fixed on the branch; not sent; needs a vanilla repro; triage pending |
 | 2026-11-12 | Wishing for a "zombifying <monster> corpse" starts a zombify timer for any monster: readobjnam() tests `d.zombify && zombie_form(&mons[d.mntmp])`, and zombie_form() returns NON_PM (-1, true) for a monster with no zombie form. A "zombifying newt corpse" carries a ZOMBIFY_MON timer (visible in #timeout) and, since acfb7ea97, eats as five points more rotten. Same line in fd4d169b6. Fix: `!= NON_PM`; BUG-3054, src/objnam.c, branch commit f4ba98734 | fixed on the branch; not sent; triage pending |
 | 2026-11-12 | Stacking keeps a zombie's kill from rising: merged() stops the absorbed object's timers ("really should merge the timeouts"), and mergable() keeps corpses apart only for is_reviver() species, so picking up a corpse that carries a ZOMBIFY_MON timer while holding a plain corpse of the same species leaves an ordinary stack - no zombie, and since acfb7ea97 no rot penalty either. Read in fd4d169b6 (invent.c has no zombify test); EvilHack master the same. Fix: a corpse with a ZOMBIFY_MON timer does not merge, beside the revivable-corpse rule; BUG-3055, src/invent.c, branch commit f4ba98734 | fixed on the branch; not sent; needs a vanilla repro; triage pending |
-| 2026-11-13 | Traditional-menu pickup: query_classes() (pickup.c) appends a class code to the caller's `oclasses[]` for every valid class symbol typed, with no duplicate check; the callers' buffers are `char[MAXOCLASSES + 10]` (pickup(), traditional_loot()). With menustyle:traditional, `,` on a pile of two or more classes and one symbol typed 28 or more times writes past the buffer (81 bytes under tty, 256 under curses); ggetobj() has the `!strchr(olets, oc_of_sym)` guard. Same line in fd4d169b6; the branch fired under ASan (stack-buffer-overflow WRITE in query_classes from both callers). Fix: append only when the class is not already listed; BUG-3093, src/pickup.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | curses getlin echo overruns toplines[]: curses_message_win_getline() `Strcpy(gt.toplines, tmpbuf)` copies "<prompt> <answer>" into TBUFSZ (300) and the curses getlin takes 255 characters, so any prompt of 44 or more overruns it (the #annotate prompt is exactly 44: strlen 300 measured in gdb on the branch). tty hooked_tty_getlin() `Strcat(strcat(strcpy(gt.toplines, query), " "), obufp)` has the same shape (an EDIT_GETLIN default can be 255; nhl_getlin() passes any Lua prompt). Same code in fd4d169b6. Fix: bounded copies; BUG-3079, win/curses/cursmesg.c + win/tty/getline.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | Status hilite menu: in botl.c status_hilite_menu_add() the typed threshold goes into status_hilite_menu_choose_updownboth()'s `Sprintf(buf, "%s than %s", ...)` and the colorqry / attrqry prompts (all BUFSZ), and `Strcat(numstart, "%")` can add a 257th byte; under curses a threshold of 250 zeros and a digit passes the numeric checks. Same code in fd4d169b6; the branch fired under ASan (WRITE 262 in status_hilite_menu_choose_updownboth). Fix: cut the answer at QBUFSZ - 1 after getlin(); BUG-3080, src/botl.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | hilite_status rule with ten threshold pairs: parse_status_hl1() fills all 21 rows of `hsbuf[MAX_THRESH][QBUFSZ]` and parse_status_hl2() / parse_condition() walk until an empty row, reading row 21 (`OPTIONS=hilite_status:hp/<1/red/.../<10/red`). Same code in fd4d169b6; the branch fired under ASan (READ in parse_status_hl2 while the rc is read). Fix: one spare row the splitter never writes; BUG-3088, src/botl.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | Overview with a long annotation: dungeon.c print_mapseen() `Sprintf(eos(buf), " \"%s\"", mptr->custom)` then `" <- You %s here."` into buf[BUFSZ]; a 250-character #annotate text (curses) overruns it in #overview and the dumplog. Same code in fd4d169b6; the branch fired under ASan (WRITE 259 in print_mapseen). Fix: bound the annotation with `%.*s`, keeping room for the marker; BUG-3081, src/dungeon.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | Wish rewrites that lengthen a full-length wish: readobjnam_postparse2() builds "worthless piece of " + the text in tbuf[BUFSZ] and copies it back; readobjnam_postparse1() copies a longer singular back (mice -> mouse) and, in wizard mode, `Strcpy(d->bp, trapname(...))` ("beartrap" -> "bear trap"); wishymatch() `Strcat(strcpy(buf, p), SP_detection)`. Same code in fd4d169b6; all four fired on the branch under ASan with 255-character curses wishes. Fix: rewrite or copy back only when the result fits where d->bp points; Snprintf() in wishymatch(); BUG-3082, src/objnam.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | WIZKIT lines reach readobjnam() in a heap block only as long as the line: cfgfiles.c parse_conf_buf() allocates strlen + 1 and files.c proc_wizkit_line() passes that buffer on, so the in-place rewrites above overrun it for ordinary lines - `blue glass` puts 30 bytes into an 11-byte block. Same code in fd4d169b6; the branch fired under ASan (heap-buffer-overflow WRITE 30 in readobjnam_postparse2 from proc_wizkit_line). Fix: proc_wizkit_line() copies the line into a char[BUFSZ] for readobjnam(); BUG-3096, src/files.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | #name prompt for an already-named monster: do_name.c do_mgivenname() `Sprintf(qbuf, "What do you want to call %s?", distant_monnam(...))` into qbuf[QBUFSZ]; "the invisible guardian naga hatchling called <62-character name>" makes it 133 characters. Same code in fd4d169b6; the branch fired under ASan (WRITE 134 in do_mgivenname). Fix on the branch: when the description does not fit, ask about the creature without its name (x_monnam() with SUPPRESS_NAME), and bound the write; BUG-3083, src/do_name.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | Drawbridge messages: dbridge.c E_phrase() builds "<Monnam> <verb>" in `static char wholebuf[80]`; a named monster the hero sees as invisible is "The invisible <62>" = 76 before the verb. Same code in fd4d169b6; the branch fired under ASan (global-buffer-overflow in E_phrase from do_entity()'s "disappears behind the drawbridge." line). Fix: BUFSZ and Snprintf(); BUG-3084, src/dbridge.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | Stethoscope / probe status lines: insight.c ustatusline() and mstatusline() build the condition list in info[BUFSZ] by unbounded Strcat(), ustatusline() adding a_monnam(u.ustuck). Same shape in fd4d169b6 (fewer clauses there; whether vanilla's own list can pass 255 is not checked); the branch's hero line fired under ASan with 265 characters of conditions. Fix on the branch: info[2 * BUFSZ]; BUG-3085, src/insight.c, branch commit pending | fixed on the branch; not sent; needs a vanilla length check; triage pending |
-| 2026-11-13 | Orc "More info?" text: pager.c do_supplemental_info() `Sprintf(buf, textp[i], subs++ ? gang : fullname)` into buf[BUFSZ]; the name is everything after " called " in the farlook line. Same code in fd4d169b6 (read only; not reproduced on either tree). Fix: Snprintf(); BUG-3086, src/pager.c, branch commit pending | fixed on the branch; not sent; needs a repro; triage pending |
-| 2026-11-13 | Warning symbol over a boulder: pager.c do_screen_description() `Strcat(out_str, " co-located with a boulder")` after append_str() may have filled out_str[BUFSZ] (SYMBOLS lines mapping the boulder and many monster classes to a warning character). Same code in fd4d169b6 (read only; not reproduced on either tree). Fix: bounded strncat(); BUG-3089, src/pager.c, branch commit pending | fixed on the branch; not sent; needs a repro; triage pending |
-| 2026-11-13 | Forged glyph in a name: windows.c decode_glyph() accepts `\G` + the game's rndencode + four hex digits of glyph number and its three callers (decode_mixed(), the glyphinfo variant, utf8map.c) index glyphmap[] with it unchecked; FFFF is past MAX_GLYPH. Same code in fd4d169b6; on the branch a dagger named `\G<code>FFFF` crashed `;` farlook and `/` `o` (SEGV READ in map_glyphinfo). Fix: decode_glyph() returns 0 for a glyph >= MAX_GLYPH; BUG-3090, src/windows.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | tty and the terminal's size: sys/share/ioctl.c getwindowsz() stores the kernel's size as is and the tty code keeps it in shorts (65530 rows turns negative: heap-buffer-overflow in tty_clear_nhwindow on the SIGWINCH, and in tty_end_menu at start-up); wintty.c tty_end_menu() divides by `lmax = min(52, rows - 1)` (FPE on a one-row terminal) and writes `curr->str[cols - 2]`. Same code in fd4d169b6; all three fired on the branch under ASan. Fix: cap LI / CO at 1000, floor lmax at 1 and the index at 0; BUG-3091, sys/share/ioctl.c + win/tty/wintty.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | curses shrunk below its start-up minimum: the 15 x 40 check runs at start-up only; at 12 x 4 the resize redraw (curs_reset_windows -> curses_last_messages -> curses_message_win_puts) reaches cursmisc.c curses_str_remainder() with a negative width and aborts on `assert(IndexOk(last_space, substr))`. curses_break_str(), curses_message_win_getline() (`buffer / width`) and cursdial.c curses_line_input_dialog() (`remaining_buf / prompt_width`) take the same widths. Same code in fd4d169b6; the abort reproduced on the branch. Fix: floor the widths; BUG-3092, win/curses/cursmisc.c + cursmesg.c + cursdial.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | Class name one character too long: mondata.c name_to_monclass() singularizes its input (mice -> mouse) and name_to_monplus() `strcpy(buf, in_str)` into buf[BUFSZ]; a 255-character curses answer at the class genocide (also polymorph and the wizard create prompts) becomes 257 bytes. Same code in fd4d169b6; the branch fired under ASan (WRITE 257 in name_to_monplus). Fix: bounded copy; BUG-3094, src/mondata.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-13 | #wizloadlua / #wizloaddes: wizcmds.c `strcat(buf, ".lua")` onto a full getlin answer with no dot (253 characters, curses, wizard mode). Same code in fd4d169b6; the branch fired under ASan (WRITE 5 in wiz_load_lua). Fix: append only when it fits; BUG-3095, src/wizcmds.c, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | Traditional-menu pickup: query_classes() (pickup.c) appends a class code to the caller's `oclasses[]` for every valid class symbol typed, with no duplicate check; the callers' buffers are `char[MAXOCLASSES + 10]` (pickup(), traditional_loot()). With menustyle:traditional, `,` on a pile of two or more classes and one symbol typed 28 or more times writes past the buffer (81 bytes under tty, 256 under curses); ggetobj() has the `!strchr(olets, oc_of_sym)` guard. Same line in fd4d169b6; the branch fired under ASan (stack-buffer-overflow WRITE in query_classes from both callers). Fix: append only when the class is not already listed; BUG-3093, src/pickup.c, branch commit db4924abd | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | curses getlin echo overruns toplines[]: curses_message_win_getline() `Strcpy(gt.toplines, tmpbuf)` copies "<prompt> <answer>" into TBUFSZ (300) and the curses getlin takes 255 characters, so any prompt of 44 or more overruns it (the #annotate prompt is exactly 44: strlen 300 measured in gdb on the branch). tty hooked_tty_getlin() `Strcat(strcat(strcpy(gt.toplines, query), " "), obufp)` has the same shape (an EDIT_GETLIN default can be 255; nhl_getlin() passes any Lua prompt). Same code in fd4d169b6. Fix: bounded copies; BUG-3079, win/curses/cursmesg.c + win/tty/getline.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | Status hilite menu: in botl.c status_hilite_menu_add() the typed threshold goes into status_hilite_menu_choose_updownboth()'s `Sprintf(buf, "%s than %s", ...)` and the colorqry / attrqry prompts (all BUFSZ), and `Strcat(numstart, "%")` can add a 257th byte; under curses a threshold of 250 zeros and a digit passes the numeric checks. Same code in fd4d169b6; the branch fired under ASan (WRITE 262 in status_hilite_menu_choose_updownboth). Fix: cut the answer at QBUFSZ - 1 after getlin(); BUG-3080, src/botl.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | hilite_status rule with ten threshold pairs: parse_status_hl1() fills all 21 rows of `hsbuf[MAX_THRESH][QBUFSZ]` and parse_status_hl2() / parse_condition() walk until an empty row, reading row 21 (`OPTIONS=hilite_status:hp/<1/red/.../<10/red`). Same code in fd4d169b6; the branch fired under ASan (READ in parse_status_hl2 while the rc is read). Fix: one spare row the splitter never writes; BUG-3088, src/botl.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | Overview with a long annotation: dungeon.c print_mapseen() `Sprintf(eos(buf), " \"%s\"", mptr->custom)` then `" <- You %s here."` into buf[BUFSZ]; a 250-character #annotate text (curses) overruns it in #overview and the dumplog. Same code in fd4d169b6; the branch fired under ASan (WRITE 259 in print_mapseen). Fix: bound the annotation with `%.*s`, keeping room for the marker; BUG-3081, src/dungeon.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | Wish rewrites that lengthen a full-length wish: readobjnam_postparse2() builds "worthless piece of " + the text in tbuf[BUFSZ] and copies it back; readobjnam_postparse1() copies a longer singular back (mice -> mouse) and, in wizard mode, `Strcpy(d->bp, trapname(...))` ("beartrap" -> "bear trap"); wishymatch() `Strcat(strcpy(buf, p), SP_detection)`. Same code in fd4d169b6; all four fired on the branch under ASan with 255-character curses wishes. Fix: rewrite or copy back only when the result fits where d->bp points; Snprintf() in wishymatch(); BUG-3082, src/objnam.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | WIZKIT lines reach readobjnam() in a heap block only as long as the line: cfgfiles.c parse_conf_buf() allocates strlen + 1 and files.c proc_wizkit_line() passes that buffer on, so the in-place rewrites above overrun it for ordinary lines - `blue glass` puts 30 bytes into an 11-byte block. Same code in fd4d169b6; the branch fired under ASan (heap-buffer-overflow WRITE 30 in readobjnam_postparse2 from proc_wizkit_line). Fix: proc_wizkit_line() copies the line into a char[BUFSZ] for readobjnam(); BUG-3096, src/files.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | #name prompt for an already-named monster: do_name.c do_mgivenname() `Sprintf(qbuf, "What do you want to call %s?", distant_monnam(...))` into qbuf[QBUFSZ]; "the invisible guardian naga hatchling called <62-character name>" makes it 133 characters. Same code in fd4d169b6; the branch fired under ASan (WRITE 134 in do_mgivenname). Fix on the branch: when the description does not fit, ask about the creature without its name (x_monnam() with SUPPRESS_NAME), and bound the write; BUG-3083, src/do_name.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | Drawbridge messages: dbridge.c E_phrase() builds "<Monnam> <verb>" in `static char wholebuf[80]`; a named monster the hero sees as invisible is "The invisible <62>" = 76 before the verb. Same code in fd4d169b6; the branch fired under ASan (global-buffer-overflow in E_phrase from do_entity()'s "disappears behind the drawbridge." line). Fix: BUFSZ and Snprintf(); BUG-3084, src/dbridge.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | Stethoscope / probe status lines: insight.c ustatusline() and mstatusline() build the condition list in info[BUFSZ] by unbounded Strcat(), ustatusline() adding a_monnam(u.ustuck). Same shape in fd4d169b6 (fewer clauses there; whether vanilla's own list can pass 255 is not checked); the branch's hero line fired under ASan with 265 characters of conditions. Fix on the branch: info[2 * BUFSZ]; BUG-3085, src/insight.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; needs a vanilla length check; triage pending |
+| 2026-11-13 | Orc "More info?" text: pager.c do_supplemental_info() `Sprintf(buf, textp[i], subs++ ? gang : fullname)` into buf[BUFSZ]; the name is everything after " called " in the farlook line. Same code in fd4d169b6 (read only; not reproduced on either tree). Fix: Snprintf(); BUG-3086, src/pager.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; needs a repro; triage pending |
+| 2026-11-13 | Warning symbol over a boulder: pager.c do_screen_description() `Strcat(out_str, " co-located with a boulder")` after append_str() may have filled out_str[BUFSZ] (SYMBOLS lines mapping the boulder and many monster classes to a warning character). Same code in fd4d169b6 (read only; not reproduced on either tree). Fix: bounded strncat(); BUG-3089, src/pager.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; needs a repro; triage pending |
+| 2026-11-13 | Forged glyph in a name: windows.c decode_glyph() accepts `\G` + the game's rndencode + four hex digits of glyph number and its three callers (decode_mixed(), the glyphinfo variant, utf8map.c) index glyphmap[] with it unchecked; FFFF is past MAX_GLYPH. Same code in fd4d169b6; on the branch a dagger named `\G<code>FFFF` crashed `;` farlook and `/` `o` (SEGV READ in map_glyphinfo). Fix: decode_glyph() returns 0 for a glyph >= MAX_GLYPH; BUG-3090, src/windows.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | tty and the terminal's size: sys/share/ioctl.c getwindowsz() stores the kernel's size as is and the tty code keeps it in shorts (65530 rows turns negative: heap-buffer-overflow in tty_clear_nhwindow on the SIGWINCH, and in tty_end_menu at start-up); wintty.c tty_end_menu() divides by `lmax = min(52, rows - 1)` (FPE on a one-row terminal) and writes `curr->str[cols - 2]`. Same code in fd4d169b6; all three fired on the branch under ASan. Fix: cap LI / CO at 1000, floor lmax at 1 and the index at 0; BUG-3091, sys/share/ioctl.c + win/tty/wintty.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | curses shrunk below its start-up minimum: the 15 x 40 check runs at start-up only; at 12 x 4 the resize redraw (curs_reset_windows -> curses_last_messages -> curses_message_win_puts) reaches cursmisc.c curses_str_remainder() with a negative width and aborts on `assert(IndexOk(last_space, substr))`. curses_break_str(), curses_message_win_getline() (`buffer / width`) and cursdial.c curses_line_input_dialog() (`remaining_buf / prompt_width`) take the same widths. Same code in fd4d169b6; the abort reproduced on the branch. Fix: floor the widths; BUG-3092, win/curses/cursmisc.c + cursmesg.c + cursdial.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | Class name one character too long: mondata.c name_to_monclass() singularizes its input (mice -> mouse) and name_to_monplus() `strcpy(buf, in_str)` into buf[BUFSZ]; a 255-character curses answer at the class genocide (also polymorph and the wizard create prompts) becomes 257 bytes. Same code in fd4d169b6; the branch fired under ASan (WRITE 257 in name_to_monplus). Fix: bounded copy; BUG-3094, src/mondata.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | #wizloadlua / #wizloaddes: wizcmds.c `strcat(buf, ".lua")` onto a full getlin answer with no dot (253 characters, curses, wizard mode). Same code in fd4d169b6; the branch fired under ASan (WRITE 5 in wiz_load_lua). Fix: append only when it fits; BUG-3095, src/wizcmds.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
+| 2026-11-13 | Underwater, an unseen monster out of the water: attack_checks() (uhitm.c) tests the DRAWN glyph for the remembered-unseen-monster 'I', and a submerged hero's map draws only adjacent water, so every move at an unseen monster on the bank says "Wait!  There's something there you can't see!" and spends the move; the 'I' it maps is never shown and never counts, and only F reaches the monster. Same code in fd4d169b6 (and in 3.6.7). Fix on the branch: while Underwater the remembered glyph counts too; BUG-3102, src/uhitm.c, branch commit pending | fixed on the branch; not sent; triage |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -40037,6 +40190,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-12 | Monster gradual stoning (Phase 2 session 326, AskUserQuestion x6 with seven questions: the slice pick, four rulings, the battery launch; all as recommended). (1) SLICE: master's monster gradual stoning (Phase 5 Hdgn rider (a)), picked over the recent LOW batch, the verify rows and the SWEEP rows. (2) SELF-CURE: a stoning spellcaster's own stone to flesh runs only over the pack items the spell really changes and takes only those off; master's loop takes off everything it wears and wields and nothing puts it back, so a cockatrice corpse stripped a caster's life saving and reflection (rejected; a third option, strip then re-dress, also rejected). (3) FIRST LINE: "<Monster> is slowing down." prints once, at the hit, for every source, and the countdown's first step is silent; master printed it at a monster's hit and again next turn, and only next turn for the hero's own hits. (4) STONED WIZARD: found turning to stone on the migrating list at his next return, the Wizard shakes it off and arrives; master parks a stone-limbed Wizard for good when the hero leaves his level (rejected, with "he finishes off-stage"). (5) STONING PET: a pet that is turning to stone eats a lizard or acidic corpse however satiated; master's satiation gate excepts only intrinsic corpses, so a full pet turned to stone beside its cure (found by the battery). (6) BATTERY: two testers in parallel. RECORDED with the approved plan, not asked: still instant - Medusa's gaze, a polymorphed hero's own touch, a monster touching a petrifier, passive stoning, every minstapetrify() caller; a golem or ent changes form at once at every producer; the beholder's 1-in-3 roll comes before the victim's cure (deviation); no pet credit for a gradual stoning (row minted); a thrown egg credits the hero only on the hero's move; a revived or split monster starts clean; the cure is a helpful gesture and never overrides a paralysis; bones clear the hero-credit flags; the countdown pauses off the level; the folded-in leftovers (the basilisk, monmulti(), the trap guards) and the one dropped (master's dead honey badger line). BUG-3056..3075. |
 | 2026-11-12 | HTML dumplog escaping (Phase 4 / session 327, AskUserQuestion x1: the scope; as recommended). (1) SCOPE: fix and test the branch, and cut patch files for the Hardfought NetHack50 fork and TNNT, which share the three unescaped writes - picked over branch only and forks only; the forks are deployed and the branch pushed in whichever order the maintainer chooses. RECORDED with the approved plan, not asked: master's BUG-1096 NULL guards stay with the Phase 4 HTML dumplog rider (neither new call can pass NULL); the "NetHack" wording in the title and generator tag stays with that row too; no REMOVALS line and no upstream row (Hardfought fork code, absent from Official_nh50). BUG-3078. |
 | 2026-11-13 | Master PRs #194-#198 buffer bounds (Phase 5 / session 328, AskUserQuestion x2 with three questions; two as recommended, one against). (1) #NAME PROMPT THAT DOES NOT FIT: drop the old name - "What do you want to call the invisible guardian naga hatchling?", the way safe_qbuf() falls back to a simpler object name; the old name is still the preloaded answer on an EDIT_GETLIN build (rejected: cut the description with "...", and the PR's plain cut at 100 characters). (2) TESTING: an AddressSanitizer battery before and after the fix, so that each "still live" claim made from reading is proved on the old build (rejected: after-only; no battery). (3) QUERY_CLASSES (BUG-3093, found by the planning sweep, in no PR, also in master 0.9.3): its own commit, pushed normally, no production hot patch - master stays frozen-unfixed (recommended and rejected: hold the push until production is patched; also rejected: fold it into the slice commit). Also instructed, no question asked: the blank lines the whitespace hook removed from the vanilla window-port files are put back, to keep those files quiet for upstream merges. No REMOVALS line (no 5.0 behavior or text gave way to master's). BUG-3079..3096. |
+| 2026-11-13 | Unported master behaviors (Phase 2 session 329, AskUserQuestion x6 with ten questions - one a battery launch ask; nine as recommended, one against, and one of the nine re-asked after I corrected its premise). (1) SLICE: the known 0.9.3 behaviors still missing (the recent bug LOWs, the race sweeps and the verify rows not taken). (2) SCOPE: all of it, three commits - the underwater rules, cold feet with the lava / ice pathing, autoall_menu with the container meal (rejected: without cold feet; cold feet only). (3) WATERLINE: as 0.9.3 plays - a submerged hero makes no attack on a monster on dry land and climbs out onto its square, the stock monster-on-your-square arm moving it aside. First asked on my wrong premise that master left two creatures on one square (the answer then: the hero stays put); re-asked with the real behavior. The twin rule comes with it: only a monster in the water attacks a submerged hero. (4) LAVA TARGET: refuse - "You cannot reach <mon> from under the water.", the move spent (rejected: 0.9.3's step into the lava). (5) UNSEEN BANK (asked after the battery): the remembered 'I' counts though the submerged map does not draw it, so the second bump climbs out (rejected: 0.9.3's and vanilla's "Wait!" on every bump). (6) WHIP: keep 5.0's "You cause a small splash." over liquid - AGAINST the recommendation of master's grab; no code. (7) MOUNTED ICE: master's exemption back - a wearer of white-scaled armor never slips, mounted or on foot; replaces the 2026-09-07 corollary, which predated the freeze. (8) LONE 'A': accepted when autoall_menu is on, in the drop and container menus only (rejected: 5.0's rejection). (9) Battery: three testers in parallel, then a one-tester retest. Session calls, plan-approved: the swim-under is done after the hero's move and only into the square the hero left; a flying swimmer is fought, not swum under; both outs sit ahead of the swing's side effects; walls of water and lava never freeze; the hero's freeze is gated on Flying / Levitation, a monster's is at its own square; a container eaten off the floor spills at the bite for any eater, a carried one is unchanged. | maintainer |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |

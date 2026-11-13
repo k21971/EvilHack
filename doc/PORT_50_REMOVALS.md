@@ -251,6 +251,11 @@ tracker; sNNN = port session.
   of thing do you want to identify?" now goes to the identify menu,
   so a hangup can no longer spin there (s250, BUG-2499, 34b404ad1;
   master 8966b35a7).
+- [x] **A lone 'A' rejected in the drop and container category
+  menus**: accepted when `autoall_menu` is on, where it leads to the
+  item menu with everything selected; 5.0's "No relevant items
+  selected." stays with the option off (ruled s329, BUG-3108, commit
+  pending).
 
 ### 2.2 Monster AI
 
@@ -274,6 +279,13 @@ tracker; sNNN = port session.
 - [x] Vampire-bat form permanently stunned (s135, BUG-1895, 408713be5).
 - [x] Monster-on-monster theft taking the first eligible item; now
   random (s159, BUG-2024, 0612d2a42).
+- [x] Any swimmer attacking a submerged hero from dry land -> master's
+  rule: only a monster that is in the water attacks one who is under
+  it (s329, BUG-3097, commit pending; master 442a2ac22).
+- [x] Salamanders roaming off lava -> master's `wantlava`: one beside
+  lava goes in and stays, as an eel does with water; the frost
+  salamander likewise with ice (s329, BUG-3107, commit pending;
+  master c839aa4a1, 113aae435).
 
 ### 2.3 Combat and magic rules -> master's
 
@@ -447,6 +459,18 @@ tracker; sNNN = port session.
 - [x] A monster's wielded petrifying corpse also did weapon damage,
   with the gauntlet, artifact, rust and poison riders -> master's
   flat 1 (s326, BUG-3057, 3f3dbf7ed).
+- [x] A submerged hero fighting across the waterline -> master's
+  rule: no attack on a monster on dry land (the hero climbs out
+  toward it), one above the water is swum under, one over lava cannot
+  be reached (the last by ruling; master steps into the lava)
+  (s329, BUG-3098, 3099, commit pending; master 442a2ac22 and the
+  commits that shaped it since).
+- [x] "Wait!  There's something there you can't see!" on every move
+  of a submerged hero at an unseen monster on the bank -> once; the
+  second move climbs out (ruled s329, BUG-3102, commit pending;
+  beyond master, which repeats it too).
+- [x] A kick under water landing half the time -> never
+  (s329, BUG-3100, commit pending; master 95ed3591f).
 
 ### 2.4 Text and logs
 
@@ -600,6 +624,9 @@ tracker; sNNN = port session.
   (63d3d7b68) kept, though master has none and removal was
   recommended; its cost raised from Con -1 to Con -3 by the same
   ruling (2026-11-11, s324, BUG-3044).
+- [r] The whip flicked down over water or lava: 5.0's "You cause a
+  small splash." kept over master's grab from the liquid and the
+  whip's lava damage (ruled s329, against the recommendation).
 
 ## 4. Open
 
