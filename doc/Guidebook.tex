@@ -27,7 +27,7 @@
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for EvilHack by Keith Simpson and others)}
 %DO NOT REMOVE NH_DATESUB \date{Date(%B %-d, %Y)}
-\date{November 11, 2026}
+\date{November 13, 2026}
 
 \maketitle
 
@@ -4429,6 +4429,16 @@ letters is shown in the following order:
 \texttt{H} - helmet;\\
 \texttt{B} - boots;\\
 \texttt{S} - shield.
+%.lp
+\item[autoall\textunderscore menu]
+When the `A' choice is picked in the menu of object categories for
+dropping things, or for putting them into or taking them out of a container,
+show a menu of the items with every one of them already selected instead of
+acting on them at once (default false).
+With other categories picked as well,
+the items matching those are the ones selected.
+Only matters when \textit{menustyle} is Full.  Persistent.
+%.lp
 \item[autodescribe]
 Automatically describe the terrain under cursor when asked to get a location
 on the map (default true).
@@ -4844,7 +4854,9 @@ object classes rather than a character prompt, and then a menu of matching
 objects for selection.
 (Choosing its `A' (Autoselect-All) choice skips the second menu.
 To avoid choosing that by accident,
-set \textit{paranoid\textunderscore confirm:AutoAll} to require confirmation.)
+set \textit{paranoid\textunderscore confirm:AutoAll} to require confirmation,
+or set \textit{autoall\textunderscore menu} to be shown the second menu with its
+entries already selected.)
 Partial skips the object class filtering and
 immediately displays a menu of all objects.
 \item[menu\textunderscore deselect\textunderscore all]

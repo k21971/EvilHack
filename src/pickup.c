@@ -1168,7 +1168,8 @@ query_objlist(const char *qstr,        /* query string */
                          ATR_NONE, clr,
                          (puzzling_count) ? doname_with_price_and_cgender(curr)
                                           : doname_with_price(curr),
-                         MENU_ITEMFLAGS_NONE);
+                         (how == PICK_ALL) ? MENU_ITEMFLAGS_SELECTED
+                                           : MENU_ITEMFLAGS_NONE);
                 first = FALSE;
             }
         }
@@ -1197,7 +1198,9 @@ query_objlist(const char *qstr,        /* query string */
     }
 
     end_menu(win, qstr);
-    n = select_menu(win, how, pick_list);
+    /* PICK_ALL is PICK_ANY with every object already selected (above);
+       the window ports know nothing of it */
+    n = select_menu(win, (how == PICK_ALL) ? PICK_ANY : how, pick_list);
     destroy_nhwindow(win);
 
     if (n > 0) {
@@ -1276,7 +1279,10 @@ query_category(
             do_unpaid = FALSE, do_usedup = FALSE,
             do_blessed = FALSE, do_cursed = FALSE,
             do_uncursed = FALSE, do_buc_unknown = FALSE,
-            do_worn = FALSE, do_unidentified = FALSE, verify_All = FALSE;
+            do_worn = FALSE, do_unidentified = FALSE, verify_All = FALSE,
+            /* the caller follows 'A' with a menu of the objects, all
+               of them selected, so 'A' picked by itself is not a slip */
+            lone_All_ok = ((qflags & ALL_ALONE_OK) != 0);
     int num_buc_types = 0, num_justpicked = 0, clr = NO_COLOR;
 
     *pick_list = (menu_item *) 0;
@@ -1369,7 +1375,7 @@ query_category(
                  MENU_ITEMFLAGS_SKIPINVERT);
         verify_All = (how == PICK_ANY) && ParanoidAutoAll;
         if (!verify_All) {
-            if (!ga.A_first_hint++ || iflags.cmdassist)
+            if (!lone_All_ok && (!ga.A_first_hint++ || iflags.cmdassist))
                 add_menu_str(win,
                    "    (ignored unless some other choices are also picked)");
         } else if (show_a) {
@@ -1544,7 +1550,8 @@ query_category(
                 }
                 break; /* from for => goto query_done; */
             }
-    } else if (n == 1 && !verify_All && (*pick_list)[0].item.a_int == 'A') {
+    } else if (n == 1 && !verify_All && !lone_All_ok
+               && (*pick_list)[0].item.a_int == 'A') {
         /* without paranoid_confirm:A, choosing 'A' by itself is rejected */
         n = 0;
         free((genericptr_t) *pick_list), *pick_list = 0;
@@ -3865,13 +3872,18 @@ menu_loot(int retry, boolean put_in)
         Sprintf(buf, "%s what type of objects?", action);
         mflags = (ALL_TYPES | UNPAID_TYPES | UNIDED_TYPES | BUCX_TYPES
                   | CHOOSE_ALL | JUSTPICKED);
+        /* with autoall_menu 'A' leads to a menu of the items, so it may
+           be picked alone */
+        if (flags.autoall_menu)
+            mflags |= ALL_ALONE_OK;
         n = query_category(buf,
                            put_in ? gi.invent : gc.current_container->cobj,
                            mflags, &pick_list, PICK_ANY);
             /* when paranoid_confirm:A is set, 'A' by itself implies
                'A'+'a' which will be followed by a confirmation prompt;
                when that option isn't set, 'A' by itself is rejected
-               by query_categorry() and result here will be n==0 */
+               by query_categorry() and result here will be n==0,
+               unless autoall_menu has it lead to the menu of items */
         if (!n)
             return ECMD_OK; /* no non-autopick category filters specified */
 
@@ -3893,7 +3905,9 @@ menu_loot(int retry, boolean put_in)
         free((genericptr_t) pick_list);
     }
 
-    if (autopick) {
+    /* with the autoall_menu option, 'A' shows the items it selects,
+       every one of them picked already, in the menu further down */
+    if (autopick && !flags.autoall_menu) {
         int (*inout_func)(struct obj *); /* in_container or out_container */
         struct obj *firstobj;
 
@@ -3921,7 +3935,7 @@ menu_loot(int retry, boolean put_in)
                 n_looted += res;
             }
         }
-    } else if (put_in && loot_justpicked
+    } else if (put_in && loot_justpicked && !autopick
                && count_justpicked(gi.invent) == 1) {
         otmp = find_justpicked(gi.invent);
         if (otmp) {
@@ -3943,8 +3957,10 @@ menu_loot(int retry, boolean put_in)
         Sprintf(buf, "%s what?", action);
         n = query_objlist(buf,
                           put_in ? &gi.invent : &(gc.current_container->cobj),
-                          mflags, &pick_list, PICK_ANY,
-                          all_categories ? allow_all : allow_category);
+                          mflags, &pick_list,
+                          autopick ? PICK_ALL : PICK_ANY,
+                          (all_categories || loot_everything)
+                              ? allow_all : allow_category);
         if (n) {
             n_looted = n;
             for (i = 0; i < n; i++) {

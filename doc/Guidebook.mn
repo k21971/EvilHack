@@ -62,7 +62,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 November 11, 2026
+.ds f2 November 13, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -4072,6 +4072,17 @@ letters is shown in the following order:
 \f(CRB\fP - boots;
 \f(CRS\fP - shield.
 .ed
+.lp autoall_menu
+When the \(oqA\(cq choice is picked in the menu of object categories for
+dropping things, or for putting them into or taking them out of a container,
+show a menu of the items with every one of them already selected instead of
+acting on them at once (default false).
+With other categories picked as well,
+the items matching those are the ones selected.
+Only matters when
+.op menustyle
+is Full.
+Persistent.
 .lp autodescribe
 Automatically describe the terrain under cursor when asked to get a location
 on the map (default true).
@@ -4439,7 +4450,10 @@ object classes rather than a character prompt, and then a menu of matching
 objects for selection.
 (Choosing its \(oqA\(cq (Autoselect-All) choice skips the second menu.
 To avoid choosing that by accident,
-set \f(CRparanoid_confirm:AutoAll\fP to require confirmation.)
+set \f(CRparanoid_confirm:AutoAll\fP to require confirmation,
+or set
+.op autoall_menu
+to be shown the second menu with its entries already selected.)
 Partial skips the object class filtering and
 immediately displays a menu of all objects.
 .lp menu_deselect_all

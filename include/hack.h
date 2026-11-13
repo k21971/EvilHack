@@ -1381,6 +1381,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define BUC_UNKNOWN       0x0800
 #define JUSTPICKED        0x1000
 #define UNIDED_TYPES      0x2000
+#define ALL_ALONE_OK      0x4000 /* accept 'A' picked with nothing else */
 #define BUC_ALLBKNOWN (BUC_BLESSED | BUC_CURSED | BUC_UNCURSED)
 #define BUCX_TYPES (BUC_ALLBKNOWN | BUC_UNKNOWN)
 #define ALL_TYPES_SELECTED -2

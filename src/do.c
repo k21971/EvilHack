@@ -1191,12 +1191,16 @@ menu_drop(int retry)
                            (UNPAID_TYPES | UNIDED_TYPES | ALL_TYPES
                             | CHOOSE_ALL | BUC_BLESSED | BUC_CURSED
                             | BUC_UNCURSED | BUC_UNKNOWN | JUSTPICKED
-                            | INCLUDE_VENOM),
+                            | INCLUDE_VENOM
+                            /* with autoall_menu 'A' leads to a menu of
+                               the items, so it may be picked alone */
+                            | (flags.autoall_menu ? ALL_ALONE_OK : 0)),
                            &pick_list, PICK_ANY);
             /* when paranoid_confirm:A is set, 'A' by itself implies
                'A'+'a' which will be followed by a confirmation prompt;
                when that option isn't set, 'A' by itself is rejected
-               by query_categorry() and result here will be n==0 */
+               by query_categorry() and result here will be n==0,
+               unless autoall_menu has it lead to the menu of items */
         if (!n)
             goto drop_done; /* no non-autopick category filters specified */
 
@@ -1230,7 +1234,9 @@ menu_drop(int retry)
         }
     }
 
-    if (autopick) {
+    /* with the autoall_menu option, 'A' shows the items it selects,
+       every one of them picked already, in the menu further down */
+    if (autopick && !flags.autoall_menu) {
         /*
          * Dropping a burning potion of oil while levitating can cause
          * an explosion which might destroy some of hero's inventory,
@@ -1257,7 +1263,8 @@ menu_drop(int retry)
         /* we might not have dropped everything (worn armor, welded weapon,
            cursed loadstones), so reset any remaining inventory to normal */
         bypass_objlist(gi.invent, FALSE);
-    } else if (drop_justpicked && count_justpicked(gi.invent) == 1) {
+    } else if (drop_justpicked && !autopick
+               && count_justpicked(gi.invent) == 1) {
         /* drop the just picked item automatically, if only one stack */
         otmp = find_justpicked(gi.invent);
         if (otmp)
@@ -1267,8 +1274,9 @@ menu_drop(int retry)
         /* should coordinate with perm invent, maybe not show worn items */
         n = query_objlist("What would you like to drop?", &gi.invent,
                           (USE_INVLET | INVORDER_SORT | INCLUDE_VENOM),
-                          &pick_list, PICK_ANY,
-                          all_categories ? allow_all : allow_category);
+                          &pick_list, autopick ? PICK_ALL : PICK_ANY,
+                          (all_categories || drop_everything)
+                              ? allow_all : allow_category);
         if (n > 0) {
             /*
              * picklist[] contains a set of pointers into inventory, but

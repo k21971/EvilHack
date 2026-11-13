@@ -114,6 +114,9 @@ typedef struct glyphinfo {
 #define PICK_NONE 0 /* user picks nothing (display only) */
 #define PICK_ONE 1  /* only pick one */
 #define PICK_ANY 2  /* can pick any amount */
+/* for query_objlist() only, which turns it into PICK_ANY for the window
+   port: any amount, starting with every object selected */
+#define PICK_ALL 3
 
 /* window types */
 /* any additional port specific types should be defined in win*.h */

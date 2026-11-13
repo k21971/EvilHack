@@ -177,6 +177,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(ascii_map, Advanced, 0, ascii_map_Def, set_in_game,
                 ascii_map_Def, Yes, No, No, NoAlias, &iflags.wc_ascii_map,
                 Term_False, "show map as text")
+    NHOPTB(autoall_menu, Behavior, 0, opt_in, set_in_game,
+                Off, Yes, No, No, NoAlias, &flags.autoall_menu, Term_False,
+                "show the items the 'A' menu choice selects before acting")
     NHOPTO("autocompletions", Advanced, o_autocomplete, BUFSZ, opt_in,
                 set_in_game, No, Yes, No, NoAlias, "edit autocompletions")
     NHOPTB(autodescribe, Advanced, 0, opt_out, set_in_game,

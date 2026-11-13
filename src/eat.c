@@ -33,6 +33,7 @@ staticfn boolean fprefx(struct obj *);
 staticfn void fpostfx(struct obj *);
 staticfn int bite(void);
 staticfn int edibility_prompts(struct obj *);
+staticfn boolean spill_floor_meal(struct obj *) NONNULLARG1;
 staticfn int doeat_nonfood(struct obj *);
 staticfn int tinopen_ok(struct obj *);
 staticfn int rottenfood(struct obj *);
@@ -3356,6 +3357,41 @@ edibility_prompts(struct obj *otmp)
     return 0;
 }
 
+/* the hero is about to eat a container off the floor: what it holds
+   falls out first. Returns FALSE if the container is no longer there to
+   be eaten afterwards */
+staticfn boolean
+spill_floor_meal(struct obj *box)
+{
+    struct obj *cobj;
+    coordxy x = box->ox, y = box->oy;
+    unsigned was_in_use = box->in_use;
+
+    /* the cat is found alive or dead before the box is disturbed */
+    if (SchroedingersBox(box))
+        observe_quantum_cat(box, TRUE, TRUE);
+    if (!Has_contents(box))
+        return TRUE;
+
+    if (!Blind)
+        pline("Its contents fall out.");
+    /* an object in use stays put if what falls out of it drops through
+       a hole and part of the pile follows */
+    box->in_use = 1;
+    while ((cobj = box->cobj) != 0) {
+        obj_extract_self(cobj);
+        if (box->otyp == ICE_BOX)
+            removed_from_icebox(cobj);
+        if (!flooreffects(cobj, x, y, "")) {
+            place_object(cobj, x, y);
+            stackobj(cobj);
+        }
+    }
+    box->in_use = was_in_use;
+    newsym(x, y);
+    return (box->where == OBJ_FLOOR);
+}
+
 staticfn int
 doeat_nonfood(struct obj *otmp)
 {
@@ -3363,6 +3399,11 @@ doeat_nonfood(struct obj *otmp)
     int ll_conduct = 0;
     boolean nodelicious = FALSE;
     int material;
+
+    /* a container eaten off the floor is emptied first */
+    if (Has_contents(otmp) && otmp->where == OBJ_FLOOR
+        && !spill_floor_meal(otmp))
+        return ECMD_TIME;
 
     svc.context.victual.reqtime = 1;
     svc.context.victual.piece = otmp;

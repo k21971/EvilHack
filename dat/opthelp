@@ -4,6 +4,8 @@ option setting, which is reached via the 'O' command.)
 
 acoustics      can your character hear anything                    [True]
 armorstatus    show extra status field summarizing worn armor     [False]
+autoall_menu   show the items the 'A' menu choice selects, all    [False]
+               of them picked already, before acting on them
 autodescribe   describe the terrain under cursor                  [False]
 autodig        dig if moving and wielding digging tool            [False]
 autoopen       walking into a door attempts to open it             [True]
