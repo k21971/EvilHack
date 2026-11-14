@@ -38,6 +38,7 @@ staticfn void rest_room(NHFILE *, struct mkroom *);
 
 #ifndef SFCTOOL
 staticfn boolean invalid_shop_shape(struct mkroom *sroom);
+staticfn void reslot_subrooms(void);
 
 #define sq(x) ((x) * (x))
 
@@ -1264,6 +1265,57 @@ save_rooms(NHFILE *nhfp)
     for (i = 0; i < svn.nroom; i++)
         save_room(nhfp, &svr.rooms[i]);
 }
+
+/*
+ * reslot_subrooms : Put each subroom back in the slot it was made in.
+ * The map, a shopkeeper and a priest name a subroom by its slot.
+ * save_rooms() writes the subrooms parent by parent and rest_room()
+ * hands out slots in that order, but sort_rooms() may have moved the
+ * parents after the subrooms were made, so the order in the file is
+ * not always the order of the slots. Each subroom still carries its
+ * own slot in roomnoidx
+ */
+staticfn void
+reslot_subrooms(void)
+{
+    struct mkroom *r, tmproom;
+    int i, j, k, n = gn.nsubroom, newslot[MAXNROFROOMS];
+    boolean taken[MAXNROFROOMS], moved = FALSE;
+
+    (void) memset((genericptr_t) taken, 0, sizeof taken);
+    for (i = 0; i < n; i++) {
+        k = (int) gs.subrooms[i].roomnoidx - (MAXNROFROOMS + 1);
+        if (k < 0 || k >= n || taken[k]) {
+            /* not a set of slots this game makes; nothing after the
+               rooms is misread, so the level is used as it was read */
+            impossible("rest_rooms: subroom %d names slot %d of %d",
+                       i, k, n);
+            return;
+        }
+        taken[k] = TRUE;
+        newslot[i] = k;
+        if (k != i)
+            moved = TRUE;
+    }
+    if (!moved)
+        return;
+
+    /* point every room at its subrooms' new slots, then move them */
+    for (i = 0; i < svn.nroom + n; i++) {
+        r = (i < svn.nroom) ? &svr.rooms[i] : &gs.subrooms[i - svn.nroom];
+        for (j = 0; j < r->nsubrooms; j++)
+            r->sbrooms[j] =
+                &gs.subrooms[newslot[SUBROOM_INDEX(r->sbrooms[j])]];
+    }
+    for (i = 0; i < n; i++) {
+        while ((k = (int) gs.subrooms[i].roomnoidx
+                    - (MAXNROFROOMS + 1)) != i) {
+            tmproom = gs.subrooms[k];
+            gs.subrooms[k] = gs.subrooms[i];
+            gs.subrooms[i] = tmproom;
+        }
+    }
+}
 #endif /* !SFCTOOL */
 
 staticfn void
@@ -1324,6 +1376,9 @@ rest_rooms(NHFILE *nhfp)
     }
     svr.rooms[svn.nroom].hx = -1; /* restore ending flags */
     gs.subrooms[gn.nsubroom].hx = -1;
+#ifndef SFCTOOL
+    reslot_subrooms();
+#endif
 }
 
 #ifndef SFCTOOL
