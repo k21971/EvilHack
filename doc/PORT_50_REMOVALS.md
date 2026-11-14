@@ -303,11 +303,11 @@ tracker; sNNN = port session.
 - [x] summonmu()'s "no such thing as a demon were creature" return ->
   a weredemon in demon form goes on to the were handling: it can
   change into its hell hound form in melee and call hell hounds
-  (s332, BUG-3121, commit pending; master's mattacku(), effd3acf9).
+  (s332, BUG-3121, 557705adb; master's mattacku(), effd3acf9).
 - [x] normal_shape() forcing every non-human were creature to change
   form when cancelled or met again under cancellation -> not the
   weredemon's demon form, which is its base form (ruled s332,
-  BUG-3125, commit pending; beyond master, whose restore_cham()
+  BUG-3125, 557705adb; beyond master, whose restore_cham()
   flips it too).
 
 ### 2.3 Combat and magic rules -> master's
@@ -499,18 +499,25 @@ tracker; sNNN = port session.
 - [x] A kick under water landing half the time -> never
   (s329, BUG-3100, 8bc94ee80; master 95ed3591f).
 - [x] The undead-corpse offering bonus for every non-chaotic hero ->
-  lawful and neutral heroes only; an unaligned Infidel gets none
-  (ruled s332, BUG-3122, commit pending; master 6972e3e62). 5.0's
-  chaotic wraith arm stays (section 3).
+  lawful and neutral heroes for any undead corpse; an unaligned
+  Infidel only for a wraith it would have eaten, like a chaotic hero
+  (ruled s332, BUG-3122, 557705adb; master 6972e3e62 gives the
+  Infidel none - the wraith arm is the follow-up ruling, BUG-3133,
+  commit pending, section 3).
+- [x] Helmet_on() negating the hero's alignment value (128 for an
+  unaligned hero: no change, the penalties anyway, and a livelog line
+  read from outside aligns[]) -> its sign; a helm of opposite
+  alignment makes an Infidel lawful until it comes off (s332,
+  BUG-3134, commit pending; master 6972e3e62).
 - [x] A stale corpse being worth nothing toward Moloch's deadline ->
   an Infidel's own-race corpse counts at any age (ruled s332,
-  BUG-3127, commit pending; master 6972e3e62).
+  BUG-3127, 557705adb; master 6972e3e62).
 - [x] Starting gear losing a random poison coat for every non-chaotic
   hero -> for lawful and neutral heroes only; an Infidel keeps the
-  1-in-100 poisoned dagger (ruled s332, BUG-3128, commit pending;
+  1-in-100 poisoned dagger (ruled s332, BUG-3128, 557705adb;
   master 6972e3e62).
 - [x] A fire gaze burning a monster under water -> "but nothing
-  happens." (s332, BUG-3123, commit pending; master 61fbffdee).
+  happens." (s332, BUG-3123, 557705adb; master 61fbffdee).
 
 ### 2.4 Text and logs
 
@@ -674,7 +681,9 @@ tracker; sNNN = port session.
 - [r] The chaotic wraith offering: 5.0's +1 for a chaotic hero with
   broken vegetarian conduct who offers a wraith corpse kept beside
   master's lawful / neutral rule (ruled s332, against the
-  recommendation).
+  recommendation), then extended to the unaligned Infidel, for whom
+  it also moves Moloch's deadline by 500 turns (follow-up ruling
+  s332, BUG-3133, commit pending; beyond master).
 - [r] A wand of death zapped at other monsters: the branch's monster
   keeps zapping after it has seen the hero reflect; master's stop
   (a side effect of its M_SEEN_REFL term, which spared pets) is not
