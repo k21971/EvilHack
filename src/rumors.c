@@ -633,6 +633,11 @@ restore_oracles(NHFILE *nhfp)
     int i;
 
     Sfi_unsigned(nhfp, &svo.oracle_cnt, "oracle-oracle_cnt");
+    /* init_oracles() reads the real count with "%5d"; a larger one is
+       damage, and would wrap the size of the allocation below while
+       the loop after it still ran the full count */
+    if (svo.oracle_cnt > 99999U)
+        panic("restore_oracles: bad oracle count (%u)", svo.oracle_cnt);
     if (svo.oracle_cnt) {
         svo.oracle_loc =
             (unsigned long *) alloc(svo.oracle_cnt * sizeof (unsigned long));

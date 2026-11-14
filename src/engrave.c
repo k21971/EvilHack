@@ -1715,9 +1715,19 @@ rest_engravings(NHFILE *nhfp)
         Sfi_unsigned(nhfp, &lth, "engraving-engr_alloc");
         if (lth == 0)
             return;
+        /* not a game limit; it keeps a damaged size from asking for
+           a huge buffer or, by wrapping around, a tiny one */
+        if (lth > 100000U)
+            panic("rest_engravings: bad engraving size (%u)", lth);
         ep = newengr(lth);
         Sfi_engr(nhfp, ep, "engraving");
         szeach = ep->engr_szeach;
+        /* the text is stored three times; sizes inside the record
+           that disagree with the space just allocated would send
+           the three reads below past its end */
+        if (ep->engr_alloc != lth || lth % 3 != 0 || szeach != lth / 3)
+            panic("rest_engravings: engraving sizes disagree (%u,%u,%u)",
+                  lth, ep->engr_alloc, szeach);
         ep->nxt_engr = head_engr;
         head_engr = ep;
         ep->engr_txt[actual_text] = engr_text_space(ep); /* Andreas Bormann */
@@ -1729,6 +1739,11 @@ rest_engravings(NHFILE *nhfp)
                  "engraving-remembered_text", (int) szeach);
         Sfi_char(nhfp, ep->engr_txt[pristine_text],
                  "engraving-pristine_text", (int) szeach);
+        /* each text ends inside its own third, whatever the file
+           held; the loops below and every later reader rely on it */
+        ep->engr_txt[actual_text][szeach - 1] = '\0';
+        ep->engr_txt[remembered_text][szeach - 1] = '\0';
+        ep->engr_txt[pristine_text][szeach - 1] = '\0';
 
         while (ep->engr_txt[actual_text][0] == ' ')
             ep->engr_txt[actual_text]++;

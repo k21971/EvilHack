@@ -68,4 +68,18 @@ typedef struct {
                                * attribution is dropped across reload */
 } NhRegion;
 
+/* limits for a region list read back from a save or bones file; they
+   are there to reject a damaged count, not to limit a game */
+#define MAX_REGIONS 100000               /* regions overlap, so the
+                                          * map sets no limit */
+#define MAX_REGION_RECTS (COLNO * ROWNO) /* gas cloud: 1 per square */
+#define MAX_REGION_MONST (COLNO * ROWNO) /* each one is listed once */
+#define MAX_REGION_MSGLEN BUFSZ          /* enter_msg, leave_msg */
+
+/* indices into region.c's callbacks[] */
+#define NO_CALLBACK (-1)
+#define NUM_CALLBACKS 2
+#define VALID_CALLBACK(idx) \
+    ((idx) == NO_CALLBACK || ((idx) >= 0 && (idx) < NUM_CALLBACKS))
+
 #endif /* REGION_H */

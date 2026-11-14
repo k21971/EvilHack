@@ -1270,13 +1270,32 @@ staticfn void
 rest_room(NHFILE *nhfp, struct mkroom *r)
 {
     short i;
+    struct mkroom *sub;
 
     Sfi_mkroom(nhfp, r, "room-mkroom");
 
+    /* both panics below clear the room count first, so that
+       nothing that walks the rooms by count meets one that was
+       only partly read */
+    if (r->nsubrooms < 0 || r->nsubrooms > MAX_SUBROOMS) {
+        int badcount = r->nsubrooms;
+
+        svn.nroom = 0;
+        panic("rest_room: bad subroom count (%d) vs max %d", badcount,
+              MAX_SUBROOMS);
+    }
     for (i = 0; i < r->nsubrooms; i++) {
-        r->sbrooms[i] = &gs.subrooms[gn.nsubroom];
-        rest_room(nhfp, &gs.subrooms[gn.nsubroom]);
-        gs.subrooms[gn.nsubroom++].resident = (struct monst *) 0;
+        if (gn.nsubroom >= MAXNROFROOMS) {
+            svn.nroom = 0;
+            panic("rest_room: more than %d subrooms", MAXNROFROOMS);
+        }
+        /* take the slot before reading into it: a subroom's own
+           subrooms are read by the call below and need the slots
+           after this one, as save_room() wrote them */
+        sub = &gs.subrooms[gn.nsubroom++];
+        r->sbrooms[i] = sub;
+        rest_room(nhfp, sub);
+        sub->resident = (struct monst *) 0;
     }
 }
 
@@ -1290,6 +1309,13 @@ rest_rooms(NHFILE *nhfp)
     short i;
 
     Sfi_int(nhfp, &svn.nroom, "room-nroom");
+    if (svn.nroom < 0 || svn.nroom > MAXNROFROOMS) {
+        int badcount = svn.nroom;
+
+        svn.nroom = 0; /* there are no rooms to walk */
+        panic("rest_rooms: bad room count (%d) vs max %d", badcount,
+              MAXNROFROOMS);
+    }
 
     gn.nsubroom = 0;
     for (i = 0; i < svn.nroom; i++) {

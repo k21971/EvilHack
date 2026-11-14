@@ -137,6 +137,10 @@ restlevchn(NHFILE *nhfp)
 
     svs.sp_levchn = (s_level *) 0;
     Sfi_int(nhfp, &cnt, "levchn-lev_count");
+    /* at most one special level per level */
+    if (cnt < 0 || cnt > MAXLINFO)
+        panic("restlevchn: bad level count (%d) vs max %d", cnt,
+              MAXLINFO);
     for (; cnt > 0; cnt--) {
         tmplev = (s_level *) alloc(sizeof(s_level));
         Sfi_s_level(nhfp, tmplev, "levchn-s_level");
@@ -163,6 +167,9 @@ restdamage(NHFILE *nhfp)
 #endif
 
     Sfi_unsigned(nhfp, &dmgcount, "damage-damage_count");
+    /* add_damage() keeps one entry per map square */
+    if (dmgcount > (unsigned) (COLNO * ROWNO))
+        panic("restdamage: bad damage count (%u)", dmgcount);
     counter = (int) dmgcount;
 
     if (!counter)
@@ -199,6 +206,8 @@ restobj(NHFILE *nhfp, struct obj *otmp)
 
         /* oname - object's name */
         Sfi_int(nhfp, &buflen, "obj-oname_length");
+        if (buflen > BUFSZ)
+            panic("restobj: bad oname length (%d)", buflen);
         if (buflen > 0) { /* includes terminating '\0' */
             new_oname(otmp, buflen);
             Sfi_char(nhfp, ONAME(otmp), "obj-oname", buflen);
@@ -215,6 +224,8 @@ restobj(NHFILE *nhfp, struct obj *otmp)
 
         /* omailcmd - feedback mechanism for scroll of mail */
         Sfi_int(nhfp, &buflen, "obj-omailcmd_length");
+        if (buflen > BUFSZ)
+            panic("restobj: bad omailcmd length (%d)", buflen);
         if (buflen > 0) {
             char *omailcmd = (char *) alloc(buflen);
 
@@ -425,11 +436,24 @@ restmonchn(NHFILE *nhfp)
             mtmp->m_id = nid;
         }
         offset = mtmp->mnum;
+        /* the type came from the file; check it before it indexes
+           mons[] */
+        if (!ismnum(offset)) {
+            impossible("restmonchn: bad mnum=%d", offset);
+            offset = PM_GRID_BUG;
+            mtmp->mnum = (short) offset;
+        }
         mtmp->data = &mons[offset];
         if (ghostly) {
-            int mndx = (mtmp->cham == NON_PM) ? monsndx(mtmp->data)
-                                              : mtmp->cham;
+            int mndx;
 
+            /* the same for a shapeshifter's base form */
+            if (mtmp->cham != NON_PM && !ismnum(mtmp->cham)) {
+                impossible("restmonchn: bad cham=%d", mtmp->cham);
+                mtmp->cham = NON_PM;
+            }
+            mndx = (mtmp->cham == NON_PM) ? monsndx(mtmp->data)
+                                          : mtmp->cham;
             if (propagate(mndx, TRUE, ghostly) == 0) {
                 /* cookie to trigger purge in getbones() */
                 mtmp->mhpmax = DEFUNCT_MONSTER;
@@ -1173,12 +1197,18 @@ void
 restcemetery(NHFILE *nhfp, struct cemetery **cemeteryaddr)
 {
     struct cemetery *bonesinfo, **bonesaddr;
-    int cflag = 0;
+    int cflag = 0, entries = 0;
 
     Sfi_int(nhfp, &cflag, "cemetery-cemetery_flag");
     if (cflag == 0) {
         bonesaddr = cemeteryaddr;
         do {
+            /* each record's 'next' is whatever the file holds; a
+               damaged one would have this loop allocate forever */
+            if (++entries > 256) {
+                *bonesaddr = (struct cemetery *) 0; /* end the list */
+                panic("restcemetery: too many bones entries");
+            }
             bonesinfo = (struct cemetery *) alloc(sizeof *bonesinfo);
             Sfi_cemetery(nhfp, bonesinfo, "cemetery-bonesinfo");
             *bonesaddr = bonesinfo;
@@ -1310,6 +1340,15 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     }
 
     Sfi_int(nhfp, &svd.doors_alloc, "lev-doors_alloc");
+    /* not a game limit; it keeps a damaged count from wrapping the
+       size of the allocation below while the loop after it still
+       runs the full count */
+    if (svd.doors_alloc < 0 || svd.doors_alloc > 100000) {
+        int badcount = svd.doors_alloc;
+
+        svd.doors_alloc = 0; /* svd.doors is null */
+        panic("getlev: bad door count (%d)", badcount);
+    }
     if (svd.doors_alloc) { /* avoid pointless alloc(0) */
         svd.doors = (coord *) alloc(svd.doors_alloc * sizeof (coord));
         tmpc = svd.doors;
@@ -1675,8 +1714,10 @@ restore_gamelog(NHFILE *nhfp)
         Sfi_int(nhfp, &slen, "gamelog-length");
         if (slen == -1)
             break;
-        if (slen > ((BUFSZ*2) - 1))
-            panic("restore_gamelog: msg too big (%d)", slen);
+        /* a negative length other than the -1 end marker would
+           turn into a huge read and write ahead of msg[] */
+        if (slen < 0 || slen > ((BUFSZ*2) - 1))
+            panic("restore_gamelog: bad msg length (%d)", slen);
         Sfi_char(nhfp, msg, "gamelog-gamelog_text", slen);
         msg[slen] = '\0';
         Sfi_gamelog_line(nhfp, &tmp, "gamelog-gamelog_line");
@@ -1702,8 +1743,8 @@ restore_msghistory(NHFILE *nhfp)
         Sfi_int(nhfp, &msgsize, "msghistory-length");
         if (msgsize == -1)
             break;
-        if (msgsize > BUFSZ - 1)
-            panic("restore_msghistory: msg too big (%d)", msgsize);
+        if (msgsize < 0 || msgsize > BUFSZ - 1)
+            panic("restore_msghistory: bad msg length (%d)", msgsize);
         Sfi_char(nhfp, msg, "msghistory-msg", msgsize);
         msg[msgsize] = '\0';
 #ifndef SFCTOOL
@@ -1826,6 +1867,9 @@ lookup_id_mapping(unsigned int gid, unsigned int *nidp)
                 }
         }
 
+    /* give a caller that ignores the result a value no object or
+       monster has */
+    *nidp = (unsigned) -1;
     return FALSE;
 }
 

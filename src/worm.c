@@ -587,6 +587,9 @@ rest_worm(NHFILE *nhfp)
 
     for (i = 1; i < MAX_NUM_WORMS; i++) {
         Sfi_int(nhfp, &count, "worm-segment_count");
+        if (count < 0 || count > MAX_WSEG_PER_WORM)
+            panic("rest_worm: bad segment count (%d) for worm %d",
+                  count, i);
 
         /* Get the segments. */
         for (curr = (struct wseg *) 0, j = 0; j < count; j++) {
@@ -594,6 +597,12 @@ rest_worm(NHFILE *nhfp)
             temp->nseg = (struct wseg *) 0;
             Sfi_coordxy(nhfp, &(temp->wx), "worm-wx");
             Sfi_coordxy(nhfp, &(temp->wy), "worm-wy");
+            /* place_wsegs() will index the map with these; column 0
+               is allowed, it marks a segment that is not placed */
+            if (temp->wx < 0 || temp->wx >= COLNO
+                || temp->wy < 0 || temp->wy >= ROWNO)
+                panic("rest_worm: bad segment position <%d,%d>",
+                      (int) temp->wx, (int) temp->wy);
             if (curr)
                 curr->nseg = temp;
             else

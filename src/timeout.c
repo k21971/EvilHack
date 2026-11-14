@@ -3020,6 +3020,10 @@ restore_timers(NHFILE *nhfp, int range, long adjust)
 
     /* restore elements */
     Sfi_int(nhfp, &count, "timer-timer_count");
+    /* not a game limit; it keeps a damaged count from allocating
+       without end */
+    if (count < 0 || count > 100000)
+        panic("restore_timers: bad timer count (%d)", count);
     while (count-- > 0) {
         curr = (timer_element *) alloc(sizeof(timer_element));
         Sfi_fe(nhfp, curr, "timer");
@@ -3054,26 +3058,43 @@ RESTORE_WARNING_FORMAT_NONLITERAL
 void
 relink_timers(boolean ghostly)
 {
-    timer_element *curr;
-    unsigned nid;
+    timer_element *curr, *nxt, *prev = 0;
+    unsigned nid, oldid;
 
-    for (curr = gt.timer_base; curr; curr = curr->next) {
+    for (curr = gt.timer_base; curr; curr = nxt) {
+        nxt = curr->next;
         if (curr->needs_fixup) {
             if (curr->kind == TIMER_OBJECT) {
-                if (ghostly) {
-                    if (!lookup_id_mapping(curr->arg.a_uint, &nid))
-                        panic("relink_timers 1");
-                } else
-                    nid = curr->arg.a_uint;
-                curr->arg.a_obj = find_oid(nid);
-                if (!curr->arg.a_obj)
-                    panic("can't find o_id %d", nid);
+                nid = oldid = curr->arg.a_uint;
+                /* a bones object's id with no new id to map to means
+                   the object did not come along */
+                if (ghostly && !lookup_id_mapping(oldid, &nid))
+                    curr->arg.a_obj = (struct obj *) 0;
+                else
+                    curr->arg.a_obj = find_oid(nid);
+                if (!curr->arg.a_obj) {
+                    /* the timer's object is not in this game; left
+                       in the list, the timer would run against a
+                       null object, so it goes before anything else
+                       can look at the list */
+                    if (prev)
+                        prev->next = nxt;
+                    else
+                        gt.timer_base = nxt;
+                    (void) memset((genericptr_t) curr, 0,
+                                  sizeof (timer_element));
+                    free((genericptr_t) curr);
+                    impossible("relink_timers: can't find o_id %u",
+                               oldid);
+                    continue; /* prev stays on the last timer kept */
+                }
                 curr->needs_fixup = 0;
             } else if (curr->kind == TIMER_MONSTER) {
                 panic("relink_timers: no monster timer implemented");
             } else
                 panic("relink_timers 2");
         }
+        prev = curr;
     }
 }
 #endif /* !SFCTOOL */

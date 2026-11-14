@@ -515,6 +515,11 @@ restore_light_sources(NHFILE *nhfp)
 
     /* restore elements */
     Sfi_int(nhfp, &count, "lightsource-count");
+    /* not a game limit; it keeps a damaged count from allocating
+       without end */
+    if (count < 0 || count > 100000)
+        panic("restore_light_sources: bad light source count (%d)",
+              count);
 
     while (count-- > 0) {
         ls = (light_source *) alloc(sizeof(light_source));
@@ -549,8 +554,9 @@ void
 relink_light_sources(boolean ghostly)
 {
     char which;
-    unsigned nid;
-    light_source *ls;
+    unsigned nid, oldid = 0;
+    int badtype;
+    light_source *ls, *nxt, *prev = 0;
 
     /*
      * Caveat:
@@ -568,29 +574,47 @@ relink_light_sources(boolean ghostly)
      *  to date.
      */
 
-    for (ls = gl.light_base; ls; ls = ls->next) {
+    for (ls = gl.light_base; ls; ls = nxt) {
+        nxt = ls->next;
         if (ls->flags & LSF_NEEDS_FIXUP) {
+            which = '\0';
             if (ls->type == LS_OBJECT || ls->type == LS_MONSTER) {
-                nid = ls->id.a_uint;
-                if (ghostly && !lookup_id_mapping(nid, &nid))
-                    panic("relink_light_sources: no id mapping");
-
-                which = '\0';
-                if (ls->type == LS_OBJECT) {
+                nid = oldid = ls->id.a_uint;
+                if (ghostly && !lookup_id_mapping(oldid, &nid)) {
+                    which = (ls->type == LS_OBJECT) ? 'o' : 'm';
+                } else if (ls->type == LS_OBJECT) {
                     if ((ls->id.a_obj = find_oid(nid)) == 0)
                         which = 'o';
                 } else {
                     if ((ls->id.a_monst = find_mid(nid, FM_EVERYWHERE)) == 0)
                         which = 'm';
                 }
-                if (which != '\0')
-                    panic("relink_light_sources: can't find %c_id %u",
-                          which, nid);
             } else {
-                panic("relink_light_sources: bad type (%d)", ls->type);
+                which = '?';
+            }
+            if (which != '\0') {
+                /* nothing for this light to shine from; left in the
+                   list it would be followed through a null or stale
+                   pointer, so it goes before anything else can look
+                   at the list */
+                badtype = ls->type;
+                if (prev)
+                    prev->next = nxt;
+                else
+                    gl.light_base = nxt;
+                (void) memset((genericptr_t) ls, 0, sizeof (light_source));
+                free((genericptr_t) ls);
+                if (which == '?')
+                    impossible("relink_light_sources: bad type (%d)",
+                               badtype);
+                else
+                    impossible("relink_light_sources: can't find %c_id %u",
+                               which, oldid);
+                continue; /* prev stays on the last light kept */
             }
             ls->flags &= ~LSF_NEEDS_FIXUP;
         }
+        prev = ls;
     }
 }
 

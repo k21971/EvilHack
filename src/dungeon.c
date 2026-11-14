@@ -226,6 +226,13 @@ restore_dungeon(NHFILE *nhfp)
     mapseen *curr_ms, *last_ms;
 
     Sfi_int(nhfp, &svn.n_dgns, "dungeon_count");
+    /* init_dungeons() refuses MAXDUNGEON itself */
+    if (svn.n_dgns <= 0 || svn.n_dgns >= MAXDUNGEON) {
+        i = svn.n_dgns;
+        svn.n_dgns = 0; /* there are no dungeons to walk */
+        panic("restore_dungeon: bad dungeon count (%d) vs max %d", i,
+              MAXDUNGEON - 1);
+    }
     for (i = 0; i < svn.n_dgns; ++i) {
         Sfi_dungeon(nhfp, &svd.dungeons[i], "dungeon");
     }
@@ -235,6 +242,9 @@ restore_dungeon(NHFILE *nhfp)
     last = svb.branches = (branch *) 0;
 
     Sfi_int(nhfp, &count, "branch_count");
+    if (count < 0 || count > BRANCH_LIMIT)
+        panic("restore_dungeon: bad branch count (%d) vs max %d",
+              count, BRANCH_LIMIT);
 
     for (i = 0; i < count; i++) {
         curr = (branch *) alloc(sizeof *curr);
@@ -249,7 +259,7 @@ restore_dungeon(NHFILE *nhfp)
 
     Sfi_int(nhfp, &count, "level_info_count");
 
-    if (count >= MAXLINFO)
+    if (count < 0 || count >= MAXLINFO)
         panic("level information count larger (%d) than allocated size",
               count);
     for (i = 0; i < count; ++i) {
@@ -259,6 +269,9 @@ restore_dungeon(NHFILE *nhfp)
     Sfi_nhcoord(nhfp, &svi.inv_pos, "svi.inv_pos");
 
     Sfi_int(nhfp, &count, "mapseen_count");
+    if (count < 0 || count > MAXLINFO)
+        panic("restore_dungeon: bad mapseen count (%d) vs max %d",
+              count, MAXLINFO);
 
     last_ms = (mapseen *) 0;
     for (i = 0; i < count; i++) {
@@ -2864,6 +2877,7 @@ load_mapseen(NHFILE *nhfp)
     branch *curr;
 
     load = (mapseen *) alloc(sizeof *load);
+    (void) memset((genericptr_t) load, 0, sizeof *load);
 
     Sfi_int(nhfp, &branchnum, "mapseen-branch_index");
     for (brindx = 0, curr = svb.branches; curr; curr = curr->next, ++brindx)
@@ -2875,6 +2889,10 @@ load_mapseen(NHFILE *nhfp)
     Sfi_mapseen_feat(nhfp, &load->feat, "mapseen-feat");
     Sfi_mapseen_flags(nhfp, &load->flags, "mapseen-flags");
     Sfi_unsigned(nhfp, &load->custom_lth, "mapseen-custom_lth");
+    /* an annotation is typed into a BUFSZ buffer */
+    if (load->custom_lth > (unsigned) BUFSZ)
+        panic("load_mapseen: bad annotation length (%u) vs max %d",
+              load->custom_lth, BUFSZ);
 
     if (load->custom_lth) {
         /* length doesn't include terminator (which isn't saved & restored) */
@@ -3435,7 +3453,8 @@ recalc_mapseen(void)
        guarantee of either a grave or a ghost, so we go by whether the
        current hero has seen the map location where each old one died */
     for (bp = mptr->final_resting_place; bp; bp = bp->next)
-        if (svl.lastseentyp[bp->frpx][bp->frpy]) {
+        if (isok(bp->frpx, bp->frpy)
+            && svl.lastseentyp[bp->frpx][bp->frpy]) {
             bp->bonesknown = TRUE;
             mptr->flags.knownbones = 1;
         }

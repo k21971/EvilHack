@@ -2289,11 +2289,16 @@ dealloc_killer(struct kinfo *kptr)
 void
 save_killers(NHFILE *nhfp)
 {
-    struct kinfo *kptr;
+    struct kinfo *kptr, tmp_k;
 
     if (update_file(nhfp)) {
         for (kptr = &svk.killer; kptr; kptr = kptr->next) {
-            Sfo_kinfo(nhfp, kptr, "kinfo");
+            /* write a copy whose 'next' only says whether another
+               record follows, instead of this process's pointer */
+            tmp_k = *kptr;
+            tmp_k.next = kptr->next ? (struct kinfo *) 1L
+                                    : (struct kinfo *) 0;
+            Sfo_kinfo(nhfp, &tmp_k, "kinfo");
         }
     }
     if (release_data(nhfp)) {
@@ -2306,18 +2311,32 @@ save_killers(NHFILE *nhfp)
 }
 #endif /* !SFCTOOL */
 
+/* far more delayed killers than a game can have pending */
+#define KINFO_RESTORE_MAX 64
+
 void
 restore_killers(NHFILE *nhfp)
 {
     struct kinfo *kptr;
+    int count = 0;
 
     for (kptr = &svk.killer; kptr != (struct kinfo *) 0; kptr = kptr->next) {
         Sfi_kinfo(nhfp, kptr, "kinfo");
         if (kptr->next) {
+            /* 'next' from the file only means that another record
+               follows; a damaged chain would allocate without end */
+            if (++count > KINFO_RESTORE_MAX) {
+                kptr->next = (struct kinfo *) 0; /* end the chain */
+                panic("restore_killers: more than %d killers",
+                      KINFO_RESTORE_MAX);
+            }
             kptr->next = (struct kinfo *) alloc(sizeof (struct kinfo));
+            kptr->next->next = (struct kinfo *) 0;
         }
     }
 }
+
+#undef KINFO_RESTORE_MAX
 
 staticfn int
 wordcount(char *p)

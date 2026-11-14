@@ -1872,10 +1872,32 @@ restore_waterlevel(NHFILE *nhfp)
     Sfi_int(nhfp, &svy.ymin, "waterlevel-ymin");
     Sfi_int(nhfp, &svx.xmax, "waterlevel-xmax");
     Sfi_int(nhfp, &svy.ymax, "waterlevel-ymax");
+    if (n < 0 || n > 1024)
+        panic("restore_waterlevel: bad bubble count (%d)", n);
+    /* all four on the map (which also keeps the subtractions from
+       overflowing), and with room to spare inside the border for
+       the widest and tallest bubble: mv_bubble() fits a bubble to
+       these bounds and would push it off the map if it could not */
+    if (svx.xmin < 0 || svx.xmin >= COLNO
+        || svx.xmax < 0 || svx.xmax >= COLNO
+        || svy.ymin < 0 || svy.ymin >= ROWNO
+        || svy.ymax < 0 || svy.ymax >= ROWNO
+        || svx.xmax - svx.xmin < 10
+        || svy.ymax - svy.ymin < MAX_BMASK + 2)
+        panic("restore_waterlevel: bad bounds (%d,%d)-(%d,%d)",
+              svx.xmin, svy.ymin, svx.xmax, svy.ymax);
     for (i = 0; i < n; i++) {
         btmp = b;
         b = (struct bubble *) alloc((unsigned) sizeof *b);
+        /* zeroed first: a reader that fills only part of the mask
+           must not leave the rest to chance */
+        (void) memset((genericptr_t) b, 0, sizeof *b);
         Sfi_bubble(nhfp, b, "waterlevel-bubble");
+        b->next = (struct bubble *) 0; /* not the file's pointer */
+        /* the mask's width and height drive mv_bubble()'s loops */
+        if (b->bm[0] > 8 || b->bm[1] > MAX_BMASK)
+            panic("restore_waterlevel: bad bubble mask (%u,%u)",
+                  (unsigned) b->bm[0], (unsigned) b->bm[1]);
         if (btmp) {
             btmp->next = b;
             b->prev = btmp;

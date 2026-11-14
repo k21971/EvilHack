@@ -427,6 +427,10 @@ restnames(NHFILE *nhfp)
     for (i = 0; i < NUM_OBJECTS; i++) {
         if (objects[i].oc_uname) {
             Sfi_unsigned(nhfp, &len, "names-len");
+            /* savenames() writes the length, terminator included, of
+               a name typed into a BUFSZ buffer */
+            if (len == 0 || len > BUFSZ)
+                panic("restnames: bad oc_uname length (%u)", len);
             objects[i].oc_uname = (char *) alloc(len);
             Sfi_char(nhfp, objects[i].oc_uname, "names-oc_uname", (int) len);
         }

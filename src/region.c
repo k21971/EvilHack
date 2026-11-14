@@ -10,8 +10,6 @@
  * structure eventually.
  */
 
-#define NO_CALLBACK (-1)
-
 void free_region(NhRegion *);
 #ifndef SFCTOOL
 boolean inside_gas_cloud(genericptr, genericptr);
@@ -49,6 +47,12 @@ static const callback_proc callbacks[] = {
 #define EXPIRE_GAS_CLOUD 1
     expire_gas_cloud
 };
+
+/* rest_regions() checks restored callback indices against
+   NUM_CALLBACKS; the build fails here if that falls out of step
+   with the table */
+typedef char check_NUM_CALLBACKS[(SIZE(callbacks) == NUM_CALLBACKS)
+                                 ? 1 : -1];
 
 /* Should be inlined. */
 boolean
@@ -798,6 +802,16 @@ save_regions(NHFILE *nhfp)
 }
 #endif /* !SFCTOOL */
 
+/* turn off a restored callback index that callbacks[] does not have */
+#define FIX_CALLBACK(f) \
+    do {                                                               \
+        if (!VALID_CALLBACK(f)) {                                      \
+            impossible("rest_regions: bad callback index (%d)",        \
+                       (int) (f));                                     \
+            (f) = NO_CALLBACK;                                         \
+        }                                                              \
+    } while (0)
+
 void
 rest_regions(NHFILE *nhfp)
 {
@@ -815,13 +829,27 @@ rest_regions(NHFILE *nhfp)
     else
         tmstamp = (svm.moves - tmstamp);
     Sfi_int(nhfp, &svn.n_regions, "region-region_count");
+    if (svn.n_regions < 0 || svn.n_regions > MAX_REGIONS) {
+        i = svn.n_regions;
+        svn.n_regions = 0; /* there is no list to walk */
+        panic("rest_regions: bad region count (%d)", i);
+    }
     gm.max_regions = svn.n_regions;
     if (svn.n_regions > 0)
         gr.regions = (NhRegion **) alloc(svn.n_regions * sizeof (NhRegion *));
     for (i = 0; i < svn.n_regions; i++) {
         r = gr.regions[i] = (NhRegion *) alloc(sizeof (NhRegion));
+        (void) memset((genericptr_t) r, 0, sizeof (NhRegion));
         Sfi_nhrect(nhfp, &r->bounding_box, "region-bounding box");
         Sfi_short(nhfp, &r->nrects, "region-nrects");
+        /* before each panic below, the list is cut back to the
+           regions already read in full, so that nothing walks the
+           unfinished part */
+        if (r->nrects < 0 || r->nrects > MAX_REGION_RECTS) {
+            j = r->nrects;
+            svn.n_regions = i;
+            panic("rest_regions: bad rectangle count (%d)", j);
+        }
         if (r->nrects > 0)
             r->rects = (NhRect *) alloc(r->nrects * sizeof (NhRect));
         else
@@ -833,6 +861,10 @@ rest_regions(NHFILE *nhfp)
         Sfi_boolean(nhfp, &r->attach_2_u, "region-attach_2_u");
         Sfi_unsigned(nhfp, &r->attach_2_m, "region-attach_2_m");
         Sfi_unsigned(nhfp, &n, "region-enter_msg_length");
+        if (n > MAX_REGION_MSGLEN) {
+            svn.n_regions = i;
+            panic("rest_regions: bad enter_msg length (%u)", n);
+        }
         if (n > 0) {
             msg_buf = (char *) alloc(n + 1);
             Sfi_char(nhfp, msg_buf, "region-enter_msg", n);
@@ -843,6 +875,10 @@ rest_regions(NHFILE *nhfp)
         r->enter_msg = (const char *) msg_buf;
 
         Sfi_unsigned(nhfp, &n, "region-leave_msg_length");
+        if (n > MAX_REGION_MSGLEN) {
+            svn.n_regions = i;
+            panic("rest_regions: bad leave_msg length (%u)", n);
+        }
         if (n > 0) {
             msg_buf = (char *) alloc(n + 1);
             Sfi_char(nhfp, msg_buf, "region-leave_msg", n);
@@ -863,6 +899,14 @@ rest_regions(NHFILE *nhfp)
         Sfi_short(nhfp, &r->can_leave_f, "region-can_leave_f");
         Sfi_short(nhfp, &r->leave_f, "region-leave_f");
         Sfi_short(nhfp, &r->inside_f, "region-inside_f");
+        /* these index callbacks[]; one the table lacks is turned
+           off rather than called through */
+        FIX_CALLBACK(r->expire_f);
+        FIX_CALLBACK(r->can_enter_f);
+        FIX_CALLBACK(r->enter_f);
+        FIX_CALLBACK(r->can_leave_f);
+        FIX_CALLBACK(r->leave_f);
+        FIX_CALLBACK(r->inside_f);
         Sfi_unsigned(nhfp, &r->player_flags, "region-player_flags");
         if (ghostly) { /* settings pertained to old player */
             clear_hero_inside(r);
@@ -872,6 +916,12 @@ rest_regions(NHFILE *nhfp)
            is dropped across reload */
         r->creator_mid = 0;
         Sfi_short(nhfp, &r->n_monst, "region-monster_count");
+        if (r->n_monst < 0 || r->n_monst > MAX_REGION_MONST) {
+            j = r->n_monst;
+            r->n_monst = 0;
+            svn.n_regions = i;
+            panic("rest_regions: bad monster count (%d)", j);
+        }
         if (r->n_monst > 0)
             r->monsters = (unsigned *) alloc(r->n_monst * sizeof (unsigned));
         else
@@ -896,6 +946,8 @@ rest_regions(NHFILE *nhfp)
     }
 #endif /* !SFCTOOL */
 }
+
+#undef FIX_CALLBACK
 
 #ifndef SFCTOOL
 DISABLE_WARNING_FORMAT_NONLITERAL
