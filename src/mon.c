@@ -5523,7 +5523,6 @@ logdeadmon(
        Livelogs only written for player or pet kills - other causes
        (monster vs monster, traps, etc.) are not logged */
     if (mndx == PM_MEDUSA && howmany == 1) {
-        u.uevent.killed_medusa = 1;
         if (pet_credit) {
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s killed Medusa",
                            mon_pmname(pet_credit));

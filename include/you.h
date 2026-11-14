@@ -89,8 +89,8 @@ struct u_event {
                                        imbued at the Sanctum */
 
     /* once-only gates for first-kill livelog entries; always set for
-       game state regardless of who or what made the kill */
-    Bitfield(killed_medusa, 1);
+       game state regardless of who or what made the kill (Medusa has
+       none: her first kill is read from her death count) */
     Bitfield(killed_cerberus, 1);
     Bitfield(killed_vecna, 1);
     Bitfield(killed_vlad, 1);
@@ -102,7 +102,7 @@ struct u_event {
        killed_* gates above this also drives game state (xkilled
        early return, revive interception) and the xlogfile token */
     Bitfield(defeat_icequeen, 1);
-    /* 17 free bits */
+    /* 18 free bits */
 };
 
 /*

@@ -1416,12 +1416,20 @@ set_artifact_intrinsic(
             EHalf_physical_damage &= ~wp_mask;
     }
     if (spfx & SPFX_XRAY) {
-        /* this assumes that no one else is using xray_range */
+        /* x-ray vision can come from a carried artifact and a worn one
+           at the same time; track each source so that losing one of
+           them leaves the other's vision alone */
+        boolean old_vis = Xray_vision;
+
         if (on)
-            u.xray_range = 3;
+            EXray_vision |= wp_mask;
         else
-            u.xray_range = -1;
-        gv.vision_full_recalc = 1;
+            EXray_vision &= ~wp_mask;
+
+        if (Xray_vision != old_vis) {
+            u.xray_range = Xray_vision ? 3 : -1;
+            gv.vision_full_recalc = 1;
+        }
     }
     if (spfx & SPFX_REFLECT) {
         long had_refl = EReflecting & wp_mask;
@@ -5125,6 +5133,11 @@ abil_to_adtyp(long *abil)
         { &EDisint_resistance, AD_DISN },
         { &EPoison_resistance, AD_DRST },
         { &EDrain_resistance, AD_DRLI },
+        { &EAcid_resistance, AD_ACID },
+        { &EStone_resistance, AD_STON },
+        { &ESick_resistance, AD_DISE },
+        { &EDeath_resistance, AD_DETH },
+        { &EStun_resistance, AD_STUN },
     };
     int k;
 
