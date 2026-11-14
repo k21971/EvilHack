@@ -29,6 +29,7 @@ staticfn boolean restgamestate(NHFILE *);
 staticfn void restlevelstate(void);
 staticfn void restmonsteeds(struct monst *, boolean);
 staticfn int restlevelfile(xint8);
+staticfn int rest_doorindex(void);
 staticfn void rest_bubbles(NHFILE *);
 staticfn void restore_gamelog(NHFILE *);
 staticfn void reset_oattached_mids(boolean);
@@ -1255,6 +1256,37 @@ trickery(char *reason)
     Strcpy(svk.killer.name, reason ? reason : "");
     done(TRICKED);
 }
+
+/* the count of used slots in svd.doors[], which is not saved. add_door()
+   gives a room its block of slots when the room gets its first door, so
+   the top block can belong to any room or subroom, and a room with no
+   door still holds the count from when it was made */
+staticfn int
+rest_doorindex(void)
+{
+    struct mkroom *r;
+    int i, top, count = 0;
+
+    for (i = 0; i < svn.nroom + gn.nsubroom; i++) {
+        r = (i < svn.nroom) ? &svr.rooms[i] : &gs.subrooms[i - svn.nroom];
+        if (!r->doorct)
+            continue;
+        if (r->doorct < 0 || r->fdoor < 0
+            || r->fdoor > svd.doors_alloc - r->doorct) {
+            /* not a block this game makes; nothing after the rooms is
+               misread, so the level is used without these doors */
+            impossible("getlev: %s %d has doors %d + %d of %d",
+                       (i < svn.nroom) ? "room" : "subroom",
+                       (i < svn.nroom) ? i : i - svn.nroom,
+                       r->fdoor, (int) r->doorct, svd.doors_alloc);
+            continue;
+        }
+        top = r->fdoor + r->doorct;
+        if (top > count)
+            count = top;
+    }
+    return count;
+}
 #endif /* !SFCTOOL */
 
 void
@@ -1358,16 +1390,11 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
         }
     }
     rest_rooms(nhfp); /* No joke :-) */
-    if (svn.nroom) {
 #ifndef SFCTOOL
-        gd.doorindex = svr.rooms[svn.nroom - 1].fdoor
-                               + svr.rooms[svn.nroom - 1].doorct;
-    } else {
-        gd.doorindex = 0;
+    gd.doorindex = rest_doorindex();
 #else
-        gd.doorindex = 0;
+    gd.doorindex = 0;
 #endif  /* !SFCTOOL */
-    }
 
     restore_timers(nhfp, RANGE_LEVEL, elapsed);
     restore_light_sources(nhfp);
