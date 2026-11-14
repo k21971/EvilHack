@@ -239,9 +239,11 @@ you_were(void)
     if (u.ulycn < LOW_PM)
         return; /* not a lycanthrope */
     if (controllable_poly) {
-        /* `+4' => skip "were" prefix to get name of beast */
+        /* `+4' => skip "were" prefix to get name of beast; a weredemon's
+           beast is a hell hound */
         Sprintf(qbuf, "Do you want to change into %s?",
-                an(mons[u.ulycn].pmnames[NEUTRAL] + 4));
+                an((u.ulycn == PM_WEREDEMON) ? "hell hound"
+                   : mons[u.ulycn].pmnames[NEUTRAL] + 4));
         if (!paranoid_query(ParanoidWerechange, qbuf))
             return;
     } else if (monster_nearby()) {

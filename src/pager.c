@@ -1354,7 +1354,9 @@ add_mon_info(winid datawin, struct permonst *pm)
     /* differentiate the two forms of werecreatures */
     Strcpy(buf2, "");
     if (is_were(pm) && pm != &mons[PM_RAT_KING])
-        Sprintf(buf2, " (%s form)", pm->mlet == S_HUMAN ? "human" : "animal");
+        Sprintf(buf2, " (%s form)",
+                (pm->mlet == S_HUMAN) ? "human"
+                : is_demon(pm) ? "demon" : "animal");
 
     Snprintf(buf, sizeof buf, "Monster lookup for \"%s\"%s:",
              pm->pmnames[NEUTRAL], buf2);

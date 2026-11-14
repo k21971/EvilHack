@@ -1631,7 +1631,10 @@ summonmu(struct monst *mtmp, boolean youseeit)
             if (!rn2(Inhell ? 10 : 13))
                 (void) msummon(mtmp);
         }
-        return; /* no such thing as a demon were creature, so we're done */
+        /* the weredemon is both demon and were creature; its demon
+           form goes on to the were handling below */
+        if (!is_were(mdat))
+            return;
     }
 
     if (is_were(mdat)) {

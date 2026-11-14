@@ -5289,7 +5289,8 @@ mhitm_ad_curs(
         if (!magr->mcan && !rn2(10)) {
             mdef->mcan = 1; /* cancelled regardless of lifesave */
             mdef->mstrategy &= ~STRAT_WAITFORU;
-            if (is_were(pd) && pd->mlet != S_HUMAN)
+            /* a weredemon's demon form is its base form, as a human is */
+            if (is_were(pd) && pd->mlet != S_HUMAN && !is_demon(pd))
                 were_change(mdef);
             if (pd == &mons[PM_CLAY_GOLEM]) {
                 if (gv.vis && canseemon(mdef)) {
@@ -7396,6 +7397,9 @@ mhitm_ad_were(
             /* the rat king passes ordinary wererat lycanthropy */
             if (pa == &mons[PM_RAT_KING])
                 set_ulycn(PM_WERERAT);
+            /* and a weredemon's demon form passes its hell hound's */
+            else if (pa == &mons[PM_DEMON_WEREDEMON])
+                set_ulycn(PM_WEREDEMON);
             else
                 set_ulycn(monsndx(pa));
             retouch_equipment(2);

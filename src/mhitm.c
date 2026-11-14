@@ -1138,7 +1138,9 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
 
     if (magr->mcan || !mdef->mcansee
         || (archon ? resists_blnd(mdef) : !magr->mcansee)
-        || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+        || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping
+        /* water over the target quenches a fiery gaze */
+        || (mattk->adtyp == AD_FIRE && mon_underwater(mdef))) {
         if (gv.vis && canspotmon(mdef))
             pline("but nothing happens.");
         return M_ATTK_MISS;

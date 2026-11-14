@@ -1927,7 +1927,7 @@ responsive_mon_at(int x, int y)
 
     if (mtmp && (helpless(mtmp) /* immobilized monst */
                  || !mtmp->mcansee || !haseyes(mtmp->data) /* blind monst */
-                 || (Invis && !perceives(mtmp->data)) /* unseen hero */
+                 || (Invis && !mon_prop(mtmp, SEE_INVIS)) /* unseen hero */
                  || (x != mtmp->mx || y != mtmp->my))) /* worm tail */
         mtmp = (struct monst *) 0;
     return mtmp;

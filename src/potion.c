@@ -2355,14 +2355,17 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                             killed(mon);
                         else
                             monkilled(mon, "", AD_ACID);
-                    } else if (is_were(mon->data) && !is_human(mon->data))
-                        new_were(mon); /* revert to human */
+                    } else if (is_were(mon->data) && !is_human(mon->data)
+                               /* a weredemon's base form is the demon */
+                               && !is_demon(mon->data))
+                        new_were(mon); /* revert to base form */
                 } else if (obj->cursed) {
                     angermon = FALSE;
                     if (canseemon(mon))
                         pline("%s looks healthier.", Monnam(mon));
                     healmon(mon, d(2, 6), 0);
-                    if (is_were(mon->data) && is_human(mon->data)
+                    if (is_were(mon->data)
+                        && (is_human(mon->data) || is_demon(mon->data))
                         && !Protection_from_shape_changers)
                         new_were(mon); /* transform into beast */
                 }

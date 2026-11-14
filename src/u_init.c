@@ -2099,7 +2099,7 @@ ini_inv_adjust_obj(const struct trobj *trop, struct obj *obj)
             obj->otrapped = 0;
         }
         obj->cursed = (trop->trbless == CURSED);
-        if (obj->opoisoned && u.ualign.type != A_CHAOTIC)
+        if (obj->opoisoned && u.ualign.type > A_CHAOTIC)
             obj->opoisoned = 0;
         if (obj->otainted)
             obj->otainted = 0;

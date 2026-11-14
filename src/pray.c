@@ -3101,12 +3101,14 @@ eval_offering(struct obj *otmp, aligntyp altaralign)
 
     if (is_undead(ptr)) { /* Not demons--no demon corpses */
         /* most undead that leave a corpse yield 'human' (or other race)
-           corpse so won't get here; the exception is wraith; give the
-           bonus for wraith to chaotics too because they are sacrificing
-           something valuable (unless hero refuses to eat such things) */
-        if (u.ualign.type != A_CHAOTIC
-            /* reaching this side of the 'or' means hero is chaotic */
-            || (ptr == &mons[PM_WRAITH] && u.uconduct.unvegetarian))
+           corpse so won't get here; the exception is wraith; lawful
+           and neutral heroes get the bonus and an unaligned one never
+           does; give it for wraith to chaotics too because they are
+           sacrificing something valuable (unless hero refuses to eat
+           such things) */
+        if (u.ualign.type > A_CHAOTIC
+            || (u.ualign.type == A_CHAOTIC
+                && ptr == &mons[PM_WRAITH] && u.uconduct.unvegetarian))
             value += 1;
     } else if (is_unicorn(ptr)) {
         int unicalign = sgn(ptr->maligntyp);
@@ -3196,6 +3198,12 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
              && u.ualign.type != altaralign)) {
         int mval = sacrifice_value(otmp);
 
+        /* a corpse of the hero's own race counts however old it is */
+        if (!mval && your_race(ptr)) {
+            mval = mons[otmp->corpsenm].difficulty + 1;
+            if (otmp->oeaten)
+                mval = eaten_stat(mval, otmp);
+        }
         if (mval > 0) {
             long new_timeout;
 

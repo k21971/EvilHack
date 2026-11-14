@@ -7992,7 +7992,10 @@ normal_shape(struct monst *mon)
             mon->mcan = 1;
         newsym(mon->mx, mon->my);
     }
-    if (is_were(mon->data) && !racial_human(mon)) {
+    /* a were beast goes back to its base form; a weredemon's base
+       form is the demon, which stays as it is */
+    if (is_were(mon->data) && !racial_human(mon)
+        && !is_demon(mon->data)) {
         new_were(mon);
     }
     normal_appearance(mon);
