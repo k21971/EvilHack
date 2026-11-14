@@ -67,8 +67,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     stays with Phase 4) and subroom slots after a reload (5.0's
     own bug, minted session 333).
     Session 333 closed the inert persistent fields SWEEP row
-    (BUG-3135..3146, commits pending; the rows and the Decisions
-    log have the detail). With the Eye of Vecna carried and the
+    (BUG-3135..3146; 9a8753052, 44d45a151 and 09af54b4f; the rows and
+    the Decisions log have the detail). With the Eye of Vecna carried and the
     Eyes of the Overworld worn, losing one no longer ends x-ray
     vision. Firing from an empty quiver no longer clears the
     quiver's worn bit to shorten its "You ready:" line (master's
@@ -37936,8 +37936,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       WORK: walk the Phase 1 field tables; for each field grep for
       a writer; writer-less fields get a pointer to their owning
       row or a new row.
-      CLOSED 2026-11-14 (session 333; commits pending; the decisions
-      log has the rulings). Every member the branch adds to a 5.0
+      CLOSED 2026-11-14 (session 333; 9a8753052, 44d45a151 and 09af54b4f,
+      tracker 9a6032241; the decisions log has the rulings). Every member the branch adds to a 5.0
       struct was checked for a writer and a reader (396 across 26
       headers, by script, the flagged ones by hand); master's
       property and skill enums were compared; master's header macros
@@ -37959,7 +37959,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       calling it dead.
 - [x] MED: x-ray vision ended when one of two x-ray artifacts came off
       (minted and closed 2026-11-14, session 333, by the inert-fields
-      sweep; BUG-3135, commit pending). Master 7a0cb1830 (2023) tracks x-ray
+      sweep; BUG-3135, 9a8753052). Master 7a0cb1830 (2023) tracks x-ray
       vision per source in EXray_vision; Phase 1 brought XRAY_VISION
       and its macros over, but set_artifact_intrinsic()'s SPFX_XRAY
       arm kept vanilla's `u.xray_range = on ? 3 : -1`. The Eye of
@@ -37972,7 +37972,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       across a save and restore too, and a wall seen through or not
       to match. Not a vanilla bug (vanilla has one x-ray artifact).
 - [x] LOW: abil_to_adtyp() lacked master's five rows (minted and
-      closed 2026-11-14, session 333, same sweep; BUG-3136, commit pending).
+      closed 2026-11-14, session 333, same sweep; BUG-3136, 9a8753052).
       Acid, stoning, sickness, death and stun resistance never named
       the artifact giving them in wizard-mode enlightenment
       (from_what() -> what_gives()). PORTED. Battery: "You are acid
@@ -37980,7 +37980,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       resistant."), "You are stun resistant because of Snickersnee."
 - [x] HIGH: dofire() cleared the quiver's worn bit around "You ready:"
       (minted and closed 2026-11-14, session 333, reviewer-found;
-      BUG-3137, commit pending). Master 8cd3948c8 + 5c458c320 (2025-07,
+      BUG-3137, 44d45a151). Master 8cd3948c8 + 5c458c320 (2025-07,
       fuzzer: "Setworn: mask" when the quiver changed during the
       prinv()) replaced the W_QUIVER toggle with
       iflags.suppress_worn, read by doname(). The branch had the
@@ -37996,11 +37996,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       archive entry, which is why no keyword sweep saw them. A vanilla
       5.0 hazard too (upstream row).
 - [x] LOW: two dead fields removed (minted and closed 2026-11-14,
-      session 333, by ruling; commit pending). iflags.were_changes (5.0
+      session 333, by ruling; 9a8753052). iflags.were_changes (5.0
       counts in gw.were_changes) and u.uevent.killed_medusa (written
       once, never read: the first-kill gate is the death count and
       the record is ACH_MEDU). The removed bit shifts the eight
-      u.uevent bits after it: saves from before commit pending do not load.
+      u.uevent bits after it: saves from before 9a8753052 do not load.
       iflags.use_256color stays a stub with the Phase 4 truecolor row.
       Also found dead and left alone: is_readable() (5.0's read_ok()
       lets any item be chosen); master's `case PSYCHIC_RES` in
@@ -39188,7 +39188,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       each fix's home file went
 - [x] Restore-guard port slice (minted and closed 2026-11-14,
       session 333; second concrete instance of the row above;
-      BUG-3138..3146, commit pending). Origin: the inert-fields sweep found
+      BUG-3138..3146, 09af54b4f). Origin: the inert-fields sweep found
       MAX_WSEG_PER_WORM defined and unused - master's BUG-1069 had
       left only its #define - and behind it a whole family of
       master guards on values read from save and bones files that
@@ -40386,11 +40386,11 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-13 | Class name one character too long: mondata.c name_to_monclass() singularizes its input (mice -> mouse) and name_to_monplus() `strcpy(buf, in_str)` into buf[BUFSZ]; a 255-character curses answer at the class genocide (also polymorph and the wizard create prompts) becomes 257 bytes. Same code in fd4d169b6; the branch fired under ASan (WRITE 257 in name_to_monplus). Fix: bounded copy; BUG-3094, src/mondata.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
 | 2026-11-13 | #wizloadlua / #wizloaddes: wizcmds.c `strcat(buf, ".lua")` onto a full getlin answer with no dot (253 characters, curses, wizard mode). Same code in fd4d169b6; the branch fired under ASan (WRITE 5 in wiz_load_lua). Fix: append only when it fits; BUG-3095, src/wizcmds.c, branch commit 3fee9f6a3 | fixed on the branch; not sent; triage pending |
 | 2026-11-13 | Underwater, an unseen monster out of the water: attack_checks() (uhitm.c) tests the DRAWN glyph for the remembered-unseen-monster 'I', and a submerged hero's map draws only adjacent water, so every move at an unseen monster on the bank says "Wait!  There's something there you can't see!" and spends the move; the 'I' it maps is never shown and never counts, and only F reaches the monster. Same code in fd4d169b6 (and in 3.6.7). Fix on the branch: while Underwater the remembered glyph counts too; BUG-3102, src/uhitm.c, branch 8bc94ee80 | fixed on the branch; not sent; triage |
-| 2026-11-14 | A subroom inside a subroom is restored on top of its parent: mkroom.c rest_room() sets `r->sbrooms[i] = &subrooms[nsubroom]`, recurses into that slot, and only then increments, so the nested call reads the grandchild into the same slot. Live through themerms.lua "Nesting rooms" (three deep): every reload of such a level mixes up its inner rooms. Same code in fd4d169b6. Fix: take the slot (`nsubroom++`) before the recursive read; BUG-3140, src/mkroom.c, branch commit commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-14 | Allocation size wraps on a damaged count: rumors.c restore_oracles() `alloc(oracle_cnt * sizeof (unsigned long))` and restore.c getlev() `alloc(doors_alloc * sizeof (coord))` - alloc() takes an unsigned int, the product is truncated, and the read loop still runs the full count: a heap overflow from file data. Same code in fd4d169b6. Fix: bound both counts (99999, the "%5d" init_oracles() reads; 100000); BUG-3141, branch commit commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-14 | restore.c restore_gamelog() accepts a negative length other than -1: `if (slen > BUFSZ*2 - 1) panic` and then `Sfi_char(..., slen)` and `msg[slen] = '\0'`; restore_msghistory() beside it is the same. Same code in fd4d169b6. Fix: `slen < 0 ||`; BUG-3142, branch commit commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-14 | engrave.c rest_engravings() allocates from the length prefix but sizes the three text reads from `engr_szeach` inside the record just read; nothing ties the two together. Same code in fd4d169b6. Fix: require `engr_alloc == lth`, `lth % 3 == 0` and `engr_szeach == lth / 3`; BUG-3143, branch commit commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-14 | dothrow.c dofire() clears W_QUIVER on the quiver object around prinv("You ready:") to drop the suffix; a setworn() on the quiver in that window is "Setworn: mask". Same code in fd4d169b6. Fix (EvilHack 0.9.3's): a display flag read by doname() instead of touching the object; BUG-3137, branch commit commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | A subroom inside a subroom is restored on top of its parent: mkroom.c rest_room() sets `r->sbrooms[i] = &subrooms[nsubroom]`, recurses into that slot, and only then increments, so the nested call reads the grandchild into the same slot. Live through themerms.lua "Nesting rooms" (three deep): every reload of such a level mixes up its inner rooms. Same code in fd4d169b6. Fix: take the slot (`nsubroom++`) before the recursive read; BUG-3140, src/mkroom.c, branch commit 09af54b4f | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | Allocation size wraps on a damaged count: rumors.c restore_oracles() `alloc(oracle_cnt * sizeof (unsigned long))` and restore.c getlev() `alloc(doors_alloc * sizeof (coord))` - alloc() takes an unsigned int, the product is truncated, and the read loop still runs the full count: a heap overflow from file data. Same code in fd4d169b6. Fix: bound both counts (99999, the "%5d" init_oracles() reads; 100000); BUG-3141, branch commit 09af54b4f | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | restore.c restore_gamelog() accepts a negative length other than -1: `if (slen > BUFSZ*2 - 1) panic` and then `Sfi_char(..., slen)` and `msg[slen] = '\0'`; restore_msghistory() beside it is the same. Same code in fd4d169b6. Fix: `slen < 0 ||`; BUG-3142, branch commit 09af54b4f | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | engrave.c rest_engravings() allocates from the length prefix but sizes the three text reads from `engr_szeach` inside the record just read; nothing ties the two together. Same code in fd4d169b6. Fix: require `engr_alloc == lth`, `lth % 3 == 0` and `engr_szeach == lth / 3`; BUG-3143, branch commit 09af54b4f | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | dothrow.c dofire() clears W_QUIVER on the quiver object around prinv("You ready:") to drop the suffix; a setworn() on the quiver in that window is "Setworn: mask". Same code in fd4d169b6. Fix (EvilHack 0.9.3's): a display flag read by doname() instead of touching the object; BUG-3137, branch commit 44d45a151 | fixed on the branch; not sent; triage pending |
 | 2026-11-14 | A short read on a bones file is silent (sfstruct.c mread(), program_state.reading_bonesfile) and leaves restoreinfo.mread_flags at -1 for the rest of the session, so every later successful read marks its file at EOF; with a truncated bones file the sentinel-terminated readers (restobjchn(), restmonchn(), rest_stairs()) loop on a stale length. Read in fd4d169b6, not run | open on the branch (restore residue row, item a); not sent; triage pending |
 | 2026-11-14 | Subrooms change slots on a reload while the map keeps the old room numbers: mklev.c sort_rooms() reorders the parent rooms and renumbers only their squares, subroom slots keep creation order, and mkroom.c save_rooms() / rest_room() write and read subrooms parent by parent in the sorted order. On a level where two rooms with subrooms were made right to left (themed rooms: "Fake Delphi", "Nesting rooms", the weapon shop / armor shop pair), the first save and restore or leave and return swaps the subroom records, and `levl[x][y].roomno` inside one then indexes the other. Seen with THEMERM on the branch at both ends of this session's change; the code is the same in fd4d169b6 (not run there) | open on the branch (Phase 2 MED row); not sent; triage pending |
 

@@ -599,7 +599,7 @@ tracker; sNNN = port session.
   its object or monster: 5.0's panic -> the entry is dropped with
   an impossible() and the load goes on, master's shape (a bones
   timer with no id mapping too, beyond master)
-  (s333, BUG-3138, commit pending; master cf9d35493 / 7ddc880c3).
+  (s333, BUG-3138, 09af54b4f; master cf9d35493 / 7ddc880c3).
 
 ### 2.5 Levels and content
 
