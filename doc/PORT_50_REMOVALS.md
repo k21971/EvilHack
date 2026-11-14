@@ -503,12 +503,12 @@ tracker; sNNN = port session.
   Infidel only for a wraith it would have eaten, like a chaotic hero
   (ruled s332, BUG-3122, 557705adb; master 6972e3e62 gives the
   Infidel none - the wraith arm is the follow-up ruling, BUG-3133,
-  commit pending, section 3).
+  f22d8ff9a, section 3).
 - [x] Helmet_on() negating the hero's alignment value (128 for an
   unaligned hero: no change, the penalties anyway, and a livelog line
   read from outside aligns[]) -> its sign; a helm of opposite
   alignment makes an Infidel lawful until it comes off (s332,
-  BUG-3134, commit pending; master 6972e3e62).
+  BUG-3134, ddaca8926; master 6972e3e62).
 - [x] A stale corpse being worth nothing toward Moloch's deadline ->
   an Infidel's own-race corpse counts at any age (ruled s332,
   BUG-3127, 557705adb; master 6972e3e62).
@@ -683,7 +683,7 @@ tracker; sNNN = port session.
   master's lawful / neutral rule (ruled s332, against the
   recommendation), then extended to the unaligned Infidel, for whom
   it also moves Moloch's deadline by 500 turns (follow-up ruling
-  s332, BUG-3133, commit pending; beyond master).
+  s332, BUG-3133, f22d8ff9a; beyond master).
 - [r] A wand of death zapped at other monsters: the branch's monster
   keeps zapping after it has seen the hero reflect; master's stop
   (a side effect of its M_SEEN_REFL term, which spared pets) is not
