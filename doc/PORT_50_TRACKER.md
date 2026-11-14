@@ -17,12 +17,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-13, session 331: a review of
-  session 330's three commits against master found them correct, and
-  one behavior the census could not see - master's "creature" for a
-  non-human hero in a shopkeeper's price quote - ported; one row
-  minted and closed, one SWEEP row minted for three predicate counts
-  taken but not classified - after session 330, the same day, closed
+- Phase 2 status (refreshed 2026-11-14, session 332: the demon /
+  undead / see-invisible predicate sweep closed - the counts were all
+  5.0 function splits and helpers, and reading the sites found a
+  weredemon's lost melee summons, two Infidel offering rules, the
+  Infidel's poisoned starting dagger and the fire gaze under water,
+  all ported, plus six places that took the weredemon's demon form
+  for its beast, fixed by ruling; one SWEEP row closed - after
+  session 331, on 2026-11-13, reviewed session 330's three commits
+  against master, found them correct and ported one behavior the
+  census could not see - master's "creature" for a non-human hero in
+  a shopkeeper's price quote; one row minted and closed, one SWEEP
+  row minted for three predicate counts taken but not classified -
+  and session 330, the same day, closed
   the race sweeps (master's racial size tests, the zombie and beholder
   warning numbers, the zombie moan and centaur race body parts; two
   SWEEP rows closed, one residue row minted) and session 329 ported
@@ -34,8 +41,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 60 = 0 HIGH + 1 MED + 2 SWEEP + 1 untagged + 56 LOW):
-  714 rows closed, 60 open
+  prefix; 59 = 0 HIGH + 1 MED + 1 SWEEP + 1 untagged + 56 LOW):
+  715 rows closed, 59 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -47,6 +54,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4).
+    Session 332 closed the demon / undead / see-invisible predicate
+    SWEEP row (BUG-3121..3132, commit pending; the row has the
+    classification and the Decisions log the rulings). The three
+    counts netted out against 5.0's helpers; the gaps came from
+    reading the sites. A weredemon in demon form calls hell hounds in
+    melee again and can change form mid-fight. An Infidel gets no
+    undead-corpse bonus at the altar, an own-race corpse of any age
+    moves Moloch's deadline, and one Infidel in a hundred starts with
+    a poisoned dagger. A fire gaze does nothing to a monster under
+    water. #tip notices a monster that sees invisible through gear.
+    By ruling, beyond master, the weredemon's demon form is treated
+    as its base form everywhere: cancellation and a level change
+    leave it a demon, holy and unholy water work on it as on a
+    werewolf, its bite gives hell-hound lycanthropy ("Do you want to
+    change into a hell hound?"), the lookup says "(demon form)".
+    Kept by ruling: 5.0's chaotic wraith offering bonus. Recorded,
+    not ported: master's wand-of-death stop at monster targets.
     Session 331 reviewed session 330's three commits against master
     (BUG-3120, 362d8207a): the code, the recounts and the census
     classification hold. One miss, ported: a shopkeeper's price quote
@@ -28767,7 +28791,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       and "creature" on POST; a human Valkyrie "lady", a human male
       Samurai "sir", an elf Wizard "hiril"; the dwarf as a watchman
       "lady", the human as a gnome lord "creature".
-- [ ] SWEEP: demon / undead / see-invisible predicate census (minted
+- [x] SWEEP: demon / undead / see-invisible predicate census (minted
       2026-11-13, session 331, at the maintainer's word, from the
       widened re-run of the race-predicate site census above).
       COUNTED, NOT CLASSIFIED - nothing below is a confirmed gap.
@@ -28802,6 +28826,111 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       labels them mdamagem()); the branch's gazemm() has one such
       test ahead of its arms. Check that every master gaze arm sits
       behind it. LOW-MED.
+      CLOSED 2026-11-14, session 332 (commit pending). Re-run with
+      the same awk method: the totals reproduce (72 / 65, 72 / 66,
+      16 / 5). Netted per file and per function, then every unpaired
+      site read in both trees by the session; the diff reviewed in
+      three passes. CORRECTION to the paragraph above: master's
+      eleven tests ARE in mdamagem() (one per gaze damage type; its
+      gazemm() has only Medusa's) - the awk labeled them rightly.
+      PRESENT or MOVED: moveloop()'s and tamedog()'s bane tests
+      (`mon_has_race(mtmp, MH_UNDEAD / MH_DEMON)`, a spelling the
+      count cannot see); dmgval(), hitval(), potionhit(), hitmu()'s
+      Mitre and peffects() (mon_hates_blessings()); castmu()
+      (hellfire / soul_exempt); retouch_object() (always_blasted);
+      msummon() (msummon_environ()); dochug()'s gnome test (folded
+      into m_respond()); set_pet_killer() (really the
+      LEVEL_SPECIFIC_NOCORPSE macro); cmd.c's enlightenment line
+      (insight.c); and, each read against its 5.0 helper:
+      choose_clerical_spell(), do_spell_would_be_useless(),
+      dosacrifice(), doturn(), arti_invoke(), deadbook(), dosounds(),
+      dotrap(), rndmonst(), use_stone(), hmon_hitmon(), m_move(),
+      doengrave(), find_silver_recurse(). racial_perceives: the
+      eleven mdamagem() gaze tests are the one test at the top of
+      the branch's gazemm(), which covers every gaze type.
+      GAPS, ported (BUG-3121..3124, 3127, 3128):
+      (1) summonmu() kept vanilla's "no such thing as a demon were
+      creature" return, so a demon-form weredemon (MH_DEMON |
+      MH_WERE) never reached the were arm: no hell hounds called in
+      melee, no mid-fight change. Master's mattacku() runs both
+      blocks, and effd3acf9's message says the demon form summons
+      both. Found by reading, not by the count.
+      (2) eval_offering()'s undead-corpse +1: master 6972e3e62 gives
+      it only when u.ualign.type > A_CHAOTIC; the branch gave it to
+      an unaligned Infidel. RULED: master's rule, with 5.0's chaotic
+      wraith arm kept.
+      (3) gazemm(): master 61fbffdee's `mon_underwater(mdef)` term on
+      the fire gaze was missing - a pyrolisk or magical eye burned a
+      submerged monster (BUG-1779 had recorded "no underwater term"
+      for mdamagem()'s AD_FIRE: true of the resistance line, not of
+      the gaze test above it).
+      (4) responsive_mon_at() (5.0's #tip, no master site): bare
+      perceives() -> mon_prop(mtmp, SEE_INVIS), the last such test on
+      a monster in src/.
+      (5), (6) reviewer-found in 6972e3e62, RULED port:
+      offer_corpse()'s Moloch arm counts an own-race corpse of any
+      age (master's `|| your_race(ptr)` value gate; 5.0's
+      sacrifice_value() gave a stale one 0), and
+      ini_inv_adjust_obj() strips starting poison only for
+      u.ualign.type > A_CHAOTIC (an Infidel keeps the 1-in-100
+      poisoned dagger).
+      WEREDEMON BASE FORM, RULED beyond master (BUG-3125, 3126,
+      3129..3132; master has the old text at each, frozen-unfixed
+      there). The demon form is the base form, as were_change() and
+      new_were() already hold: normal_shape() no longer forces it
+      into a hell hound when cancelled or on level re-entry;
+      potionhit()'s holy water reverts only the hound, and unholy
+      water turns the demon into the hound; mhitm_ad_were() maps the
+      demon form's bite to hell-hound lycanthropy; you_were()'s
+      prompt says "a hell hound" (session call, the text consequence
+      of the bite ruling); add_mon_info() says "(demon form)";
+      mhitm_ad_curs()'s monster leg gives it no extra were_change()
+      roll.
+      RULED record only: master's wand-of-death term
+      (`!m_seenres(mtmp, M_SEEN_REFL) || nonliving || MS_LEADER`)
+      only ever stops zaps at OTHER monsters once the zapper has seen
+      the hero reflect; not ported (the branch keeps zapping).
+      NOT GAPS, left: summonmu()'s 1/30 change rate for the demon
+      form in melee (master parity, session call; a human base form
+      gets 1/5, 1/3 at night); use_mirror()'s `!is_demon()` and
+      invoke_banish() (5.0's own); gazemm()'s blinded-Archon
+      exception (5.0's own, and the hero-side gaze has no mcansee
+      test on either tree); dogaze() has no underwater term on either
+      tree; warntype.polyd's long chain on master is dead text (only
+      "humans and elves" is ever set); unturn_you()'s second arm is
+      unreachable; "Corpse conveys lycanthropy." for the corpseless
+      weredemon and polymon()'s "You turn into a weredemon!" for the
+      hound are master's text; were_change() has no mcan gate on
+      either tree, so a cancelled were can still change on its own
+      roll; mm_2way_aggression()'s zombie arm was ruled earlier.
+      WIDENED ONCE: nonliving( 56 / 52 and bare perceives( 4 / 6 were
+      read site by site (all paired but the wand-of-death term);
+      mon_prop(.., SEE_INVIS) matches per file. NOT READ, at or above
+      master by count: is_were, is_vampshifter, is_rider, is_dlord /
+      is_dprince, is_minion, is_angel.
+      Battery: one tester, PRE against four successive POST binaries
+      run by path (no install), every leg PASS, paniclog clean; the
+      final binary re-ran one case of every earlier leg. 150
+      summonmu() rounds in demon form: PRE 0 were_summon(), POST 14
+      with 43 hell hounds and four form changes (with the
+      shape-changer ring: "summons help!" / "But none comes.", as on
+      master). A wraith corpse is worth 10 to an Infidel on PRE, 9 on
+      POST; lawful / neutral 10, chaotic 10 or 9 by conduct, on both.
+      A pyrolisk's gaze at a submerged giant eel PRE "is on fire!",
+      POST "but nothing happens."; on a dry square it burns on both.
+      A ringed hill orc PRE "seems not to notice you.", POST "tips
+      her helm in response." Cancelled, the demon form PRE "changes
+      into a hell hound.", POST stays, also across a level change.
+      Holy water on the demon form PRE flips it, POST pain only;
+      unholy PRE nothing, POST "changes into a hell hound.". A stale
+      human corpse moves an Infidel's deadline 62 -> 1562 on POST,
+      not at all on PRE. The forced-poison dagger PRE "a +1 dagger",
+      POST "a poisoned +1 dagger". The demon form's bite PRE
+      u.ulycn 435, POST 34; the prompt PRE "a demon?", POST "a hell
+      hound?"; the lookup PRE "(animal form)", POST "(demon form)";
+      ten landed gremlin cancels PRE 10 were_change() calls, POST 0.
+      Controls (werewolf, Rat King, horned devil, other alignments
+      and roles) identical on both.
 - [x] LOW: uasmon_maxStr() gives EvilHack race families no race Str
       cap (BUG-2117) - FIXED 2026-10-03 (session 176, commit `Give
       EvilHack race forms their race's Str cap while polymorphed.` =
@@ -40390,6 +40519,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-13 | Unported master behaviors (Phase 2 session 329, AskUserQuestion x6 with ten questions - one a battery launch ask; nine as recommended, one against, and one of the nine re-asked after I corrected its premise). (1) SLICE: the known 0.9.3 behaviors still missing (the recent bug LOWs, the race sweeps and the verify rows not taken). (2) SCOPE: all of it, three commits - the underwater rules, cold feet with the lava / ice pathing, autoall_menu with the container meal (rejected: without cold feet; cold feet only). (3) WATERLINE: as 0.9.3 plays - a submerged hero makes no attack on a monster on dry land and climbs out onto its square, the stock monster-on-your-square arm moving it aside. First asked on my wrong premise that master left two creatures on one square (the answer then: the hero stays put); re-asked with the real behavior. The twin rule comes with it: only a monster in the water attacks a submerged hero. (4) LAVA TARGET: refuse - "You cannot reach <mon> from under the water.", the move spent (rejected: 0.9.3's step into the lava). (5) UNSEEN BANK (asked after the battery): the remembered 'I' counts though the submerged map does not draw it, so the second bump climbs out (rejected: 0.9.3's and vanilla's "Wait!" on every bump). (6) WHIP: keep 5.0's "You cause a small splash." over liquid - AGAINST the recommendation of master's grab; no code. (7) MOUNTED ICE: master's exemption back - a wearer of white-scaled armor never slips, mounted or on foot; replaces the 2026-09-07 corollary, which predated the freeze. (8) LONE 'A': accepted when autoall_menu is on, in the drop and container menus only (rejected: 5.0's rejection). (9) Battery: three testers in parallel, then a one-tester retest. Session calls, plan-approved: the swim-under is done after the hero's move and only into the square the hero left; a flying swimmer is fought, not swum under; both outs sit ahead of the swing's side effects; walls of water and lava never freeze; the hero's freeze is gated on Flying / Levitation, a monster's is at its own square; a container eaten off the floor spills at the bite for any eater, a carried one is unchanged. Commits 8bc94ee80, dbbbbc605 and c9b8b4087; BUG-3097..3110. | maintainer |
 | 2026-11-13 | Race sweeps (Phase 2 session 330, AskUserQuestion x5 with six questions - one a battery launch ask; all as recommended, one re-asked after I corrected its premise). (1) SLICE: the race sweeps - the racial size macros and race-predicate census SWEEP rows (the verify rows, the recent bug LOWs and the Icequeen riders not taken). (2) CENTAUR PARTS: fix the census row's mbodypart() rider in this slice - an unpolymorphed centaur-race hero and a centaur-race monster get horse parts ("rear hoof", "rear leg", "mane", "hide"), arms and hands human (rejected: a row of its own; record only). (3) SQUEEZE: monster walking matches the pet swap - cant_squeeze_thru() reads the racial size, so a giant-, centaur- or tortle-race monster does not walk a tight diagonal between rock or wall; beyond master, a master quirk (rejected: master's split). (4) POLY RIDER: the polymorph trap's "falls off" test reads the racial size like the wand's; first asked on my wrong premise that a re-rolled giant-race rider stayed mounted under the trap, re-asked once I found newcham()'s own mon_can_ride() dismount makes both arms dead but for a hero-role player-monster on an enlarged entry; same answer (rejected: leave the trap as master). (5) Battery: launch both testers. Session calls, plan-approved: master's r_verysmall() text ported at the six sites where no race makes it differ; the zombie moan follows the quivering blob's precedent (every time on the hero's action, 1 in 10 on the zombie's own turn), unlike the gnome and support arms' ruled both-path gates; mbodypart() keeps is_centaur() beside racial_centaur() for a centaur base with another erac; the recorded siblings and edge cases minted as one LOW record row. Commits 0d366453d and 1fda3c886; BUG-3111..3119. | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-13 | Review of session 330 (Phase 2 session 331; no AskUserQuestion - the maintainer asked for the last three commits to be examined, then approved both recommendations and the plan). (1) HONORIFIC: port master f18028dee's `maybe_polyd(is_human(form), Race_if(PM_HUMAN))` in append_honorific() as its own small fix - a non-human, non-elf, non-vampire hero is "creature" in a shopkeeper's price quote again (rejected by default: leaving 5.0's "sir" / "lady"). (2) DOOR BUSTING: record only - mon_allowflags()'s racial_giant() BUSTDOOR for pets and shopkeepers, beyond master since e9b9cab24, goes into the race sweeps residue row as (j); no code. (3) Battery: approved with the plan - one tester, PRE and POST binaries run by path against the installed playground, no install. Session calls, plan-approved: pray.c's "Hark, mortal / creature" stays as 5.0 has it (master's form there is untouched 3.6 text); session 329's row given its missing commit tail. (4) LEFTOVER COUNTS (asked after the memory update, which is where I first reported them): mint a SWEEP row now for the three predicates the widened census counted but did not classify - is_demon, is_undead, racial_perceives; no classification this session. Commit 362d8207a; BUG-3120. | maintainer (1-4); session, plan-approved (rest) |
+| 2026-11-14 | Predicate sweep (Phase 2 session 332, AskUserQuestion x5 with 7 questions; the battery was approved with the plan and its follow-up legs ran under it). (1) SLICE: the demon / undead / see-invisible predicate SWEEP row (the recent bug LOWs, the race-sweep residue and past-commit review groups 2-4 not taken). (2) UNDEAD CORPSE OFFERING: master's Infidel rule - only a lawful or neutral hero gets the +1, an unaligned one never - AND 5.0's chaotic arm kept: a chaotic hero with broken vegetarian conduct still gets +1 for a wraith. Not as recommended (master exactly); rejected too: leaving 5.0's test. (3) WAND OF DEATH AT MONSTER TARGETS: record only, as recommended - master's M_SEEN_REFL term, which only ever stops a monster zapping death at other monsters after it has seen the hero reflect, is not ported (rejected: port it, which would spare pets). (4) CANCELLED WEREDEMON: a demon-form weredemon stays a demon when cancelled and across a level change, beyond master, as recommended (rejected: master's cancel roll through were_change(); leaving 5.0's forced flip into a hell hound). (5) INFIDEL LEFTOVERS of master 6972e3e62, both ported as recommended: an own-race corpse of any age moves Moloch's deadline, and the 1-in-100 poisoned starting dagger is kept (rejected: either alone; rows instead). (6) HOLY AND UNHOLY WATER on a weredemon: fixed both ways, beyond master, as recommended - holy reverts only the hound, unholy turns the demon into the hound (rejected: leaving 0.9.3's text). (7) WEREDEMON RESIDUE, multi-select, all three fixes taken, beyond master: the demon form's bite gives hell-hound lycanthropy and the lookup header says "(demon form)" (both recommended), and a monster's cancelling hit gives the demon form no extra change roll (offered without a recommendation). Session calls, plan-approved or following a ruling: #tip's mon_prop() test; you_were()'s "Do you want to change into a hell hound?" (the text that ruling 7's bite change made wrong every time; new_were()'s own wording); summonmu()'s 1/30 melee change rate for the demon form left at master parity; use_mirror()'s `!is_demon()`, invoke_banish() and gazemm()'s blinded-Archon exception left as 5.0's own; "Corpse conveys lycanthropy." and "You turn into a weredemon!" left as master's text. Commit pending; BUG-3121..3132. | maintainer (1-7); session, plan-approved (rest) |
 | 2026-11-07 | Monster-wish armor slice (Phase 2 session 306, AskUserQuestion x4 with 4 questions - one a battery launch ask - all as recommended). (1) SLICE: the mmake_wish() armor-rules row (strangle residue (e)+(f), the session 302 record pair and the tool rows not taken). (2) SCOPE: full match - each armor wish is made, asked m_can_wear_armor() (its rolled material included) and replaced by the case's master fallback when unfit; the "already has it" tests stay (rejected: narrow only, master's body tests plus the fit test). (3) RE-CONFIRM after the Plan stress test corrected the picture (non-humanoid handed bodies gain the shield of reflection, tiny handed bodies lose gloves and the shield, silver-haters still get a non-silver shield, elves take the cursed gain level fallback on most gauntlets of power wishes): keep full match (rejected: keep humanoid() for the shield). (4) Battery: launch all three testers. Session calls, plan-approved: dealloc_obj() for an unfit fresh piece (makemon.c's idiom); the residue (tiny wishers' amulets and rings, artifact armor, worn gear in the slot, the wish-time two-hander read) minted as one LOW record row; the reviewer's comment wording folded. Commit bbec1411e; BUG-2911..2913. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-07 | Pet-armor slice (Phase 2 session 305, AskUserQuestion x5 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the pet mummy wrapping row (strangle residue (e)+(f), the session 302 record pair and the sfctool / recover rows not taken). (2) PET SCOPE: full match with m_dowear() - every slot, hated material, big wings, drider / centaur-race boots, the invisible wrapping, the mummified hand, HoOA, a cursed slot, bracers beside a two-hander - through one shared fit test in worn.c (rejected: the cloak test only). (3) HERO SIDE: follows canwearobj()'s lasting limits (rejected: master's shape). (4) GREEDY PETS (Plan stress-test re-ask; the hero-side question's dwarf example was wrong - dwarves, orcs, ogres, centaurs, mind flayers and gnolls are greedy): keep could_use_item()'s likes_gold early return, so greedy pets skip the hero test (rejected: armor's hero test before it). (5) WILDSHAPE (code-reviewer re-ask): a druid wildshape or vampire shift form keeps counting as able to wear gear in the hero test, master's feel, plus gloves for a handless form (rejected: literal canwearobj()). (6) Battery: launch all three testers. Session calls, plan-approved: u.twoweap beside the two-hander shield test (canwearobj()'s sibling); the shirt-under-suit test moves to the pet branch (a no-op for the hero: gy.youmonst.misc_worn_check is never written); retouch_object() left out (outside canwearobj()); the mmake_wish() sibling minted as a LOW. Commit b6a9ec6c5; BUG-2906..2910. | maintainer (1-6); session, plan-approved (rest) |
 | 2026-11-07 | Master hardening slice (Phase 2 session 304, AskUserQuestion x4 with 6 questions - one a battery launch ask - all as recommended). (1) SLICE: the master hardening pair, Phase 6's 3ce940b8c privilege-drop row and set_whereisfile() BUG-603 row (the pet mummy wrapping, strangle residue (e)+(f) and the session 302 record pair not taken). (2) SIBLINGS: check the drop at all seven unchecked sites - master's four plus pline.c's message-handler child, libnhmain.c chdirx() and sfctool.c chdirx() - and libnhmain.c's fread() copy (rejected: master's four + pline.c; master's four only). (3) 5a17e1fd7: fold in all six unported hunks (rejected: only write_whereis() with a row for the rest; a row for all six). (4) UPSTREAM: record the vanilla-shared fixes as candidates in the 5.0-fixes hub; set_whereisfile() is fork-only (rejected: branch only). (5) report.c: fold in the crash-report child's missing drop found by the Plan stress test (rejected: a LOW row). (6) battery: launch all three testers. Not ruled, from the census / reviewer: master d83039c54's fread() check folded with the drops; master's own continuation rewrite not ported (it stops trimming CR / blanks; BUG-2905 master-only); a '%' in the player name no longer re-expands the whereis template (reviewer LOW, BUG-2898); MICRO SAVE keeps room for append_slash(); the branch's delete_whereis() unlink at game end is the fork's deliberate 7e2ee5196 design (master writes playing=0), no row | maintainer |
