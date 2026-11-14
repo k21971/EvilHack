@@ -2665,6 +2665,8 @@ paybill(
             numsk++;
             taken |= inherits(mtmp, numsk, croaked, silently);
         }
+        /* for bones: a ban is on this hero, not on whoever comes next */
+        eshkp->pbanned = FALSE;
         /* for bones: we don't want a shopless shk around */
         if (!local)
             mongone(mtmp);
@@ -5519,6 +5521,7 @@ shk_move(struct monst *shkp)
             uondoor = u_at(eshkp->shd.x, eshkp->shd.y);
             if (uondoor) {
                 badinv = (carrying(PICK_AXE) || carrying(DWARVISH_MATTOCK)
+                          || eshkp->pbanned
                           || (Fast && (sobj_at(PICK_AXE, u.ux, u.uy)
                                   || sobj_at(DWARVISH_MATTOCK, u.ux, u.uy))));
                 if (satdoor && badinv)
@@ -6450,7 +6453,7 @@ block_entry(coordxy x, coordxy y, boolean silent)
     if (shkp->mx == sx && shkp->my == sy && !helpless(shkp)
         && (x == sx - 1 || x == sx + 1 || y == sy - 1 || y == sy + 1)
         && (Invis || carrying(PICK_AXE) || carrying(DWARVISH_MATTOCK)
-            || u.usteed)) {
+            || u.usteed || ESHK(shkp)->pbanned)) {
         if (!silent)
             pline("%s%s blocks your way!", Shknam(shkp),
                   Invis ? " senses your motion and" : "");
