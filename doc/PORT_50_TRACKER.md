@@ -17,8 +17,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-14, session 334: the subroom
-  slot row closed - a room inside a room keeps its own record when
+- Phase 2 status (refreshed 2026-11-14, session 335: the door count
+  row closed - a level read back counts its doors over every room,
+  where 5.0 and master looked at the last room only and trap
+  detection then missed trapped doors, one on any level with a vault
+  teleporter; the shopkeeper's diagonal block at a broken or missing
+  shop door works - both trees tested the wrong room and let a hero
+  step out past him with unpaid goods or in with a pick-axe; and
+  master's shop ban holds - the port had the ban and its line but
+  not the hunk that keeps the keeper on his post, so a Draugr or a
+  striped-shirt Convict was told off and let in; all three tried
+  in play first; one MED row closed, two rows minted and closed
+  (one MED), two LOW rows minted open - after session 334, the same
+  day, closed the subroom
+  slot row - a room inside a room keeps its own record when
   a level is read back, where 5.0 let the records of different
   rooms trade places, which in play left a Twin businesses shop
   free for the taking; tried in play first, then fixed on the
@@ -60,8 +72,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 62 = 0 HIGH + 2 MED + 0 SWEEP + 1 untagged + 59 LOW):
-  722 rows closed, 62 open
+  prefix; 63 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 61 LOW):
+  725 rows closed, 63 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -71,10 +83,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4) and the door count after a reload (5.0's
-    own bug, minted session 334: trap detection can stop short of
-    some trapped doors; read, not run).
+  - 1 MED: door-material colors (an unported master feature; it
+    stays with Phase 4). Phase 2 has no other MED row.
+    Session 335 closed the door count MED row (BUG-3148) and
+    minted and closed the shop-door block row (LOW; BUG-3149,
+    BUG-3150) and the shop ban row (MED; BUG-3151, BUG-3152), all
+    commit pending; the rows and the Decisions log have the detail.
+    After a leave and return, or a save and restore, the game now
+    counts a level's doors over every room and inner room; before,
+    a level with a vault teleporter came back one door short and a
+    "Room in a room" level could keep 3 doors of 23, and trap
+    detection missed the trapped doors past the count. A
+    shopkeeper on his post now blocks the diagonal step through a
+    broken or missing shop door - out with unpaid goods, in with a
+    pick-axe, invisible, riding or banned - where both trees
+    almost never did; the line prints for a real step only. A
+    banned hero (a Draugr, a Convict whose striped shirt shows,
+    the Striped Shirt of Liberation, a hated bane) is kept out of
+    the shop as on master, and every keeper's ban is lifted when
+    the game ends so a bones shop does not turn away a stranger.
+    Minted open, both LOW: jumps, recoil and the like still cross
+    a doorless shop door past the keeper; the rest of the Convict
+    patch is unread against the branch.
     Session 334 closed the subroom slot MED row (BUG-3147,
     0f622ee84; the row and the Decisions log have the detail).
     On an
@@ -38091,7 +38121,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ASan / UBSan. Not undone by the heal: goods already taken
       unbilled, and things dropped in a free shop. Upstream row
       updated.
-- [ ] MED: the door count after a reload is taken from the last
+- [x] MED: the door count after a reload is taken from the last
       parent room (minted 2026-11-14, session 334, Plan stress test
       and reviewer independently; vanilla 5.0 the same; read, not
       run). restore.c getlev() sets `gd.doorindex =
@@ -38105,27 +38135,120 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       are never looked at. gd.doorindex then comes back too small.
       Its readers after a reload are the two trapped-door loops in
       detect.c (trap detection would stop short of some trapped
-      doors) and #wizlevelflip; nothing calls add_door() during
+      doors) and #wizfliplevel; nothing calls add_door() during
       play, so no array is overrun. Fix shape: the highest fdoor +
       doorct over every parent and subroom with doorct > 0. Needs a
       battery (a trapped door past the count, detected before and
       after a leave and return).
-- [ ] LOW, verify: two more room findings from the session 334
-      stress test (minted 2026-11-14; read, not run; none from this
-      session's change). (a) shk.c block_door() and block_entry()
-      take `roomno = *in_rooms(x, y, SHOPBASE)` and test
-      `!IS_SHOP(roomno)`, but IS_SHOP() wants an index into
-      svr.rooms[] (roomno - ROOMOFFSET): the test reads the record
-      three slots on, so both return FALSE unless that room is a
-      shop too, and the shopkeeper's "blocks your way" at a broken
-      shop door would not fire. Vanilla 5.0 and master the same; a
-      theft-adjacent route (leaving diagonally through a broken door
-      with unpaid goods is still charged as a robbery). (b)
-      sp_lev.c flip_level() flips a parent's subrooms but not a
-      subroom's own subrooms. "Nesting rooms" nests on ordinary
-      levels, which are not flipped at creation, so the known reach
-      is #wizlevelflip; whether any special level (flipped at
-      creation) nests a room in a subroom is unchecked.
+      CLOSED 2026-11-14 (session 335; BUG-3148, commit pending).
+      Master has the same line and the same readers (frozen). TRIED
+      IN PLAY FIRST: on every freshly made level, both binaries, the
+      live count equalled the highest block top (about 30 levels);
+      after a leave and return the old binary fell to the last
+      parent's top. Producers met: a vault with a teleporter niche
+      (the vault is the last room and doorless, the niche door is
+      dug after it) - 17 -> 16 on Dlvl 4, 25 -> 24 on Dlvl 19 - and
+      a "Room in a room" level whose rightmost room got its block
+      early (23 doors, last parent's top 3). With the uncounted
+      slot's door made closed and trapped, a cursed scroll of gold
+      detection sensed it before the hero left the level and not
+      after the return. FIXED in restore.c only, no save-format
+      change: rest_doorindex() takes the highest fdoor + doorct over
+      every room and subroom with doors. A record whose block is not
+      inside what was read gets an impossible() and is left out, no
+      panic (the session 334 ruling's reasoning: nothing after the
+      rooms is misread, and a panic would stay with a bones file).
+      POST: the trapped door is sensed before and after a leave and
+      return, after a save and restore and after #wizfliplevel; an
+      old-binary save comes back with the right count; gdb pokes
+      give "getlev: room 6 has doors 30000 + 2 of 40", "getlev:
+      subroom 1 has doors 30000 + 1 of 40" and "getlev: room 5 has
+      doors -5 + 4 of 40" and each level loads. Reviewer PASS. Its
+      note that door POSITIONS in the file are not range-checked
+      went to the restore residue row. Upstream row updated.
+- [x] LOW: the shopkeeper's diagonal block at a doorless shop door
+      almost never fired (part (a) of the session 334 verify row;
+      CLOSED 2026-11-14, session 335; BUG-3149 and BUG-3150, commit
+      pending; vanilla and master the same, master frozen). shk.c
+      block_door() and block_entry() passed a room NUMBER from
+      in_rooms() to IS_SHOP(), which wants an index, and so read the
+      record three slots on. TRIED IN PLAY FIRST (Minetown shops,
+      the door set broken by gdb, the keeper on his post): the old
+      binary let a hero step diagonally out onto the door with an
+      unpaid item ("wizard!  Please pay before leaving.") and
+      diagonally in from the door with a pick-axe or invisible; in
+      one game whose layout put a shop record three slots on, the
+      same old binary printed "Hebiwerie blocks your way!". FIXED:
+      the right index in both. Three things that had been latent
+      came with it. (1) Both functions printed unconditionally and
+      test_move() reaches them while only testing a move (travel's
+      path search probes every square twice): a new `silent`
+      parameter, TRUE for every probe. Travel can still pick the
+      diagonal step and is then refused: one "blocks your way!" per
+      `_`, no move, no time. (2) After a block test_move() went on
+      to "You can't move diagonally into / out of an intact
+      doorway." under mention_walls; now only at an intact doorway.
+      (3) By ruling, block_entry() counts a door destroyed outright
+      (dug, burned, frozen, disintegrated: flags 0) as well as a
+      broken one - it tested D_BROKEN only. POST: every out and in
+      case is blocked (pick-axe, invisible "senses your motion and
+      blocks your way!", riding, door broken or gone, a subroom
+      shop), with position, moves and hero_seq unchanged; with
+      nothing owed the step out is free and a plain customer steps
+      in. A working block also turns away the probes that go
+      through test_move(): a rider dismounting on the door no
+      longer lands inside the shop, a knockback, a pull into a trap
+      and mounting a steed in the doorway are refused, a chain
+      landing and a crawl out of water skip the square. Reviewer
+      PASS. Upstream rows updated.
+- [x] MED: master's shop ban was not enforced (minted and CLOSED
+      2026-11-14, session 335, found while tracing the shop-door
+      block; BUG-3151 and BUG-3152, commit pending). Master's
+      Convict patch (95bf72013) touched shk.c in five places and the
+      branch had three: the ban flag, the muted welcome and "I don't
+      sell to your kind here." / "I don't do business with
+      zombies!". Missing: shk_move()'s `|| eshkp->pbanned`, which
+      keeps the keeper on his post while a banned hero stands in the
+      doorway, and paybill()'s un-ban for bones. TRIED IN PLAY
+      FIRST (minetn-6): a Draugr and a Convict in a bare striped
+      shirt heard the line, were let in and were quoted prices.
+      FIXED: both hunks ported. By ruling the diagonal entry block
+      also names the banned hero, and at game end EVERY keeper's ban
+      is cleared - master skips the one who inherits first, who then
+      bans whoever finds the bones (master bug, frozen-unfixed).
+      POST: the keeper holds his post for a dozen turns; the
+      diagonal step through a broken door gives "Angmagssalik blocks
+      your way!"; a Convict whose shirt is covered at the first
+      visit is welcomed; one banned with the shirt showing stays
+      banned after covering it (a ban lasts the game, as on master);
+      a banned hero put inside by ^T walks out; after #quit every
+      keeper's pbanned is 0, the resident's included (the old
+      binary cleared none). Who loses, as on master: a Draugr cannot
+      walk into a tended shop.
+- [ ] LOW, verify: sp_lev.c flip_level() flips a parent's subrooms
+      but not a subroom's own subrooms (part (b) of the session 334
+      stress-test row, minted 2026-11-14; read, not run; part (a),
+      the shop-door block, closed in session 335). "Nesting rooms"
+      nests on ordinary levels, which are not flipped at creation,
+      so the known reach is #wizfliplevel; whether any special level
+      (flipped at creation) nests a room in a subroom is unchecked.
+- [ ] LOW, verify: forced movement crosses a doorless shop door
+      diagonally past the keeper (minted 2026-11-14, session 335,
+      Plan stress test; read, not run; vanilla and master the same;
+      theft-adjacent). The shopkeeper's block lives in test_move().
+      Movement that does not go through it has no shop test at a
+      broken or missing shop door, in or out: #jump (apply.c
+      check_jump(): "empty doorways aren't restricted"), throw and
+      kick recoil while levitating, the grappling hook, telekinesis
+      and the second knockback step (dothrow.c hurtle_step() refuses
+      only closed doors and diagonal open ones). Going out with
+      unpaid goods is still a robbery; going in puts a pick-axe, an
+      invisible or a banned hero inside. Run it before fixing.
+- [ ] LOW, verify: the rest of master's Convict patch has not been
+      read hunk by hunk against the branch (minted 2026-11-14,
+      session 335). Two of 95bf72013's five shk.c hunks turned out
+      unported (the shop ban row above); the commit touches 39
+      files. Read it whole against master HEAD and the branch.
 - [ ] LOW: an aasimar's Vecna-relic denial follows the current form
       (minted 2026-11-14, session 333, reviewer; not from this
       session's change). vecna_relic_denied() tests racial_aasimar(),
@@ -39354,7 +39477,10 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       values neither tree checks: a monster's given-name length, the
       exclusion-zone count, the level number in dorecover()'s loop,
       negative track counts, the Lua data length, region and bubble
-      positions, the bubble `cons` pointer, room door indices, timer
+      positions, the bubble `cons` pointer, door positions (the trap
+      detection loops index levl[][] with them; session 335 reviewer
+      - the rooms' door indices are checked for the door count since
+      then), timer
       func_index, engraving positions, `cham` on an ordinary save,
       the type of a corpse's remembered monster, bases[] / disco[],
       an exactly-full id in getbones() and get_plname_from_file().
@@ -40490,8 +40616,11 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-14 | dothrow.c dofire() clears W_QUIVER on the quiver object around prinv("You ready:") to drop the suffix; a setworn() on the quiver in that window is "Setworn: mask". Same code in fd4d169b6. Fix (EvilHack 0.9.3's): a display flag read by doname() instead of touching the object; BUG-3137, branch commit 44d45a151 | fixed on the branch; not sent; triage pending |
 | 2026-11-14 | A short read on a bones file is silent (sfstruct.c mread(), program_state.reading_bonesfile) and leaves restoreinfo.mread_flags at -1 for the rest of the session, so every later successful read marks its file at EOF; with a truncated bones file the sentinel-terminated readers (restobjchn(), restmonchn(), rest_stairs()) loop on a stale length. Read in fd4d169b6, not run | open on the branch (restore residue row, item a); not sent; triage pending |
 | 2026-11-14 | Subrooms change slots on a reload while the map keeps the old room numbers: mklev.c sort_rooms() reorders the parent rooms and renumbers only their squares, subroom slots keep creation order, and mkroom.c save_rooms() / rest_room() write and read subrooms parent by parent in the sorted order. On a level where two rooms with subrooms were made right to left (themed rooms: "Fake Delphi", "Nesting rooms", the weapon shop / armor shop pair), the first save and restore or leave and return swaps the subroom records, and `levl[x][y].roomno` inside one then indexes the other. Seen with THEMERM on the branch at both ends of this session's change; the code is the same in fd4d169b6 (not run there). In play (2026-11-14, session 334) a "Twin businesses" shop whose squares then named a non-shop record was free: no greeting, no prices, goods taken unbilled and carried out with no reaction. Fix: mkroom.c rest_rooms() ends with a pass that moves each subroom record back to the slot its saved `roomnoidx` names and repoints `sbrooms[]` (no format change; an already swapped level heals on its next load; records that do not name a clean set of slots are left as read with an impossible()); BUG-3147, src/mkroom.c, branch commit 0f622ee84 | fixed on the branch; not sent; triage pending |
-| 2026-11-14 | The door count comes back too small after a reload: restore.c getlev() sets `gd.doorindex` from the last parent room's `fdoor + doorct`, but add_door() hands out blocks of doors[] in first-door order and subrooms have blocks too, so the last parent need not own the top block (a doorless last room gives the count at the time it was made). Readers after a reload: the two trapped-door loops in detect.c, and #wizlevelflip. Read in fd4d169b6, not run. Fix shape: the highest `fdoor + doorct` over every room and subroom with doors | open on the branch (Phase 2 MED row); not sent; triage pending |
-| 2026-11-14 | shk.c block_door() and block_entry() test `!IS_SHOP(roomno)` with `roomno = *in_rooms(x, y, SHOPBASE)`, a room number that still carries ROOMOFFSET, while IS_SHOP() indexes rooms[] directly: the test reads the room three slots on and both functions return FALSE unless that one is a shop as well. Same in fd4d169b6 (and in 3.6). Read, not run | open on the branch (Phase 2 LOW verify row); not sent; triage pending |
+| 2026-11-14 | The door count comes back too small after a reload: restore.c getlev() sets `gd.doorindex` from the last parent room's `fdoor + doorct`, but add_door() hands out blocks of doors[] in first-door order and subrooms have blocks too, so the last parent need not own the top block (a doorless last room gives the count at the time it was made). Readers after a reload: the two trapped-door loops in detect.c, flip_level() (#wizfliplevel) and #wizloaddes. Read in fd4d169b6; run on the branch 2026-11-14 (session 335): a level with a vault teleporter niche comes back one door short (the vault is the last room and doorless, the niche door is dug after it), a "Room in a room" level kept 3 of 23, and a cursed scroll of gold detection then misses a trapped door past the count. Fix: the highest `fdoor + doorct` over every room and subroom with doors; BUG-3148, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | shk.c block_door() and block_entry() test `!IS_SHOP(roomno)` with `roomno = *in_rooms(x, y, SHOPBASE)`, a room number that still carries ROOMOFFSET, while IS_SHOP() indexes rooms[] directly: the test reads the room three slots on and both functions return FALSE unless that one is a shop as well. Same in fd4d169b6 (and in 3.6). Run on the branch 2026-11-14 (session 335): with the shop door broken and the keeper on his post, a hero steps diagonally out with an unpaid item and diagonally in with a pick-axe or invisible; in a layout with a shop record three slots on the same binary blocks. Fix: `roomno < ROOMOFFSET || !IS_SHOP(roomno - ROOMOFFSET)`; BUG-3149, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | Latent behind the row above, to send with it: shk.c block_door() and block_entry() pline "blocks your way!" unconditionally, and hack.c test_move() calls them in its TEST_MOVE / TEST_TRAV / TEST_TRAP modes (findtravelpath() probes each frontier square), so a working block prints during travel planning; after a block test_move() also goes on to "You can't move diagonally into / out of an intact doorway." under mention_walls at a broken door. Fix on the branch: a `silent` argument (mode != DO_MOVE; TRUE from crawl_destination()) and the doorway lines only when the doorway is intact; BUG-3149, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | shk.c block_entry() tests `doormask == D_BROKEN`, but test_move() lets the hero cross any doorless door diagonally (doorless_door(): D_NODOOR too) and a shop door becomes D_NODOOR when dug away with a wand of digging or destroyed by fire, cold or disintegration: the entry block ignores it. Same in fd4d169b6. Fix on the branch (an EvilHack ruling; upstream may see D_BROKEN as intended): test doorless_door(u.ux, u.uy); BUG-3150, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | Forced movement has no shop test at a doorless shop door: apply.c check_jump() ("empty doorways aren't restricted"), dothrow.c hurtle_step() (recoil, the second knockback step), the grappling hook - all cross it diagonally past a shopkeeper on his post, where test_move() asks block_door() / block_entry(). Read in the branch tree (same code in fd4d169b6), not run | open on the branch (Phase 2 LOW verify row); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -41193,6 +41322,7 @@ trees, different content - Phase 0 rename).
 | 2026-07-12 | upstream 5.0-only content: ADOPT chain lightning spellbook + shields of drain/shock resistance (re-add slice after the Role-struct port); DECLINE wand of stasis (dormant machinery stays) + dragon scale mail objects (EvilHack scales-fusion supersedes) | maintainer |
 | 2026-11-14 | Inert-fields sweep and restore guards (Phase 2 session 333, AskUserQuestion x4 with 5 questions, all as recommended; one re-asked after the reviewer corrected my premise; the batteries were approved with the plan). (1) SLICE: the inert persistent fields SWEEP row with past-commit review group 2, the four save commits (the recent bug LOWs, the verify rows and the wording LOWs not taken). (2) RESTORE GUARDS: port master's whole family now, as its own commit (rejected: the worm guard alone with a row for the rest; a row only). I had said eleven guards; the family is about twenty across thirteen files. (3) DEAD FIELDS: remove all three (rejected: the two iflags only; none). (4) GUARD ACTION: stop in all of them - a bad count or length is always a panic, master's five log-and-read-on readers included; values that can be mended in place keep master's repair (rejected: master's exact split, which reads on from the wrong place and lets the load "succeed" and delete the save). (5) QUIVER FLAG, re-asked: keep iflags.suppress_worn and port master 8cd3948c8 + 5c458c320 (rejected: remove it anyway and leave 5.0's worn-bit toggle with a row). The first answer had rested on my claim that 5.0 trims the line another way and the field was dead; 5.0's "other way" IS the crash master fixed. LESSON: a field with no user on the branch can be a master fix whose users were never ported - run `git log master -S<field>` before calling it dead. Not ruled, decided in the plan and approved with it: limits a real game can pass on this tree are replaced (see the Phase 5 row); a timer whose bones object has no id mapping is dropped like a light, where master panics. |
 | 2026-11-14 | Subroom slots on a reload (Phase 2 session 334, AskUserQuestion x2 with 3 questions, all as recommended; the batteries were approved with the plan). (1) SLICE: the subroom slot MED row, tried in play as a shop theft route first (the recent bug LOWs, the verify rows and past-commit review groups 3-4 not taken). (2) doc/Guidebook.txt's stray date line (November 12 -> 13, left by a rebuild): leave it alone - not restored, not committed. (3) BAD SLOTS: when a level's subroom records do not name a clean set of slots, log it with impossible() and load the level as read (rejected: a panic like the count guards, which would leave a bones file panicking every game that draws it; loading in silence). It fits the 2026-11-14 guard policy's repair clause - the records are fixed size, so nothing after them is misread. Decided in the plan and approved with it: fix on the restore side, by each record's own roomnoidx, with no change to the save format (rejected: writing the subrooms in slot order, which would not heal a level that has already swapped). The Plan stress test replaced my first draft, which read each subroom straight into its slot and panicked: that panics on a three-deep level written before 09af54b4f. The door count after a reload, found by the stress test and the reviewer, was kept out of this commit as a different bug and minted as its own MED row. |
+| 2026-11-14 | Door count, shop-door block, shop ban (Phase 2 session 335, AskUserQuestion x2 with 4 questions, all as recommended; the batteries were approved with the plan). (1) SLICE: both room rows - the door count MED row and part (a) of the verify row, the shopkeeper's diagonal block (the door count alone, the recent bug LOWs and past-commit review groups 3-4 not taken). (2) SHOP BAN, found while tracing the block's callers: two of master 95bf72013's five shk.c hunks were never ported, so a banned hero was told off and let in. Fold in now as its own commit (rejected: a MED row for a later slice), and add the banned hero to the diagonal entry block's reasons. (3) DOOR GONE: the keeper blocks the diagonal step in at any open doorway, whether the shop door is broken or was destroyed outright (rejected: vanilla's and master's broken-only test, which lets a hero dig the door away and step in with a pick-axe). (4) BONES BAN: at game end every keeper's ban is cleared, the first inheritor included (rejected: master's exact shape, which leaves that keeper banning whoever finds the bones - archived as a master bug, frozen-unfixed). Decided in the plan and approved with it: a door record that does not fit the door list gets an impossible() and is left out of the count, no panic (the session 334 BAD SLOTS reasoning); the block's line prints for a real step only, never while a move is being tested or planned; the "intact doorway" lines only at an intact doorway. Stated in the plan as who loses under (2), as on master: a Draugr cannot walk into a tended shop, a Convict must cover the shirt before a keeper first sees it, and a ban lasts the game for that keeper. Left out as different bugs and minted as LOW rows: forced movement (jump, recoil, grapple) past a doorless shop door, and the rest of the Convict patch unread against the branch. |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
