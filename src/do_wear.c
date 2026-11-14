@@ -801,8 +801,10 @@ Helmet_on(void)
            including levitation; uarmh could get dropped or destroyed here
            by hero falling onto a polymorph trap or into water (emergency
            disrobe) or maybe lava (probably not, helm isn't 'organic') */
+        /* sgn(): an unaligned hero's type has no opposite of its own
+           size; the helm makes an Infidel lawful */
         uchangealign((u.ualign.type != A_NEUTRAL)
-                         ? -u.ualign.type
+                         ? -sgn(u.ualign.type)
                          : (uarmh->o_id % 2) ? A_CHAOTIC : A_LAWFUL,
                      A_CG_HELM_ON);
         /* makeknown(HELM_OF_OPPOSITE_ALIGNMENT); -- below, after Tobjnam() */
