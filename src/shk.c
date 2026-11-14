@@ -6386,12 +6386,13 @@ costly_gold(
 /* used in domove to block diagonal shop-exit */
 /* x,y should always be a door */
 boolean
-block_door(coordxy x, coordxy y)
+block_door(coordxy x, coordxy y, boolean silent)
 {
     int roomno = *in_rooms(x, y, SHOPBASE);
     struct monst *shkp;
 
-    if (roomno < 0 || !IS_SHOP(roomno))
+    /* in_rooms() gives a room number, IS_SHOP() takes an index */
+    if (roomno < ROOMOFFSET || !IS_SHOP(roomno - ROOMOFFSET))
         return FALSE;
     if (!IS_DOOR(levl[x][y].typ))
         return FALSE;
@@ -6411,8 +6412,10 @@ block_door(coordxy x, coordxy y)
         && ESHK(shkp)->shd.y == y
         && !helpless(shkp)
         && (ESHK(shkp)->debit || ESHK(shkp)->billct || ESHK(shkp)->robbed)) {
-        pline("%s%s blocks your way!", Shknam(shkp),
-              Invis ? " senses your motion and" : "");
+        /* a move being tested or planned says nothing */
+        if (!silent)
+            pline("%s%s blocks your way!", Shknam(shkp),
+                  Invis ? " senses your motion and" : "");
         return TRUE;
     }
     return FALSE;
@@ -6421,18 +6424,18 @@ block_door(coordxy x, coordxy y)
 /* used in domove to block diagonal shop-entry;
    u.ux, u.uy should always be a door */
 boolean
-block_entry(coordxy x, coordxy y)
+block_entry(coordxy x, coordxy y, boolean silent)
 {
     coordxy sx, sy;
     int roomno;
     struct monst *shkp;
 
-    if (!(IS_DOOR(levl[u.ux][u.uy].typ)
-          && levl[u.ux][u.uy].doormask == D_BROKEN))
+    /* a door that is gone is as open to a diagonal step as a broken one */
+    if (!doorless_door(u.ux, u.uy))
         return FALSE;
 
     roomno = *in_rooms(x, y, SHOPBASE);
-    if (roomno < 0 || !IS_SHOP(roomno))
+    if (roomno < ROOMOFFSET || !IS_SHOP(roomno - ROOMOFFSET))
         return FALSE;
     shkp = shop_keeper((char) roomno);
     if (!shkp || !inhishop(shkp))
@@ -6448,8 +6451,9 @@ block_entry(coordxy x, coordxy y)
         && (x == sx - 1 || x == sx + 1 || y == sy - 1 || y == sy + 1)
         && (Invis || carrying(PICK_AXE) || carrying(DWARVISH_MATTOCK)
             || u.usteed)) {
-        pline("%s%s blocks your way!", Shknam(shkp),
-              Invis ? " senses your motion and" : "");
+        if (!silent)
+            pline("%s%s blocks your way!", Shknam(shkp),
+                  Invis ? " senses your motion and" : "");
         return TRUE;
     }
     return FALSE;

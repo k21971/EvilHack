@@ -1230,12 +1230,15 @@ test_move(
         } else {
  testdiag:
             if (dx && dy && !Passes_walls
-                && (!doorless_door(x, y) || block_door(x, y))) {
+                && (!doorless_door(x, y)
+                    || block_door(x, y, mode != DO_MOVE))) {
                 /* Diagonal moves into a door are not allowed. */
                 if (mode == DO_MOVE) {
                     if (Blind)
                         feel_location(x, y);
-                    if (Underwater || flags.mention_walls)
+                    /* a shopkeeper barring an open doorway has said so */
+                    if ((Underwater || flags.mention_walls)
+                        && !doorless_door(x, y))
                         You_cant("move diagonally into an intact doorway.");
                 }
                 return FALSE;
@@ -1315,9 +1318,11 @@ test_move(
 
     /* Now see if other things block our way . . */
     if (dx && dy && !Passes_walls && IS_DOOR(ust->typ)
-        && (!doorless_door(ux, uy) || block_entry(x, y))) {
+        && (!doorless_door(ux, uy)
+            || block_entry(x, y, mode != DO_MOVE))) {
         /* Can't move at a diagonal out of a doorway with door. */
-        if (mode == DO_MOVE && flags.mention_walls)
+        if (mode == DO_MOVE && flags.mention_walls
+            && !doorless_door(ux, uy))
             You_cant("move diagonally out of an intact doorway.");
         return FALSE;
     }
@@ -5170,7 +5175,8 @@ crawl_destination(coordxy x, coordxy y)
     if (Passes_trees && IS_TREES(levl[x][y].typ))
         return TRUE;
     /* pool could be next to a door, conceivably even inside a shop */
-    if (IS_DOOR(levl[x][y].typ) && (!doorless_door(x, y) || block_door(x, y)))
+    if (IS_DOOR(levl[x][y].typ)
+        && (!doorless_door(x, y) || block_door(x, y, TRUE)))
         return FALSE;
     /* finally, are we trying to squeeze through a too-narrow gap? */
     return !(bad_rock(&gy.youmonst, u.ux, y)
