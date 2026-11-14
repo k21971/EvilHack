@@ -2069,7 +2069,7 @@ doname_base(
     if (obj->altshield && is_shield(obj) && !obj->owornmask
         && carried(obj))
         Concat(bp, 0, " (alternate shield; not worn)");
-    if (obj->owornmask & W_QUIVER) {
+    if ((obj->owornmask & W_QUIVER) && !iflags.suppress_worn) {
         int Qtyp;
 
         switch (obj->oclass) {

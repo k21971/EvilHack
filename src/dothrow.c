@@ -602,10 +602,13 @@ dofire(void)
             autoquiver();
             obj = uquiver;
             if (obj) {
-                /* give feedback if quiver has now been filled */
-                uquiver->owornmask &= ~W_QUIVER; /* less verbose */
+                /* give feedback if quiver has now been filled; the
+                   quiver suffix is left off by a flag rather than by
+                   clearing the worn bit for a moment, which anything
+                   that touched the quiver meanwhile would trip over */
+                iflags.suppress_worn++;
                 prinv("You ready:", obj, 0L);
-                uquiver->owornmask |= W_QUIVER;
+                iflags.suppress_worn--;
             } else {
                 You("have nothing appropriate for your quiver.");
             }
