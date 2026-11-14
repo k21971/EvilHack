@@ -17,8 +17,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-14, session 333: the inert
-  persistent fields sweep closed, the last SWEEP row - nearly
+- Phase 2 status (refreshed 2026-11-14, session 334: the subroom
+  slot row closed - a room inside a room keeps its own record when
+  a level is read back, where 5.0 let the records of different
+  rooms trade places, which in play left a Twin businesses shop
+  free for the taking; tried in play first, then fixed on the
+  restore side so a level that already swapped is put right on its
+  next load; one MED row closed, two rows minted open, one of them
+  MED (the door count after a reload, 5.0's own) - after session
+  333, the same day, closed the inert
+  persistent fields sweep, the last SWEEP row - nearly
   every ported field is wired, and the ones that were not led to
   master's x-ray vision fix for two artifacts, its quiver fix for
   dofire() and its whole family of guards against damaged save
@@ -52,8 +60,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 61 = 0 HIGH + 2 MED + 0 SWEEP + 1 untagged + 58 LOW):
-  721 rows closed, 61 open
+  prefix; 62 = 0 HIGH + 2 MED + 0 SWEEP + 1 untagged + 59 LOW):
+  722 rows closed, 62 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -64,8 +72,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
   - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4) and subroom slots after a reload (5.0's
-    own bug, minted session 333).
+    stays with Phase 4) and the door count after a reload (5.0's
+    own bug, minted session 334: trap detection can stop short of
+    some trapped doors; read, not run).
+    Session 334 closed the subroom slot MED row (BUG-3147,
+    commit pending; the row and the Decisions log have the detail).
+    On an
+    ordinary level 5.0 sorts the rooms left to right but writes each
+    room's inner rooms after it, so two rooms with inner rooms made
+    right to left came back with the inner records traded. In play
+    that made one of two Twin businesses shops stop being a shop
+    after the first leave and return: no greeting, no prices, goods
+    taken unbilled and carried out with no reaction. Each inner room
+    now goes back to its own slot when the level is read, old saves
+    included. By ruling, a level whose records do not name a clean
+    set of slots loads as read with an impossible(), not a panic.
+    Master never had the bug - it does not sort rooms. Minted open:
+    the door count row (MED) and a verify row for the
+    block_door() / block_entry() room test and nested flips (LOW).
     Session 333 closed the inert persistent fields SWEEP row
     (BUG-3135..3146; 9a8753052, 44d45a151 and 09af54b4f; the rows and
     the Decisions log have the detail). With the Eye of Vecna carried and the
@@ -38006,7 +38030,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       lets any item be chosen); master's `case PSYCHIC_RES` in
       update_mon_intrinsics() and its Is_sokostart_level() are dead
       on master too.
-- [ ] MED: subrooms change slots when a level is reloaded and the map's
+- [x] MED: subrooms change slots when a level is reloaded and the map's
       room numbers do not follow (minted 2026-11-14, session 333,
       battery and reviewer; vanilla 5.0 the same, not from this
       session's change). makerooms() makes rooms in random places and
@@ -38029,6 +38053,79 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       non-shop record after a reload - not tried in play. Fix shape:
       put each restored subroom back in its own slot (its roomnoidx
       still names it), or write the subrooms in slot order.
+      CLOSED 2026-11-14 (session 334; BUG-3147, commit pending).
+      Master never had it: its makelevel() has sort_rooms() commented
+      out ("this screws with roomno order"). TRIED IN PLAY FIRST
+      (PRE, Dlvl 6, three Twin businesses rooms and a plain 2x2
+      subroom added to a room left of them with add_subroom() and
+      topologize()): after one leave and return the seven records sat
+      in parent order, as predicted, and the shop whose squares then
+      named the plain record was free - no greeting, no price on
+      "You see here a ring mail.", three items taken with no
+      "unpaid" and billct 0, a walk out and 24 squares away with no
+      "You stole", no Kops, the keeper peaceful with robbed 0 and
+      inhishop() 0 in his own shop. A weapon shop reading an armor
+      shop's record greeted as "used armor dealership"; the plain
+      room read as an untended shop. FIXED on the restore side, with
+      no change to the save format: rest_rooms() ends with
+      reslot_subrooms(), which moves each subroom record back to the
+      slot its saved roomnoidx names and repoints every sbrooms[]
+      pointer, so a level that already swapped is put right on its
+      next load. By ruling, records that do not name a clean set of
+      slots get an impossible() and the level is used as read, no
+      panic (decisions log). The Plan stress test rejected the first
+      draft (read straight into the slot, with panics): it would
+      have panicked on a three-deep level written before 09af54b4f,
+      and bones are not removed by a panic. POST: the PRE save loads
+      in creation order and the free shop greets, prices ("ring mail
+      (for sale, 178 zorkmids)"), bills, blocks the door and makes
+      an offer again; the weapon shop greets as "antique weapons
+      outlet"; the layout holds across a level change and a save and
+      restore; two Nesting rooms in non-ascending order keep every
+      slot and nested pointer; a des.room Minetown (minetn-3, 16
+      subrooms under one parent, nothing to move) is identical
+      across a level change and a save and restore, priest and
+      shops working; a duplicated slot in gdb gives one
+      "rest_rooms: subroom 1 names slot 6 of 7" and loads as read.
+      The function body also passed 260,002 randomized layouts under
+      ASan / UBSan. Not undone by the heal: goods already taken
+      unbilled, and things dropped in a free shop. Upstream row
+      updated.
+- [ ] MED: the door count after a reload is taken from the last
+      parent room (minted 2026-11-14, session 334, Plan stress test
+      and reviewer independently; vanilla 5.0 the same; read, not
+      run). restore.c getlev() sets `gd.doorindex =
+      svr.rooms[svn.nroom - 1].fdoor + svr.rooms[svn.nroom -
+      1].doorct`, which assumes the last parent owns the last block
+      of svd.doors[]. add_door() gives a room its block when it gets
+      its first door, so the blocks are in first-door order: a
+      subroom's doors (made before the corridors), a room joined
+      late, or a doorless last room (its fdoor is the count at the
+      time it was made) all break the assumption, and subroom blocks
+      are never looked at. gd.doorindex then comes back too small.
+      Its readers after a reload are the two trapped-door loops in
+      detect.c (trap detection would stop short of some trapped
+      doors) and #wizlevelflip; nothing calls add_door() during
+      play, so no array is overrun. Fix shape: the highest fdoor +
+      doorct over every parent and subroom with doorct > 0. Needs a
+      battery (a trapped door past the count, detected before and
+      after a leave and return).
+- [ ] LOW, verify: two more room findings from the session 334
+      stress test (minted 2026-11-14; read, not run; none from this
+      session's change). (a) shk.c block_door() and block_entry()
+      take `roomno = *in_rooms(x, y, SHOPBASE)` and test
+      `!IS_SHOP(roomno)`, but IS_SHOP() wants an index into
+      svr.rooms[] (roomno - ROOMOFFSET): the test reads the record
+      three slots on, so both return FALSE unless that room is a
+      shop too, and the shopkeeper's "blocks your way" at a broken
+      shop door would not fire. Vanilla 5.0 and master the same; a
+      theft-adjacent route (leaving diagonally through a broken door
+      with unpaid goods is still charged as a robbery). (b)
+      sp_lev.c flip_level() flips a parent's subrooms but not a
+      subroom's own subrooms. "Nesting rooms" nests on ordinary
+      levels, which are not flipped at creation, so the known reach
+      is #wizlevelflip; whether any special level (flipped at
+      creation) nests a room in a subroom is unchecked.
 - [ ] LOW: an aasimar's Vecna-relic denial follows the current form
       (minted 2026-11-14, session 333, reviewer; not from this
       session's change). vecna_relic_denied() tests racial_aasimar(),
@@ -40392,7 +40489,9 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-14 | engrave.c rest_engravings() allocates from the length prefix but sizes the three text reads from `engr_szeach` inside the record just read; nothing ties the two together. Same code in fd4d169b6. Fix: require `engr_alloc == lth`, `lth % 3 == 0` and `engr_szeach == lth / 3`; BUG-3143, branch commit 09af54b4f | fixed on the branch; not sent; triage pending |
 | 2026-11-14 | dothrow.c dofire() clears W_QUIVER on the quiver object around prinv("You ready:") to drop the suffix; a setworn() on the quiver in that window is "Setworn: mask". Same code in fd4d169b6. Fix (EvilHack 0.9.3's): a display flag read by doname() instead of touching the object; BUG-3137, branch commit 44d45a151 | fixed on the branch; not sent; triage pending |
 | 2026-11-14 | A short read on a bones file is silent (sfstruct.c mread(), program_state.reading_bonesfile) and leaves restoreinfo.mread_flags at -1 for the rest of the session, so every later successful read marks its file at EOF; with a truncated bones file the sentinel-terminated readers (restobjchn(), restmonchn(), rest_stairs()) loop on a stale length. Read in fd4d169b6, not run | open on the branch (restore residue row, item a); not sent; triage pending |
-| 2026-11-14 | Subrooms change slots on a reload while the map keeps the old room numbers: mklev.c sort_rooms() reorders the parent rooms and renumbers only their squares, subroom slots keep creation order, and mkroom.c save_rooms() / rest_room() write and read subrooms parent by parent in the sorted order. On a level where two rooms with subrooms were made right to left (themed rooms: "Fake Delphi", "Nesting rooms", the weapon shop / armor shop pair), the first save and restore or leave and return swaps the subroom records, and `levl[x][y].roomno` inside one then indexes the other. Seen with THEMERM on the branch at both ends of this session's change; the code is the same in fd4d169b6 (not run there) | open on the branch (Phase 2 MED row); not sent; triage pending |
+| 2026-11-14 | Subrooms change slots on a reload while the map keeps the old room numbers: mklev.c sort_rooms() reorders the parent rooms and renumbers only their squares, subroom slots keep creation order, and mkroom.c save_rooms() / rest_room() write and read subrooms parent by parent in the sorted order. On a level where two rooms with subrooms were made right to left (themed rooms: "Fake Delphi", "Nesting rooms", the weapon shop / armor shop pair), the first save and restore or leave and return swaps the subroom records, and `levl[x][y].roomno` inside one then indexes the other. Seen with THEMERM on the branch at both ends of this session's change; the code is the same in fd4d169b6 (not run there). In play (2026-11-14, session 334) a "Twin businesses" shop whose squares then named a non-shop record was free: no greeting, no prices, goods taken unbilled and carried out with no reaction. Fix: mkroom.c rest_rooms() ends with a pass that moves each subroom record back to the slot its saved `roomnoidx` names and repoints `sbrooms[]` (no format change; an already swapped level heals on its next load; records that do not name a clean set of slots are left as read with an impossible()); BUG-3147, src/mkroom.c, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | The door count comes back too small after a reload: restore.c getlev() sets `gd.doorindex` from the last parent room's `fdoor + doorct`, but add_door() hands out blocks of doors[] in first-door order and subrooms have blocks too, so the last parent need not own the top block (a doorless last room gives the count at the time it was made). Readers after a reload: the two trapped-door loops in detect.c, and #wizlevelflip. Read in fd4d169b6, not run. Fix shape: the highest `fdoor + doorct` over every room and subroom with doors | open on the branch (Phase 2 MED row); not sent; triage pending |
+| 2026-11-14 | shk.c block_door() and block_entry() test `!IS_SHOP(roomno)` with `roomno = *in_rooms(x, y, SHOPBASE)`, a room number that still carries ROOMOFFSET, while IS_SHOP() indexes rooms[] directly: the test reads the room three slots on and both functions return FALSE unless that one is a shop as well. Same in fd4d169b6 (and in 3.6). Read, not run | open on the branch (Phase 2 LOW verify row); not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -41093,6 +41192,7 @@ trees, different content - Phase 0 rename).
 | 2026-07-12 | G_IGNORE moved 0x8000 -> 0x0100 (call-flag only, never stored in geno; 0x8000 is EvilHack's G_TALG) | session |
 | 2026-07-12 | upstream 5.0-only content: ADOPT chain lightning spellbook + shields of drain/shock resistance (re-add slice after the Role-struct port); DECLINE wand of stasis (dormant machinery stays) + dragon scale mail objects (EvilHack scales-fusion supersedes) | maintainer |
 | 2026-11-14 | Inert-fields sweep and restore guards (Phase 2 session 333, AskUserQuestion x4 with 5 questions, all as recommended; one re-asked after the reviewer corrected my premise; the batteries were approved with the plan). (1) SLICE: the inert persistent fields SWEEP row with past-commit review group 2, the four save commits (the recent bug LOWs, the verify rows and the wording LOWs not taken). (2) RESTORE GUARDS: port master's whole family now, as its own commit (rejected: the worm guard alone with a row for the rest; a row only). I had said eleven guards; the family is about twenty across thirteen files. (3) DEAD FIELDS: remove all three (rejected: the two iflags only; none). (4) GUARD ACTION: stop in all of them - a bad count or length is always a panic, master's five log-and-read-on readers included; values that can be mended in place keep master's repair (rejected: master's exact split, which reads on from the wrong place and lets the load "succeed" and delete the save). (5) QUIVER FLAG, re-asked: keep iflags.suppress_worn and port master 8cd3948c8 + 5c458c320 (rejected: remove it anyway and leave 5.0's worn-bit toggle with a row). The first answer had rested on my claim that 5.0 trims the line another way and the field was dead; 5.0's "other way" IS the crash master fixed. LESSON: a field with no user on the branch can be a master fix whose users were never ported - run `git log master -S<field>` before calling it dead. Not ruled, decided in the plan and approved with it: limits a real game can pass on this tree are replaced (see the Phase 5 row); a timer whose bones object has no id mapping is dropped like a light, where master panics. |
+| 2026-11-14 | Subroom slots on a reload (Phase 2 session 334, AskUserQuestion x2 with 3 questions, all as recommended; the batteries were approved with the plan). (1) SLICE: the subroom slot MED row, tried in play as a shop theft route first (the recent bug LOWs, the verify rows and past-commit review groups 3-4 not taken). (2) doc/Guidebook.txt's stray date line (November 12 -> 13, left by a rebuild): leave it alone - not restored, not committed. (3) BAD SLOTS: when a level's subroom records do not name a clean set of slots, log it with impossible() and load the level as read (rejected: a panic like the count guards, which would leave a bones file panicking every game that draws it; loading in silence). It fits the 2026-11-14 guard policy's repair clause - the records are fixed size, so nothing after them is misread. Decided in the plan and approved with it: fix on the restore side, by each record's own roomnoidx, with no change to the save format (rejected: writing the subrooms in slot order, which would not heal a level that has already swapped). The Plan stress test replaced my first draft, which read each subroom straight into its slot and panicked: that panics on a three-deep level written before 09af54b4f. The door count after a reload, found by the stress test and the reviewer, was kept out of this commit as a different bug and minted as its own MED row. |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
