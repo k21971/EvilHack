@@ -3102,13 +3102,14 @@ eval_offering(struct obj *otmp, aligntyp altaralign)
     if (is_undead(ptr)) { /* Not demons--no demon corpses */
         /* most undead that leave a corpse yield 'human' (or other race)
            corpse so won't get here; the exception is wraith; lawful
-           and neutral heroes get the bonus and an unaligned one never
-           does; give it for wraith to chaotics too because they are
-           sacrificing something valuable (unless hero refuses to eat
-           such things) */
+           and neutral heroes get the bonus for any undead; give it
+           for wraith to chaotic and unaligned heroes too because they
+           are sacrificing something valuable (unless hero refuses to
+           eat such things) */
         if (u.ualign.type > A_CHAOTIC
-            || (u.ualign.type == A_CHAOTIC
-                && ptr == &mons[PM_WRAITH] && u.uconduct.unvegetarian))
+            /* reaching this side of the 'or' means hero is chaotic
+               or unaligned */
+            || (ptr == &mons[PM_WRAITH] && u.uconduct.unvegetarian))
             value += 1;
     } else if (is_unicorn(ptr)) {
         int unicalign = sgn(ptr->maligntyp);
@@ -3207,6 +3208,10 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
         if (mval > 0) {
             long new_timeout;
 
+            /* a wraith given up by a hero who would have eaten it is
+               worth more, as eval_offering() reckons it */
+            if (ptr == &mons[PM_WRAITH] && u.uconduct.unvegetarian)
+                mval += 1;
             if (is_unicorn(ptr))
                 mval += 3;
             if (wielding_artifact(ART_SECESPITA))
