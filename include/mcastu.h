@@ -7,6 +7,8 @@
 #define MCF_SIGHT    0x0002 /* monster needs to see hero */
 #define MCF_HOSTILE  0x0004 /* cast by hostile monsters only */
 #define MCF_MELEE    0x0008 /* monster casters need the target adjacent */
+#define MCF_FREE     0x0010 /* ...unless the caster is not attacking and
+                               the target is the hero */
 
 #if defined(MCASTU_ENUM)
 #define MONSPELL(def, lvl, flags) MCAST_##def
@@ -35,9 +37,12 @@ MONSPELL(CURSE_ITEMS, 10, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
 MONSPELL(LIGHTNING,   11, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(FIRE_PILLAR, 12, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(GEYSER,      13, MCF_HOSTILE|MCF_SIGHT),
-MONSPELL(AGGRAVATION, 13, MCF_INDIRECT|MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
-MONSPELL(SUMMON_MONS, 15, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT|MCF_MELEE),
-MONSPELL(CLONE_WIZ,   18, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT|MCF_MELEE),
+MONSPELL(AGGRAVATION, 13,
+         MCF_INDIRECT|MCF_HOSTILE|MCF_SIGHT|MCF_MELEE|MCF_FREE),
+MONSPELL(SUMMON_MONS, 15,
+         MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT|MCF_MELEE|MCF_FREE),
+MONSPELL(CLONE_WIZ,   18,
+         MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT|MCF_MELEE|MCF_FREE),
 MONSPELL(DEATH_TOUCH, 20, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
 /* spell learned from a spellbook; selection and targeting gates are
    handled dynamically in mcastu.c, not via the flags here */

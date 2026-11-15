@@ -88,10 +88,11 @@ staticfn void mcast_confuse_you(struct monst *, struct monst *);
 staticfn void mcast_spell(struct monst *, struct monst *, int, int, short,
                           int);
 staticfn boolean is_undirected_spell(struct monst *, int);
-staticfn boolean mcast_out_of_reach(struct monst *, struct monst *, int);
+staticfn boolean mcast_out_of_reach(struct monst *, struct monst *, int,
+                                    boolean);
 staticfn boolean mcast_barred_at_hero(struct monst *, struct monst *, int);
 staticfn boolean spell_would_be_useless(struct monst *, struct monst *,
-                                        int);
+                                        int, boolean);
 
 /* True if mtmp has any artifact conferring SPFX_EREGEN (energy
    regeneration); such an artifact allows unlimited spellcasting
@@ -259,15 +260,15 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
         }
         /* a close-range spell picked against a distant target goes
            back to the caller as it is: the caller's re-roll loop
-           draws a fresh level, and a single undirected try just
-           fails, rather than the pick sliding down to a lower rung;
-           a spell the caster would never cast at the hero anyway
-           (peaceful caster, hero out of sight) slides down as it
-           does next to the hero */
-        if (mcast_out_of_reach(mtmp, mdef, candidate)
+           draws a fresh level, and a single undirected try stands or
+           falls on that spell alone, rather than the pick sliding
+           down to a lower rung; a spell the caster would never cast
+           at the hero anyway (peaceful caster, hero out of sight)
+           slides down as it does next to the hero */
+        if (mcast_out_of_reach(mtmp, mdef, candidate, TRUE)
             && !mcast_barred_at_hero(mtmp, mdef, candidate))
             return candidate;
-        if (!spell_would_be_useless(mtmp, mdef, candidate))
+        if (!spell_would_be_useless(mtmp, mdef, candidate, TRUE))
             break;
         candidate = -1;
     }
@@ -348,7 +349,7 @@ castmu(
             if (!thinks_it_foundyou) {
                 if (!is_undirected_spell(mtmp, spellnum)
                     || spell_would_be_useless(mtmp, &gy.youmonst,
-                                              spellnum)) {
+                                              spellnum, FALSE)) {
                     if (foundyou)
                         impossible(
                        "spellcasting monster found you and doesn't know it?");
@@ -357,7 +358,8 @@ castmu(
                 break;
             }
         } while (--cnt > 0
-                 && spell_would_be_useless(mtmp, &gy.youmonst, spellnum));
+                 && spell_would_be_useless(mtmp, &gy.youmonst, spellnum,
+                                           TRUE));
         if (cnt == 0)
             return M_ATTK_MISS;
     }
@@ -2529,14 +2531,23 @@ is_undirected_spell(struct monst *mtmp, int spellnum)
 
 /* a monster caster saves its close-range spells (MCF_MELEE) for a
    target next to it; mdef is the hero or the monster target, and the
-   hero casting as a monster is not limited */
+   hero casting as a monster is not limited. A caster that is not
+   attacking may still send the MCF_FREE ones (summon nasties,
+   aggravation, double trouble) at the hero from a distance */
 staticfn boolean
-mcast_out_of_reach(struct monst *mtmp, struct monst *mdef, int spellnum)
+mcast_out_of_reach(
+    struct monst *mtmp,
+    struct monst *mdef,
+    int spellnum,
+    boolean attacking) /* castmu()'s thinks_it_foundyou; else TRUE */
 {
     coordxy tx, ty;
 
     if (mtmp == &gy.youmonst
         || (mcast_data[spellnum].flags & MCF_MELEE) == 0)
+        return FALSE;
+    if (!attacking && mdef == &gy.youmonst
+        && (mcast_data[spellnum].flags & MCF_FREE) != 0)
         return FALSE;
     if (mdef == &gy.youmonst) {
         tx = u.ux, ty = u.uy;
@@ -2569,7 +2580,11 @@ mcast_barred_at_hero(struct monst *mtmp, struct monst *mdef, int spellnum)
 
 /* Some spells are useless under some circumstances. */
 staticfn boolean
-spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
+spell_would_be_useless(
+    struct monst *mtmp,
+    struct monst *mdef,
+    int spellnum,
+    boolean attacking) /* castmu()'s thinks_it_foundyou; else TRUE */
 {
     boolean youdefend = (mdef == &gy.youmonst);
     /* the polymorphed hero casts through castum(); hero-caster
@@ -2590,7 +2605,7 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
         return TRUE;
 
     /* close-range spells wait until the target is adjacent */
-    if (mcast_out_of_reach(mtmp, mdef, spellnum))
+    if (mcast_out_of_reach(mtmp, mdef, spellnum, attacking))
         return TRUE;
 
     /* hostile-only and sight-needing spells at the hero */
@@ -3047,7 +3062,7 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
             do {
                 spellnum = choose_monster_spell(mtmp, mdef, mattk->adtyp);
             } while (--cnt > 0
-                     && spell_would_be_useless(mtmp, mdef, spellnum));
+                     && spell_would_be_useless(mtmp, mdef, spellnum, TRUE));
             if (cnt == 0)
                 return M_ATTK_MISS;
         }
@@ -3300,7 +3315,8 @@ castum(struct monst *mtmp, struct attack *mattk)
             spellnum = choose_monster_spell(&gy.youmonst, mtmp,
                                             (int) mattk->adtyp);
         } while (--cnt > 0
-                 && spell_would_be_useless(&gy.youmonst, mtmp, spellnum));
+                 && spell_would_be_useless(&gy.youmonst, mtmp, spellnum,
+                                           TRUE));
         if (cnt == 0) {
             You("have no spells to cast right now!");
             return M_ATTK_MISS;
