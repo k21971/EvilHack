@@ -57,6 +57,11 @@ staticfn boolean cnf_line_NAME(char *);
 staticfn boolean cnf_line_ROLE(char *);
 staticfn boolean cnf_line_dogname(char *);
 staticfn boolean cnf_line_catname(char *);
+staticfn boolean cnf_line_ratname(char *);
+staticfn boolean cnf_line_pseudoname(char *);
+staticfn boolean cnf_line_homunname(char *);
+staticfn boolean cnf_line_spidername(char *);
+staticfn boolean cnf_line_hawkname(char *);
 #endif /* SFCTOOL */
 #ifdef SYSCF
 staticfn boolean cnf_line_WIZARDS(char *);
@@ -813,6 +818,48 @@ cnf_line_catname(char *bufp)
     gc.catname[PL_PSIZ - 1] = '\0';
     return TRUE;
 }
+
+/* the pets of EvilHack's own roles and races can be named by a config
+   file line too, as the dog and the cat can */
+staticfn boolean
+cnf_line_ratname(char *bufp)
+{
+    (void) strncpy(gr.ratname, bufp, PL_PSIZ - 1);
+    gr.ratname[PL_PSIZ - 1] = '\0';
+    return TRUE;
+}
+
+staticfn boolean
+cnf_line_pseudoname(char *bufp)
+{
+    (void) strncpy(gp.pseudoname, bufp, PL_PSIZ - 1);
+    gp.pseudoname[PL_PSIZ - 1] = '\0';
+    return TRUE;
+}
+
+staticfn boolean
+cnf_line_homunname(char *bufp)
+{
+    (void) strncpy(gh.homunname, bufp, PL_PSIZ - 1);
+    gh.homunname[PL_PSIZ - 1] = '\0';
+    return TRUE;
+}
+
+staticfn boolean
+cnf_line_spidername(char *bufp)
+{
+    (void) strncpy(gs.spidername, bufp, PL_PSIZ - 1);
+    gs.spidername[PL_PSIZ - 1] = '\0';
+    return TRUE;
+}
+
+staticfn boolean
+cnf_line_hawkname(char *bufp)
+{
+    (void) strncpy(gh.hawkname, bufp, PL_PSIZ - 1);
+    gh.hawkname[PL_PSIZ - 1] = '\0';
+    return TRUE;
+}
 #endif /* SFCTOOL */
 
 #ifdef SYSCF
@@ -1391,6 +1438,11 @@ static const struct match_config_line_stmt {
     CNFL_NA(CHARACTER, 4, ROLE),
     CNFL_N(dogname, 3),
     CNFL_N(catname, 3),
+    CNFL_N(ratname, 3),
+    CNFL_N(pseudoname, 6),
+    CNFL_N(homunname, 5),
+    CNFL_N(spidername, 6),
+    CNFL_N(hawkname, 4),
 #endif /* SFCTOOL */
 #ifdef SYSCF
     CNFL_S(WIZARDS, 7),
