@@ -26,7 +26,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   parser work again; a level flip moves rooms nested inside
   subrooms; and master's Convict patch is read whole against the
   branch, with the config lines its one gap; three verify rows
-  closed, one row minted and closed, two LOW rows minted open -
+  closed, one row minted and closed, four LOW rows minted open
+  (two in a follow-up, for what the fix left alone: the doorway
+  rule for a hurtling hero or monster, and a one-level walk of
+  nested rooms in link_doors_rooms()) -
   after session 335, on 2026-11-14, closed the door count
   row - a level read back counts its doors over every room,
   where 5.0 and master looked at the last room only and trap
@@ -82,8 +85,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 62 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 60 LOW):
-  729 rows closed, 62 open
+  prefix; 64 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 62 LOW):
+  729 rows closed, 64 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -98,8 +101,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     Session 336 closed three LOW verify rows - forced movement
     past the shopkeeper (BUG-3153), the rest of master's Convict
     patch, the nested room flip (BUG-3155) - and minted and closed
-    the pet-name config lines row (LOW; BUG-3154); commits
-    pending; the rows and the Decisions log have the detail.
+    the pet-name config lines row (LOW; BUG-3154); 42994bcda,
+    c1ba5c178 and 9623d8220; the rows and the Decisions log have the
+    detail.
     A hero flung, jumping, knocked back, carried by a hurtling
     steed or dragged by a thrown ball and chain is now stopped one
     square short of the diagonal past a shopkeeper on his post,
@@ -112,7 +116,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     inside to be sold a candle. Minted open, both LOW: other
     placements of the hero that ask neither the doorway rule nor
     the keeper (a whip's pit pull-out, an engulfer, the ball's
-    pull into a pit); vanilla's own leftovers, recorded.
+    pull into a pit); vanilla's own leftovers, recorded. Two
+    more LOW rows in a follow-up: a hurtling hero or monster
+    still crosses an intact doorway diagonally (needs a
+    ruling); link_doors_rooms() links doors one level of
+    nested rooms deep (latent, no reach today).
     Session 335 closed the door count MED row (BUG-3148) and
     minted and closed the shop-door block row (LOW; BUG-3149,
     BUG-3150) and the shop ban row (MED; BUG-3151, BUG-3152);
@@ -38261,7 +38269,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       nests on ordinary levels, which are not flipped at creation,
       so the known reach is #wizfliplevel; whether any special level
       (flipped at creation) nests a room in a subroom is unchecked.
-      CLOSED 2026-11-15 (session 336; BUG-3155, commit pending).
+      CLOSED 2026-11-15 (session 336; BUG-3155, 9623d8220).
       CHECKED: no special level nests a room in a subroom - a scan of
       every dat/*.lua that calls des.room() finds minetn-2 / 3 / 4 /
       7 / 8 and oracle-1 two deep and only themerms.lua's "Nesting
@@ -38290,7 +38298,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       only closed doors and diagonal open ones). Going out with
       unpaid goods is still a robbery; going in puts a pick-axe, an
       invisible or a banned hero inside. Run it before fixing.
-      CLOSED 2026-11-15 (session 336; BUG-3153, commit pending).
+      CLOSED 2026-11-15 (session 336; BUG-3153, 42994bcda).
       RUN FIRST (two testers, Minetown minetn-6, the old binary):
       out with an unpaid item at a broken door, a knight's-move jump,
       a throw recoil and a kick recoil while levitating and direct
@@ -38344,7 +38352,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       striped shirt's 256-color value to the Phase 4 color row.
 - [x] LOW: master's pet-name config-file lines were refused (minted
       and CLOSED 2026-11-15, session 336, the Convict patch census;
-      BUG-3154, commit pending). Master's rc parser takes bare
+      BUG-3154, c1ba5c178). Master's rc parser takes bare
       RATNAME=, PSEUDONAME=, HOMUNNAME=, SPIDERNAME= and HAWKNAME=
       lines beside DOGNAME= / CATNAME=; the branch had the five
       options but only the two config lines, so a 0.9.3 rc with one
@@ -38368,18 +38376,59 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       square is a pit, hole or pool - also after a shop halt in
       bhit(). Each needs a rare layout (a pit dug in a shop doorway,
       a monster beside it).
+- [ ] LOW: a hurtling hero or monster crosses an intact doorway
+      diagonally (minted 2026-11-15, session 336 follow-up, at the
+      maintainer's request; vanilla's own; shown in play for the
+      hero). dothrow.c hurtle_step() tests only the square being
+      ENTERED (a diagonal step onto an open door hits the frame); a
+      diagonal step OFF a door square is not tested, and apply.c
+      is_valid_jump_pos() gives a magic jump the trajectory jAny,
+      which skips "You can't jump diagonally out of a doorway." So a
+      hero standing in an intact open doorway leaves it diagonally by
+      a throw or kick recoil while levitating, by the jumping spell,
+      and when moved by a monster's wand of striking, a telekinesis
+      pull, an artifact smash or a fumbling slip (each calls hurtle()
+      with no test). mhurtle_step() has no door test at all: a
+      monster, or the hero's steed, is knocked diagonally ONTO and
+      OFF an intact open door (will_hurtle() -> goodpos() has no
+      direction; mhitm_knockback()'s "subset of test_move()" refuses
+      only leaving a doorway on the first step). A walking hero and a
+      walking monster can do neither. No theft route is left - the
+      shopkeeper's own block covers his door (BUG-3153); what remains
+      is the doorway rule itself. Fix shape: the door-frame test for
+      the square being left in hurtle_step(), both tests in
+      mhurtle_step(). NEEDS A RULING when taken: what the hero
+      suffers (the frame bump and its damage, as on the way in, or
+      just no move), whether the jumping spell keeps vanilla's
+      exemption (its "any direction" trajectory looks deliberate),
+      and whether monsters are included. Upstream row 2026-11-15.
+- [ ] LOW, latent: sp_lev.c link_doors_rooms() links doors to rooms
+      and to each room's sbrooms[] only (minted 2026-11-15, session
+      336 follow-up, at the maintainer's request; vanilla's own; the
+      same one-level walk as BUG-3155). A door drawn by a map on the
+      wall of a room nested inside a subroom would not join that
+      room's door list (doorct stays 0; a shop there would get no
+      shopkeeper). NO REACH TODAY: it runs for special levels only,
+      none nests three deep (minetn-2 / 3 / 4 / 7 / 8 and oracle-1
+      are two deep), and rooms made by des.room() get their doors
+      through add_doors_to_room(), which recurses. Fix shape, a few
+      lines: a recursive helper that calls maybe_add_door() for the
+      room and then for each of its sbrooms[]; for every existing
+      level the calls come in the same order as now, so nothing
+      changes. (NOT the subroom-array walk used for flip_level():
+      that would reorder the door table on every special level with
+      subrooms.) A test needs a custom three-deep level through
+      #wizloaddes. Take it with the first three-deep special level
+      or with the upstream flip_level() patch.
 - [ ] LOW, record: forced-movement leftovers that are vanilla's own
-      (minted 2026-11-15, session 336; upstream rows). (a) A customer
-      the keeper has no reason to bar still leaves an INTACT open
-      doorway diagonally by recoil or by the jumping spell:
-      hurtle_step() tests only the square entered, and a magic jump
-      skips every doorway test. (b) hurtle_step() never sets u.ux0,
-      so u_left_shop()'s edge test and call_kops()'s "nearshop" read
-      a stale square (one recoil printed no "Please pay" line; the
-      Kops line differs). (c) A helpless shopkeeper is "mute", so a
-      hero carried onto his door with a bill robs the shop at once
-      (u_left_shop()). (d) The config-line pet names skip
-      sanitize_name(), which the OPTIONS path runs (dogname and
+      (minted 2026-11-15, session 336; upstream rows; the doorway
+      rule moved to the row two above). (a) hurtle_step() never sets
+      u.ux0, so u_left_shop()'s edge test and call_kops()'s
+      "nearshop" read a stale square (one recoil printed no "Please
+      pay" line; the Kops line differs). (b) A helpless shopkeeper is
+      "mute", so a hero carried onto his door with a bill robs the
+      shop at once (u_left_shop()). (c) The config-line pet names
+      skip sanitize_name(), which the OPTIONS path runs (dogname and
       catname too).
 - [ ] LOW: an aasimar's Vecna-relic denial follows the current form
       (minted 2026-11-14, session 333, reviewer; not from this
@@ -40752,11 +40801,11 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-14 | shk.c block_door() and block_entry() test `!IS_SHOP(roomno)` with `roomno = *in_rooms(x, y, SHOPBASE)`, a room number that still carries ROOMOFFSET, while IS_SHOP() indexes rooms[] directly: the test reads the room three slots on and both functions return FALSE unless that one is a shop as well. Same in fd4d169b6 (and in 3.6). Run on the branch 2026-11-14 (session 335): with the shop door broken and the keeper on his post, a hero steps diagonally out with an unpaid item and diagonally in with a pick-axe or invisible; in a layout with a shop record three slots on the same binary blocks. Fix: `roomno < ROOMOFFSET || !IS_SHOP(roomno - ROOMOFFSET)`; BUG-3149, branch commit 4d74fa615 | fixed on the branch; not sent; triage pending |
 | 2026-11-14 | Latent behind the row above, to send with it: shk.c block_door() and block_entry() pline "blocks your way!" unconditionally, and hack.c test_move() calls them in its TEST_MOVE / TEST_TRAV / TEST_TRAP modes (findtravelpath() probes each frontier square), so a working block prints during travel planning; after a block test_move() also goes on to "You can't move diagonally into / out of an intact doorway." under mention_walls at a broken door. Fix on the branch: a `silent` argument (mode != DO_MOVE; TRUE from crawl_destination()) and the doorway lines only when the doorway is intact; BUG-3149, branch commit 4d74fa615 | fixed on the branch; not sent; triage pending |
 | 2026-11-14 | shk.c block_entry() tests `doormask == D_BROKEN`, but test_move() lets the hero cross any doorless door diagonally (doorless_door(): D_NODOOR too) and a shop door becomes D_NODOOR when dug away with a wand of digging or destroyed by fire, cold or disintegration: the entry block ignores it. Same in fd4d169b6. Fix on the branch (an EvilHack ruling; upstream may see D_BROKEN as intended): test doorless_door(u.ux, u.uy); BUG-3150, branch commit 4d74fa615 | fixed on the branch; not sent; triage pending |
-| 2026-11-14 | Forced movement has no shop test at a doorless shop door: apply.c check_jump() ("empty doorways aren't restricted"), dothrow.c hurtle_step() (recoil, the second knockback step), the grappling hook - all cross it diagonally past a shopkeeper on his post, where test_move() asks block_door() / block_entry(). Same code in fd4d169b6. Run on the branch 2026-11-15 (session 336): a knight's-move #jump, a throw recoil and a kick recoil while levitating take a hero with unpaid goods onto a broken shop door past the keeper; a one-square jump with jumping boots and a throw recoil take one carrying a pick-axe in; a hurtling steed (mhurtle_step(): no door-frame test either) carries its rider both ways; the thrown chained ball drags its thrower in, because bhit() probes each step with test_move() from a square the hero is not on while block_entry() reads u.ux, u.uy. Fix on the branch (an EvilHack ruling - upstream may see a jump past the keeper as fair play): one shop test asked by hurtle_step(), by mhurtle_step() for the hero's steed and by bhit()'s ball probe; BUG-3153, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-15 | dothrow.c hurtle_step() tests only the square being ENTERED for a door (a diagonal step onto an open door hits the frame); a diagonal step OFF a door square is not tested, so a levitating hero's throw recoil leaves an intact open doorway diagonally, which a step cannot ("You can't move diagonally out of an intact doorway."). apply.c is_valid_jump_pos() makes a magic jump's trajectory jAny, which skips "You can't jump diagonally out of a doorway." and check_jump()'s open-door test, so the jumping spell does the same. Both run on the branch 2026-11-15 on a build without the shop fix: a hero on an intact open shop door with a pick-axe landed diagonally inside past the keeper. Same code in fd4d169b6. Left as is on the branch except where a shopkeeper bars the way (BUG-3153) | open (vanilla's own; Phase 2 LOW record row); not sent; triage pending |
-| 2026-11-15 | dothrow.c mhurtle_step(), the branch that moves the hero with a hurtling steed, sets the hero's position but never calls check_special_room(), which hurtle_step() calls after every step: a rider knocked across a shop's edge keeps a stale u.ushops until the next ordinary move (no greeting, no "Please pay", a robbery charged a move late, and addtobill() reads the stale value). Same code in fd4d169b6. Run on the branch 2026-11-15: `mhurtle(u.usteed, ...)` two steps out of a shop with an unpaid item printed nothing on the old binary until the next step. Fix on the branch: the call, then a stop if the shopkeeper's extra move killed the steed, unseated the rider or moved the pair; BUG-3153, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-14 | Forced movement has no shop test at a doorless shop door: apply.c check_jump() ("empty doorways aren't restricted"), dothrow.c hurtle_step() (recoil, the second knockback step), the grappling hook - all cross it diagonally past a shopkeeper on his post, where test_move() asks block_door() / block_entry(). Same code in fd4d169b6. Run on the branch 2026-11-15 (session 336): a knight's-move #jump, a throw recoil and a kick recoil while levitating take a hero with unpaid goods onto a broken shop door past the keeper; a one-square jump with jumping boots and a throw recoil take one carrying a pick-axe in; a hurtling steed (mhurtle_step(): no door-frame test either) carries its rider both ways; the thrown chained ball drags its thrower in, because bhit() probes each step with test_move() from a square the hero is not on while block_entry() reads u.ux, u.uy. Fix on the branch (an EvilHack ruling - upstream may see a jump past the keeper as fair play): one shop test asked by hurtle_step(), by mhurtle_step() for the hero's steed and by bhit()'s ball probe; BUG-3153, branch commit 42994bcda | fixed on the branch; not sent; triage pending |
+| 2026-11-15 | dothrow.c hurtle_step() tests only the square being ENTERED for a door (a diagonal step onto an open door hits the frame); a diagonal step OFF a door square is not tested, so a levitating hero's throw recoil leaves an intact open doorway diagonally, which a step cannot ("You can't move diagonally out of an intact doorway."). apply.c is_valid_jump_pos() makes a magic jump's trajectory jAny, which skips "You can't jump diagonally out of a doorway." and check_jump()'s open-door test, so the jumping spell does the same. Both run on the branch 2026-11-15 on a build without the shop fix: a hero on an intact open shop door with a pick-axe landed diagonally inside past the keeper. Same code in fd4d169b6. Left as is on the branch except where a shopkeeper bars the way (BUG-3153) | open (vanilla's own; Phase 2 LOW row, needs a ruling); not sent; triage pending |
+| 2026-11-15 | dothrow.c mhurtle_step(), the branch that moves the hero with a hurtling steed, sets the hero's position but never calls check_special_room(), which hurtle_step() calls after every step: a rider knocked across a shop's edge keeps a stale u.ushops until the next ordinary move (no greeting, no "Please pay", a robbery charged a move late, and addtobill() reads the stale value). Same code in fd4d169b6. Run on the branch 2026-11-15: `mhurtle(u.usteed, ...)` two steps out of a shop with an unpaid item printed nothing on the old binary until the next step. Fix on the branch: the call, then a stop if the shopkeeper's extra move killed the steed, unseated the rider or moved the pair; BUG-3153, branch commit 42994bcda | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | dothrow.c hurtle_step() moves the hero without setting u.ux0 / u.uy0, and shk.c u_left_shop() reads `levl[u.ux0][u.uy0].edge` to tell "just stepped onto the shop's edge" from "was already on it" (and call_kops()'s nearshop argument reads it too). Seen on the branch 2026-11-15: a kick recoil onto a shop door with an unpaid item printed no "Please pay before leaving." because u.ux0 still named the door from an earlier step, and the Kops line after a hurtle out differed ("are after you!" where a step gives "appear!"). Same code in fd4d169b6. Read and seen, not fixed | open (vanilla's own; Phase 2 LOW record row); not sent; triage pending |
-| 2026-11-15 | sp_lev.c flip_level() flips each room in rooms[] and that room's sbrooms[], so a subroom's own subrooms keep their old bounds while the map moves under them. themerms.lua's "Nesting rooms" nests three deep on ordinary levels; no special level does, so the reach is #wizfliplevel, #wizloaddes and nh.flip_level(). Run on the branch 2026-11-15: after a flip the innermost rooms' rectangles held none of their own squares. Same loop in fd4d169b6. Fix on the branch: walk subrooms[0 .. nsubroom - 1], where a room nested at any depth sits once; BUG-3155, branch commit pending. Sibling, not changed: link_doors_rooms() also walks one level of sbrooms[] (special levels only; des.room rooms get their doors through add_doors_to_room(), which recurses) | fixed on the branch; not sent; triage pending |
+| 2026-11-15 | sp_lev.c flip_level() flips each room in rooms[] and that room's sbrooms[], so a subroom's own subrooms keep their old bounds while the map moves under them. themerms.lua's "Nesting rooms" nests three deep on ordinary levels; no special level does, so the reach is #wizfliplevel, #wizloaddes and nh.flip_level(). Run on the branch 2026-11-15: after a flip the innermost rooms' rectangles held none of their own squares. Same loop in fd4d169b6. Fix on the branch: walk subrooms[0 .. nsubroom - 1], where a room nested at any depth sits once; BUG-3155, branch commit 9623d8220. Sibling, not changed: link_doors_rooms() also walks one level of sbrooms[] (special levels only; des.room rooms get their doors through add_doors_to_room(), which recurses) | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -41459,7 +41508,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-14 | Inert-fields sweep and restore guards (Phase 2 session 333, AskUserQuestion x4 with 5 questions, all as recommended; one re-asked after the reviewer corrected my premise; the batteries were approved with the plan). (1) SLICE: the inert persistent fields SWEEP row with past-commit review group 2, the four save commits (the recent bug LOWs, the verify rows and the wording LOWs not taken). (2) RESTORE GUARDS: port master's whole family now, as its own commit (rejected: the worm guard alone with a row for the rest; a row only). I had said eleven guards; the family is about twenty across thirteen files. (3) DEAD FIELDS: remove all three (rejected: the two iflags only; none). (4) GUARD ACTION: stop in all of them - a bad count or length is always a panic, master's five log-and-read-on readers included; values that can be mended in place keep master's repair (rejected: master's exact split, which reads on from the wrong place and lets the load "succeed" and delete the save). (5) QUIVER FLAG, re-asked: keep iflags.suppress_worn and port master 8cd3948c8 + 5c458c320 (rejected: remove it anyway and leave 5.0's worn-bit toggle with a row). The first answer had rested on my claim that 5.0 trims the line another way and the field was dead; 5.0's "other way" IS the crash master fixed. LESSON: a field with no user on the branch can be a master fix whose users were never ported - run `git log master -S<field>` before calling it dead. Not ruled, decided in the plan and approved with it: limits a real game can pass on this tree are replaced (see the Phase 5 row); a timer whose bones object has no id mapping is dropped like a light, where master panics. |
 | 2026-11-14 | Subroom slots on a reload (Phase 2 session 334, AskUserQuestion x2 with 3 questions, all as recommended; the batteries were approved with the plan). (1) SLICE: the subroom slot MED row, tried in play as a shop theft route first (the recent bug LOWs, the verify rows and past-commit review groups 3-4 not taken). (2) doc/Guidebook.txt's stray date line (November 12 -> 13, left by a rebuild): leave it alone - not restored, not committed. (3) BAD SLOTS: when a level's subroom records do not name a clean set of slots, log it with impossible() and load the level as read (rejected: a panic like the count guards, which would leave a bones file panicking every game that draws it; loading in silence). It fits the 2026-11-14 guard policy's repair clause - the records are fixed size, so nothing after them is misread. Decided in the plan and approved with it: fix on the restore side, by each record's own roomnoidx, with no change to the save format (rejected: writing the subrooms in slot order, which would not heal a level that has already swapped). The Plan stress test replaced my first draft, which read each subroom straight into its slot and panicked: that panics on a three-deep level written before 09af54b4f. The door count after a reload, found by the stress test and the reviewer, was kept out of this commit as a different bug and minted as its own MED row. |
 | 2026-11-14 | Door count, shop-door block, shop ban (Phase 2 session 335, AskUserQuestion x2 with 4 questions, all as recommended; the batteries were approved with the plan). (1) SLICE: both room rows - the door count MED row and part (a) of the verify row, the shopkeeper's diagonal block (the door count alone, the recent bug LOWs and past-commit review groups 3-4 not taken). (2) SHOP BAN, found while tracing the block's callers: two of master 95bf72013's five shk.c hunks were never ported, so a banned hero was told off and let in. Fold in now as its own commit (rejected: a MED row for a later slice), and add the banned hero to the diagonal entry block's reasons. (3) DOOR GONE: the keeper blocks the diagonal step in at any open doorway, whether the shop door is broken or was destroyed outright (rejected: vanilla's and master's broken-only test, which lets a hero dig the door away and step in with a pick-axe). (4) BONES BAN: at game end every keeper's ban is cleared, the first inheritor included (rejected: master's exact shape, which leaves that keeper banning whoever finds the bones - archived as a master bug, frozen-unfixed). Decided in the plan and approved with it: a door record that does not fit the door list gets an impossible() and is left out of the count, no panic (the session 334 BAD SLOTS reasoning); the block's line prints for a real step only, never while a move is being tested or planned; the "intact doorway" lines only at an intact doorway. Stated in the plan as who loses under (2), as on master: a Draugr cannot walk into a tended shop, a Convict must cover the shirt before a keeper first sees it, and a ban lasts the game for that keeper. Left out as different bugs and minted as LOW rows: forced movement (jump, recoil, grapple) past a doorless shop door, and the rest of the Convict patch unread against the branch. |
-| 2026-11-15 | Forced movement past the shopkeeper, pet-name config lines, nested room flip (Phase 2 session 336, AskUserQuestion x2 with 3 questions, all as recommended; the batteries were approved with the slice and the plan). (1) SLICE: both - the forced-movement verify row, run in play first, and the Convict patch census side by side (either alone and the recent bug LOWs not taken). (2) SHOP DOOR: BLOCK ALL OF IT - whatever moves the hero (a jump, a throw or kick recoil, a knockback, a wand of striking, a telekinesis pull, an artifact smash, a slip, the grappling hook's yank), the diagonal move past the keeper's post stops one square short with the block line, under the walking step's own conditions; a jump is cut short and costs its turn and hunger; the way in is barred at an intact open door too (rejected: only the hero's own moves, leaving a hero pushed or pulled by a monster to go through and be charged as a robber; and leaving it as vanilla and master have it). (3) FOLD-INS, each its own commit: the five pet-name config-file lines and the nested subroom flip (rejected: rows only; the flip is wizard-mode reach, fixed because it is cheap and local). Decided in the plan and approved with it, after the Plan stress test: the hero's steed and the thrown chained ball are forced movement too and get the same test; a hero the keeper would ban on sight (a Draugr, a visible striped shirt, the Striped Shirt of Liberation) is barred on the diagonal before he has said so, which also covers a keeper who cannot speak; the steed's step runs the shop checks at once, as the hero's does; #jump is not refused up front - it starts and the keeper stops it. Stated in the plan as who loses: a levitating or jumping thief at a broken shop door, and a Draugr, a shirted Convict, a rider, an invisible hero or one with a pick-axe who jumps, floats, is knocked or is dragged by the ball. Untouched: digging in through a wall, teleporting in, a pick-axe in a sack. Left out and recorded: a customer the keeper has no reason to bar still leaves an intact doorway diagonally by recoil or spell jump (vanilla's own); other placements of the hero with no doorway or keeper test (LOW verify row); link_doors_rooms()'s one-level walk of subrooms (no level nests deeper; changing it would reorder the door table on every special level with subrooms). |
+| 2026-11-15 | Forced movement past the shopkeeper, pet-name config lines, nested room flip (Phase 2 session 336, AskUserQuestion x2 with 3 questions, all as recommended; the batteries were approved with the slice and the plan). (1) SLICE: both - the forced-movement verify row, run in play first, and the Convict patch census side by side (either alone and the recent bug LOWs not taken). (2) SHOP DOOR: BLOCK ALL OF IT - whatever moves the hero (a jump, a throw or kick recoil, a knockback, a wand of striking, a telekinesis pull, an artifact smash, a slip, the grappling hook's yank), the diagonal move past the keeper's post stops one square short with the block line, under the walking step's own conditions; a jump is cut short and costs its turn and hunger; the way in is barred at an intact open door too (rejected: only the hero's own moves, leaving a hero pushed or pulled by a monster to go through and be charged as a robber; and leaving it as vanilla and master have it). (3) FOLD-INS, each its own commit: the five pet-name config-file lines and the nested subroom flip (rejected: rows only; the flip is wizard-mode reach, fixed because it is cheap and local). Decided in the plan and approved with it, after the Plan stress test: the hero's steed and the thrown chained ball are forced movement too and get the same test; a hero the keeper would ban on sight (a Draugr, a visible striped shirt, the Striped Shirt of Liberation) is barred on the diagonal before he has said so, which also covers a keeper who cannot speak; the steed's step runs the shop checks at once, as the hero's does; #jump is not refused up front - it starts and the keeper stops it. Stated in the plan as who loses: a levitating or jumping thief at a broken shop door, and a Draugr, a shirted Convict, a rider, an invisible hero or one with a pick-axe who jumps, floats, is knocked or is dragged by the ball. Untouched: digging in through a wall, teleporting in, a pick-axe in a sack. Left out and recorded: a customer the keeper has no reason to bar still leaves an intact doorway diagonally by recoil or spell jump (vanilla's own); other placements of the hero with no doorway or keeper test (LOW verify row); link_doors_rooms()'s one-level walk of subrooms (no level nests deeper). FOLLOW-UP 2026-11-15, after the commits landed: the maintainer asked whether the two things left alone are worth fixing and to mint rows if so. Both minted LOW: (a) a hurtling hero or monster crosses an intact doorway diagonally - worth fixing as a rule of the game, no theft left in it, and it needs a ruling when taken (the hero's penalty, the jumping spell's exemption, monsters); (b) link_doors_rooms() - latent, no reach today, a few lines. CORRECTION to what was said at hand-off: only the subroom-array walk would reorder the door table; a recursive helper makes the same calls in the same order for every existing level. |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
