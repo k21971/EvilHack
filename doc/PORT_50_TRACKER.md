@@ -116,8 +116,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     (BUG-3160) and the overview line (BUG-3162) - and minted and
     closed three more: a meal lost before the first bite
     (BUG-3159), the Draugr "too fresh" gate (BUG-3161, ruled) and
-    the vampire's blood roll (BUG-3163, ruled); commits pending;
-    the rows and the Decisions log have the detail. A vampire who
+    the vampire's blood roll (BUG-3163, ruled); 9bd43e153,
+    be674634b, 628677386, 65002ab48 and 35108b4f4; the rows and
+    the Decisions log have the detail. A vampire who
     is told a corpse has no blood left, or that it has coagulated,
     now loses nothing by asking, and the answer for a corpse is
     the same every time. A Draugr reads "rancid" and can eat, or
@@ -35970,7 +35971,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       last square. Master's tail tests `type == ZT_SPELL(ZT_FIRE)` and
       skips it. An Unskilled or Basic fireball cast (the ray form) on
       the Plane of Air. Read in both trees and Official_nh50, not run.
-      CLOSED 2026-11-15, session 337 (BUG-3156, commit pending).
+      CLOSED 2026-11-15, session 337 (BUG-3156, 9bd43e153).
       dobuzz()'s tail tests `type == ZT_SPELL(ZT_FIRE)` again, as
       master's does. The aether arm's rewrite is the only write to
       `type` in the function, so every other fireball explodes as
@@ -36420,7 +36421,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       could disagree with eatcorpse() on an eroded corpse. Compare
       with master's edibility_prompts() first; call rot_amount() if
       master does.
-      CLOSED 2026-11-15, session 337 (BUG-3160, commit pending).
+      CLOSED 2026-11-15, session 337 (BUG-3160, 65002ab48).
       Master does not: its edibility_prompts() is the branch's, and
       its rot_amount() has had the term since f86901227 (2025), so
       this is master's own gap (frozen-unfixed there). On food the
@@ -36457,7 +36458,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       has the same order. The new "tainted" refusal (BUG-3050) sits
       in doeat() ahead of all of it; moving the two older ones there
       would fix this.
-      CLOSED 2026-11-15, session 337 (BUG-3158, commit pending;
+      CLOSED 2026-11-15, session 337 (BUG-3158, 628677386;
       master frozen-unfixed). New static vamp_refuses_corpse() holds
       the two refusals and doeat() asks it after the tin case and
       before anything is counted or touched; the old tests ran after
@@ -36489,7 +36490,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       costly_alteration() call.
 - [x] LOW: a meal lost before the first bite still counts (minted
       and CLOSED 2026-11-15, session 337, plan stress test;
-      BUG-3159, commit pending; vanilla's order, upstream row).
+      BUG-3159, 628677386; vanilla's order, upstream row).
       doeat() counted the food conduct and wrote "ate for the first
       time - ..." before touchfood(); with 52 slots in use the piece
       split off a stack is dropped, and when lava burns it or a hole
@@ -36504,7 +36505,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       line; POST 0 and no line, then the last apple counts once.
 - [x] LOW: a Draugr's "too fresh" test and the "rancid" name
       disagree (minted and CLOSED 2026-11-15, session 337, plan
-      stress test; BUG-3161, commit pending; master the same,
+      stress test; BUG-3161, 65002ab48; master the same,
       frozen-unfixed). doeat() refused a Draugr while
       `(moves - age) / 10 <= 3`; the name says "rancid" when
       rot_amount() > 3, which also counts +2 cursed, -2 blessed and
@@ -36523,7 +36524,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       both; a lizard corpse always eaten.
 - [x] LOW: a vampire's "coagulated" answer is re-rolled at every
       try (minted and CLOSED 2026-11-15, session 337, reviewer;
-      BUG-3163, commit pending; master the same, frozen-unfixed).
+      BUG-3163, 628677386; master the same, frozen-unfixed).
       Beside the fixed 8 to 15 turn window per corpse
       (blood_freshness(), "cannot be re-rolled by retrying") the
       test also used rot_amount()'s roll: for an uncursed corpse 10
@@ -36642,7 +36643,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (d->name points there). Vanilla 5.0 the same (read in
       fd4d169b6; not run there). Fix shape: build the canonical
       text somewhere the name is not, or move the name first.
-      CLOSED 2026-11-15, session 337 (BUG-3157, commit pending).
+      CLOSED 2026-11-15, session 337 (BUG-3157, be674634b).
       The canonical text is built in d->globbuf and d->bp points
       there, as the glob arm of readobjnam_postparse1() already
       does, so nothing is written over the text d->name, d->un and
@@ -36672,7 +36673,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       230); the branch has more clause kinds than vanilla (forges,
       magic chests, dead trees, grass, sand). Bound the macros
       and the temple / altar appends with Snprintf().
-      CLOSED 2026-11-15, session 337 (BUG-3162, commit pending).
+      CLOSED 2026-11-15, session 337 (BUG-3162, 35108b4f4).
       Every append in print_mapseen()'s "of interest" block is now
       Snprintf(eos(buf), sizeof buf - strlen(buf), ...): the two
       macros, the one-shop clause, the four " to <god>" names,
@@ -40959,7 +40960,7 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-09 | nhl_gamestate() copies `u` to gg.gmst_ubak only after its store loop has setnotworn()ed and freeinv()ed the kit, and the restore memcpy()s that stripped copy over the re-seated kit: after the tutorial every worn item shows worn but gives nothing (a Wizard's cloak of magic resistance: ANTIMAGIC ext 0, no MR in ^X) until taken off and put back on; carried-artifact grants, u.uhave and luck the same way. Fix: copy `u` before the loop (keep the re-seat before the restore memcpy). The init_uhunger() after the memcpy is redundant in vanilla (removed on the branch for a non-900 start; leave it out of the patch). Official_nh50 b0c09c878; BUG-2931, src/nhlua.c, branch commit 6d67bd6c9 | fixed on the branch; not sent; triage pending |
 | 2026-11-10 | #loot with autounlock set to untrap but not apply-key: do_loot_cont() calls pick_lock() with a Null tool; once "Check <box> for a trap?" is declined (or tknown already says no trap) the arm `else if (autounlock && (flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0)` is skipped and the generic arm asks "There is <a box> here; unlock it?" for the zeroed dummy tool; yes starts a 50-turn picklock() occupation with chance 0 that can only be given up. Fix: make the arm `else if (autounlock)`, so a Null tool answers 'q'. The door branch is not affected (doopen_indir() only calls with a real key). Read in Official_nh50 b0c09c878 src/lock.c (same three-arm chain), not reproduced there yet; BUG-2988, src/lock.c, branch commit da9110cab | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | A rock mole walks between undiggable iron bars: passes_bars() admits a metallivore so that it can eat its way through, but mfndpos()'s gate that keeps bar-eaters off W_NONDIGGABLE bars lists only dmgtype AD_RUST / AD_CORR, so a rock mole (MZ_SMALL, not verysmall) is let onto the square, m_move() declines to eat the undiggable bars and prints "passes between the iron bars". Fix: add `|| (metallivorous(mdat) && !passes_walls(mdat))` to the gate's attack test; the passes_walls() term keeps a xorn, which phases through undiggable bars today, from being turned away (the branch does this through its own eats_bars() helper, which also carries EvilHack rulings - a vanilla patch should not copy it). Read in Official_nh50 b0c09c878 src/mon.c, src/mondata.c and src/monmove.c (same three pieces), not reproduced there; on the branch a rock mole stayed outside undiggable bars for 31 turns after the fix, the before case was not run; BUG-2998, src/mon.c, branch commit e18f68c13 | fixed on the branch; not sent; triage pending |
-| 2026-11-11 | A fireball that reaches the edge of the Plane of Air prints "The fireball vanishes into the aether!" and then explodes anyway: dobuzz() sets `type = ZT_WAND(ZT_FIRE); /* skip pending fireball */` before the break, but since 5212e4b3d (2024, the reflected poison gas fix) the tail tests the set-once `fireball` boolean where it used to test `type == ZT_SPELL(ZT_FIRE)`, so the rewrite skips nothing and explode() runs at the last square with the rewritten type. Only the ray form does this (an Unskilled or Basic cast). Fix: clear `fireball` beside the type rewrite, or have the tail test the type again. Read in Official_nh50 b0c09c878 src/zap.c (same lines as the branch, and still so in fd4d169b6); 3.6 and EvilHack master skip the explosion. Run on the branch 2026-11-15: the blast goes off centred one square off the map with the rewritten wand type and kills a monster on the last column. Fix on the branch: the tail tests the type again; BUG-3156, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-11 | A fireball that reaches the edge of the Plane of Air prints "The fireball vanishes into the aether!" and then explodes anyway: dobuzz() sets `type = ZT_WAND(ZT_FIRE); /* skip pending fireball */` before the break, but since 5212e4b3d (2024, the reflected poison gas fix) the tail tests the set-once `fireball` boolean where it used to test `type == ZT_SPELL(ZT_FIRE)`, so the rewrite skips nothing and explode() runs at the last square with the rewritten type. Only the ray form does this (an Unskilled or Basic cast). Fix: clear `fireball` beside the type rewrite, or have the tail test the type again. Read in Official_nh50 b0c09c878 src/zap.c (same lines as the branch, and still so in fd4d169b6); 3.6 and EvilHack master skip the explosion. Run on the branch 2026-11-15: the blast goes off centred one square off the map with the rewritten wand type and kills a monster on the last column. Fix on the branch: the tail tests the type again; BUG-3156, branch commit 9bd43e153 | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | `nethack -s -p <code>` / `-s -r <code>` with a code that names no role or race lists every record entry whose own code also fails to resolve: score_wanted() compares `str2role(nxt) == str2role(t1->plrole)` (and the str2race() pair), and both sides are ROLE_NONE (-1) for an unknown argument and an old or foreign entry (a pre-3.3.0 record line, a role or race this binary does not have). Fix: require the command-line code to resolve first - `(want = str2role(nxt)) >= 0 && want == str2role(t1->plrole)`, the same for races. Read in Official_nh50 b0c09c878 src/topten.c score_wanted() (same two comparisons), not reproduced there; on the branch a seeded record with an entry of codes "Zzz" / "Qqq" is no longer listed by `-p Xyz` or `-r Xyz`; EvilHack master fixed it as 881fd6aef; BUG-3013, src/topten.c, branch 34b506fea | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | An engulfer that dies in lava with the hero inside frees the hero with no message: minliquid_core()'s water branch says "<Monster> sinks as water rushes in and flushes you out." when `engulfing_u(mtmp)`, but the lava branch has only the burn line gated on cansee(), which a swallowed hero never passes. Reached when a walking engulfer (a purple worm, say) swallows a hero who is levitating or flying over lava: on its next move it is gone and the hero is simply outside again. Fix: give the lava branch its own engulfed-hero line before the monster dies (the branch prints "<Monster> burns to a crisp as lava rushes in and forces you out.", built from on_fire()'s death verb, and skips the plain burn line in that case). Read in Official_nh50 b0c09c878 src/mon.c minliquid_core() (lava branch: cansee() line only; water branch: the "rushes in" line), not reproduced there; a message gap, not a state bug; BUG-3019, src/mon.c, branch 34b506fea | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | A magical trap is exploded before it is deleted, in dig.c dighole() and zap.c maybe_explode_trap(): `explode(...); deltrap(ttmp);`. explode() damages the steed on the hero's square; a steed it kills dismounts the hero through dismount_steed() -> float_down(), which calls dotrap() for a trap not met on arrival; a polymorph trap, a level teleporter and one magic trap in 15 delete themselves there; the caller then runs deltrap() on the freed trap ("deltrap: no preceding trap!" or a use-after-free). Needs a mounted hero over a magical trap made under them or reached by a hurtle, and a blast that kills the steed. Fix: delete the trap first, then explode. Each link read in Official_nh50 b0c09c878 and on the branch, NOT reproduced (the branch battery ran the mounted dig on the fixed build only) - reproduce on vanilla before cutting a patch; BUG-3034, src/dig.c + src/zap.c, branch commit f4d0860b9 | fixed on the branch; not sent; needs a vanilla repro |
@@ -41004,8 +41005,8 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-15 | dothrow.c mhurtle_step(), the branch that moves the hero with a hurtling steed, sets the hero's position but never calls check_special_room(), which hurtle_step() calls after every step: a rider knocked across a shop's edge keeps a stale u.ushops until the next ordinary move (no greeting, no "Please pay", a robbery charged a move late, and addtobill() reads the stale value). Same code in fd4d169b6. Run on the branch 2026-11-15: `mhurtle(u.usteed, ...)` two steps out of a shop with an unpaid item printed nothing on the old binary until the next step. Fix on the branch: the call, then a stop if the shopkeeper's extra move killed the steed, unseated the rider or moved the pair; BUG-3153, branch commit 42994bcda | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | dothrow.c hurtle_step() moves the hero without setting u.ux0 / u.uy0, and shk.c u_left_shop() reads `levl[u.ux0][u.uy0].edge` to tell "just stepped onto the shop's edge" from "was already on it" (and call_kops()'s nearshop argument reads it too). Seen on the branch 2026-11-15: a kick recoil onto a shop door with an unpaid item printed no "Please pay before leaving." because u.ux0 still named the door from an earlier step, and the Kops line after a hurtle out differed ("are after you!" where a step gives "appear!"). Same code in fd4d169b6. Read and seen, not fixed | open (vanilla's own; Phase 2 LOW record row); not sent; triage pending |
 | 2026-11-15 | sp_lev.c flip_level() flips each room in rooms[] and that room's sbrooms[], so a subroom's own subrooms keep their old bounds while the map moves under them. themerms.lua's "Nesting rooms" nests three deep on ordinary levels; no special level does, so the reach is #wizfliplevel, #wizloaddes and nh.flip_level(). Run on the branch 2026-11-15: after a flip the innermost rooms' rectangles held none of their own squares. Same loop in fd4d169b6. Fix on the branch: walk subrooms[0 .. nsubroom - 1], where a room nested at any depth sits once; BUG-3155, branch commit 9623d8220. Sibling, not changed: link_doors_rooms() also walks one level of sbrooms[] (special levels only; des.room rooms get their doors through add_doors_to_room(), which recurses) | fixed on the branch; not sent; triage pending |
-| 2026-11-15 | A wish for `blue glass named Bob` gives a gem named "f blue glass": readobjnam_postparse1() cuts " named " in place and points d->name 7 bytes on in the same buffer, then readobjnam_postparse2()'s glass arm copies "worthless piece of " + the color text back over d->bp, 19 bytes longer, over the start of the name (`piece of blue glass named Bob` gives "ass"; d->un and d->dn sit there the same way). A failed "<x> glass" wish also pre-fills the retry prompt with the rewritten text. Same code in fd4d169b6 and in 3.6 readobjnam(). Run on the branch 2026-11-15. Fix on the branch: build the canonical text in d->globbuf and point d->bp there, as the glob arm does; BUG-3157, src/objnam.c, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-15 | A meal that never happens still counts: doeat() counts the food conduct and writes "ate for the first time - ..." to the livelog, then touchfood() splits one item off a carried stack, cannot put it back into a full pack and drops it, and when lava burns the piece (or a hole takes it) touchfood() returns null and doeat() returns with the count kept. Same order in fd4d169b6; EvilHack master rolls the count back. Run on the branch 2026-11-15 (52 slots in use, levitating over lava, an apple from a stack of two: "You see the apple hit lava and burn up!", u.uconduct.food 1 and the livelog line). Fix on the branch: count the conduct after touchfood() succeeds; BUG-3159, src/eat.c, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-15 | A wish for `blue glass named Bob` gives a gem named "f blue glass": readobjnam_postparse1() cuts " named " in place and points d->name 7 bytes on in the same buffer, then readobjnam_postparse2()'s glass arm copies "worthless piece of " + the color text back over d->bp, 19 bytes longer, over the start of the name (`piece of blue glass named Bob` gives "ass"; d->un and d->dn sit there the same way). A failed "<x> glass" wish also pre-fills the retry prompt with the rewritten text. Same code in fd4d169b6 and in 3.6 readobjnam(). Run on the branch 2026-11-15. Fix on the branch: build the canonical text in d->globbuf and point d->bp there, as the glob arm does; BUG-3157, src/objnam.c, branch commit be674634b | fixed on the branch; not sent; triage pending |
+| 2026-11-15 | A meal that never happens still counts: doeat() counts the food conduct and writes "ate for the first time - ..." to the livelog, then touchfood() splits one item off a carried stack, cannot put it back into a full pack and drops it, and when lava burns the piece (or a hole takes it) touchfood() returns null and doeat() returns with the count kept. Same order in fd4d169b6; EvilHack master rolls the count back. Run on the branch 2026-11-15 (52 slots in use, levitating over lava, an apple from a stack of two: "You see the apple hit lava and burn up!", u.uconduct.food 1 and the livelog line). Fix on the branch: count the conduct after touchfood() succeeds; BUG-3159, src/eat.c, branch commit 628677386 | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
