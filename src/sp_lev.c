@@ -796,30 +796,32 @@ flip_level(
                 sroom->hx = itmp;
             }
         }
+    }
 
-        if (sroom->nsubrooms)
-            for (i = 0; i < sroom->nsubrooms; i++) {
-                struct mkroom *rroom = sroom->sbrooms[i];
+    /* subrooms; walked through their own array, where a room nested at
+       any depth sits once, rather than through each room's list of
+       subrooms, which misses a subroom's own subrooms */
+    for (i = 0; i < gn.nsubroom; i++) {
+        struct mkroom *rroom = &gs.subrooms[i];
 
-                if (flp & 1) {
-                    rroom->ly = FlipY(rroom->ly);
-                    rroom->hy = FlipY(rroom->hy);
-                    if (rroom->ly > rroom->hy) {
-                        itmp = rroom->ly;
-                        rroom->ly = rroom->hy;
-                        rroom->hy = itmp;
-                    }
-                }
-                if (flp & 2) {
-                    rroom->lx = FlipX(rroom->lx);
-                    rroom->hx = FlipX(rroom->hx);
-                    if (rroom->lx > rroom->hx) {
-                        itmp = rroom->lx;
-                        rroom->lx = rroom->hx;
-                        rroom->hx = itmp;
-                    }
-                }
+        if (flp & 1) {
+            rroom->ly = FlipY(rroom->ly);
+            rroom->hy = FlipY(rroom->hy);
+            if (rroom->ly > rroom->hy) {
+                itmp = rroom->ly;
+                rroom->ly = rroom->hy;
+                rroom->hy = itmp;
             }
+        }
+        if (flp & 2) {
+            rroom->lx = FlipX(rroom->lx);
+            rroom->hx = FlipX(rroom->hx);
+            if (rroom->lx > rroom->hx) {
+                itmp = rroom->lx;
+                rroom->lx = rroom->hx;
+                rroom->hx = itmp;
+            }
+        }
     }
 
     /* doors */
