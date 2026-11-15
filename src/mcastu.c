@@ -49,7 +49,8 @@ staticfn boolean mon_has_eregen_artifact(struct monst *);
 staticfn boolean is_boss_caster(struct monst *);
 staticfn int druid_ward_subst(struct monst *, int);
 staticfn int choose_bolt_spell(struct monst *);
-staticfn int choose_monster_spell(struct monst *, struct monst *, int);
+staticfn int choose_monster_spell(struct monst *, struct monst *, int,
+                                  boolean);
 staticfn struct monst *find_adjacent_pet(struct monst *);
 staticfn void do_untame_pet(struct monst *, struct monst *);
 staticfn short mpick_learned_spell(struct monst *, struct monst *, boolean);
@@ -185,7 +186,11 @@ choose_bolt_spell(struct monst *mtmp)
 }
 
 staticfn int
-choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
+choose_monster_spell(
+    struct monst *mtmp,
+    struct monst *mdef,
+    int adtyp,
+    boolean attacking) /* castmu()'s thinks_it_foundyou; else TRUE */
 {
     int *list = NULL;
     int i, candidate, spellval, len = 0;
@@ -238,7 +243,15 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
         spellval = rn2(maxlev);
     }
 
-    /* find the highest spell in the list we could cast, or fall back
+    /* a caster down to a quarter of its hit points makes curing
+       itself the priority */
+    if ((mtmp == &gy.youmonst) ? (u.mhmax > 0 && u.mh * 4 <= u.mhmax)
+                               : (mtmp->mhpmax > 0
+                                  && mtmp->mhp * 4 <= mtmp->mhpmax))
+        spellval = 1;
+
+    /* find the rung the roll lands on - for an attack cast, the
+       highest one at or below it that is not useless - or fall back
        to the first spell in the list; the druid substitution runs on
        the candidate BEFORE the useless test so the substituted
        spell's own flags decide (the wards are indirect and castable
@@ -251,13 +264,13 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
         candidate = list[i];
         /* some rungs stand for a random pick between same-level
            spells; roll before the substitution and useless tests so
-           the chosen spell's own flags and usefulness decide, and
-           fall through to the next rung when the pick proves
-           useless. The summon minion rung also answers for the two
-           steps above it: open wounds two times in three, and always
-           for a roll that stayed higher still. Demons (other than
-           Lolth, who keeps her insects) and both Kathryns cast the
-           vulnerability curse where others summon insects */
+           the chosen spell's own flags and usefulness decide, and an
+           attack cast falls through to the next rung when the pick
+           proves useless. The summon minion rung also answers for the
+           two steps above it: open wounds two times in three, and
+           always for a roll that stayed higher still. Demons (other
+           than Lolth, who keeps her insects) and both Kathryns cast
+           the vulnerability curse where others summon insects */
         if (candidate == MCAST_CONFUSE_YOU && rn2(2))
             candidate = MCAST_PROTECTION;
         else if (candidate == MCAST_AGGRAVATION && rn2(2))
@@ -281,15 +294,19 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
             if (candidate < 0)
                 continue;
         }
+        /* a caster that is not attacking takes the pick as it fell:
+           castmu() turns down one that is aimed or useless, and no
+           lower spell stands in for it */
+        if (!attacking)
+            break;
         /* a close-range spell picked against a distant target goes
            back to the caller as it is: the caller's re-roll loop
-           draws a fresh level, and a single undirected try stands or
-           falls on that spell alone, rather than the pick sliding
-           down to a lower rung; a spell the caster would never cast
-           at the hero anyway (peaceful caster, hero out of sight)
-           slides down as it does next to the hero. A call undead
-           roll by a caster that cannot call undead goes back the
-           same way, or it would slide onto insects, the rung below */
+           draws a fresh level, rather than the pick sliding down to
+           a lower rung; a spell the caster would never cast at the
+           hero anyway (peaceful caster, hero out of sight) slides
+           down as it does next to the hero. A call undead roll by a
+           caster that cannot call undead goes back the same way, or
+           it would slide onto insects, the rung below */
         if ((mcast_out_of_reach(mtmp, mdef, candidate, TRUE)
              || (candidate == MCAST_CALL_UNDEAD
                  && !mcast_can_call_undead(mtmp)))
@@ -362,7 +379,8 @@ castmu(
 
         do {
             spellnum = choose_monster_spell(mtmp, &gy.youmonst,
-                                            mattk->adtyp);
+                                            mattk->adtyp,
+                                            thinks_it_foundyou);
             /* not trying to attack?  don't allow directed spells */
             if (!thinks_it_foundyou) {
                 if (!is_undirected_spell(mtmp, spellnum)
@@ -3085,7 +3103,8 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
             int cnt = 40;
 
             do {
-                spellnum = choose_monster_spell(mtmp, mdef, mattk->adtyp);
+                spellnum = choose_monster_spell(mtmp, mdef, mattk->adtyp,
+                                                TRUE);
             } while (--cnt > 0
                      && spell_would_be_useless(mtmp, mdef, spellnum, TRUE));
             if (cnt == 0)
@@ -3338,7 +3357,7 @@ castum(struct monst *mtmp, struct attack *mattk)
 
         do {
             spellnum = choose_monster_spell(&gy.youmonst, mtmp,
-                                            (int) mattk->adtyp);
+                                            (int) mattk->adtyp, TRUE);
         } while (--cnt > 0
                  && spell_would_be_useless(&gy.youmonst, mtmp, spellnum,
                                            TRUE));
