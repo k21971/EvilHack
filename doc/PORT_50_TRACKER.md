@@ -17,8 +17,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-15, session 336: the
-  shopkeeper stops a hero who is moved past his post by anything
+- Phase 2 status (refreshed 2026-11-15, session 337: five small
+  bugs - a fireball that flies off the Plane of Air no longer
+  explodes after it "vanishes into the aether"; a wish for "blue
+  glass named Bob" keeps its name; a vampire turned away from a
+  corpse has counted no conduct, split no stack and been billed
+  nothing; the food-sense warning counts a corpse's decay; the
+  overview's feature line stops at the end of its buffer - and
+  three neighbours found on the way: a meal lost to lava before
+  the first bite is not counted, a Draugr can eat a corpse exactly
+  when its name says rancid (ruled), and a vampire's "coagulated"
+  answer no longer changes from one try to the next (ruled); five
+  rows closed, three minted and closed, one residue row minted -
+  after session 336, also on 2026-11-15, made the
+  shopkeeper stop a hero who is moved past his post by anything
   but a step - a jump, a recoil, a knockback or pull, a hurtling
   steed, the hero's own thrown ball and chain - where both trees
   only ever stopped the step; run in play first, then ruled "block
@@ -85,8 +97,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 64 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 62 LOW):
-  729 rows closed, 64 open
+  prefix; 60 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 58 LOW):
+  737 rows closed, 60 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -98,6 +110,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4). Phase 2 has no other MED row.
+    Session 337 closed five LOW rows - the fireball off the Plane
+    of Air (BUG-3156), the glass wish's name (BUG-3157), the
+    refused vampire's conducts (BUG-3158), the food-sense rot
+    (BUG-3160) and the overview line (BUG-3162) - and minted and
+    closed three more: a meal lost before the first bite
+    (BUG-3159), the Draugr "too fresh" gate (BUG-3161, ruled) and
+    the vampire's blood roll (BUG-3163, ruled); commits pending;
+    the rows and the Decisions log have the detail. A vampire who
+    is told a corpse has no blood left, or that it has coagulated,
+    now loses nothing by asking, and the answer for a corpse is
+    the same every time. A Draugr reads "rancid" and can eat, or
+    does not and cannot: cursed corpses from 20 turns, blessed from
+    60, where 0.9.3 said 40 for both. Minted open, LOW: the
+    session's residue (the food sense spent before a refusal, a
+    fresh corpse averaging an old stack's blood age, and smaller
+    things).
     Session 336 closed three LOW verify rows - forced movement
     past the shopkeeper (BUG-3153), the rest of master's Convict
     patch, the nested room flip (BUG-3155) - and minted and closed
@@ -35933,7 +35961,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (52,18) / (53,19) after both, a wall each time; triggered,
       "You hear a soft click." and a blast of poison gas reached
       the hero, the trap staying armed.
-- [ ] LOW: a fireball that leaves the Plane of Air still explodes
+- [x] LOW: a fireball that leaves the Plane of Air still explodes
       (minted 2026-11-11, session 322, reviewer; vanilla 5.0 bug,
       upstream candidate). dobuzz() prints "The fireball vanishes into
       the aether!" and sets `type = ZT_WAND(ZT_FIRE)` to skip the
@@ -35942,6 +35970,23 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       last square. Master's tail tests `type == ZT_SPELL(ZT_FIRE)` and
       skips it. An Unskilled or Basic fireball cast (the ray form) on
       the Plane of Air. Read in both trees and Official_nh50, not run.
+      CLOSED 2026-11-15, session 337 (BUG-3156, commit pending).
+      dobuzz()'s tail tests `type == ZT_SPELL(ZT_FIRE)` again, as
+      master's does. The aether arm's rewrite is the only write to
+      `type` in the function, so every other fireball explodes as
+      before. The ray form is also what a Skilled caster gets by
+      answering no to "Cast advanced spell?". BATTERY (Plane of Air,
+      a frozen giant bat on the last column one row off the ray,
+      explode() logged by gdb): PRE "The fireball vanishes into the
+      aether!  The giant bat is caught in the fireball!", the bat
+      dead, explode() at x 80 with the rewritten wand type; POST the
+      first line alone, no explode() call, the bat untouched.
+      Controls on both builds: a monster on the ray's line and a ray
+      that runs out in open air still explode. On this branch the
+      whole Plane of Air is air to the map edge (setup_waterlevel()),
+      so the ray leaves at x 80 and the stray blast was centred off
+      the map; explode() bounds each square, so it was wrong, not a
+      crash.
 - [x] LOW: a phasing hero cannot leave an engulfer (minted 2026-11-11,
       audit; master b45cbbcad in gulpmu()'s tail and 4c52be0cd in
       domove()'s swallowed block, master BUG-1213): "You exit
@@ -36367,7 +36412,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       explorer; master engrave.c). The branch's ceiling() has no
       such arm and says "sky" for any AIR square; whether the
       branch tower has AIR squares is unread.
-- [ ] LOW: edibility_prompts() computes its own rot (minted
+- [x] LOW: edibility_prompts() computes its own rot (minted
       2026-11-12, session 325, catch-up 3 plan stress test).
       eat.c edibility_prompts() repeats vanilla's
       `(moves - age) / 10` with the curse / bless terms, so the
@@ -36375,6 +36420,23 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       could disagree with eatcorpse() on an eroded corpse. Compare
       with master's edibility_prompts() first; call rot_amount() if
       master does.
+      CLOSED 2026-11-15, session 337 (BUG-3160, commit pending).
+      Master does not: its edibility_prompts() is the branch's, and
+      its rot_amount() has had the term since f86901227 (2025), so
+      this is master's own gap (frozen-unfixed there). On food the
+      bit pair is the "decayed" word: raised by fire on a corpse
+      lying on the floor (erode_obj() ERODE_BURN, up to 3), set to 1
+      when a first bite knocks the hero out, or wished. The warning
+      said "rotten" where the meal can come out tainted. New static
+      rot_by(otmp, divisor) holds the sum; rot_amount() calls it with
+      its roll and the warning with 10, the worst case, so the
+      warning is never below the meal's own number. Only corpse
+      lines change. BATTERY (blessed scroll of food detection, no
+      sickness resistance): a wished "thoroughly decayed" newt
+      corpse 32-33 turns old and a "decayed" one 52-53 turns old -
+      PRE "The corpse smells like it could be rotten!", POST "...
+      could be tainted!"; a plain corpse of the same age gets no rot
+      warning on either build.
 - [ ] LOW: a pet still fetches a zombie's kill (minted 2026-11-12,
       session 325, catch-up 3 reviewer; record unless a ruling
       wants a change). dogmove.c's carry test is
@@ -36383,7 +36445,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       up, and it rises from the pet's pack. Master the same for the
       carry. Left out of BUG-3050 on purpose, with pray.c's Draugr
       kin test and muse.c.
-- [ ] LOW: a vampire refused a corpse still breaks conducts (minted
+- [x] LOW: a vampire refused a corpse still breaks conducts (minted
       2026-11-12, session 325, catch-up 3 reviewer and battery).
       eatcorpse() counts unvegan / unvegetarian (and can livelog
       "consumed animal blood for the first time") before its
@@ -36395,6 +36457,110 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       has the same order. The new "tainted" refusal (BUG-3050) sits
       in doeat() ahead of all of it; moving the two older ones there
       would fix this.
+      CLOSED 2026-11-15, session 337 (BUG-3158, commit pending;
+      master frozen-unfixed). New static vamp_refuses_corpse() holds
+      the two refusals and doeat() asks it after the tin case and
+      before anything is counted or touched; the old tests ran after
+      touchfood(), so it reads `oeaten ? oeaten : obj_nutrition()`
+      and every corpse state gets the answer it got. The corpse's
+      rot is worked out once in doeat() and handed to
+      eatcorpse(otmp, rotted); return code 3 and doeat()'s arm for
+      it are gone. A refusal forgets the remembered meal only when
+      it is this very corpse (reviewer LOW: a half-drained corpse
+      left on another level keeps its id and is resumed on return).
+      Accepted differences: a refusal no longer wipes the memory of
+      a different interrupted meal, and for a carried stack the
+      freshness window is read from the stack, not from the piece
+      split off it (up to 7 turns either way). The "tainted"
+      refusal stays where it is. BATTERY (a vampire Barbarian;
+      conducts by gdb as food / unvegan / unvegetarian): a stack of
+      two jackal corpses 25 turns old, "coagulated" - PRE 0/0/0 ->
+      0/1/1, the stack split in two, costly_alteration(COST_BITE)
+      called, two "for the first time" livelog lines; POST nothing
+      counted, one stack, no line, no time used. A partly eaten
+      corpse, "no blood left" - PRE unvegan and unvegetarian +1 and
+      the "first time" line again; POST nothing. A fresh corpse
+      drains and counts 1/1/1 on both. A drain interrupted and
+      refused 30 turns later leaves nothing remembered, also after
+      save and restore. On the final build a horse corpse half
+      drained on Dlvl 1 is resumed ("You resume draining your
+      corpse.", no new food count) after a refusal on Dlvl 2. No
+      shop was at hand; the bite charge is shown by the
+      costly_alteration() call.
+- [x] LOW: a meal lost before the first bite still counts (minted
+      and CLOSED 2026-11-15, session 337, plan stress test;
+      BUG-3159, commit pending; vanilla's order, upstream row).
+      doeat() counted the food conduct and wrote "ate for the first
+      time - ..." before touchfood(); with 52 slots in use the piece
+      split off a stack is dropped, and when lava burns it or a hole
+      takes it touchfood() returns null and the count stayed. Master
+      rolls the count back there (its BUG-724) and the port had
+      never carried that. The conduct block now sits below
+      touchfood() and its null test, so the livelog line stays out
+      too; the move spent on the drop stays. BATTERY (a wizkit
+      filling 52 slots, levitating over a wished lava square, an
+      apple from a stack of two): "You see the apple hit lava and
+      burn up!" on both; PRE u.uconduct.food 1 and the livelog
+      line; POST 0 and no line, then the last apple counts once.
+- [x] LOW: a Draugr's "too fresh" test and the "rancid" name
+      disagree (minted and CLOSED 2026-11-15, session 337, plan
+      stress test; BUG-3161, commit pending; master the same,
+      frozen-unfixed). doeat() refused a Draugr while
+      `(moves - age) / 10 <= 3`; the name says "rancid" when
+      rot_amount() > 3, which also counts +2 cursed, -2 blessed and
+      the decay level. RULED (AskUserQuestion, as recommended):
+      the gate follows the name, master's stated intent in
+      f86901227 - a Draugr can eat a corpse exactly when its name
+      says rancid or very rancid. The gate is now
+      `rot_amount(otmp) <= 3L`. Against 0.9.3: uncursed unchanged
+      (40 turns), cursed edible from 20, blessed from 60, each level
+      of decay 10 turns sooner. BATTERY (a Draugr Barbarian, stacks
+      wished at one turn, tried from the floor): at 20 turns the
+      cursed stack reads "rancid" on both - PRE "Ugh... this corpse
+      is too fresh!", POST eaten; at 40 turns the blessed stack
+      reads plain on both - PRE eaten, POST "too fresh!"; uncursed
+      refused at 20 and eaten at 40 on both; blessed eaten at 60 on
+      both; a lizard corpse always eaten.
+- [x] LOW: a vampire's "coagulated" answer is re-rolled at every
+      try (minted and CLOSED 2026-11-15, session 337, reviewer;
+      BUG-3163, commit pending; master the same, frozen-unfixed).
+      Beside the fixed 8 to 15 turn window per corpse
+      (blood_freshness(), "cannot be re-rolled by retrying") the
+      test also used rot_amount()'s roll: for an uncursed corpse 10
+      to 15 turns old inside its window "coagulated" came up 5% to
+      30% of the time and a retry was free. RULED (AskUserQuestion,
+      as recommended): no roll for the hero - a vampire's rot is
+      `rot_by(otmp, 10L + 19L)`, the roll's slowest case, so an
+      uncursed corpse is good for its whole window, a cursed or
+      decayed one never, a blessed one for as long as the window
+      lasts (rejected: leave it; a refusal that costs the move).
+      BATTERY (the rot handed to vamp_refuses_corpse() logged): 15
+      tries on one corpse 20 turns old - the final build 0 every
+      time, the build before it 1 0 2 0 1 1 0 0 1 1 0 0 0 1 1;
+      four corpses at 10 turns or on the last turn of their windows
+      all drain, one a turn past its window is refused; a fresh
+      cursed corpse is refused and a fresh blessed one drains.
+- [ ] LOW, record: session 337 residue (minted 2026-11-15, plan
+      stress test, reviewer and batteries; record unless a ruling
+      wants a change). (a) The one-use food sense from a blessed
+      scroll of food detection is spent on the prompt before any
+      refusal that follows it (a vampire's, a Draugr's "too fresh",
+      "You cannot eat that!", a worn item); master the same. (b)
+      edibility_prompts() says "could be rotten!" for a decayed
+      lizard or lichen corpse, which eatcorpse() never treats as
+      rotten (the `orotten ||` test). (c) eatcorpse() sets
+      `orotten = TRUE` after a first-bite knockout, which lowers a
+      decay level of 2 or 3 to 1. (d) `glass named Bob` reads
+      "glass " as a material, so the " named " cut never fires
+      (traced, not run). (e) The 1-in-7 rotten roll can end a
+      vampire's drain at once ("Blecch!  Rotten blood!", no
+      nutrition, conducts counted) and quarters a Draugr's rancid
+      meal with no line. (f) A fresh corpse merges into an old
+      carried stack and the stack's age is averaged: mergeable()
+      tests freshness only for a Draugr or ghoul, so a vampire can
+      pull an old stack's blood age down (seen: three corpses
+      averaged from 21 turns to 14). (g) An overview line cut at the
+      end of its buffer has no final full stop.
 - [ ] LOW: census slice 7 residue (minted 2026-11-11, session 324,
       plan stress test, reviewer and batteries; record unless a
       ruling wants a change). (a) The stun arm of jump() sits before
@@ -36466,7 +36632,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       start_mon_stoning() rewrites it). (l) Master e0756a1f6's honey
       badger line in searches_for_item() is dead at master HEAD (the
       function returns early for an animal) and is not ported.
-- [ ] LOW: a "<color> glass named <name>" wish garbles the name
+- [x] LOW: a "<color> glass named <name>" wish garbles the name
       (minted 2026-11-13, session 328, reviewer + battery). The
       wish `blue glass named Bob` gives "a blue gem named f blue
       glass" on the branch before and after the session's fix:
@@ -36476,7 +36642,26 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (d->name points there). Vanilla 5.0 the same (read in
       fd4d169b6; not run there). Fix shape: build the canonical
       text somewhere the name is not, or move the name first.
-- [ ] LOW: the overview's feature line is built by unbounded
+      CLOSED 2026-11-15, session 337 (BUG-3157, commit pending).
+      The canonical text is built in d->globbuf and d->bp points
+      there, as the glob arm of readobjnam_postparse1() already
+      does, so nothing is written over the text d->name, d->un and
+      d->dn point at. Master (3.6 readobjnam()) has the bug too. The
+      other in-place lengthenings (mice -> mouse, beartrap -> bear
+      trap, the " mail" retry) grow by 1 to 5 bytes, inside the gap
+      " named " leaves, and are unchanged. BATTERY: `blue glass named
+      Bob` PRE "a blue gem named f blue glass", POST "a blue gem
+      named Bob"; `piece of blue glass named Bob` PRE "named ass",
+      POST Bob; a 38-character name intact on POST; `worthless piece
+      of blue glass named Bob`, `blue glass`, `glass` and `2 red
+      glass called junk` the same on both; `plaid glass named Bob`
+      "Nothing fitting that description exists in the game." on
+      both, after which the retry prompt offers "plaid glass" on POST
+      where PRE offered the rewritten "worthless piece of plaid
+      glass". Side effect, recorded: a prefix-free "<x> glass" that
+      names no color now also tries the typed text against the
+      player's own #called names, as every other wish text does.
+- [x] LOW: the overview's feature line is built by unbounded
       appends (minted 2026-11-13, session 328, reviewer).
       dungeon.c print_mapseen() adds shops, temples, altars,
       thrones, forges, fountains, trees, grass and the rest to
@@ -36487,6 +36672,19 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       230); the branch has more clause kinds than vanilla (forges,
       magic chests, dead trees, grass, sand). Bound the macros
       and the temple / altar appends with Snprintf().
+      CLOSED 2026-11-15, session 337 (BUG-3162, commit pending).
+      Every append in print_mapseen()'s "of interest" block is now
+      Snprintf(eos(buf), sizeof buf - strlen(buf), ...): the two
+      macros, the one-shop clause, the four " to <god>" names,
+      " (fractured)" and the closing full stop. Real lines are far
+      from the limit - the Astral Plane's three temples about 84
+      characters; every terrain kind, a shop, a temple and an altar
+      about 228; all clauses at once about 780 - and vanilla's
+      shorter list cannot reach it at all (no upstream row). BATTERY
+      (POST only, the counts forced by gdb inside print_mapseen()):
+      the line stops at 255 characters, the menu shows, the game
+      goes on; a plain #overview afterwards reads "A fountain.". A
+      line cut this way has no final full stop.
 - [ ] LOW: unported-behaviors slice residue (minted 2026-11-13,
       session 329, plan stress tests, reviewer and batteries; record
       unless a ruling wants a change). (a) The waterline tests use
@@ -40761,7 +40959,7 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-09 | nhl_gamestate() copies `u` to gg.gmst_ubak only after its store loop has setnotworn()ed and freeinv()ed the kit, and the restore memcpy()s that stripped copy over the re-seated kit: after the tutorial every worn item shows worn but gives nothing (a Wizard's cloak of magic resistance: ANTIMAGIC ext 0, no MR in ^X) until taken off and put back on; carried-artifact grants, u.uhave and luck the same way. Fix: copy `u` before the loop (keep the re-seat before the restore memcpy). The init_uhunger() after the memcpy is redundant in vanilla (removed on the branch for a non-900 start; leave it out of the patch). Official_nh50 b0c09c878; BUG-2931, src/nhlua.c, branch commit 6d67bd6c9 | fixed on the branch; not sent; triage pending |
 | 2026-11-10 | #loot with autounlock set to untrap but not apply-key: do_loot_cont() calls pick_lock() with a Null tool; once "Check <box> for a trap?" is declined (or tknown already says no trap) the arm `else if (autounlock && (flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0)` is skipped and the generic arm asks "There is <a box> here; unlock it?" for the zeroed dummy tool; yes starts a 50-turn picklock() occupation with chance 0 that can only be given up. Fix: make the arm `else if (autounlock)`, so a Null tool answers 'q'. The door branch is not affected (doopen_indir() only calls with a real key). Read in Official_nh50 b0c09c878 src/lock.c (same three-arm chain), not reproduced there yet; BUG-2988, src/lock.c, branch commit da9110cab | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | A rock mole walks between undiggable iron bars: passes_bars() admits a metallivore so that it can eat its way through, but mfndpos()'s gate that keeps bar-eaters off W_NONDIGGABLE bars lists only dmgtype AD_RUST / AD_CORR, so a rock mole (MZ_SMALL, not verysmall) is let onto the square, m_move() declines to eat the undiggable bars and prints "passes between the iron bars". Fix: add `|| (metallivorous(mdat) && !passes_walls(mdat))` to the gate's attack test; the passes_walls() term keeps a xorn, which phases through undiggable bars today, from being turned away (the branch does this through its own eats_bars() helper, which also carries EvilHack rulings - a vanilla patch should not copy it). Read in Official_nh50 b0c09c878 src/mon.c, src/mondata.c and src/monmove.c (same three pieces), not reproduced there; on the branch a rock mole stayed outside undiggable bars for 31 turns after the fix, the before case was not run; BUG-2998, src/mon.c, branch commit e18f68c13 | fixed on the branch; not sent; triage pending |
-| 2026-11-11 | A fireball that reaches the edge of the Plane of Air prints "The fireball vanishes into the aether!" and then explodes anyway: dobuzz() sets `type = ZT_WAND(ZT_FIRE); /* skip pending fireball */` before the break, but since 5212e4b3d (2024, the reflected poison gas fix) the tail tests the set-once `fireball` boolean where it used to test `type == ZT_SPELL(ZT_FIRE)`, so the rewrite skips nothing and explode() runs at the last square with the rewritten type. Only the ray form does this (an Unskilled or Basic cast). Fix: clear `fireball` beside the type rewrite, or have the tail test the type again. Read in Official_nh50 b0c09c878 src/zap.c (same lines as the branch), not reproduced; 3.6 and EvilHack master skip the explosion; no BUG id yet (Phase 2 LOW row, session 322) | found; not fixed on the branch; not sent; triage pending |
+| 2026-11-11 | A fireball that reaches the edge of the Plane of Air prints "The fireball vanishes into the aether!" and then explodes anyway: dobuzz() sets `type = ZT_WAND(ZT_FIRE); /* skip pending fireball */` before the break, but since 5212e4b3d (2024, the reflected poison gas fix) the tail tests the set-once `fireball` boolean where it used to test `type == ZT_SPELL(ZT_FIRE)`, so the rewrite skips nothing and explode() runs at the last square with the rewritten type. Only the ray form does this (an Unskilled or Basic cast). Fix: clear `fireball` beside the type rewrite, or have the tail test the type again. Read in Official_nh50 b0c09c878 src/zap.c (same lines as the branch, and still so in fd4d169b6); 3.6 and EvilHack master skip the explosion. Run on the branch 2026-11-15: the blast goes off centred one square off the map with the rewritten wand type and kills a monster on the last column. Fix on the branch: the tail tests the type again; BUG-3156, branch commit pending | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | `nethack -s -p <code>` / `-s -r <code>` with a code that names no role or race lists every record entry whose own code also fails to resolve: score_wanted() compares `str2role(nxt) == str2role(t1->plrole)` (and the str2race() pair), and both sides are ROLE_NONE (-1) for an unknown argument and an old or foreign entry (a pre-3.3.0 record line, a role or race this binary does not have). Fix: require the command-line code to resolve first - `(want = str2role(nxt)) >= 0 && want == str2role(t1->plrole)`, the same for races. Read in Official_nh50 b0c09c878 src/topten.c score_wanted() (same two comparisons), not reproduced there; on the branch a seeded record with an entry of codes "Zzz" / "Qqq" is no longer listed by `-p Xyz` or `-r Xyz`; EvilHack master fixed it as 881fd6aef; BUG-3013, src/topten.c, branch 34b506fea | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | An engulfer that dies in lava with the hero inside frees the hero with no message: minliquid_core()'s water branch says "<Monster> sinks as water rushes in and flushes you out." when `engulfing_u(mtmp)`, but the lava branch has only the burn line gated on cansee(), which a swallowed hero never passes. Reached when a walking engulfer (a purple worm, say) swallows a hero who is levitating or flying over lava: on its next move it is gone and the hero is simply outside again. Fix: give the lava branch its own engulfed-hero line before the monster dies (the branch prints "<Monster> burns to a crisp as lava rushes in and forces you out.", built from on_fire()'s death verb, and skips the plain burn line in that case). Read in Official_nh50 b0c09c878 src/mon.c minliquid_core() (lava branch: cansee() line only; water branch: the "rushes in" line), not reproduced there; a message gap, not a state bug; BUG-3019, src/mon.c, branch 34b506fea | fixed on the branch; not sent; triage pending |
 | 2026-11-11 | A magical trap is exploded before it is deleted, in dig.c dighole() and zap.c maybe_explode_trap(): `explode(...); deltrap(ttmp);`. explode() damages the steed on the hero's square; a steed it kills dismounts the hero through dismount_steed() -> float_down(), which calls dotrap() for a trap not met on arrival; a polymorph trap, a level teleporter and one magic trap in 15 delete themselves there; the caller then runs deltrap() on the freed trap ("deltrap: no preceding trap!" or a use-after-free). Needs a mounted hero over a magical trap made under them or reached by a hurtle, and a blast that kills the steed. Fix: delete the trap first, then explode. Each link read in Official_nh50 b0c09c878 and on the branch, NOT reproduced (the branch battery ran the mounted dig on the fixed build only) - reproduce on vanilla before cutting a patch; BUG-3034, src/dig.c + src/zap.c, branch commit f4d0860b9 | fixed on the branch; not sent; needs a vanilla repro |
@@ -40806,6 +41004,8 @@ hacklib.c. At upstream 7b2e7e8b4 (checked 2026-11-02) the 21 open PRs
 | 2026-11-15 | dothrow.c mhurtle_step(), the branch that moves the hero with a hurtling steed, sets the hero's position but never calls check_special_room(), which hurtle_step() calls after every step: a rider knocked across a shop's edge keeps a stale u.ushops until the next ordinary move (no greeting, no "Please pay", a robbery charged a move late, and addtobill() reads the stale value). Same code in fd4d169b6. Run on the branch 2026-11-15: `mhurtle(u.usteed, ...)` two steps out of a shop with an unpaid item printed nothing on the old binary until the next step. Fix on the branch: the call, then a stop if the shopkeeper's extra move killed the steed, unseated the rider or moved the pair; BUG-3153, branch commit 42994bcda | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | dothrow.c hurtle_step() moves the hero without setting u.ux0 / u.uy0, and shk.c u_left_shop() reads `levl[u.ux0][u.uy0].edge` to tell "just stepped onto the shop's edge" from "was already on it" (and call_kops()'s nearshop argument reads it too). Seen on the branch 2026-11-15: a kick recoil onto a shop door with an unpaid item printed no "Please pay before leaving." because u.ux0 still named the door from an earlier step, and the Kops line after a hurtle out differed ("are after you!" where a step gives "appear!"). Same code in fd4d169b6. Read and seen, not fixed | open (vanilla's own; Phase 2 LOW record row); not sent; triage pending |
 | 2026-11-15 | sp_lev.c flip_level() flips each room in rooms[] and that room's sbrooms[], so a subroom's own subrooms keep their old bounds while the map moves under them. themerms.lua's "Nesting rooms" nests three deep on ordinary levels; no special level does, so the reach is #wizfliplevel, #wizloaddes and nh.flip_level(). Run on the branch 2026-11-15: after a flip the innermost rooms' rectangles held none of their own squares. Same loop in fd4d169b6. Fix on the branch: walk subrooms[0 .. nsubroom - 1], where a room nested at any depth sits once; BUG-3155, branch commit 9623d8220. Sibling, not changed: link_doors_rooms() also walks one level of sbrooms[] (special levels only; des.room rooms get their doors through add_doors_to_room(), which recurses) | fixed on the branch; not sent; triage pending |
+| 2026-11-15 | A wish for `blue glass named Bob` gives a gem named "f blue glass": readobjnam_postparse1() cuts " named " in place and points d->name 7 bytes on in the same buffer, then readobjnam_postparse2()'s glass arm copies "worthless piece of " + the color text back over d->bp, 19 bytes longer, over the start of the name (`piece of blue glass named Bob` gives "ass"; d->un and d->dn sit there the same way). A failed "<x> glass" wish also pre-fills the retry prompt with the rewritten text. Same code in fd4d169b6 and in 3.6 readobjnam(). Run on the branch 2026-11-15. Fix on the branch: build the canonical text in d->globbuf and point d->bp there, as the glob arm does; BUG-3157, src/objnam.c, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-15 | A meal that never happens still counts: doeat() counts the food conduct and writes "ate for the first time - ..." to the livelog, then touchfood() splits one item off a carried stack, cannot put it back into a full pack and drops it, and when lava burns the piece (or a hole takes it) touchfood() returns null and doeat() returns with the count kept. Same order in fd4d169b6; EvilHack master rolls the count back. Run on the branch 2026-11-15 (52 slots in use, levitating over lava, an apple from a stack of two: "You see the apple hit lava and burn up!", u.uconduct.food 1 and the livelog line). Fix on the branch: count the conduct after touchfood() succeeds; BUG-3159, src/eat.c, branch commit pending | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -41509,6 +41709,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-14 | Subroom slots on a reload (Phase 2 session 334, AskUserQuestion x2 with 3 questions, all as recommended; the batteries were approved with the plan). (1) SLICE: the subroom slot MED row, tried in play as a shop theft route first (the recent bug LOWs, the verify rows and past-commit review groups 3-4 not taken). (2) doc/Guidebook.txt's stray date line (November 12 -> 13, left by a rebuild): leave it alone - not restored, not committed. (3) BAD SLOTS: when a level's subroom records do not name a clean set of slots, log it with impossible() and load the level as read (rejected: a panic like the count guards, which would leave a bones file panicking every game that draws it; loading in silence). It fits the 2026-11-14 guard policy's repair clause - the records are fixed size, so nothing after them is misread. Decided in the plan and approved with it: fix on the restore side, by each record's own roomnoidx, with no change to the save format (rejected: writing the subrooms in slot order, which would not heal a level that has already swapped). The Plan stress test replaced my first draft, which read each subroom straight into its slot and panicked: that panics on a three-deep level written before 09af54b4f. The door count after a reload, found by the stress test and the reviewer, was kept out of this commit as a different bug and minted as its own MED row. |
 | 2026-11-14 | Door count, shop-door block, shop ban (Phase 2 session 335, AskUserQuestion x2 with 4 questions, all as recommended; the batteries were approved with the plan). (1) SLICE: both room rows - the door count MED row and part (a) of the verify row, the shopkeeper's diagonal block (the door count alone, the recent bug LOWs and past-commit review groups 3-4 not taken). (2) SHOP BAN, found while tracing the block's callers: two of master 95bf72013's five shk.c hunks were never ported, so a banned hero was told off and let in. Fold in now as its own commit (rejected: a MED row for a later slice), and add the banned hero to the diagonal entry block's reasons. (3) DOOR GONE: the keeper blocks the diagonal step in at any open doorway, whether the shop door is broken or was destroyed outright (rejected: vanilla's and master's broken-only test, which lets a hero dig the door away and step in with a pick-axe). (4) BONES BAN: at game end every keeper's ban is cleared, the first inheritor included (rejected: master's exact shape, which leaves that keeper banning whoever finds the bones - archived as a master bug, frozen-unfixed). Decided in the plan and approved with it: a door record that does not fit the door list gets an impossible() and is left out of the count, no panic (the session 334 BAD SLOTS reasoning); the block's line prints for a real step only, never while a move is being tested or planned; the "intact doorway" lines only at an intact doorway. Stated in the plan as who loses under (2), as on master: a Draugr cannot walk into a tended shop, a Convict must cover the shirt before a keeper first sees it, and a ban lasts the game for that keeper. Left out as different bugs and minted as LOW rows: forced movement (jump, recoil, grapple) past a doorless shop door, and the rest of the Convict patch unread against the branch. |
 | 2026-11-15 | Forced movement past the shopkeeper, pet-name config lines, nested room flip (Phase 2 session 336, AskUserQuestion x2 with 3 questions, all as recommended; the batteries were approved with the slice and the plan). (1) SLICE: both - the forced-movement verify row, run in play first, and the Convict patch census side by side (either alone and the recent bug LOWs not taken). (2) SHOP DOOR: BLOCK ALL OF IT - whatever moves the hero (a jump, a throw or kick recoil, a knockback, a wand of striking, a telekinesis pull, an artifact smash, a slip, the grappling hook's yank), the diagonal move past the keeper's post stops one square short with the block line, under the walking step's own conditions; a jump is cut short and costs its turn and hunger; the way in is barred at an intact open door too (rejected: only the hero's own moves, leaving a hero pushed or pulled by a monster to go through and be charged as a robber; and leaving it as vanilla and master have it). (3) FOLD-INS, each its own commit: the five pet-name config-file lines and the nested subroom flip (rejected: rows only; the flip is wizard-mode reach, fixed because it is cheap and local). Decided in the plan and approved with it, after the Plan stress test: the hero's steed and the thrown chained ball are forced movement too and get the same test; a hero the keeper would ban on sight (a Draugr, a visible striped shirt, the Striped Shirt of Liberation) is barred on the diagonal before he has said so, which also covers a keeper who cannot speak; the steed's step runs the shop checks at once, as the hero's does; #jump is not refused up front - it starts and the keeper stops it. Stated in the plan as who loses: a levitating or jumping thief at a broken shop door, and a Draugr, a shirted Convict, a rider, an invisible hero or one with a pick-axe who jumps, floats, is knocked or is dragged by the ball. Untouched: digging in through a wall, teleporting in, a pick-axe in a sack. Left out and recorded: a customer the keeper has no reason to bar still leaves an intact doorway diagonally by recoil or spell jump (vanilla's own); other placements of the hero with no doorway or keeper test (LOW verify row); link_doors_rooms()'s one-level walk of subrooms (no level nests deeper). FOLLOW-UP 2026-11-15, after the commits landed: the maintainer asked whether the two things left alone are worth fixing and to mint rows if so. Both minted LOW: (a) a hurtling hero or monster crosses an intact doorway diagonally - worth fixing as a rule of the game, no theft left in it, and it needs a ruling when taken (the hero's penalty, the jumping spell's exemption, monsters); (b) link_doors_rooms() - latent, no reach today, a few lines. CORRECTION to what was said at hand-off: only the subroom-array walk would reorder the door table; a recursive helper makes the same calls in the same order for every existing level. |
+| 2026-11-15 | Five small bugs and three neighbours (Phase 2 session 337, AskUserQuestion x3 with one question each, all as recommended; the batteries were approved with the plan). (1) SLICE: the small real bugs - the fireball off the Plane of Air, the glass wish's name, the refused vampire's conducts, the food-sense rot, the overview line (not taken: the doorway rule thread, the wording and parity rulings, the verify rows and census leftovers). (2) DRAUGR "TOO FRESH" GATE, found by the plan stress test in master and the branch alike: THE GATE FOLLOWS THE NAME - a Draugr can eat a corpse exactly when its name says rancid or very rancid, master's stated intent in f86901227 (rejected: leave 0.9.3's raw-age gate and record the mismatch). Against 0.9.3: uncursed corpses unchanged at 40 turns, cursed ones edible from 20, blessed ones from 60, each level of decay 10 turns sooner. (3) BLOOD ROLL, found by the reviewer: NO ROLL FOR THE HERO - whether a corpse's blood is still good never changes from one try to the next, as blood_freshness()'s own comment asks; an uncursed corpse is good for its whole 8 to 15 turn window (what a patient player got by retrying for free), a cursed or decayed one never, a blessed one for as long as the window lasts (rejected: leave it and record; a refusal that costs the move). Decided in the plan and approved with it, after the Plan stress test: the vampire's two refusals are asked before the conduct count and touchfood(), with the rot worked out once in doeat(); the food conduct is counted only once touchfood() has the food in hand (master's rollback for a piece lost to lava or a hole had never been ported; counting late also keeps the livelog line out); a refusal no longer wipes the memory of a different interrupted meal; for a carried stack the freshness window is read from the stack rather than from the piece split off it; the food-sense warning and the meal share one rot sum; the overview line is cut at the end of its buffer rather than continued on a second line. Taken from the reviewer (PASS, four LOW): a refusal forgets the remembered meal only when it is the corpse refused, so a half-drained corpse left on another level is resumed on return. Left out and recorded in a residue row: the food sense spent before a refusal, the false "could be rotten!" for a decayed lizard or lichen corpse, the first-bite knockout lowering a decay level, "glass named Bob" read as a material, the 1-in-7 rotten roll on a vampire's or a Draugr's meal, a fresh corpse merging into an old stack and averaging its blood age, the cut overview line's missing full stop. |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
