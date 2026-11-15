@@ -80,7 +80,7 @@ staticfn void mcast_bolt(struct monst *, struct monst *, int);
 staticfn void mcast_vuln_you(struct monst *, struct monst *);
 staticfn void mcast_summon_minion(struct monst *, struct monst *);
 staticfn int mcast_psi_bolt(struct monst *, struct monst *, int);
-staticfn int mcast_open_wounds(struct monst *, struct monst *, int);
+staticfn int mcast_open_wounds(struct monst *, struct monst *);
 staticfn void mcast_insects(struct monst *, struct monst *);
 staticfn void mcast_blind_you(struct monst *, struct monst *);
 staticfn int mcast_paralyze(struct monst *, struct monst *);
@@ -91,6 +91,7 @@ staticfn boolean is_undirected_spell(struct monst *, int);
 staticfn boolean mcast_out_of_reach(struct monst *, struct monst *, int,
                                     boolean);
 staticfn boolean mcast_barred_at_hero(struct monst *, struct monst *, int);
+staticfn boolean mcast_can_call_undead(struct monst *);
 staticfn boolean spell_would_be_useless(struct monst *, struct monst *,
                                         int, boolean);
 
@@ -188,7 +189,7 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
 {
     int *list = NULL;
     int i, candidate, spellval, len = 0;
-    int maxlev, spell_count;
+    int maxlev, cap, spell_count;
 
     /* spells learned from spellbooks get first consideration; the
        chance scales with repertoire size: 15% base plus 5% per
@@ -224,8 +225,18 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
        comes from the form (gy.youmonst.m_lev is never maintained) */
     spellval = rn2((mtmp == &gy.youmonst) ? mons[u.umonnum].mlevel
                                           : (int) mtmp->m_lev);
-    if (spellval > maxlev && rn2(maxlev))
+    cap = maxlev;
+    if (adtyp == AD_CLRC) {
+        /* the clerical ladder runs two steps past its last spell,
+           where a caster usually opens wounds (rolled on the summon
+           minion rung below); a roll higher still is thrown again
+           beneath itself until it fits, or now and then stands */
+        cap += 2;
+        while (spellval > cap && rn2(cap + 1))
+            spellval = rn2(spellval);
+    } else if (spellval > maxlev && rn2(maxlev)) {
         spellval = rn2(maxlev);
+    }
 
     /* find the highest spell in the list we could cast, or fall back
        to the first spell in the list; the druid substitution runs on
@@ -242,13 +253,25 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
            spells; roll before the substitution and useless tests so
            the chosen spell's own flags and usefulness decide, and
            fall through to the next rung when the pick proves
-           useless */
+           useless. The summon minion rung also answers for the two
+           steps above it: open wounds two times in three, and always
+           for a roll that stayed higher still. Demons (other than
+           Lolth, who keeps her insects) and both Kathryns cast the
+           vulnerability curse where others summon insects */
         if (candidate == MCAST_CONFUSE_YOU && rn2(2))
             candidate = MCAST_PROTECTION;
         else if (candidate == MCAST_AGGRAVATION && rn2(2))
             candidate = MCAST_REFLECTION;
         else if (candidate == MCAST_SUMMON_MONS && !rn2(3))
             candidate = MCAST_CANCELLATION;
+        else if (candidate == MCAST_SUMMON_MINION && spellval > maxlev
+                 && (spellval > cap || rn2(3)))
+            candidate = MCAST_OPEN_WOUNDS;
+        else if (candidate == MCAST_INSECTS
+                 && ((is_demon(mtmp->data) && mtmp->data != &mons[PM_LOLTH])
+                     || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+                     || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]))
+            candidate = MCAST_VULN_YOU;
         candidate = druid_ward_subst(mtmp, candidate);
         /* the bolt rung stands for a fire/ice/psi choice; roll it
            now so the chosen element's own resistances decide, and
@@ -264,8 +287,12 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
            falls on that spell alone, rather than the pick sliding
            down to a lower rung; a spell the caster would never cast
            at the hero anyway (peaceful caster, hero out of sight)
-           slides down as it does next to the hero */
-        if (mcast_out_of_reach(mtmp, mdef, candidate, TRUE)
+           slides down as it does next to the hero. A call undead
+           roll by a caster that cannot call undead goes back the
+           same way, or it would slide onto insects, the rung below */
+        if ((mcast_out_of_reach(mtmp, mdef, candidate, TRUE)
+             || (candidate == MCAST_CALL_UNDEAD
+                 && !mcast_can_call_undead(mtmp)))
             && !mcast_barred_at_hero(mtmp, mdef, candidate))
             return candidate;
         if (!spell_would_be_useless(mtmp, mdef, candidate, TRUE))
@@ -297,15 +324,6 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
         && (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
             || mtmp->data == &mons[PM_ASMODEUS]))
         return MCAST_LIGHTNING;
-
-    /* demons (other than Lolth, who keeps her insects) and both
-       Kathryns favor the vulnerability curse; substitute it for half
-       of their insect picks */
-    if (candidate == MCAST_INSECTS && rn2(2)
-        && ((is_demon(mtmp->data) && mtmp->data != &mons[PM_LOLTH])
-            || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]))
-        return MCAST_VULN_YOU;
 
     return candidate;
 }
@@ -2001,10 +2019,17 @@ mcast_psi_bolt(struct monst *mtmp, struct monst *mdef, int dmg)
     }
 }
 
+/* open wounds reaches its target from a distance and carries dice of
+   its own, rolled from the caster's level: it does not use the dice
+   of the caster's spell attack, and against the hero only magic
+   resistance halves it */
 staticfn int
-mcast_open_wounds(struct monst *mtmp, struct monst *mdef, int dmg)
+mcast_open_wounds(struct monst *mtmp, struct monst *mdef)
 {
     boolean udefend = (mdef == &gy.youmonst);
+    boolean yours = (mtmp == &gy.youmonst);
+    int ml = yours ? mons[u.umonnum].mlevel : min((int) mtmp->m_lev, 50);
+    int dmg = d((ml / 2) + 1, 6);
 
     if (udefend) {
         if (Antimagic) {
@@ -2024,14 +2049,8 @@ mcast_open_wounds(struct monst *mtmp, struct monst *mdef, int dmg)
             Your("body is covered with painful wounds!");
         return dmg;
     } else {
-        boolean yours = (mtmp == &gy.youmonst);
-        int ml = yours ? mons[u.umonnum].mlevel
-                       : min((int) mtmp->m_lev, 50);
-
         if (!mdef || DEADMONSTER(mdef))
             return 0;
-        /* rolled from the caster's level, not the incoming dmg */
-        dmg = d((ml / 2) + 1, 6);
         if (resist(mdef, 0, 0, FALSE)) {
             shieldeff(mdef->mx, mdef->my);
             dmg = (dmg + 1) / 2;
@@ -2487,7 +2506,7 @@ mcast_spell(struct monst *mtmp, struct monst *mdef, int dmg, int spellnum,
         dmg = 0;
         break;
     case MCAST_OPEN_WOUNDS:
-        dmg = mcast_open_wounds(mtmp, mdef, dmg);
+        dmg = mcast_open_wounds(mtmp, mdef);
         break;
     case MCAST_LEARNED_SPELL:
         dmg = cast_learned_spell(mtmp, mdef, learned_otyp);
@@ -2576,6 +2595,18 @@ mcast_barred_at_hero(struct monst *mtmp, struct monst *mdef, int spellnum)
         && !couldsee(mtmp->mx, mtmp->my))
         return TRUE;
     return FALSE;
+}
+
+/* call undead belongs to undead and demonic casters, evil priests and
+   quest nemeses; the hero gets no free pets, whatever the form */
+staticfn boolean
+mcast_can_call_undead(struct monst *mtmp)
+{
+    if (mtmp == &gy.youmonst)
+        return FALSE;
+    return (is_undead(mtmp->data) || is_demon(mtmp->data)
+            || (mtmp->ispriest && mon_aligntyp(mtmp) < A_NEUTRAL)
+            || mtmp->data->msound == MS_NEMESIS);
 }
 
 /* Some spells are useless under some circumstances. */
@@ -2829,14 +2860,8 @@ spell_would_be_useless(
         }
         break;
     case MCAST_CALL_UNDEAD:
-        /* no free pets for the hero, whatever the form */
-        if (yours)
-            return TRUE;
-        /* only undead or demonic casters, evil priests, and quest
-           nemeses have this in their repertoire */
-        if (!is_undead(mtmp->data) && !is_demon(mtmp->data)
-            && !(mtmp->ispriest && mon_aligntyp(mtmp) < A_NEUTRAL)
-            && mtmp->data->msound != MS_NEMESIS)
+        /* not in most casters' repertoire, and never the hero's */
+        if (!mcast_can_call_undead(mtmp))
             return TRUE;
         /* no reinforcements from the hero's own side */
         if (mtmp->mtame || mtmp->mpeaceful)
