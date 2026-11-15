@@ -26,7 +26,9 @@ staticfn void cpostfx(int);
 staticfn void use_up_tin(struct obj *) NONNULLARG1;
 staticfn void consume_tin(const char *);
 staticfn void start_tin(struct obj *);
-staticfn int eatcorpse(struct obj *);
+staticfn long rot_by(struct obj *, long);
+staticfn boolean vamp_refuses_corpse(struct obj *, long);
+staticfn int eatcorpse(struct obj *, long);
 staticfn void start_eating(struct obj *, boolean);
 staticfn void garlic_breath(struct monst *);
 staticfn boolean fprefx(struct obj *);
@@ -2198,18 +2200,14 @@ rottenfood(struct obj *obj)
     return 0;
 }
 
-/* called when a corpse is selected as food */
-/* how rotted a corpse is; also consulted by objnam.c for the rot
-   state a draugr hero perceives in corpse names */
-long
-rot_amount(struct obj *otmp)
+/* a corpse's rot when its age is divided by divisor: one point for
+   every that many turns, two more or two fewer for a cursed or a
+   blessed one, and one more for each level of decay */
+staticfn long
+rot_by(struct obj *otmp, long divisor)
 {
     long age = peek_at_iced_corpse_age(otmp);
-    long rotted = 0L;
-
-    /* Draugr need to know when a corpse is rotted, and therefore
-       edible. Thus, all corpses rot at a consistent rate for them */
-    rotted = (svm.moves - age) / (10L + (Race_if(PM_DRAUGR) ? 0 : rn2(20)));
+    long rotted = (svm.moves - age) / divisor;
 
     if (otmp->cursed)
         rotted += 2L;
@@ -2222,11 +2220,52 @@ rot_amount(struct obj *otmp)
     return rotted;
 }
 
+/* how rotted a corpse is; also consulted by objnam.c for the rot
+   state a draugr hero perceives in corpse names */
+long
+rot_amount(struct obj *otmp)
+{
+    /* Draugr need to know when a corpse is rotted, and therefore
+       edible. Thus, all corpses rot at a consistent rate for them */
+    return rot_by(otmp, 10L + (Race_if(PM_DRAUGR) ? 0 : rn2(20)));
+}
+
+/* a vampire is about to start on a corpse: TRUE, with the reason given,
+   if there is nothing in it to drink; this is asked before the meal
+   counts for anything, so before touchfood(), and rotted is the
+   corpse's rot as rolled by the caller */
+staticfn boolean
+vamp_refuses_corpse(struct obj *otmp, long rotted)
+{
+    /* what touchfood() makes of a corpse that nobody has started on */
+    unsigned left = otmp->oeaten ? otmp->oeaten : obj_nutrition(otmp);
+
+    /* Vampires only drink the blood of very young, meaty corpses;
+       is_edible only allows meaty corpses here. Blood is assumed to
+       be half of the corpses total nutritional value, and is assumed
+       to be meat and flesh */
+    if (otmp->odrained
+        ? left <= (unsigned) drain_level(otmp)
+        : left < safe_mons(otmp->corpsenm).cnutrit) {
+        pline("There is no blood left in this corpse!");
+        return TRUE;
+    }
+    if (otmp->corpsenm != PM_LIZARD /* lizards don't rot */
+        && (rotted > 0L
+            || (peek_at_iced_corpse_age(otmp)
+                + blood_freshness(otmp)) < svm.moves)) {
+        pline_The("blood in this corpse has coagulated!");
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* called when a corpse is selected as food; rotted is its rot, which
+   doeat() rolled before it let a vampire start on it */
 staticfn int
-eatcorpse(struct obj *otmp)
+eatcorpse(struct obj *otmp, long rotted)
 {
     int retcode = 0, tp = 0, mnum = otmp->corpsenm;
-    long rotted = 0L;
     int ll_conduct = 0;
     boolean isvamp = (maybe_polyd(is_vampire(gy.youmonst.data),
                                   Race_if(PM_VAMPIRE)));
@@ -2266,32 +2305,14 @@ eatcorpse(struct obj *otmp)
         }
         violated_vegetarian();
     }
-    if (!nonrotting_corpse(mnum))
-        rotted = rot_amount(otmp);
 
-    /* Vampires only drink the blood of very young, meaty corpses;
-       is_edible only allows meaty corpses here. Blood is assumed to
-       be half of the corpses total nutritional value, and is assumed
-       to be meat and flesh */
+    /* doeat() has already turned a vampire away from a corpse with
+       nothing in it to drink */
     if (isvamp) {
-        /* oeaten is set up by touchfood */
-        if (otmp->odrained
-            ? otmp->oeaten <= (unsigned) drain_level(otmp)
-            : otmp->oeaten < safe_mons(otmp->corpsenm).cnutrit) {
-            pline("There is no blood left in this corpse!");
-            return 3;
-        } else if (mnum == PM_LIZARD /* lizards don't rot */
-                   || (rotted <= 0L
-                       && (peek_at_iced_corpse_age(otmp)
-                           + blood_freshness(otmp)) >= svm.moves)) {
-            char *buf = corpse_xname(otmp, (const char *) 0, CXN_PFX_THE);
+        char *buf = corpse_xname(otmp, (const char *) 0, CXN_PFX_THE);
 
-            You("drain the blood from %s.", buf);
-            otmp->odrained = 1;
-        } else {
-            pline_The("blood in this corpse has coagulated!");
-            return 3;
-        }
+        You("drain the blood from %s.", buf);
+        otmp->odrained = 1;
     } else {
         otmp->odrained = 0;
     }
@@ -3501,6 +3522,7 @@ doeat(void)
     boolean isvamp = (maybe_polyd(is_vampire(gy.youmonst.data),
                                   Race_if(PM_VAMPIRE)));
     int ll_conduct = 0;
+    long rotted = 0L;
 
     if (Hidinshell) {
         You_cant("eat while hiding in your shell.");
@@ -3627,7 +3649,8 @@ doeat(void)
 
     /* a vampire will not drink from a zombie's kill that is about to
        rise; say so before the meal counts for anything (a real
-       zombie's corpse is too old to drain, and eatcorpse() says that) */
+       zombie's corpse is too old to drain, and vamp_refuses_corpse()
+       says that) */
     if (isvamp && otmp->otyp == CORPSE && !otmp->zombie_corpse
         && zombie_infected(otmp)) {
         pline_The("blood in this corpse is tainted!");
@@ -3687,16 +3710,24 @@ doeat(void)
         return ECMD_TIME;
     }
 
-    /* KMH, conduct */
-    if (!u.uconduct.food++) {
-        if (isvamp)
-            livelog_printf(LL_CONDUCT,
-                           "consumed blood for the first time - %s",
-                           food_xname(otmp, FALSE));
-        else
-            livelog_printf(LL_CONDUCT, "ate for the first time - %s",
-                           food_xname(otmp, FALSE));
-        ll_conduct++;
+    /* a corpse's rot is rolled once, here: it can turn a vampire away,
+       and that has to happen before the meal counts for anything */
+    if ((otmp->otyp == CORPSE || otmp->globby) && ismnum(otmp->corpsenm)) {
+        if (!nonrotting_corpse(otmp->corpsenm)) {
+            /* no roll for a vampire, who gets the slowest rot the roll
+               allows: whether the blood is still good must not change
+               from one try to the next (see blood_freshness()) */
+            rotted = isvamp ? rot_by(otmp, 10L + 19L) : rot_amount(otmp);
+        }
+        if (isvamp && otmp->otyp == CORPSE
+            && vamp_refuses_corpse(otmp, rotted)) {
+            /* the tests above may have just ended a drain of this very
+               corpse; nothing is left to remember of it (a meal left
+               behind on another level keeps its id and is not this) */
+            if (svc.context.victual.o_id == otmp->o_id)
+                svc.context.victual = zero_victual;
+            return ECMD_OK;
+        }
     }
 
     already_partly_eaten = otmp->oeaten ? TRUE : FALSE;
@@ -3710,28 +3741,29 @@ doeat(void)
         return ECMD_TIME;
     }
 
+    /* KMH, conduct; counted once the food is in hand, so that a piece
+       lost on the way there (dropped from a full pack into lava or
+       down a hole) is not a meal */
+    if (!u.uconduct.food++) {
+        if (isvamp)
+            livelog_printf(LL_CONDUCT,
+                           "consumed blood for the first time - %s",
+                           food_xname(otmp, FALSE));
+        else
+            livelog_printf(LL_CONDUCT, "ate for the first time - %s",
+                           food_xname(otmp, FALSE));
+        ll_conduct++;
+    }
+
     /* Now we need to calculate delay and nutritional info.
      * The base nutrition calculated here and in eatcorpse() accounts
      * for normal vs. rotten food.  The reqtime and nutrit values are
      * then adjusted in accordance with the amount of food left.
      */
     if (otmp->otyp == CORPSE || otmp->globby) {
-        int tmp = eatcorpse(otmp);
+        int tmp = eatcorpse(otmp, rotted);
 
-        if (tmp == 3) {
-            /* inedible: no blood left or it has coagulated */
-            svc.context.victual = zero_victual; /* victual.piece=0, .o_id=0 */
-            /* the combination of odrained == TRUE and oeaten == cnutrit
-               represents the case of starting to drain a corpse but not
-               getting any further (eg. losing consciousness due to
-               rotten food); preserve it to avoid corpses changing
-               appearance after a failed attempt to eat */
-            if (!otmp->odrained
-                && otmp->oeaten == safe_mons(otmp->corpsenm).cnutrit)
-                otmp->oeaten = 0;
-            u.uconduct.food--;
-            return ECMD_OK;
-        } else if (tmp == 2) {
+        if (tmp == 2) {
             /* used up */
             svc.context.victual = zero_victual; /* victual.piece=0, .o_id=0 */
             return ECMD_TIME;
