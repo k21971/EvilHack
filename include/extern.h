@@ -3356,6 +3356,7 @@ extern int oid_price_adjustment(struct obj *, unsigned) NONNULLARG1;
 extern long material_cost(long, int, int);
 extern boolean block_door(coordxy, coordxy, boolean);
 extern boolean block_entry(coordxy, coordxy, boolean);
+extern boolean shk_bars_way(coordxy, coordxy, coordxy, coordxy, boolean);
 extern char *shk_your(char *, struct obj *) NONNULLPTRS;
 extern char *Shk_Your(char *, struct obj *) NONNULLPTRS;
 extern void globby_bill_fixup(struct obj *, struct obj *) NONNULLARG12;

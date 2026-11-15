@@ -134,6 +134,8 @@ staticfn void add_to_billobjs(struct obj *);
 staticfn void bill_box_content(struct obj *, boolean, boolean,
                              struct monst *);
 staticfn boolean rob_shop(struct monst *);
+staticfn boolean shk_bans_on_sight(void);
+staticfn boolean shk_bars_entry(coordxy, coordxy, coordxy, coordxy, boolean);
 staticfn void deserted_shop(char *);
 staticfn boolean special_stock(struct obj *, struct monst *, boolean);
 staticfn const char *cad(boolean);
@@ -734,6 +736,23 @@ rob_shop(struct monst *shkp)
     return TRUE;
 }
 
+/* is the hero one a shopkeeper bans the moment he sees them at his door? */
+staticfn boolean
+shk_bans_on_sight(void)
+{
+    /* Draugr being zombies */
+    if (!Upolyd && Race_if(PM_DRAUGR))
+        return TRUE;
+    /* visible striped prison shirt */
+    if (uarmu && uarmu->otyp == STRIPED_SHIRT && !uarm && !uarmc)
+        return TRUE;
+    /* the Striped Shirt of Liberation does not need to be visible
+       if worn */
+    if (uarmu && uarmu->oartifact == ART_STRIPED_SHIRT_OF_LIBERATION)
+        return TRUE;
+    return FALSE;
+}
+
 /* give a message when entering an untended shop (caller has verified that) */
 staticfn void
 deserted_shop(/*const*/ char *enterstring)
@@ -824,22 +843,8 @@ u_entered_shop(char *enterstring)
         return;
     }
 
-    /* Draugr being zombies */
-    if (!Upolyd && Race_if(PM_DRAUGR))
+    if (shk_bans_on_sight())
         eshkp->pbanned = TRUE;
-
-    /* Visible striped prison shirt */
-    if ((uarmu && (uarmu->otyp == STRIPED_SHIRT))
-        && !uarm && !uarmc) {
-        eshkp->pbanned = TRUE;
-    }
-
-    /* the Striped Shirt of Liberation does not need
-       to be visible if worn */
-    if (uarmu
-        && (uarmu->oartifact == ART_STRIPED_SHIRT_OF_LIBERATION)) {
-        eshkp->pbanned = TRUE;
-    }
 
     rt = svr.rooms[*enterstring - ROOMOFFSET].rtype;
 
@@ -6424,18 +6429,18 @@ block_door(coordxy x, coordxy y, boolean silent)
     return FALSE;
 }
 
-/* used in domove to block diagonal shop-entry;
-   u.ux, u.uy should always be a door */
-boolean
-block_entry(coordxy x, coordxy y, boolean silent)
+/* does a shopkeeper on his post bar the hero's diagonal way in from his
+   shop door at fx,fy to x,y; the door is named by the caller since a
+   thrown ball's flight is tested from squares the hero is not on */
+staticfn boolean
+shk_bars_entry(
+    coordxy fx, coordxy fy,
+    coordxy x, coordxy y,
+    boolean silent)
 {
     coordxy sx, sy;
     int roomno;
     struct monst *shkp;
-
-    /* a door that is gone is as open to a diagonal step as a broken one */
-    if (!doorless_door(u.ux, u.uy))
-        return FALSE;
 
     roomno = *in_rooms(x, y, SHOPBASE);
     if (roomno < ROOMOFFSET || !IS_SHOP(roomno - ROOMOFFSET))
@@ -6444,21 +6449,58 @@ block_entry(coordxy x, coordxy y, boolean silent)
     if (!shkp || !inhishop(shkp))
         return FALSE;
 
-    if (ESHK(shkp)->shd.x != u.ux || ESHK(shkp)->shd.y != u.uy)
+    if (ESHK(shkp)->shd.x != fx || ESHK(shkp)->shd.y != fy)
         return FALSE;
 
     sx = ESHK(shkp)->shk.x;
     sy = ESHK(shkp)->shk.y;
 
+    /* a hero he would ban on sight is barred before he has said so */
     if (shkp->mx == sx && shkp->my == sy && !helpless(shkp)
         && (x == sx - 1 || x == sx + 1 || y == sy - 1 || y == sy + 1)
         && (Invis || carrying(PICK_AXE) || carrying(DWARVISH_MATTOCK)
-            || u.usteed || ESHK(shkp)->pbanned)) {
+            || u.usteed || ESHK(shkp)->pbanned || shk_bans_on_sight())) {
         if (!silent)
             pline("%s%s blocks your way!", Shknam(shkp),
                   Invis ? " senses your motion and" : "");
         return TRUE;
     }
+    return FALSE;
+}
+
+/* used in domove to block diagonal shop-entry;
+   u.ux, u.uy should always be a door */
+boolean
+block_entry(coordxy x, coordxy y, boolean silent)
+{
+    /* a door that is gone is as open to a diagonal step as a broken one */
+    if (!doorless_door(u.ux, u.uy))
+        return FALSE;
+
+    return shk_bars_entry(u.ux, u.uy, x, y, silent);
+}
+
+/* something other than a step is taking the hero diagonally from fx,fy
+   to the next square x,y: a jump, a recoil, a knockback, the pull of a
+   thrown ball; does a shopkeeper bar the way as he would bar that step;
+   a hero in the air or on a hurtling steed is not held to a doorway's
+   frame the way a walking one is, so both ways are barred at a shop
+   door in any state */
+boolean
+shk_bars_way(
+    coordxy fx, coordxy fy,
+    coordxy x, coordxy y,
+    boolean silent)
+{
+    if (fx == x || fy == y || Passes_walls)
+        return FALSE;
+    if (!isok(fx, fy) || !isok(x, y))
+        return FALSE;
+
+    if (IS_DOOR(levl[x][y].typ) && block_door(x, y, silent))
+        return TRUE;
+    if (IS_DOOR(levl[fx][fy].typ) && shk_bars_entry(fx, fy, x, y, silent))
+        return TRUE;
     return FALSE;
 }
 

@@ -5670,7 +5670,11 @@ bhit(
                           an(xname(bobj)));
                 range = 0;
             } else if (obj == uball) {
-                if (!test_move(x - ddx, y - ddy, ddx, ddy, TEST_MOVE)) {
+                /* the ball drags the hero after it, so it goes no
+                   further than the hero could step, nor past a
+                   shopkeeper who would bar the hero it drags */
+                if (!test_move(x - ddx, y - ddy, ddx, ddy, TEST_MOVE)
+                    || shk_bars_way(x - ddx, y - ddy, x, y, TRUE)) {
                     /* nb: it didn't hit anything directly */
                     if (cansee(x, y))
                         pline("%s jerks to an abrupt halt.",

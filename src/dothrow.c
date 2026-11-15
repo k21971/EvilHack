@@ -925,6 +925,12 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
         }
     }
 
+    /* a shopkeeper bars the diagonal way past his post to a hero flung
+       or jumping through it, as he does to one walking; the hero stops
+       short of the square, so nothing standing on it is bumped */
+    if (shk_bars_way(u.ux, u.uy, x, y, FALSE))
+        return FALSE;
+
     if ((mon = m_at(x, y)) != 0
 #if 0   /* we can't include these two exceptions unless we know we're
          * going to end up past the current spot rather than on it;
@@ -1090,6 +1096,10 @@ will_hurtle(struct monst *mon, coordxy x, coordxy y)
     if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped
         || mon->mentangled || steed_held_in_place(mon))
         return FALSE;
+    /* the hero's steed goes no further than a shopkeeper lets its rider;
+       mhurtle_step() is the one to say so */
+    if (mon == u.usteed && shk_bars_way(u.ux, u.uy, x, y, TRUE))
+        return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
      * rather than just stopping before.
@@ -1104,6 +1114,17 @@ mhurtle_step(genericptr_t arg, coordxy x, coordxy y)
     struct monst *mtmp;
 
     if (!isok(x, y))
+        return FALSE;
+
+    /* a shopkeeper bars the way past his post to a hero carried there
+       by a hurtling steed, as he does to one hurtling on foot: ahead of
+       a bump into whoever stands on the square, but with nothing to say
+       about a square the steed could not enter anyway */
+    if (mon == u.usteed
+        && (m_at(x, y)
+            || goodpos(x, y, mon,
+                       MM_IGNOREWATER | MM_IGNORELAVA | MM_IGNOREAIR))
+        && shk_bars_way(u.ux, u.uy, x, y, FALSE))
         return FALSE;
 
     if (will_hurtle(mon, x, y) && m_in_out_region(mon, x, y)) {
@@ -1135,6 +1156,14 @@ mhurtle_step(genericptr_t arg, coordxy x, coordxy y)
             u_on_newpos(x, y);
             newsym(u.ux0, u.uy0); /* update old position */
             vision_recalc(0); /* new location => different lines of sight */
+            /* the rider may have been carried into or out of a shop or
+               other special room, as in hurtle_step(); a shopkeeper
+               roused by the arrival gets a move, which can be a blow
+               that kills the steed, unseats its rider or sends the
+               pair somewhere else */
+            check_special_room(FALSE);
+            if (DEADMONSTER(mon) || mon != u.usteed || !u_at(x, y))
+                return FALSE;
         }
         flush_screen(1);
         nh_delay_output();
