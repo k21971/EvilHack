@@ -3286,15 +3286,9 @@ edibility_prompts(struct obj *otmp)
             stoneorslime = (!Unchanging && !slimeproof(gy.youmonst.data));
 
         if (cadaver && !nonrotting_corpse(mnum)) {
-            long age = peek_at_iced_corpse_age(otmp);
-
             /* worst case rather than random
                in this calculation to force prompt */
-            rotted = (svm.moves - age) / (10L + 0 /* was rn2(20) */);
-            if (otmp->cursed)
-                rotted += 2L;
-            else if (otmp->blessed)
-                rotted -= 2L;
+            rotted = rot_by(otmp, 10L + 0 /* was rn2(20) */);
         }
     }
 
@@ -3578,9 +3572,10 @@ doeat(void)
         You("cannot eat that!");
         return ECMD_OK;
     } else if (otmp->otyp == CORPSE && (!Upolyd && Race_if(PM_DRAUGR))
-               && (((svm.moves - peek_at_iced_corpse_age(otmp)) / 10L) <= 3L
-                   && !nonrotting_corpse(otmp->corpsenm))) {
-        /* Draugr can eat corpses, but only if they are rotted */
+               && !nonrotting_corpse(otmp->corpsenm)
+               && rot_amount(otmp) <= 3L) {
+        /* Draugr can eat corpses, but only if they are rotted: the
+           ones whose name says rancid or very rancid */
         pline("Ugh... this corpse is too fresh!");
         return ECMD_OK;
     } else if ((otmp->owornmask & (W_ARMOR | W_TOOL | W_AMUL | W_SADDLE))
