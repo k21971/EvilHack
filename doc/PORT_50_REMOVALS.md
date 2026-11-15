@@ -309,6 +309,21 @@ tracker; sNNN = port session.
   weredemon's demon form, which is its base form (ruled s332,
   BUG-3125, 557705adb; beyond master, whose restore_cham()
   flips it too).
+- [x] A spellcaster that is not attacking sliding down to the next
+  lower spell when its pick is useless (5.0's picker, upstream
+  3917f5493) -> one pick, cast or dropped, as in 3.6 and master; an
+  attack cast keeps the slide (ruled s339, BUG-3168, commit pending;
+  the vanilla fix is upstream PR #1745).
+- [x] Open wounds as an aimed spell using the caster's attack dice,
+  halved by Half_spell_damage -> master's ranged open wounds: a
+  caster that is not attacking throws it from up to 7 squares, for
+  (level / 2 + 1)d6 that only magic resistance halves (ruled s339,
+  BUG-3166, commit pending; master 7fce5fb98).
+- [x] The clerical spell ladder: summon insects at 5.0's level 8
+  -> level 7, a rung of its own under call undead; 5.0's one-shot
+  re-roll of an over-level pick -> master's loop, with its two
+  steps above summon minion that pick open wounds 2 times in 3
+  (s339, BUG-3165, BUG-3167, commit pending).
 
 ### 2.3 Combat and magic rules -> master's
 
@@ -693,6 +708,14 @@ tracker; sNNN = port session.
   keeps zapping after it has seen the hero reflect; master's stop
   (a side effect of its M_SEEN_REFL term, which spared pets) is not
   ported (ruled s332, record only).
+- [r] Summon nasties, aggravation and double trouble cast at the
+  hero from up to 7 squares: removed with master's close-range list
+  (s296, BUG-2868), back by ruling for a caster that is not
+  attacking - vanilla's and old master's not-attacking pick; the
+  lined-up attack cast and monster targets keep master's rule
+  (ruled s339, BUG-3164, commit pending; beyond master, whose
+  2025-12 refactor carried a monster-vs-monster list onto the
+  hero).
 
 ## 4. Open
 

@@ -17,7 +17,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-15, session 337: five small
+- Phase 2 status (refreshed 2026-11-15, session 339: monster
+  spellcasters at range - a caster that is not attacking can again
+  summon nasties, wake the level or (the Wizard) clone himself
+  from up to 7 squares, the maintainer's ruling undoing master's
+  2025-12 crossover of a monster-vs-monster list onto the hero;
+  clerics cast insects from range again and at master's rate up
+  close; open wounds is master's ranged spell with dice of its
+  own; a caster that is not attacking keeps the spell it rolled,
+  where 5.0 slid it down to a lesser one; a caster at a quarter of
+  its hit points cures itself first; high-level clerics favor open
+  wounds as on master; five rows minted and closed, one residue
+  row minted -
+  after session 337, the same day, fixed five small
   bugs - a fireball that flies off the Plane of Air no longer
   explodes after it "vanishes into the aether"; a wish for "blue
   glass named Bob" keeps its name; a vampire turned away from a
@@ -97,8 +109,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 60 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 58 LOW):
-  737 rows closed, 60 open
+  prefix; 61 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 59 LOW):
+  742 rows closed, 61 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -110,6 +122,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4). Phase 2 has no other MED row.
+    Session 339 minted and closed five MED rows in the monster
+    spell picker: summon nasties, aggravation and double trouble
+    back to ranged for a caster that is not attacking (BUG-3164,
+    ruled), insects from range on their own rung (BUG-3165),
+    master's ranged open wounds and top clerical rolls (BUG-3166,
+    BUG-3167), no slide to a lesser spell for a caster that is
+    not attacking (BUG-3168), and master's cure-self rule for a
+    badly hurt caster (BUG-3169); commits pending; the rows and
+    the Decisions log have the detail. An arch-lich a few squares
+    off summons on about 1 move in 12 while lined up and 1 in 7
+    while not; a high priest across the room opens wounds and
+    calls insects about as often as in 0.9.3, where the branch
+    did neither from there; a peaceful priest wards itself on 1
+    free pick in 12, not 5 in 6. Minted open, LOW: the session's
+    residue (call undead on two rolls, the attack-cast slide, the
+    unseen caster's missing cast line, and smaller things).
     Session 337 closed five LOW rows - the fireball off the Plane
     of Air (BUG-3156), the glass wish's name (BUG-3157), the
     refused vampire's conducts (BUG-3158), the food-sense rot
@@ -6091,6 +6119,151 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       17.6% vs master's 7.7%); a caster can call castmu() twice in
       one move (the undirected loop fumbles or picks a directed
       spell, then the attack phase), master parity.
+      CORRECTION 2026-11-15 (session 339): the open wounds record
+      above is wrong - master's arm rolls its own d(ml / 2 + 1, 6),
+      so the undirected try wastes nothing; it is master's ranged
+      open wounds (7fce5fb98), ported as BUG-3166. The same session
+      took summon nasties, aggravation and double trouble off this
+      row's close-range list for a caster that is not attacking
+      (ruled, BUG-3164), and ended the slide for such a caster
+      (BUG-3168); the five rows below.
+- [x] MED: summon nasties, aggravation and double trouble are
+      ranged spells again (minted and CLOSED 2026-11-15, session
+      339, on the maintainer's ruling of the same day; plan
+      /root/.claude/plans/feature-ranged-monster-casting-free-picks.md;
+      BUG-3164; commit pending). Master's close-range rule for the
+      three came from a monster-vs-monster list (24f1e8812, 2024)
+      that the 2025-12-12 refactor (e054e3baa) let cross over to
+      the hero; vanilla, and master before that day, cast them
+      from up to 7 squares on the not-attacking pick. RULED: free
+      picks only (castmu() with thinks_it_foundyou false:
+      dochug()'s undirected block and mattacku()'s not-lined-up
+      arm), never the lined-up attack cast; aggravation and
+      double trouble with it; close-range kept against monster
+      targets; no prayer protection. New MCF_FREE flag;
+      mcast_out_of_reach() and spell_would_be_useless() take
+      `attacking`; the picker's hand-back of a close-range rung
+      is untouched, so a non-Wizard's double trouble roll fails
+      rather than sliding onto nasties. Arch-lich nasties per
+      off-cooldown move at range: 8% lined up, 15% off the line
+      (3.6.7 12%, master before 2025-12 8%, vanilla 5.0 26%).
+      Battery A (gdb tallies, 3000 picks a figure): free picks at
+      range SUMMON_MONS 0 -> 8.1%; CLONE_WIZ 0 -> 7.9% with one
+      Wizard, 0 with two; AGGRAVATION 0 -> 2.1% with a sleeper;
+      a praying hero 8.7%; attack picks at range and a monster
+      target at range none on either build; the adjacent attack
+      mix unchanged. Battery C (play): an arch-lich two squares
+      off the line summoned on POST 23 turns after staging, never
+      in 150 turns on PRE. Reviewer PASS.
+- [x] MED: clerics never cast summon insects from range (minted
+      and CLOSED 2026-11-15, session 339, found reading the picker
+      for the row above; BUG-3165; commit pending). INSECTS and
+      CALL_UNDEAD shared the level-8 rung with call undead walked
+      first, so the close-range hand-back returned before insects
+      at range, a caster that can call undead never cast insects,
+      one that cannot cast them on both rolls up close (17% of
+      adjacent casts, master 10%), and the Ice Queen cast insects
+      (master: never). RULED: insects on their own rung at level
+      7, master's case value (rejected after the plan stress
+      test: a 1:1 coin on rolls 8-9, which missed master below
+      caster level 10). The vulnerability substitution for demons
+      other than Lolth and both Kathryns is unconditional and
+      sits in the rung rolls; new mcast_can_call_undead(); a call
+      undead roll by a caster that lacks it is handed back for a
+      re-roll. Battery B: free picks at range at level 8 / 12 /
+      25, INSECTS 0 / 0 / 0 -> 12.5 / 8.7 / 5.1%; adjacent at
+      level 12, INSECTS 15.3 -> 10.3%, BLIND_YOU 16.9 -> 8.9%;
+      the Ice Queen's INSECTS 7.0% -> 0; a horned devil's
+      VULN_YOU 7.2 -> 11.3%. Battery C: a level-12 shaman off the
+      line raised three swarms in 51 turns on POST, none in 211
+      on PRE.
+- [x] MED: master's ranged open wounds and its two top clerical
+      rolls were unported (minted and CLOSED 2026-11-15, session
+      339; BUG-3166, BUG-3167; commit pending). Found chasing a
+      two-attack high priest's ranged insects (24% / 20% of moves
+      after the rung fix, master 17% / 15%): master's free pick
+      ends more moves because open wounds is a ranged undirected
+      spell there since 7fce5fb98 (2024), rolling its own
+      d(ml / 2 + 1, 6), and because rolls 14-15 pick it 2 times
+      in 3. RULED "pull it down to master", then "master's full
+      free-pick shape" (rejected: ranged open wounds alone, which
+      left mid-level priests at twice master's rate through the
+      slide; accepting the gap). MCF_INDIRECT on OPEN_WOUNDS;
+      mcast_open_wounds() rolls its own damage for both legs and,
+      as on master, ignores the attack's dice and
+      Half_spell_damage; for the clerical list the level roll is
+      master's loop with a cap two above summon minion, and that
+      rung picks open wounds 2 in 3 above itself, always above
+      the cap. STATED AND APPROVED WITH THE PLAN: an undirected
+      open wounds lands on a displaced or invisible hero the
+      caster has misplaced. Battery B: free picks at range,
+      OPEN_WOUNDS 0 -> 11.8 / 8.0 / 15.2% at level 8 / 12 / 25;
+      adjacent at 25, OPEN_WOUNDS 12.8 -> 23.4%, SUMMON_MINION
+      7.2 -> 10.7%. Battery C: three casts from range in 51
+      turns for 23, 25 and 27 hit points (limit 42), none in 211
+      turns on PRE; 80 casts aimed at the wrong spot cost hit
+      points 13 times on POST, never on PRE. High priest after
+      all five rows, simulated: insects 16% / 15% of moves
+      (master 17 / 15), open wounds 49% / 38% (master 44 / 39).
+- [x] MED: a caster that is not attacking slid down to a lesser
+      spell (minted and CLOSED 2026-11-15, session 339; BUG-3168;
+      commit pending). 5.0's choose_monster_spell() tests
+      usefulness inside its walk and slides a useless rung down;
+      castmu()'s not-attacking pick is meant to be one pick,
+      cast or dropped (its comment, 3.6.7, master). The idle
+      slide is the vanilla bug behind upstream PR #1745. RULED
+      as part of master's full free-pick shape: the picker takes
+      `attacking` and a caster that is not attacking keeps its
+      roll; attack casts keep the slide and the hand-back. This
+      replaces session 296's reviewer fold that kept peaceful
+      and unseen casters sliding to their self-buffs. Battery B:
+      a peaceful caster's free picks, PROTECTION 82.7% -> 7.7%
+      (master 8.3%), nothing hostile on either build. The druid
+      circle wards itself as rarely as on master.
+- [x] MED: master's "badly hurt caster cures itself" rule was
+      unported (minted and CLOSED 2026-11-15, session 339;
+      BUG-3169; commit pending). Master sets the level roll to
+      the cure self case at a quarter of the caster's hit points
+      or less, on both lists, for attack casts and free picks,
+      monster and hero-form casters alike; no row carried it.
+      Battery A / B: at 10 of 40 hit points 300 of 300 picks are
+      CURE_SELF on POST (free, adjacent attack, attack at a pet;
+      PRE 5-10%), at 11 the normal mix.
+- [ ] LOW, record: monster casting residue (minted 2026-11-15,
+      session 339, plan stress tests, reviewer and batteries;
+      record unless a ruling wants a change). (a) A caster that
+      can call undead keeps it on two rolls, 8-9 (17% of
+      adjacent casts, master 9%). (b) Attack casts still slide
+      (5.0 architecture): a healthy cleric's cure self roll
+      lands on open wounds, adjacent 20-24% against master's
+      10-18%. (c) A level-16 cleric's free-pick open wounds is
+      10% against master's 15%: the branch's ladder sits one
+      level above master's from curse items up. (d) Master's
+      "You hear something cast a spell!" for an unseen caster's
+      undirected cast is not on the branch: an invisible lich's
+      nasties and an unseen cleric's open wounds arrive with no
+      cast line (seen in battery C). (e) Aggravation and double
+      trouble keep 5.0's MCF_SIGHT; master before 2025-12 cast
+      them unseen. (f) Off the line a caster gets two free picks
+      a move (dochug()'s, then mattacku()'s), so nasties are 15%
+      and double trouble 14% there - ruled with the numbers, a
+      rate no shipped tree had. (g) A cooling-down or cancelled
+      caster off the line prints "points all around, then
+      curses" whenever its free pick would have been cast, a
+      badly hurt one on every attack step (master's dispatch).
+      (h) A badly hurt caster that is fleeing or off the line
+      stands and heals instead of moving (master's shape). (i) A
+      demon's summon minion rung at range re-rolls where master
+      casts fire pillar (session 296's record, unchanged). (j) A
+      hostile cleric fighting a pet from range can pick insects
+      (master the same). (k) A fleeing caster next to the hero
+      tests a blast's 1-in-5 self-avoidance once on a free pick,
+      as master does, where the slide tested it twice. (l)
+      Upstream PR #1745 adds its own `attacking` argument to
+      choose_monster_spell(): the next catch-up merge keeps the
+      branch's body. (m) Battery staging: an arch-lich is
+      covetous and teleports to the hero whatever holds it, and
+      acid blast corrodes iron bars.
 - [x] LOW: master BUG-373's set_apparxy() refresh before the attack
       phase is unported (minted 2026-11-05, session 296, ruled a
       row). Master 4635613aa refreshes mux / muy in dochug() just
@@ -41010,7 +41183,7 @@ see its row), cut against 74ebd09ed.
 | 2026-11-15 | sp_lev.c flip_level() flips each room in rooms[] and that room's sbrooms[], so a subroom's own subrooms keep their old bounds while the map moves under them. themerms.lua's "Nesting rooms" nests three deep on ordinary levels; no special level does, so the reach is #wizfliplevel, #wizloaddes and nh.flip_level(). Run on the branch 2026-11-15: after a flip the innermost rooms' rectangles held none of their own squares. Same loop in fd4d169b6. Fix on the branch: walk subrooms[0 .. nsubroom - 1], where a room nested at any depth sits once; BUG-3155, branch commit 9623d8220. Sibling, not changed: link_doors_rooms() also walks one level of sbrooms[] (special levels only; des.room rooms get their doors through add_doors_to_room(), which recurses) | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | A wish for `blue glass named Bob` gives a gem named "f blue glass": readobjnam_postparse1() cuts " named " in place and points d->name 7 bytes on in the same buffer, then readobjnam_postparse2()'s glass arm copies "worthless piece of " + the color text back over d->bp, 19 bytes longer, over the start of the name (`piece of blue glass named Bob` gives "ass"; d->un and d->dn sit there the same way). A failed "<x> glass" wish also pre-fills the retry prompt with the rewritten text. Same code in fd4d169b6 and in 3.6 readobjnam(). Run on the branch 2026-11-15. Fix on the branch: build the canonical text in d->globbuf and point d->bp there, as the glob arm does; BUG-3157, src/objnam.c, branch commit be674634b | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | A meal that never happens still counts: doeat() counts the food conduct and writes "ate for the first time - ..." to the livelog, then touchfood() splits one item off a carried stack, cannot put it back into a full pack and drops it, and when lava burns the piece (or a hole takes it) touchfood() returns null and doeat() returns with the count kept. Same order in fd4d169b6; EvilHack master rolls the count back. Run on the branch 2026-11-15 (52 slots in use, levitating over lava, an apple from a stack of two: "You see the apple hit lava and burn up!", u.uconduct.food 1 and the livelog line). Fix on the branch: count the conduct after touchfood() succeeds; BUG-3159, src/eat.c, branch commit 628677386 | fixed on the branch; not sent; triage pending |
-| 2026-11-15 | Monsters cast summoning spells about twice as often as in 3.6. mcastu.c choose_monster_spell() (upstream 3917f5493, the 2026-04-01 reorg) returns the highest spell at or below the level roll that spell_would_be_useless() accepts, so a useless pick slides to the next spell down. The slide is deliberate for an attacker (the same commit's touch of death 1-in-2 and geyser 1-in-5 skips rely on it), but castmu()'s comment says a monster that is not attacking selects a spell once, and dochug()'s undirected call slides too: double trouble (rolls 18-19, useless for any non-Wizard) and half of touch of death land on summon nasties (arch-lich at range 26% of free moves, 3.6.7 12%), and a peaceful or out-of-sight hurt caster lands on cure self on about 95% of them (3.6.7 4%). The reorg also gave curse items one level, 10, for both lists; 3.6.7's cleric ladder had it on rolls 9-10 and insects on 8, so cleric roll 9 now summons insects (aligned priest 8% -> 17% of picks, high priest 6% -> 14%). Same code in 74ebd09ed; no upstream issue or PR. Vanilla patch (rulings in the decisions log): the picker takes an `attacking` argument (castmu()'s thinks_it_foundyou) and tests usefulness only for an attacker; clerics get curse items one level sooner. Run 2026-11-15 on scratch builds of 74ebd09ed with and without the patch, 5000 gdb calls of the picker per figure: mage list at m_lev 25, summon nasties 26.1% before and 26.1% attacking / 14.0% not attacking after; cleric list at m_lev 12 / 25, insects 16.8% / 14.3% before and 8.8% / 6.9% attacking, 8.2% / 7.2% not attacking after, curse items 8.0% / 7.3% before and 15.4% / 15.1%, 16.1% / 13.7% after; in play a hurt peaceful level-25 caster cured itself 73 times in 150 turns before and 6 times after; both paniclogs clean. Not fixed on the branch, whose picker is its own (rung rolls, the close-range list): it keeps the attack-path slide, and the 2026-11-15 ruling that summon nasties goes back to a ranged spell gets its own row | not on the branch; patch cut 2026-11-15 on the maintainer's request (gameplay tier, outside the queue), /root/nh50-mcast-summon-rate.patch; sent as PR #1745 (2026-11-15), fix-mcast-summon-rate 68e3e2e1d |
+| 2026-11-15 | Monsters cast summoning spells about twice as often as in 3.6. mcastu.c choose_monster_spell() (upstream 3917f5493, the 2026-04-01 reorg) returns the highest spell at or below the level roll that spell_would_be_useless() accepts, so a useless pick slides to the next spell down. The slide is deliberate for an attacker (the same commit's touch of death 1-in-2 and geyser 1-in-5 skips rely on it), but castmu()'s comment says a monster that is not attacking selects a spell once, and dochug()'s undirected call slides too: double trouble (rolls 18-19, useless for any non-Wizard) and half of touch of death land on summon nasties (arch-lich at range 26% of free moves, 3.6.7 12%), and a peaceful or out-of-sight hurt caster lands on cure self on about 95% of them (3.6.7 4%). The reorg also gave curse items one level, 10, for both lists; 3.6.7's cleric ladder had it on rolls 9-10 and insects on 8, so cleric roll 9 now summons insects (aligned priest 8% -> 17% of picks, high priest 6% -> 14%). Same code in 74ebd09ed; no upstream issue or PR. Vanilla patch (rulings in the decisions log): the picker takes an `attacking` argument (castmu()'s thinks_it_foundyou) and tests usefulness only for an attacker; clerics get curse items one level sooner. Run 2026-11-15 on scratch builds of 74ebd09ed with and without the patch, 5000 gdb calls of the picker per figure: mage list at m_lev 25, summon nasties 26.1% before and 26.1% attacking / 14.0% not attacking after; cleric list at m_lev 12 / 25, insects 16.8% / 14.3% before and 8.8% / 6.9% attacking, 8.2% / 7.2% not attacking after, curse items 8.0% / 7.3% before and 15.4% / 15.1%, 16.1% / 13.7% after; in play a hurt peaceful level-25 caster cured itself 73 times in 150 turns before and 6 times after; both paniclogs clean. On the branch, whose picker is its own (rung rolls, the close-range list), the not-attacking slide went in Phase 2 session 339 (BUG-3168, commit pending) with the same `attacking` rule; the attack-path slide stays, as in the patch; the cleric half does not apply (the branch has master's ladder: insects on their own rung, BUG-3165); the ruled ranged summon nasties is BUG-3164 | not-attacking half fixed on the branch 2026-11-15 (BUG-3168, commit pending); patch cut 2026-11-15 on the maintainer's request (gameplay tier, outside the queue), /root/nh50-mcast-summon-rate.patch; sent as PR #1745 (2026-11-15), fix-mcast-summon-rate 68e3e2e1d |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -41716,6 +41889,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-15 | Forced movement past the shopkeeper, pet-name config lines, nested room flip (Phase 2 session 336, AskUserQuestion x2 with 3 questions, all as recommended; the batteries were approved with the slice and the plan). (1) SLICE: both - the forced-movement verify row, run in play first, and the Convict patch census side by side (either alone and the recent bug LOWs not taken). (2) SHOP DOOR: BLOCK ALL OF IT - whatever moves the hero (a jump, a throw or kick recoil, a knockback, a wand of striking, a telekinesis pull, an artifact smash, a slip, the grappling hook's yank), the diagonal move past the keeper's post stops one square short with the block line, under the walking step's own conditions; a jump is cut short and costs its turn and hunger; the way in is barred at an intact open door too (rejected: only the hero's own moves, leaving a hero pushed or pulled by a monster to go through and be charged as a robber; and leaving it as vanilla and master have it). (3) FOLD-INS, each its own commit: the five pet-name config-file lines and the nested subroom flip (rejected: rows only; the flip is wizard-mode reach, fixed because it is cheap and local). Decided in the plan and approved with it, after the Plan stress test: the hero's steed and the thrown chained ball are forced movement too and get the same test; a hero the keeper would ban on sight (a Draugr, a visible striped shirt, the Striped Shirt of Liberation) is barred on the diagonal before he has said so, which also covers a keeper who cannot speak; the steed's step runs the shop checks at once, as the hero's does; #jump is not refused up front - it starts and the keeper stops it. Stated in the plan as who loses: a levitating or jumping thief at a broken shop door, and a Draugr, a shirted Convict, a rider, an invisible hero or one with a pick-axe who jumps, floats, is knocked or is dragged by the ball. Untouched: digging in through a wall, teleporting in, a pick-axe in a sack. Left out and recorded: a customer the keeper has no reason to bar still leaves an intact doorway diagonally by recoil or spell jump (vanilla's own); other placements of the hero with no doorway or keeper test (LOW verify row); link_doors_rooms()'s one-level walk of subrooms (no level nests deeper). FOLLOW-UP 2026-11-15, after the commits landed: the maintainer asked whether the two things left alone are worth fixing and to mint rows if so. Both minted LOW: (a) a hurtling hero or monster crosses an intact doorway diagonally - worth fixing as a rule of the game, no theft left in it, and it needs a ruling when taken (the hero's penalty, the jumping spell's exemption, monsters); (b) link_doors_rooms() - latent, no reach today, a few lines. CORRECTION to what was said at hand-off: only the subroom-array walk would reorder the door table; a recursive helper makes the same calls in the same order for every existing level. |
 | 2026-11-15 | Five small bugs and three neighbours (Phase 2 session 337, AskUserQuestion x3 with one question each, all as recommended; the batteries were approved with the plan). (1) SLICE: the small real bugs - the fireball off the Plane of Air, the glass wish's name, the refused vampire's conducts, the food-sense rot, the overview line (not taken: the doorway rule thread, the wording and parity rulings, the verify rows and census leftovers). (2) DRAUGR "TOO FRESH" GATE, found by the plan stress test in master and the branch alike: THE GATE FOLLOWS THE NAME - a Draugr can eat a corpse exactly when its name says rancid or very rancid, master's stated intent in f86901227 (rejected: leave 0.9.3's raw-age gate and record the mismatch). Against 0.9.3: uncursed corpses unchanged at 40 turns, cursed ones edible from 20, blessed ones from 60, each level of decay 10 turns sooner. (3) BLOOD ROLL, found by the reviewer: NO ROLL FOR THE HERO - whether a corpse's blood is still good never changes from one try to the next, as blood_freshness()'s own comment asks; an uncursed corpse is good for its whole 8 to 15 turn window (what a patient player got by retrying for free), a cursed or decayed one never, a blessed one for as long as the window lasts (rejected: leave it and record; a refusal that costs the move). Decided in the plan and approved with it, after the Plan stress test: the vampire's two refusals are asked before the conduct count and touchfood(), with the rot worked out once in doeat(); the food conduct is counted only once touchfood() has the food in hand (master's rollback for a piece lost to lava or a hole had never been ported; counting late also keeps the livelog line out); a refusal no longer wipes the memory of a different interrupted meal; for a carried stack the freshness window is read from the stack rather than from the piece split off it; the food-sense warning and the meal share one rot sum; the overview line is cut at the end of its buffer rather than continued on a second line. Taken from the reviewer (PASS, four LOW): a refusal forgets the remembered meal only when it is the corpse refused, so a half-drained corpse left on another level is resumed on return. Left out and recorded in a residue row: the food sense spent before a refusal, the false "could be rotten!" for a decayed lizard or lichen corpse, the first-bite knockout lowering a decay level, "glass named Bob" read as a material, the 1-in-7 rotten roll on a vampire's or a Draugr's meal, a fresh corpse merging into an old stack and averaging its blood age, the cut overview line's missing full stop. |
 | 2026-11-15 | Vanilla summon-rate patch (5.0 fixes session 338, AskUserQuestion x2 with 5 questions; the first round's three answers were as recommended, and two were re-asked after a stress test corrected their premises; the batteries were approved with the plan). (0) SEND RULE: the maintainer asked for a vanilla fix for summon nasties and summon insects, a gameplay-tier send outside the crash-class-only rule and outside the queue. (1) PICKER: a caster that is not attacking picks once with no slide; attackers keep 5.0's slide untouched. First answer was re-roll everywhere as 3.6.7 did; re-asked because upstream 3917f5493 wrote the slide on purpose (touch of death's and geyser's skips rely on it) and because re-roll everywhere raised an adjacent arch-lich's destroy armor plus weaken from 19% to 32% of casts and a master lich's adjacent nasties from 12% to 18%. Rejected: re-roll everywhere; the single pick plus never sliding onto a summoning spell (adjacent curse items 24% -> 36%); in the first round, skipping summon nasties 1 time in 3 and restoring touch of death's 3.6.7 share. Accepted with it: an adjacent arch-lich still summons on 26% of casts (3.6.7 18%). (2) INSECTS: clerics get curse items at level 9, 3.6.7's cleric rolls exactly. First answer was insects to level 9; re-asked because with the slide kept for attackers the spare roll goes to blindness and on to paralysis of a blinded hero (adjacent priest 33% -> 42%). Rejected: insects to level 9; curse items to level 9 for both lists (an adjacent arch-lich's curse items 24% -> 32%). (3) PACKAGING: one patch and one PR, both changes sit in choose_monster_spell() (first answer: two PRs). Ruled the same day for the branch, no code yet: summon nasties goes back to being a ranged spell, the maintainer mints the row. |
+| 2026-11-15 | Monster casters at range (Phase 2 session 339, AskUserQuestion x4 with 9 questions; seven answers as recommended, two not - marked below; the batteries were approved with the plan). (1) SLICE: summon nasties back to ranged, the maintainer's ruling of the same day with no row and no code (not taken: the doorway thread, the wording and parity rulings, the verify rows and census leftovers). (2) WHERE A RANGED SUMMON COMES FROM: FREE PICKS ONLY - a caster that is not attacking (castmu() with thinks_it_foundyou false); the lined-up attack cast never picks it at range. Arch-lich per off-cooldown move: 8% lined up, 15% off the line; 3.6.7 12%, master before 2025-12 8%, vanilla 5.0 26% (rejected: the attack cast too, 27% lined up; one free pick a move, 8% flat). (3) THE OTHER TWO SPELLS: BOTH - aggravation and double trouble go back to ranged the same way (recommended: summon nasties only, as first ruled). (4) AGAINST ANOTHER MONSTER: close-range stays, master 24f1e8812's deliberate 2024 list. (5) PRAYING HERO: as vanilla and old master, no prayer protection for the three (rejected: the clause insects, summon minion and call undead have). (6) INSECTS, found reading the picker - never cast from range on the branch: fix in this slice, ON THEIR OWN RUNG AT LEVEL 7, master's case value (rejected after the plan stress test: a 1:1 coin with call undead on rolls 8-9, which missed master below caster level 10 and left blind on two rolls). Left as today: a caster that can call undead has it on two rolls. (7) HIGH PRIEST, two spell attacks: PULL IT DOWN TO MASTER - ranged insects 24% / 20% of moves after the rung fix against master's 17% / 15% (recommended: accept and record). (8) THE LEVER for (7): MASTER'S FULL FREE-PICK SHAPE - port master's ranged open wounds (7fce5fb98, 2024; the cause found: master's free pick casts it and ends the move), a free pick keeps its roll with no slide to a lesser spell (the rule of vanilla PR #1745), master's two top clerical rolls, and master's rule that a caster at a quarter of its hit points goes for cure self (rejected: ranged open wounds alone, 19% / 16% with mid-level priests at twice master's open wounds; neither). Result, simulated: high priest insects 16% / 15%, open wounds 49% / 38% (master 44 / 39). APPROVED WITH THE PLAN, each stated there: open wounds ignores the attack's own dice and Half_spell_damage and lands on a displaced or invisible hero (master's shape); a peaceful or unseen caster buffs itself on about 1 free pick in 12, not 5 in 6; the Ice Queen casts no insects; adjacent insects and blind drop to master's share; the off-line 15% for nasties is a rate no shipped tree had. Recorded, residue row: the attack-cast slide, master's "You hear something cast a spell!" line, 5.0's sight flag on aggravation and double trouble. |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
