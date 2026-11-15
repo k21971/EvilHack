@@ -37,7 +37,7 @@ struct _readobjnam_data {
     int wetness, gsize;
     int ftype;
     boolean zombify;
-    char globbuf[BUFSZ];
+    char globbuf[BUFSZ]; /* a glob's or a glass gem's rebuilt name */
     char fruitbuf[BUFSZ];
 };
 
@@ -5886,11 +5886,16 @@ readobjnam_postparse2(struct _readobjnam_data *d)
             static const char wpo[] = "worthless piece of ";
             char tbuf[BUFSZ];
 
-            /* assume it starts with the color; the longer text goes
-               back where d->bp points, so only when it fits there */
-            if (strlen(s) + sizeof wpo <= readobjnam_room(d)) {
+            /* assume it starts with the color; the longer text cannot
+               go back where d->bp points, because whatever followed
+               " named ", " called " or " labeled " sits right behind
+               it there, so it goes where a glob's name goes (a glob
+               wish never gets here) */
+            if (strlen(s) + sizeof wpo <= sizeof d->globbuf) {
                 Snprintf(tbuf, sizeof tbuf, "%s%s", wpo, s);
-                Strcpy(d->bp, tbuf);
+                Strcpy(d->globbuf, tbuf);
+                d->bp = d->globbuf;
+                d->p = eos(d->bp);
             }
         }
     }
