@@ -3685,21 +3685,24 @@ tunesuffix(
 #define PREFIX "      " /* two TABs + empty BULLET: six spaces */
 #endif
 #define COMMA (i++ > 0 ? ", " : PREFIX)
-/* "iterate" once; safe to use as ``if (cond) ADDTOBUF(); else whatever;'' */
+/* "iterate" once; safe to use as ``if (cond) ADDTOBUF(); else whatever;'';
+   every append to the list of features is bounded by what is left of
+   buf[], since nothing limits how many kinds one level can show */
 #define ADDTOBUF(nam, var) \
-    do {                                             \
-        if (var)                                     \
-            Sprintf(eos(buf), "%s%s", COMMA, (nam)); \
+    do {                                                                     \
+        if (var)                                                             \
+            Snprintf(eos(buf), sizeof buf - strlen(buf), "%s%s", COMMA,      \
+                     (nam));                                                 \
     } while (0)
 #define ADDNTOBUF_CORE(nam, var, is_mass) \
     do {                                                                     \
         if (var)                                                             \
-            Sprintf(eos(buf), "%s%s %s%s", COMMA,                            \
-                    /* mass nouns: use "some" even for 1, never "a/an" */    \
-                    ((is_mass) && (var) == 1)                                \
-                        ? "some" : seen_string((var), (nam)),                \
-                    (nam),                                                   \
-                    (is_mass) ? "" : plur(var));                             \
+            Snprintf(eos(buf), sizeof buf - strlen(buf), "%s%s %s%s", COMMA, \
+                     /* mass nouns: use "some" even for 1, never "a/an" */   \
+                     ((is_mass) && (var) == 1)                               \
+                         ? "some" : seen_string((var), (nam)),               \
+                     (nam),                                                  \
+                     (is_mass) ? "" : plur(var));                            \
     } while (0)
 #define ADDNTOBUF(nam, var) ADDNTOBUF_CORE(nam, var, FALSE)
 #define ADDNTOBUF_MASS(nam, var) ADDNTOBUF_CORE(nam, var, TRUE)
@@ -3802,8 +3805,8 @@ print_mapseen(
             if (mptr->feat.nshop > 1)
                 ADDNTOBUF("shop", mptr->feat.nshop);
             else
-                Sprintf(eos(buf), "%s%s", COMMA,
-                        an(shop_string(mptr->feat.shoptype)));
+                Snprintf(eos(buf), sizeof buf - strlen(buf), "%s%s", COMMA,
+                         an(shop_string(mptr->feat.shoptype)));
         }
         /* Temple altars -- per-alignment display */
         {
@@ -3819,17 +3822,18 @@ print_mapseen(
                 if (cnt) {
                     ADDNTOBUF("temple", cnt);
                     if (!is_unknown)
-                        Sprintf(eos(buf), " to %s",
-                                align_gname(al));
+                        Snprintf(eos(buf), sizeof buf - strlen(buf),
+                                 " to %s", align_gname(al));
                 }
                 cnt = ALTR_GET(mptr->feat.altar[ai],
                                ALTR_TEMPLF_SH);
                 if (cnt) {
                     ADDNTOBUF("temple", cnt);
                     if (!is_unknown)
-                        Sprintf(eos(buf), " to %s",
-                                align_gname(al));
-                    Strcat(buf, " (fractured)");
+                        Snprintf(eos(buf), sizeof buf - strlen(buf),
+                                 " to %s", align_gname(al));
+                    Snprintf(eos(buf), sizeof buf - strlen(buf), "%s",
+                             " (fractured)");
                 }
             }
         }
@@ -3847,16 +3851,16 @@ print_mapseen(
                 if (cnt) {
                     ADDNTOBUF("altar", cnt);
                     if (!is_unknown)
-                        Sprintf(eos(buf), " to %s",
-                                align_gname(al));
+                        Snprintf(eos(buf), sizeof buf - strlen(buf),
+                                 " to %s", align_gname(al));
                 }
                 cnt = ALTR_GET(mptr->feat.altar[ai],
                                ALTR_STANDF_SH);
                 if (cnt) {
                     ADDNTOBUF("fractured altar", cnt);
                     if (!is_unknown)
-                        Sprintf(eos(buf), " to %s",
-                                align_gname(al));
+                        Snprintf(eos(buf), sizeof buf - strlen(buf),
+                                 " to %s", align_gname(al));
                 }
             }
         }
@@ -3879,7 +3883,7 @@ print_mapseen(
         i = strlen(PREFIX);
         buf[i] = highc(buf[i]);
         /* capitalizing it makes it a sentence; terminate with '.' */
-        Strcat(buf, ".");
+        Snprintf(eos(buf), sizeof buf - strlen(buf), "%s", ".");
         add_menu_str(win, buf);
     }
 
