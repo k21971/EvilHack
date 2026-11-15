@@ -7071,7 +7071,9 @@ dobuzz(
         }
     }
     tmp_at(DISP_END, 0);
-    if (fireball)
+    /* the type rather than the flag: a fireball that left the Plane of
+       Air was turned into a plain ray above and does not explode */
+    if (type == ZT_SPELL(ZT_FIRE))
         explode(sx, sy, type, d(12, 6), 0, EXPL_FIERY);
     if (shopdamage)
         pay_for_damage(damgtype == ZT_FIRE ? "burn away"
