@@ -461,7 +461,9 @@ castmu(
         return M_ATTK_MISS;
     }
 
-    if (canspotmon(mtmp) || !undirected) {
+    if (mtmp->mpeaceful && mtmp->ispriest && inhistemple(mtmp)) {
+        ; /* cut down on the temple spam */
+    } else if (canspotmon(mtmp) || !undirected) {
         pline_mon(mtmp, "%s casts a spell%s!",
                  canspotmon(mtmp) ? Monnam(mtmp) : "Something",
                  undirected ? ""
@@ -471,6 +473,9 @@ castmu(
                    : (Displaced && !u_at(mtmp->mux, mtmp->muy))
                      ? " at your displaced image"
                      : " at you");
+    } else if (!Deaf) {
+        /* a spell that is not aimed, from a caster you cannot see */
+        You_hear("something cast a spell!");
     }
 
     /*
