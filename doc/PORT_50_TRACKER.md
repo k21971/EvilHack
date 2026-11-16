@@ -37025,8 +37025,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (dat/quest.lua; master's quest.txt the same). (j) Genesis of
       Death brings a saddled Pale Horse that attacks on its own:
       freeze both when staging.
-      Item (a) SETTLED 2026-11-16, session 343 (BUG-3193, commit
-      pending s343-C3): a tame engulfer gains only from a meal that
+      Item (a) SETTLED 2026-11-16, session 343 (BUG-3193,
+      d96c11890): a tame engulfer gains only from a meal that
       fed it - tame, not a minion, corpse_chance() passed, prey not
       G_NOCORPSE - through a `fed` flag from mhitm_ad_dgst() to
       mdamagem(); a hostile engulfer keeps 5.0's roll. BATTERY:
@@ -37092,8 +37092,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       up, and it rises from the pet's pack. Master the same for the
       carry. Left out of BUG-3050 on purpose, with pray.c's Draugr
       kin test and muse.c.
-      CLOSED 2026-11-16, session 343 (BUG-3192, commit pending
-      s343-C2). RULED "pet leaves it alone": dog_invent()'s carry
+      CLOSED 2026-11-16, session 343 (BUG-3192,
+      b3a10f28e). RULED "pet leaves it alone": dog_invent()'s carry
       test is zombie_infected(). pray.c's kin test and muse.c stay
       as they are, as ruled. BATTERY (large dog on a wished
       "zombifying kobold corpse", dog_invent() called from gdb):
@@ -37257,8 +37257,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       m_id kept on the victim (a struct monst field; saves break
       freely before 1.0.0). Medusa's instant gaze still credits a
       tame Medusa.
-      CLOSED 2026-11-16, session 343 (BUG-3194, commit pending
-      s343-C4). RULED "stoning now, a row for the other three
+      CLOSED 2026-11-16, session 343 (BUG-3194,
+      d322a864e). RULED "stoning now, a row for the other three
       delayed deaths; the stoner grows whether tame or not". New
       `unsigned mstoner` on struct monst (280 -> 288 bytes; older
       saves are refused); start_mon_stoning() takes the attacker;
@@ -39323,8 +39323,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       properties to take away. The reverse order grants nothing and
       removes nothing. Read, not run. Fix shape: decide the denial
       from the hero's race, not the form.
-      CLOSED 2026-11-16, session 343 (BUG-3191, commit pending
-      s343-C1; plan
+      CLOSED 2026-11-16, session 343 (BUG-3191,
+      9f50979ca; plan
       /root/.claude/plans/bugfix-vecna-relic-race-and-pet-rows.md).
       RULED "race decides, everywhere", beyond 0.9.3: the same form
       test sat in the Hand's two wear tests (do_wear.c) and the

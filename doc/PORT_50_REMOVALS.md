@@ -566,7 +566,7 @@ tracker; sNNN = port session.
   kill, prey that leaves no corpse and tame minions included -> only
   from a meal that fed it (tame, not a minion, a corpse possible);
   an engulfer that is not tame keeps 5.0's call (under the s341
-  ruling, s343, BUG-3193, commit pending s343-C3; master c37746364).
+  ruling, s343, BUG-3193, d96c11890; master c37746364).
 
 ### 2.4 Text and logs
 
