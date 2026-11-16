@@ -17,7 +17,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-16, session 341: six 0.9.3
+- Phase 2 status (refreshed 2026-11-16, session 342: a monster
+  casting at another monster rolls the spellbook-spell chance once, as
+  on 0.9.3 - the port's castmm() rolled it twice, so a caster with one
+  book spell reached for it on 36% of picks against 0.9.3's 20%, and
+  threw the attack away when nothing learned worked on the target;
+  the untaming of a pet by a caster that knows charm monster follows
+  the pick, 0.9.3's order (ruled); and a book spell with nothing to
+  cast - entangle off vegetation, repair armor on a sound piece - is
+  a plain miss, no longer a "casts a spell at" line that does nothing
+  and spends the cooldown (ruled fold-in, the guard castmu() has); one
+  row closed, one minted and closed -
+  after session 341, earlier the same day, brought back six 0.9.3
   behaviors the port lacked, and two things found beside them - Death
   stops at 500 hit points under death rays, with the shield flash; a
   dead hero's corpse and bones statue carry the race again (an elven
@@ -135,8 +146,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 61 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 59 LOW):
-  752 rows closed, 61 open
+  prefix; 60 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 58 LOW):
+  754 rows closed, 60 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -6368,7 +6379,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       spell!" lines in 12 casts on PRE and none in 10 on POST;
       visible casters unchanged. In play every self-buff cast
       out of sight within 7 squares is now heard.
-- [ ] LOW: castmm() rolls the learned-spell chance twice (minted
+- [x] LOW: castmm() rolls the learned-spell chance twice (minted
       2026-11-16, session 340, reviewer; outside that session's
       diff). castmm() rolls the 15-40% learned-spell chance
       itself (8b4283ba8) and then calls choose_monster_spell(),
@@ -6381,6 +6392,57 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       innate spell. Fix shape: delete the pre-roll block and let
       the untame override follow the loop as on master; check
       the session 296 learned-spell rows first.
+      CLOSED 2026-11-16, session 342 (BUG-3189,
+      commit pending s342-A; plan
+      /root/.claude/plans/bugfix-castmm-doubled-learned-spell-roll.md).
+      Port regression: the pre-roll was castmm()'s whole
+      selection before the innate lists were wired in (f4d7eaaa0
+      added the loop behind `if (spellnum < 0)` and left it). The
+      selection is master's now: the 40-try loop always runs, an
+      empty loop is a miss, the untame override follows it, and
+      the post-loop reject block is gone
+      (spell_would_be_useless()'s MCAST_LEARNED_SPELL case is the
+      same test, inside the loop). Rider checked: session 296's
+      learned-spell work is BUG-2869, the castmu() guard, which
+      the row below mirrors.
+      RULED (untame order): 0.9.3's. A loop that comes up empty
+      now skips the untaming where the branch always untamed: a
+      wizard-list caster of level 11 to 13, hasted, invisible,
+      unhurt, with no usable book spell, 2 or more squares from
+      the pet - (1 - 1/m_lev)^39, 2.4 to 4.4% of casts; nil next
+      to the pet.
+      BATTERY (one tester, gdb tallies of castmm()'s pick at the
+      can't-cast gate, 2000 calls a cell, PRE -> POST): a hurt
+      caster with one book spell picks it on 731 -> 389 of 2000
+      (36.6 -> 19.5%; expected 36 and 20); a healthy one 46.4 ->
+      32.9% (expected from the calibrated loop 46.0 and 34.6);
+      sleep only against a sleep-resistant target, 399 attacks of
+      2000 thrown away -> 0, and never the meta at the gate on
+      either build; untaming next to the pet 2000 of 2000 on
+      both; the ruled corner (level 13, distance 2) 0 -> 77 empty
+      loops of 2000 (expected 88, band 61-116). In play, 44
+      turns: 46 casts, 8 of them force bolt from the book, no
+      impossible(), no paniclog. Reviewer PASS, no HIGH or MED.
+- [x] LOW: a book spell with nothing to cast still spent the cast
+      (minted and CLOSED 2026-11-16, session 342, plan stress
+      test; RULED fold-in, own commit; BUG-3190,
+      commit pending s342-B; master the same, frozen-unfixed
+      there). The usefulness test and the pick can disagree:
+      mhas_castable_offensive_spell() accepts entangle anywhere
+      and mchoose_learned_spell() needs grass or a tree at the
+      target; mhas_useful_selfbuff_spell() tests repair armor on
+      a random piece. castmm() resolved the meta after the
+      cooldown and the fumble roll and carried on with nothing:
+      "<caster> casts a spell at <target>!", no effect, the
+      cooldown spent. Now it resolves the meta right after the
+      can't-cast gate and an empty pick is M_ATTK_MISS - no
+      line, no cooldown - as castmu() has done since BUG-2869.
+      BATTERY (entangle only, target on plain floor, 300 calls a
+      build): PRE 74 dud casts, each return 1, mspec_used 2 and
+      the cast line; POST 62 empty picks, each return 0,
+      mspec_used 0 and no line; with a tree beside the target
+      the spell is cast ("The roots from a nearby tree ensnare
+      the jackal!").
 - [ ] LOW, record: monster casting residue (minted 2026-11-15,
       session 339, plan stress tests, reviewer and batteries;
       record unless a ruling wants a change). Items (a) call
@@ -6420,7 +6482,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       silent (the crackle line needs canseemon(), master the
       same). (q) A tame caster at range with the hero beside its
       target has three castable rolls in 75 and comes up empty
-      on about 1 cast in 20 (master's rate).
+      on about 1 cast in 20 (master's rate). (r) The usefulness
+      test still accepts entangle off vegetation: since session
+      342 an entangle-only caster loses those picks as a silent
+      miss, in castmu() and castmm() alike, where a vegetation
+      test in mhas_castable_offensive_spell() would re-roll an
+      innate spell (reviewer LOW; RULED 2026-11-16 "the guard
+      only" - the test would change casts at the hero too).
+      (s) A level-0 caster is a silent miss in castmm(); master
+      prints the curse line at its gate. (t) Nothing calls
+      cast_learned_spell() with 0 any more, so its own pick is
+      dead; castmm() still works out `undirected` in two steps
+      and tests an always-true `learned_otyp &&` (reviewer LOW,
+      cosmetic, not taken: the battery-tested binary stays the
+      final one). (u) Battery staging: the pet cap is Charisma /
+      3, so four staged pets lose two at the first turn boundary
+      at Ch:8 - raise Charisma first.
 - [x] LOW: master BUG-373's set_apparxy() refresh before the attack
       phase is unported (minted 2026-11-05, session 296, ruled a
       row). Master 4635613aa refreshes mux / muy in dochug() just
@@ -42246,6 +42323,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-15 | Monster casters at range (Phase 2 session 339, AskUserQuestion x4 with 9 questions; seven answers as recommended, two not - marked below; the batteries were approved with the plan). (1) SLICE: summon nasties back to ranged, the maintainer's ruling of the same day with no row and no code (not taken: the doorway thread, the wording and parity rulings, the verify rows and census leftovers). (2) WHERE A RANGED SUMMON COMES FROM: FREE PICKS ONLY - a caster that is not attacking (castmu() with thinks_it_foundyou false); the lined-up attack cast never picks it at range. Arch-lich per off-cooldown move: 8% lined up, 15% off the line; 3.6.7 12%, master before 2025-12 8%, vanilla 5.0 26% (rejected: the attack cast too, 27% lined up; one free pick a move, 8% flat). (3) THE OTHER TWO SPELLS: BOTH - aggravation and double trouble go back to ranged the same way (recommended: summon nasties only, as first ruled). (4) AGAINST ANOTHER MONSTER: close-range stays, master 24f1e8812's deliberate 2024 list. (5) PRAYING HERO: as vanilla and old master, no prayer protection for the three (rejected: the clause insects, summon minion and call undead have). (6) INSECTS, found reading the picker - never cast from range on the branch: fix in this slice, ON THEIR OWN RUNG AT LEVEL 7, master's case value (rejected after the plan stress test: a 1:1 coin with call undead on rolls 8-9, which missed master below caster level 10 and left blind on two rolls). Left as today: a caster that can call undead has it on two rolls. (7) HIGH PRIEST, two spell attacks: PULL IT DOWN TO MASTER - ranged insects 24% / 20% of moves after the rung fix against master's 17% / 15% (recommended: accept and record). (8) THE LEVER for (7): MASTER'S FULL FREE-PICK SHAPE - port master's ranged open wounds (7fce5fb98, 2024; the cause found: master's free pick casts it and ends the move), a free pick keeps its roll with no slide to a lesser spell (the rule of vanilla PR #1745), master's two top clerical rolls, and master's rule that a caster at a quarter of its hit points goes for cure self (rejected: ranged open wounds alone, 19% / 16% with mid-level priests at twice master's open wounds; neither). Result, simulated: high priest insects 16% / 15%, open wounds 49% / 38% (master 44 / 39). APPROVED WITH THE PLAN, each stated there: open wounds ignores the attack's own dice and Half_spell_damage and lands on a displaced or invisible hero (master's shape); a peaceful or unseen caster buffs itself on about 1 free pick in 12, not 5 in 6; the Ice Queen casts no insects; adjacent insects and blind drop to master's share; the off-line 15% for nasties is a rate no shipped tree had. Recorded, residue row: the attack-cast slide, master's "You hear something cast a spell!" line, 5.0's sight flag on aggravation and double trouble. |
 | 2026-11-16 | Monster spell picks as on 0.9.3 (Phase 2 session 340, AskUserQuestion x3 with 6 questions; every answer as recommended, one unrecommended option left unticked - marked below; the batteries were named in the plan and asked once more after the review folds). (1) SLICE: "monster casting leftovers", the session 339 residue row's rate items (not taken: the six master gaps read out of the verify rows that day - Death's 500 hit point cap, the dead hero's racial corpse and statue, the tower cavern's ceiling, --listroles, pet intrinsic odds, whose READ notes are on those rows, and the unseen cast line, which went into this slice instead; the doorway thread; the wording and parity rulings). (2) THE SLIDE: MASTER'S RE-ROLL for an attacking caster - a useless pick is thrown out and the level rolled again, where 5.0 slid it down a rung; 5.0's one-in-five geyser skip goes with it (BUG-3170, BUG-3171). (3) THE LADDERS: MASTER'S VALUES on both lists (BUG-3172, BUG-3173). (4) THE CAST LINE: BOTH, AS MASTER - "You hear something cast a spell!" for an unseen caster's undirected spell, and no cast line for a peaceful priest in his own temple (BUG-3176, BUG-3177). (5) REVIEW FINDS (2026-11-16, a multi-select of two): DRUID WARDS AS MASTER taken (BUG-3175); ASMODEUS CASTS FIRE PILLAR not taken - his lightning on the summon minion roll stays, the branch's reading since b13220f70, and now holds at range too; the level cap at 50 was folded without a question and the question said so (BUG-3174). (6) BATTERIES: launch now (three testers: A and B gdb tallies, C in play). Approved with the plan, each stated: an attack cast can come up empty after 40 tries, as on master; a clerical demon lord casts fire pillar from range again on its summon minion roll (12.2 -> 22.1% of lined-up casts measured); a wizard of level 25 or more that is not attacking throws fire and ice blasts a little more (5.7 -> 7.5% of free picks measured); a level-16 wizard loses summon nasties on free picks and a level-17 one keeps one roll of it; an arch-lich's touch of death against a hero without magic resistance goes from 15 to 19 adjacent casts in 100 (measured on a fresh stand-in). Recorded, residue row: Asmodeus's lightning; the bolts' undirected wording; a tame caster's empty casts. Minted open: castmm()'s doubled learned-spell roll. |
 | 2026-11-16 | Six master gaps, the Convict rule and a bones crash (Phase 2 session 341, AskUserQuestion x4 with 7 questions; six answers as recommended, one not - marked below). (1) SLICE: the six master gaps session 340 confirmed by reading (not taken: castmm()'s doubled learned-spell roll, the doorway thread, the wording and parity rulings). (2) PETS: 0.9.3'S RULE, HOSTILES KEEP THE ROLL, over the recommended "0.9.3's rule everywhere" - a pet gains the intrinsic it picks and the energy boost counts as a pick; monsters 0.9.3 gave nothing keep 5.0's level roll (rejected: the energy pick alone, which would have lowered pets further; leave 5.0's odds) (BUG-3187). (3) CONVICT: FOLD IN, OWN COMMIT - master 8c573257a's readers of ROLE_NORACEALIGN (rejected: a MED row for a later slice) (BUG-3185). (4) STATUES BY RACE, beyond master (rejected: by role, as 0.9.3) (BUG-3183). (5) DEMON HERO: NO CORPSE, the grave is still dug, beyond master and in line with session 319's scoreboard ruling (rejected: 0.9.3's infidel corpse with the demon race) (BUG-3180). (6) BATTERY: launch all three testers. (7) BONES CRASH, found by the battery on both builds: FIX NOW, OWN COMMIT (rejected: a HIGH row for its own session) (BUG-3188). Approved with the plan, three premises of the ruling questions corrected by its stress test: the menus never offered dwarf or hobbit to a Convict, and the wrong alignment was a fresh rn2(3) at every start and restore, not a stored lawful; on 0.9.3 only a tame digester gains, so ruling 2 is one test - tame gets 0.9.3's rule however the meal arrives, anything else is untouched; the branch had no sanity complaint for Death, only the 999 ceiling. Also stated and approved: the bones corpse is unnamed, as on 0.9.3; a pet eating a spellcaster's corpse gains less often than before (kobold shaman's telepathy 100 -> 50%); if the race cannot be recorded the corpse is the race monster's. Review folds, taken without a question: the throwaway monster made as if during level creation (BUG-3181), the stored name sanitized on bones load (BUG-3182), --listroles in the VMS and libnh mains. Recorded, residue row: no-corpse digestion grants, the unbuilt platform lines, the missing 0.9.3 comparison of --listroles. | maintainer |
+| 2026-11-16 | castmm()'s doubled learned-spell roll and the dud cast (Phase 2 session 342, AskUserQuestion x2 with 3 questions, all as recommended; the battery was named in the plan and launched on its approval). (1) SLICE: castmm()'s doubled learned-spell roll (not taken: the doorway thread, the wording and parity rulings, the census leftovers with the session 341 residue). (2) UNTAME ORDER: 0.9.3'S - the charm-monster override follows the pick loop, so a loop that comes up empty is a miss with no untaming: 2.4 to 4.4% of casts for a hasted, invisible, unhurt wizard-list caster of level 11 to 13 at range with no usable book spell, nil next to the pet (rejected: always untame, the branch's order) (BUG-3189). (3) DUD CASTS: FOLD IN THE GUARD, OWN COMMIT - an empty book-spell pick in castmm() is a miss with no line and no cooldown, the guard castmu() has had since BUG-2869 (rejected: the guard plus a vegetation test in the usefulness check, which would change casts at the hero too; a LOW row only) (BUG-3190). Session calls, plan-approved: the post-loop reject block deleted rather than kept, the loop applying the same test; the two `undirected` lines left as they were. Corrected by the plan's stress test before approval: the first draft said the pick loop could not come up empty against a monster target - it can, and ruling 2 came from that; the stand-in's expected rates. Reviewer LOWs not taken: the vegetation test (ruling 3) and two cosmetic leftovers, so the battery-tested binary is the final one. Recorded, monster casting residue row: entangle off vegetation, the level-0 caster's missing curse line, cast_learned_spell()'s dead pick. | maintainer (1-3); session, plan-approved (rest) |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
