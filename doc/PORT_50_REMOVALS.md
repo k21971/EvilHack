@@ -328,11 +328,11 @@ tracker; sNNN = port session.
   when its pick is useless (5.0's picker, upstream 3917f5493) ->
   master's re-roll: the pick is thrown out and the level rolled
   again, up to 40 times, and a cast can come up empty (ruled s340,
-  BUG-3170, commit pending).
+  BUG-3170, 305c42b08).
 - [x] Geyser counting as useless one time in five, so that the
   slide handed its roll to fire pillar (upstream 3917f5493) ->
   never useless, as on master (ruled s340 with the re-roll,
-  BUG-3171, commit pending).
+  BUG-3171, 305c42b08).
 - [x] 5.0's shared spell-level table where master's ladders differ:
   clerical confuse on rolls 2-3, curse items 10, lightning 11, fire
   pillar 12, geyser 13 -> 3, 9, 10, 11, 12; wizard curse items on
@@ -340,7 +340,7 @@ tracker; sNNN = port session.
   list's single re-roll of an over-level pick -> master's loop,
   rolls 23-24 the bolt roll and a roll left above 24 the first
   spell; the level roll on the caster's full level -> capped at 50
-  (ruled s340, BUG-3172, BUG-3173, BUG-3174, commit pending).
+  (ruled s340, BUG-3172, BUG-3173, BUG-3174, 4bd0e25bf).
 
 ### 2.3 Combat and magic rules -> master's
 
@@ -634,7 +634,7 @@ tracker; sNNN = port session.
   (s333, BUG-3138, 09af54b4f; master cf9d35493 / 7ddc880c3).
 - [x] "<The priest> casts a spell!" for a peaceful priest casting
   in his own temple -> no cast line, master's "cut down on the
-  temple spam" (ruled s340, BUG-3177, commit pending).
+  temple spam" (ruled s340, BUG-3177, aed92c0fe).
 
 ### 2.5 Levels and content
 
