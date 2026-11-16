@@ -49,8 +49,7 @@ staticfn boolean mon_has_eregen_artifact(struct monst *);
 staticfn boolean is_boss_caster(struct monst *);
 staticfn int druid_ward_subst(struct monst *, int);
 staticfn int choose_bolt_spell(struct monst *);
-staticfn int choose_monster_spell(struct monst *, struct monst *, int,
-                                  boolean);
+staticfn int choose_monster_spell(struct monst *, int);
 staticfn struct monst *find_adjacent_pet(struct monst *);
 staticfn void do_untame_pet(struct monst *, struct monst *);
 staticfn short mpick_learned_spell(struct monst *, struct monst *, boolean);
@@ -186,11 +185,7 @@ choose_bolt_spell(struct monst *mtmp)
 }
 
 staticfn int
-choose_monster_spell(
-    struct monst *mtmp,
-    struct monst *mdef,
-    int adtyp,
-    boolean attacking) /* castmu()'s thinks_it_foundyou; else TRUE */
+choose_monster_spell(struct monst *mtmp, int adtyp)
 {
     int *list = NULL;
     int i, candidate, spellval, len = 0;
@@ -250,24 +245,21 @@ choose_monster_spell(
                                   && mtmp->mhp * 4 <= mtmp->mhpmax))
         spellval = 1;
 
-    /* find the rung the roll lands on - for an attack cast, the
-       highest one at or below it that is not useless - or fall back
-       to the first spell in the list; the druid substitution runs on
-       the candidate BEFORE the useless test so the substituted
-       spell's own flags decide (the wards are indirect and castable
-       by the peaceful circle, unlike the hostile-only picks they
-       replace) */
+    /* find the rung the roll lands on, or fall back to the first
+       spell in the list. The pick goes back as it fell: a caller
+       that finds it useless right now drops it - an attacker rolls
+       again, a caster that is not attacking casts nothing - and no
+       lower spell stands in for it. The druid substitution runs
+       here so the callers test the ward's own flags (the wards are
+       indirect and castable by the peaceful circle) */
     candidate = -1;
     for (i = len - 1; i > 0; i--) {
         if (mcast_data[list[i]].level > spellval)
             continue;
         candidate = list[i];
         /* some rungs stand for a random pick between same-level
-           spells; roll before the substitution and useless tests so
-           the chosen spell's own flags and usefulness decide, and an
-           attack cast falls through to the next rung when the pick
-           proves useless. The summon minion rung also answers for the
-           two steps above it: open wounds two times in three, and
+           spells. The summon minion rung also answers for the two
+           steps above it: open wounds two times in three, and
            always for a roll that stayed higher still. Demons (other
            than Lolth, who keeps her insects) and both Kathryns cast
            the vulnerability curse where others summon insects */
@@ -286,35 +278,14 @@ choose_monster_spell(
                      || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]))
             candidate = MCAST_VULN_YOU;
         candidate = druid_ward_subst(mtmp, candidate);
-        /* the bolt rung stands for a fire/ice/psi choice; roll it
-           now so the chosen element's own resistances decide, and
-           fall through to the next rung when the roll defers */
+        /* the bolt rung stands for a fire/ice/psi choice; when the
+           roll defers, the rung below it takes the pick */
         if (candidate == MCAST_FIRE_BOLT) {
             candidate = choose_bolt_spell(mtmp);
             if (candidate < 0)
                 continue;
         }
-        /* a caster that is not attacking takes the pick as it fell:
-           castmu() turns down one that is aimed or useless, and no
-           lower spell stands in for it */
-        if (!attacking)
-            break;
-        /* a close-range spell picked against a distant target goes
-           back to the caller as it is: the caller's re-roll loop
-           draws a fresh level, rather than the pick sliding down to
-           a lower rung; a spell the caster would never cast at the
-           hero anyway (peaceful caster, hero out of sight) slides
-           down as it does next to the hero. A call undead roll by a
-           caster that cannot call undead goes back the same way, or
-           it would slide onto insects, the rung below */
-        if ((mcast_out_of_reach(mtmp, mdef, candidate, TRUE)
-             || (candidate == MCAST_CALL_UNDEAD
-                 && !mcast_can_call_undead(mtmp)))
-            && !mcast_barred_at_hero(mtmp, mdef, candidate))
-            return candidate;
-        if (!spell_would_be_useless(mtmp, mdef, candidate, TRUE))
-            break;
-        candidate = -1;
+        break;
     }
     if (candidate < 0) {
         candidate = druid_ward_subst(mtmp, list[0]);
@@ -378,9 +349,7 @@ castmu(
         int cnt = 40;
 
         do {
-            spellnum = choose_monster_spell(mtmp, &gy.youmonst,
-                                            mattk->adtyp,
-                                            thinks_it_foundyou);
+            spellnum = choose_monster_spell(mtmp, mattk->adtyp);
             /* not trying to attack?  don't allow directed spells */
             if (!thinks_it_foundyou) {
                 if (!is_undirected_spell(mtmp, spellnum)
@@ -2690,10 +2659,6 @@ spell_would_be_useless(
                 return TRUE;
         }
         break;
-    case MCAST_GEYSER:
-        if (!rn2(5))
-            return TRUE;
-        break;
     case MCAST_ACID_BLAST:
         if (youdefend) {
             /* don't waste the cast on a hero proven acid resistant or
@@ -3103,8 +3068,7 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
             int cnt = 40;
 
             do {
-                spellnum = choose_monster_spell(mtmp, mdef, mattk->adtyp,
-                                                TRUE);
+                spellnum = choose_monster_spell(mtmp, mattk->adtyp);
             } while (--cnt > 0
                      && spell_would_be_useless(mtmp, mdef, spellnum, TRUE));
             if (cnt == 0)
@@ -3356,8 +3320,8 @@ castum(struct monst *mtmp, struct attack *mattk)
         int cnt = 40;
 
         do {
-            spellnum = choose_monster_spell(&gy.youmonst, mtmp,
-                                            (int) mattk->adtyp, TRUE);
+            spellnum = choose_monster_spell(&gy.youmonst,
+                                            (int) mattk->adtyp);
         } while (--cnt > 0
                  && spell_would_be_useless(&gy.youmonst, mtmp, spellnum,
                                            TRUE));
