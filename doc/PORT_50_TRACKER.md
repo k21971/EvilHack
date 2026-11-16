@@ -17,8 +17,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-16, session 340: monster
-  spell picks as on 0.9.3 - an attacking caster that rolls a
+- Phase 2 status (refreshed 2026-11-16, session 341: six 0.9.3
+  behaviors the port lacked, and two things found beside them - Death
+  stops at 500 hit points under death rays, with the shield flash; a
+  dead hero's corpse and bones statue carry the race again (an elven
+  Wizard leaves an elven wizard corpse and comes back as one), statues
+  weigh by race and a crowned Infidel leaves a grave and no corpse
+  (both ruled); the cavern under Vlad's Tower has rock overhead;
+  --listroles is back; a pet gains the corpse intrinsic it picks, as
+  on 0.9.3, where 5.0 rolled the corpse's level in 15 (ruled: tame
+  monsters only); a Convict ignores its race's alignment at selection,
+  so dwarves and hobbits are offered again and the Striped Shirt no
+  longer changes alignment from one restore to the next; and saving
+  bones no longer aborts the game for a crowned Infidel or a Dark
+  Knight, 5.0's ghost record against EvilHack's own role and race
+  tables, found by the battery; two verify rows closed, five rows
+  minted and closed, one residue row minted -
+  after session 340, earlier the same day, put monster
+  spell picks back on 0.9.3 - an attacking caster that rolls a
   useless spell rolls again where 5.0 slid it down to a lesser one,
   both spell ladders sit on master's rolls (a level-12 priest
   casts fire pillar again, a level-11 lich no longer curses
@@ -119,8 +135,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 62 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 60 LOW):
-  745 rows closed, 62 open
+  prefix; 61 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 59 LOW):
+  752 rows closed, 61 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -132,6 +148,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     one - and the bag of devouring refuses a bag holding one).
   - 1 MED: door-material colors (an unported master feature; it
     stays with Phase 4). Phase 2 has no other MED row.
+    Session 341 minted and closed a HIGH, a MED and three LOW rows and
+    closed two verify rows: the bones crash for a crowned Infidel or a
+    Dark Knight (BUG-3188, ruled); the Convict's alignment rule at
+    selection (BUG-3185, ruled); Death's cap (BUG-3178), --listroles
+    (BUG-3186) and the pet intrinsic rule (BUG-3187, ruled); the dead
+    hero's race on corpse and statue with statues by race and no
+    corpse for a demon (BUG-3179 to BUG-3183, two ruled); the tower
+    cavern's ceiling (BUG-3184); commit pending; the rows and the
+    Decisions log have the detail.
     Session 340 minted and closed two MED rows and a LOW in the
     monster spell picker: master's re-roll for an attacking
     caster in place of 5.0's slide, with the geyser skip gone
@@ -36681,7 +36706,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       or artifact left behind; revived / animated monsters match
       fresh ^G ones; time block in text and HTML; digestion own
       form, zombie-sick, life-saved, "Die? n", polymorphed, vampire.
-- [ ] LOW, verify: the dead hero's own corpse and bones statue carry
+- [x] LOW, verify: the dead hero's own corpse and bones statue carry
       no race (minted 2026-11-10, session 319, from the tt_oname()
       exploration, unread against master): master end.c really_done()
       and bones.c savebones() are reported to put the hero's race on
@@ -36696,6 +36721,42 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       save_mtraits()); savebones() does the same for the statue.
       The branch makes a plain gu.urace.mnum corpse and a statue
       with no traits. Not fixed.
+      CLOSED 2026-11-16, session 341 (plan
+      /root/.claude/plans/bugfix-six-master-gaps-death-cap-hero-race-convict-pets.md;
+      BUG-3179, BUG-3180, BUG-3181, BUG-3182, BUG-3183; commit
+      pending). tt_oname()'s record block is now record_player_race()
+      in topten.c, and really_done() and savebones() call it: the
+      hero's corpse is the role monster's again with the sex and the
+      race recorded (a corpse of the race monster when no record can
+      be made), and the bones statue likewise. In bones the corpse
+      reads "elven wizard corpse", unnamed as on master (role monsters
+      sort below SPECIAL_PM); the name lives in the stored record, so
+      undead turning brings back an elven Wizard player monster under
+      the hero's name where the branch gave a plain elf. RULED
+      2026-11-16, both beyond master: a statue with a race record
+      weighs by the race (hobbit 750, gnome 975, elf / drow 1200, orc
+      1275, dwarf 1350, tortle 2400, giant / centaur 3300; all were
+      2175), and a hero whose race leaves no corpse - a crowned
+      Infidel is a demon - leaves a grave and no corpse (master: an
+      infidel corpse with the demon race; the branch had a "demon
+      corpse"). Reviewer LOW, both taken: the throwaway monster is
+      made as if during level creation, so it cannot interrupt a dying
+      hero's meal or a grave dig (session 319's note), and the name
+      stored with a corpse's or statue's monster is sanitized when
+      bones load (vanilla gap, upstream row). Battery B: a male elven
+      Wizard's corpse at death is PM_WIZARD, male, with the elf
+      record, weight 800 (PRE: PM_ELF, nothing stored); from bones "an
+      elven wizard corpse" revives as an "elven wizard called wizard",
+      hostile (PRE: "an elf corpse", "The elf is resurrected!"); a
+      female dwarven Priest leaves "a dwarven priestess corpse"; a
+      stoned female dwarven Valkyrie leaves "a statue of a dwarven
+      valkyrie named wizard" of 1350 without its contents (PRE: "a
+      statue of a valkyrie named wizard", 2175); a ^G valkyrie with a
+      dwarf record turned to stone, 1350 (PRE 2175 whatever the race);
+      a demon Infidel leaves a grave marked empty and nothing on it
+      (PRE: a PM_DEMON corpse), and a statue when stoned; a
+      polymorphed hero's corpse is the form's, with nothing recorded,
+      as before.
 - [ ] LOW, verify: census leftovers not yet read against the branch
       (minted 2026-11-09, session 315): --listroles, iflags
       .suppress_worn (quiver text while throwing), Death's 500 HP cap
@@ -36718,6 +36779,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       dog_givit() calls it), so a pet eating such a corpse gains
       a real intrinsic less often than on the branch, whose
       function has no such pick.
+      Session 341 (2026-11-16) closed the three behaviors in rows of
+      their own, below: Death's cap, --listroles and the pet intrinsic
+      rule. What is left of this row: the 217 partial-match strings
+      and the roughly 400 master-only local names, unread; rerun the
+      string census to list them.
 - [x] LOW: master's whip grab condition unported (minted 2026-11-11,
       session 324, census of master 8e1817da0): a whip flicked down
       reaches the floor for a hero who is `!grounded()` or water
@@ -36730,7 +36796,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       small splash." stays for a whip flicked down over water or
       lava (against the recommendation of master's grab); no code.
       REMOVALS section 3 has the line.
-- [ ] LOW, verify: master's ceiling() says "rock cavern" for an AIR
+- [x] LOW, verify: master's ceiling() says "rock cavern" for an AIR
       square inside Vlad's Tower (minted 2026-11-11, session 324,
       explorer; master engrave.c). The branch's ceiling() has no
       such arm and says "sky" for any AIR square; whether the
@@ -36739,6 +36805,139 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       map is AIR around its floor, as in master's tower.des. The
       branch's ceiling() (dungeon.c) lacks the In_V_tower() arm.
       Not fixed.
+      CLOSED 2026-11-16, session 341 (BUG-3184; commit pending).
+      ceiling() answers "rock cavern" for AIR inside Vlad's Tower, and
+      ceiling() and surface() gained master's isok() guards (master
+      BUG-1041), their map reads moved below the guard. Battery A2:
+      levitating over the open air of the cavern level, a wand of
+      probing zapped upward says "You probe towards the rock cavern."
+      (PRE "the sky"); a floor square there says "the ceiling" on both
+      builds; the Plane of Air still says "the sky".
+- [x] LOW: Death grew to 999 hit points under death rays (minted and
+      CLOSED 2026-11-16, session 341, from the census leftovers row;
+      BUG-3178; commit pending). Master caps the growth at DEATH_PROOF
+      500 (42471dfca) and flashes the shield (408721654); the branch
+      had vanilla's healmon() and a 999 ceiling. zhitm() now has
+      master's arm. Vanilla's own arm leaves mhp above the clamped
+      maximum (upstream row; the branch's zhitm() tail hid it).
+      Battery A1: POST 146 -> 219, 328, 492, 500, 500, 500 with a
+      shieldeff() call from zhitm(); PRE 143 -> 214, 321, 481, 721,
+      999, 999 and no shieldeff(); set to 900, one ray gives 500 on
+      POST and 999 on PRE.
+- [x] LOW: --listroles unported (minted and CLOSED 2026-11-16, session
+      341, from the census leftovers row; BUG-3186; commit pending).
+      Master f1a0e5a74: every valid role / race / gender / alignment
+      combination as file codes, one to a line, then exit. listroles()
+      in role.c; an early argument in earlyarg.c, so unixmain.c,
+      pcmain.c and windmain.c have it (master: unixmain.c only);
+      vmsmain.c and libnhmain.c each gained master's two lines
+      (reviewer LOW; neither builds on this host); dat/usagehlp and
+      doc/evilhack.6 document it. Battery A3: exit 0, 318 lines, each
+      four three-letter codes, 18 Convict lines all Cha with the
+      dwarven and hobbit ones present, `-listroles` identical,
+      `--listrole` an unknown option, nothing written to disk. Not
+      compared with 0.9.3's own list - no 0.9.3 binary was run in the
+      session.
+- [x] LOW: pets rolled 5.0's level chance for a corpse intrinsic and
+      never picked the energy boost (minted and CLOSED 2026-11-16,
+      session 341, from the census leftovers row; BUG-3187; commit
+      pending). The row named master's energy pick; reading
+      dog_givit() found the larger gap - master's pets gain the picked
+      intrinsic every time (the maintainer's own merge 1daeccb4e
+      switched the roll off in 2019), where 5.0's mon_givit() rolls
+      the corpse's level in 15. Over the 120 corpses that can give a
+      monster something master grants on 90% of meals, the branch did
+      on 52%. RULED 2026-11-16: 0.9.3's rule for pets, 5.0's roll kept
+      where 0.9.3 gave nothing. Corrected in the plan and approved
+      with it: on master only a TAME digester gains, so the ruling is
+      one test - a tame monster gets master's rule however the meal
+      arrives (eaten, drained by a vampire, swallowed whole, or eaten
+      off the floor by a tame cube, worm, ghoul or piranha), a monster
+      that is not tame makes exactly the calls it made before. Battery
+      C2, grants in 60 calls of mon_givit(), POST / PRE: tame little
+      dog - fire ant 60 / 11, killer bee 60 / 15, kobold shaman 30 /
+      60, golden naga 22 / 36, red dragon 60 / 60; hostile jackal - 9
+      / 12, 13 / 11, 60 / 60, 40 / 38, 60 / 60. In play on POST: a
+      hungry little dog 3 meals in 3, a tame vampire lord's drain 3 in
+      3, a tame purple worm's swallow 3 in 3, a hostile ghoul off the
+      floor 1 in 6; the stalker corpse still makes a pet invisible and
+      stunned.
+- [x] MED: ROLE_NORACEALIGN was set and never read - a dwarven or
+      hobbit Convict had no legal alignment (minted and CLOSED
+      2026-11-16, session 341, found reading --listroles' companion
+      commit; BUG-3185; commit pending). Master 8c573257a lets a
+      Convict's alignment stand in for its race's; Phase 1 carried the
+      flag over without its seven readers. The menus never offered
+      dwarf or hobbit to a Convict; through `-p Con -r dwa`, the
+      options file or a random pick the game started with
+      "Incompatible alignment!" and role_init() re-rolled the stored
+      alignment with rn2(3) at every start and every restore - the
+      hero stayed chaotic (u_init_role()) while the Striped Shirt, the
+      gift artifacts and the quest leader took the rolled alignment,
+      and a Shirt that is not chaotic blasts its Convict. X11's and
+      Qt's selection looped forever on the pair. RULED 2026-11-16:
+      fold in, as its own commit. validalign(), randalign(), ok_race()
+      (after the race test - race and alignment bits overlap),
+      ok_align(), role_selection_prolog() and role_menu_extra() honor
+      the flag. Battery C1, flags.initalign / the Shirt / Robert the
+      Lifer: PRE five launches 1/0/0, 2/-1/-3, 1/0/0, 2/-1/-3, 2/-1/-3
+      and three restores of one game 0/+1/+3, 2/-1/-3, 1/0/0, with
+      u.ualign.type -1 throughout and no dwarf or hobbit in the
+      Convict's race menu; POST both races listed, "role forces
+      chaotic", 2/-1/-3 on all six launches and restores, and the PRE
+      save with the lawful Shirt restored on POST reads 2/-1/-3. A
+      human Convict and a dwarven Valkyrie select the same on both
+      builds.
+- [x] HIGH: saving bones aborted the game for a crowned Infidel or a
+      Dark Knight (minted and CLOSED 2026-11-16, session 341, found by
+      battery B on the previous build and the new one alike; BUG-3188;
+      commit pending). 5.0's savebones() fills the ghost's EBONES
+      record by looking the hero's role and race up by name with loops
+      that run onto the table's terminator when nothing matches;
+      vanilla always matches. A crowned Infidel's race (race_demon) is
+      in no table, and a chaotic Knight's role is "Dark Knight" from
+      align_roles[]: strcmp() got a null name and the game aborted
+      after the dumplog and before the tombstone and topten(), so the
+      death was never logged. (A Draugr or Vampire hero gets no ghost,
+      so never reached the lookup.) Master has no such record. RULED
+      2026-11-16: fix now, own commit. Both loops stop at the last
+      real entry and match on the monster number; a demon keeps index
+      0; nothing reads the two indexes. Battery D: a chaotic human
+      Knight (gu.urole.name.m "Dark Knight") on PRE: "Signal
+      received.", savebones() in the role loop's strcmp(), "Aborted
+      (core dumped)", no tombstone, logfile / xlogfile / record
+      untouched; on the fixed build a tombstone ("Fare thee well
+      wizard the Dark Knight..."), bones written, the ghost's record
+      role 7 = "Knight" and race 0, and the bones load with "wizard's
+      ghost" and the corpse. An Infidel given the demon race: PRE
+      aborts in the race loop; the fixed build ends normally, bones
+      written, record role 6 (Infidel) and race 0, the death square a
+      GRAVE marked empty with no corpse, and the loaded bones hold the
+      ghost, the grave and no corpse. A Draugr Knight leaves no ghost
+      on either build, as read.
+- [ ] LOW, record: session 341 residue (minted 2026-11-16, plan stress
+      test, reviewer and batteries; record unless a ruling wants a
+      change). (a) A tame digester that swallows a monster leaving no
+      corpse can still gain an intrinsic from it, and a tame minion is
+      not excluded (5.0's mhitm.c call; master requires a possible
+      corpse and `!isminion`). (b) `-s --listroles` runs the scores
+      first; master's unixmain.c ran the list first. (c) --listroles
+      in vmsmain.c and libnhmain.c has not been built anywhere. (d)
+      --listroles was not compared with 0.9.3's own output; the branch
+      prints 318 lines. (e) A hero of a single-sex role whose sex was
+      changed leaves a corpse whose sex bits and stored record
+      disagree; the role's name has no gendered form, so nothing
+      shows. (f) A demon hero's ghost record has race index 0, there
+      being no table entry; nothing reads it. (g) With dwarf back in
+      the Convict's race menu the letters shift (drow d -> r, draugr r
+      -> a). (h) 5.0 puts a wished corpse that would kill on touch on
+      the floor ("Careful! The cockatrice corpse materializes on the
+      floor!"); on master it lands in the pack, where
+      hold_another_object() makes no touch test. (i) The tower
+      cavern's entry line reads "an rock cavern" (dat/quest.lua;
+      master's quest.txt the same). (j) Genesis of Death brings a
+      saddled Pale Horse that attacks on its own: freeze both when
+      staging.
 - [x] LOW: edibility_prompts() computes its own rot (minted
       2026-11-12, session 325, catch-up 3 plan stress test).
       eat.c edibility_prompts() repeats vanilla's
@@ -41337,6 +41536,8 @@ see its row), cut against 74ebd09ed.
 | 2026-11-15 | A wish for `blue glass named Bob` gives a gem named "f blue glass": readobjnam_postparse1() cuts " named " in place and points d->name 7 bytes on in the same buffer, then readobjnam_postparse2()'s glass arm copies "worthless piece of " + the color text back over d->bp, 19 bytes longer, over the start of the name (`piece of blue glass named Bob` gives "ass"; d->un and d->dn sit there the same way). A failed "<x> glass" wish also pre-fills the retry prompt with the rewritten text. Same code in fd4d169b6 and in 3.6 readobjnam(). Run on the branch 2026-11-15. Fix on the branch: build the canonical text in d->globbuf and point d->bp there, as the glob arm does; BUG-3157, src/objnam.c, branch commit be674634b | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | A meal that never happens still counts: doeat() counts the food conduct and writes "ate for the first time - ..." to the livelog, then touchfood() splits one item off a carried stack, cannot put it back into a full pack and drops it, and when lava burns the piece (or a hole takes it) touchfood() returns null and doeat() returns with the count kept. Same order in fd4d169b6; EvilHack master rolls the count back. Run on the branch 2026-11-15 (52 slots in use, levitating over lava, an apple from a stack of two: "You see the apple hit lava and burn up!", u.uconduct.food 1 and the livelog line). Fix on the branch: count the conduct after touchfood() succeeds; BUG-3159, src/eat.c, branch commit 628677386 | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | Monsters cast summoning spells about twice as often as in 3.6. mcastu.c choose_monster_spell() (upstream 3917f5493, the 2026-04-01 reorg) returns the highest spell at or below the level roll that spell_would_be_useless() accepts, so a useless pick slides to the next spell down. The slide is deliberate for an attacker (the same commit's touch of death 1-in-2 and geyser 1-in-5 skips rely on it), but castmu()'s comment says a monster that is not attacking selects a spell once, and dochug()'s undirected call slides too: double trouble (rolls 18-19, useless for any non-Wizard) and half of touch of death land on summon nasties (arch-lich at range 26% of free moves, 3.6.7 12%), and a peaceful or out-of-sight hurt caster lands on cure self on about 95% of them (3.6.7 4%). The reorg also gave curse items one level, 10, for both lists; 3.6.7's cleric ladder had it on rolls 9-10 and insects on 8, so cleric roll 9 now summons insects (aligned priest 8% -> 17% of picks, high priest 6% -> 14%). Same code in 74ebd09ed; no upstream issue or PR. Vanilla patch (rulings in the decisions log): the picker takes an `attacking` argument (castmu()'s thinks_it_foundyou) and tests usefulness only for an attacker; clerics get curse items one level sooner. Run 2026-11-15 on scratch builds of 74ebd09ed with and without the patch, 5000 gdb calls of the picker per figure: mage list at m_lev 25, summon nasties 26.1% before and 26.1% attacking / 14.0% not attacking after; cleric list at m_lev 12 / 25, insects 16.8% / 14.3% before and 8.8% / 6.9% attacking, 8.2% / 7.2% not attacking after, curse items 8.0% / 7.3% before and 15.4% / 15.1%, 16.1% / 13.7% after; in play a hurt peaceful level-25 caster cured itself 73 times in 150 turns before and 6 times after; both paniclogs clean. On the branch, whose picker is its own (rung rolls, the close-range list), the not-attacking slide went in Phase 2 session 339 (BUG-3168, 24d09a930) with the same `attacking` rule; the attack-path slide stayed, as in the patch, until Phase 2 session 340 took master's re-roll for attack casts too (BUG-3170, ruled; 305c42b08), so the branch's picker no longer takes `attacking`; the cleric half does not apply (the branch has master's ladder: insects on their own rung, BUG-3165); the ruled ranged summon nasties is BUG-3164 | not-attacking half fixed on the branch 2026-11-15 (BUG-3168, 24d09a930); patch cut 2026-11-15 on the maintainer's request (gameplay tier, outside the queue), /root/nh50-mcast-summon-rate.patch; sent as PR #1745 (2026-11-15), fix-mcast-summon-rate 68e3e2e1d |
+| 2026-11-16 | zap.c zhitm(), the death-ray arm for Death: `healmon(mon, mon->mhpmax * 3 / 2, mon->mhpmax / 2)` and then `if (mon->mhpmax >= MAGIC_COOKIE) mon->mhpmax = MAGIC_COOKIE - 1;` clamp the maximum and leave mhp above it (Death at 757 ends with mhpmax 999 and mhp 1135), which the monster sanity check reports; nothing after it in zhitm() clamps mhp. Same code in fd4d169b6. Read, not run on vanilla: the branch's own zhitm() tail clamped mhp, and the arm is now master's (cap 500, direct writes); BUG-3178, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-16 | bones.c resetobjs() sanitizes ONAME() of the objects in loaded bones and getbones() the names of its monsters, but not the given name inside the monster stored with a corpse or statue (OMONST): a named pet's corpse brings the previous player's text through unsanitized, and it is printed when the corpse is revived or the statue animated. Same code in fd4d169b6. Fix on the branch: `if (has_omonst(otmp) && has_mgivenname(OMONST(otmp))) sanitize_name(MGIVENNAME(OMONST(otmp)));` in the restore arm; BUG-3182, branch commit pending | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -42044,6 +42245,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-15 | Vanilla summon-rate patch (5.0 fixes session 338, AskUserQuestion x2 with 5 questions; the first round's three answers were as recommended, and two were re-asked after a stress test corrected their premises; the batteries were approved with the plan). (0) SEND RULE: the maintainer asked for a vanilla fix for summon nasties and summon insects, a gameplay-tier send outside the crash-class-only rule and outside the queue. (1) PICKER: a caster that is not attacking picks once with no slide; attackers keep 5.0's slide untouched. First answer was re-roll everywhere as 3.6.7 did; re-asked because upstream 3917f5493 wrote the slide on purpose (touch of death's and geyser's skips rely on it) and because re-roll everywhere raised an adjacent arch-lich's destroy armor plus weaken from 19% to 32% of casts and a master lich's adjacent nasties from 12% to 18%. Rejected: re-roll everywhere; the single pick plus never sliding onto a summoning spell (adjacent curse items 24% -> 36%); in the first round, skipping summon nasties 1 time in 3 and restoring touch of death's 3.6.7 share. Accepted with it: an adjacent arch-lich still summons on 26% of casts (3.6.7 18%). (2) INSECTS: clerics get curse items at level 9, 3.6.7's cleric rolls exactly. First answer was insects to level 9; re-asked because with the slide kept for attackers the spare roll goes to blindness and on to paralysis of a blinded hero (adjacent priest 33% -> 42%). Rejected: insects to level 9; curse items to level 9 for both lists (an adjacent arch-lich's curse items 24% -> 32%). (3) PACKAGING: one patch and one PR, both changes sit in choose_monster_spell() (first answer: two PRs). Ruled the same day for the branch, no code yet: summon nasties goes back to being a ranged spell, the maintainer mints the row. |
 | 2026-11-15 | Monster casters at range (Phase 2 session 339, AskUserQuestion x4 with 9 questions; seven answers as recommended, two not - marked below; the batteries were approved with the plan). (1) SLICE: summon nasties back to ranged, the maintainer's ruling of the same day with no row and no code (not taken: the doorway thread, the wording and parity rulings, the verify rows and census leftovers). (2) WHERE A RANGED SUMMON COMES FROM: FREE PICKS ONLY - a caster that is not attacking (castmu() with thinks_it_foundyou false); the lined-up attack cast never picks it at range. Arch-lich per off-cooldown move: 8% lined up, 15% off the line; 3.6.7 12%, master before 2025-12 8%, vanilla 5.0 26% (rejected: the attack cast too, 27% lined up; one free pick a move, 8% flat). (3) THE OTHER TWO SPELLS: BOTH - aggravation and double trouble go back to ranged the same way (recommended: summon nasties only, as first ruled). (4) AGAINST ANOTHER MONSTER: close-range stays, master 24f1e8812's deliberate 2024 list. (5) PRAYING HERO: as vanilla and old master, no prayer protection for the three (rejected: the clause insects, summon minion and call undead have). (6) INSECTS, found reading the picker - never cast from range on the branch: fix in this slice, ON THEIR OWN RUNG AT LEVEL 7, master's case value (rejected after the plan stress test: a 1:1 coin with call undead on rolls 8-9, which missed master below caster level 10 and left blind on two rolls). Left as today: a caster that can call undead has it on two rolls. (7) HIGH PRIEST, two spell attacks: PULL IT DOWN TO MASTER - ranged insects 24% / 20% of moves after the rung fix against master's 17% / 15% (recommended: accept and record). (8) THE LEVER for (7): MASTER'S FULL FREE-PICK SHAPE - port master's ranged open wounds (7fce5fb98, 2024; the cause found: master's free pick casts it and ends the move), a free pick keeps its roll with no slide to a lesser spell (the rule of vanilla PR #1745), master's two top clerical rolls, and master's rule that a caster at a quarter of its hit points goes for cure self (rejected: ranged open wounds alone, 19% / 16% with mid-level priests at twice master's open wounds; neither). Result, simulated: high priest insects 16% / 15%, open wounds 49% / 38% (master 44 / 39). APPROVED WITH THE PLAN, each stated there: open wounds ignores the attack's own dice and Half_spell_damage and lands on a displaced or invisible hero (master's shape); a peaceful or unseen caster buffs itself on about 1 free pick in 12, not 5 in 6; the Ice Queen casts no insects; adjacent insects and blind drop to master's share; the off-line 15% for nasties is a rate no shipped tree had. Recorded, residue row: the attack-cast slide, master's "You hear something cast a spell!" line, 5.0's sight flag on aggravation and double trouble. |
 | 2026-11-16 | Monster spell picks as on 0.9.3 (Phase 2 session 340, AskUserQuestion x3 with 6 questions; every answer as recommended, one unrecommended option left unticked - marked below; the batteries were named in the plan and asked once more after the review folds). (1) SLICE: "monster casting leftovers", the session 339 residue row's rate items (not taken: the six master gaps read out of the verify rows that day - Death's 500 hit point cap, the dead hero's racial corpse and statue, the tower cavern's ceiling, --listroles, pet intrinsic odds, whose READ notes are on those rows, and the unseen cast line, which went into this slice instead; the doorway thread; the wording and parity rulings). (2) THE SLIDE: MASTER'S RE-ROLL for an attacking caster - a useless pick is thrown out and the level rolled again, where 5.0 slid it down a rung; 5.0's one-in-five geyser skip goes with it (BUG-3170, BUG-3171). (3) THE LADDERS: MASTER'S VALUES on both lists (BUG-3172, BUG-3173). (4) THE CAST LINE: BOTH, AS MASTER - "You hear something cast a spell!" for an unseen caster's undirected spell, and no cast line for a peaceful priest in his own temple (BUG-3176, BUG-3177). (5) REVIEW FINDS (2026-11-16, a multi-select of two): DRUID WARDS AS MASTER taken (BUG-3175); ASMODEUS CASTS FIRE PILLAR not taken - his lightning on the summon minion roll stays, the branch's reading since b13220f70, and now holds at range too; the level cap at 50 was folded without a question and the question said so (BUG-3174). (6) BATTERIES: launch now (three testers: A and B gdb tallies, C in play). Approved with the plan, each stated: an attack cast can come up empty after 40 tries, as on master; a clerical demon lord casts fire pillar from range again on its summon minion roll (12.2 -> 22.1% of lined-up casts measured); a wizard of level 25 or more that is not attacking throws fire and ice blasts a little more (5.7 -> 7.5% of free picks measured); a level-16 wizard loses summon nasties on free picks and a level-17 one keeps one roll of it; an arch-lich's touch of death against a hero without magic resistance goes from 15 to 19 adjacent casts in 100 (measured on a fresh stand-in). Recorded, residue row: Asmodeus's lightning; the bolts' undirected wording; a tame caster's empty casts. Minted open: castmm()'s doubled learned-spell roll. |
+| 2026-11-16 | Six master gaps, the Convict rule and a bones crash (Phase 2 session 341, AskUserQuestion x4 with 7 questions; six answers as recommended, one not - marked below). (1) SLICE: the six master gaps session 340 confirmed by reading (not taken: castmm()'s doubled learned-spell roll, the doorway thread, the wording and parity rulings). (2) PETS: 0.9.3'S RULE, HOSTILES KEEP THE ROLL, over the recommended "0.9.3's rule everywhere" - a pet gains the intrinsic it picks and the energy boost counts as a pick; monsters 0.9.3 gave nothing keep 5.0's level roll (rejected: the energy pick alone, which would have lowered pets further; leave 5.0's odds) (BUG-3187). (3) CONVICT: FOLD IN, OWN COMMIT - master 8c573257a's readers of ROLE_NORACEALIGN (rejected: a MED row for a later slice) (BUG-3185). (4) STATUES BY RACE, beyond master (rejected: by role, as 0.9.3) (BUG-3183). (5) DEMON HERO: NO CORPSE, the grave is still dug, beyond master and in line with session 319's scoreboard ruling (rejected: 0.9.3's infidel corpse with the demon race) (BUG-3180). (6) BATTERY: launch all three testers. (7) BONES CRASH, found by the battery on both builds: FIX NOW, OWN COMMIT (rejected: a HIGH row for its own session) (BUG-3188). Approved with the plan, three premises of the ruling questions corrected by its stress test: the menus never offered dwarf or hobbit to a Convict, and the wrong alignment was a fresh rn2(3) at every start and restore, not a stored lawful; on 0.9.3 only a tame digester gains, so ruling 2 is one test - tame gets 0.9.3's rule however the meal arrives, anything else is untouched; the branch had no sanity complaint for Death, only the 999 ceiling. Also stated and approved: the bones corpse is unnamed, as on 0.9.3; a pet eating a spellcaster's corpse gains less often than before (kobold shaman's telepathy 100 -> 50%); if the race cannot be recorded the corpse is the race monster's. Review folds, taken without a question: the throwaway monster made as if during level creation (BUG-3181), the stored name sanitized on bones load (BUG-3182), --listroles in the VMS and libnh mains. Recorded, residue row: no-corpse digestion grants, the unbuilt platform lines, the missing 0.9.3 comparison of --listroles. | maintainer |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
