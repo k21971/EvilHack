@@ -6393,7 +6393,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the untame override follow the loop as on master; check
       the session 296 learned-spell rows first.
       CLOSED 2026-11-16, session 342 (BUG-3189,
-      commit pending s342-A; plan
+      fabb5339a; plan
       /root/.claude/plans/bugfix-castmm-doubled-learned-spell-roll.md).
       Port regression: the pre-roll was castmm()'s whole
       selection before the innate lists were wired in (f4d7eaaa0
@@ -6426,7 +6426,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW: a book spell with nothing to cast still spent the cast
       (minted and CLOSED 2026-11-16, session 342, plan stress
       test; RULED fold-in, own commit; BUG-3190,
-      commit pending s342-B; master the same, frozen-unfixed
+      795530366; master the same, frozen-unfixed
       there). The usefulness test and the pick can disagree:
       mhas_castable_offensive_spell() accepts entangle anywhere
       and mchoose_learned_spell() needs grass or a tree at the
