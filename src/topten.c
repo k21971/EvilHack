@@ -1651,6 +1651,60 @@ get_rnd_tt_name(
     return tt ? tt->name : (char *) 0;
 }
 
+/* record a player's race with a corpse or statue of the role monster.
+   The race lives in a monster's extra data: make a throwaway monster of
+   the role, give it the race and store its traits with the object; no
+   steed and no kit, either of which would outlive the monster. A name
+   christens the throwaway, so that whatever revives or animates from
+   the object carries it. An unknown role (classmon()'s fallback) or a
+   genocided race records nothing, and neither does a monster that could
+   not be made; has_omonst() tells the caller */
+struct obj *
+record_player_race(
+    struct obj *otmp,
+    int rolendx, int racendx,
+    mmflags_nht sexflag, /* MM_FEMALE, MM_MALE or NO_MM_FLAGS */
+    const char *nam)     /* might be Null */
+{
+    struct monst *mtmp;
+    mmflags_nht mmflags = (MM_NOCOUNTBIRTH | MM_NOSTEED | MM_NOMSG
+                           | MM_NONAME | NO_MINVENT) | sexflag;
+    boolean was_in_mklev = gi.in_mklev;
+
+    if (racendx < LOW_PM || !is_mplayer(&mons[rolendx])
+        || (svm.mvitals[racendx].mvflags & G_GONE) != 0)
+        return otmp;
+
+    /* as if during level creation: the throwaway is never drawn and
+       its arrival cannot interrupt what the hero is doing (digging up
+       a grave, or a last meal that is still an occupation at death) */
+    gi.in_mklev = TRUE;
+    mtmp = makemon(&mons[rolendx], 0, 0, mmflags);
+    gi.in_mklev = was_in_mklev;
+    /* makemon() can fail (no room on the level, genocided role) */
+    if (!mtmp)
+        return otmp;
+    mtmp->mgenmklev = was_in_mklev;
+    /* makemon() rolled a race of its own; make the record again in full
+       for the wanted race rather than layer one race's attacks and
+       traits over another's */
+    if (has_erac(mtmp))
+        mtmp->mintrinsics = 0;
+    apply_race(mtmp, NON_PM);
+    init_mplayer_erac(mtmp, TRUE, (short) racendx);
+    /* makemon() judged the rolled race; the record carries the attitude
+       of the race it names */
+    mtmp->mpeaceful = peace_minded(mtmp);
+    set_malign(mtmp);
+    if (nam)
+        mtmp = christen_monst(mtmp, nam);
+    otmp = save_mtraits(otmp, mtmp);
+    mongone(mtmp);
+    /* the recorded race has a say in the weight */
+    otmp->owt = weight(otmp);
+    return otmp;
+}
+
 /*
  * Attach random player name and class from high score list
  * to an object (for statues or morgue corpses).
@@ -1659,10 +1713,8 @@ struct obj *
 tt_oname(struct obj *otmp, boolean *nocorpse)
 {
     struct toptenentry *tt;
-    struct monst *mtmp;
     int classndx, racendx;
-    mmflags_nht mmflags = (MM_NOCOUNTBIRTH | MM_NOSTEED | MM_NOMSG
-                           | MM_NONAME | NO_MINVENT);
+    mmflags_nht sexflag = NO_MM_FLAGS;
 
     *nocorpse = FALSE;
     if (!otmp)
@@ -1686,42 +1738,16 @@ tt_oname(struct obj *otmp, boolean *nocorpse)
     set_corpsenm(otmp, classndx);
     if (tt->plgend[0] == 'F') {
         otmp->spe = CORPSTAT_FEMALE;
-        mmflags |= MM_FEMALE;
+        sexflag = MM_FEMALE;
     } else if (tt->plgend[0] == 'M') {
         otmp->spe = CORPSTAT_MALE;
-        mmflags |= MM_MALE;
+        sexflag = MM_MALE;
     }
     otmp = oname(otmp, tt->name, ONAME_NO_FLAGS);
 
-    /* record the race, which lives in a monster's extra data: make a
-       throwaway monster of the role, give it the race and store its
-       traits with the object; no steed and no kit, either of which
-       would outlive the monster; an unknown role (classmon()'s
-       fallback) or a genocided race records nothing */
-    if (racendx >= LOW_PM && is_mplayer(&mons[classndx])
-        && !(svm.mvitals[racendx].mvflags & G_GONE)) {
-        mtmp = makemon(&mons[classndx], 0, 0, mmflags);
-        /* makemon() can fail (no room on the level, genocided role) */
-        if (mtmp) {
-            /* makemon() rolled a race of its own; make the record
-               again in full for the entry's race rather than layer
-               one race's attacks and traits over another's */
-            if (has_erac(mtmp))
-                mtmp->mintrinsics = 0;
-            apply_race(mtmp, NON_PM);
-            init_mplayer_erac(mtmp, TRUE, (short) racendx);
-            /* makemon() judged the rolled race; the record carries the
-               attitude of the race it names */
-            mtmp->mpeaceful = peace_minded(mtmp);
-            set_malign(mtmp);
-            otmp = save_mtraits(otmp, mtmp);
-            mongone(mtmp);
-            /* a racial corpse weighs what its race does */
-            otmp->owt = weight(otmp);
-        }
-    }
-
-    return otmp;
+    /* the object is named already; the record needs no name of its own */
+    return record_player_race(otmp, classndx, racendx, sexflag,
+                              (const char *) 0);
 }
 
 /* Randomly select a topten entry to mimic */

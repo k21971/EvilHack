@@ -128,6 +128,10 @@ resetobjs(struct obj *ochain, boolean restore)
             } else if (has_oname(otmp)) {
                 sanitize_name(ONAME(otmp));
             }
+            /* a corpse or statue can carry a name of its own with the
+               monster stored in it: a dead hero's, or a named pet's */
+            if (has_omonst(otmp) && has_mgivenname(OMONST(otmp)))
+                sanitize_name(MGIVENNAME(OMONST(otmp)));
 
             /* prevent materials from differing on things like rings */
             if (!valid_obj_material(otmp, otmp->material)) {
@@ -686,6 +690,14 @@ savebones(int how, time_t when, struct obj *corpse)
         /* embed your possessions in your statue */
         otmp = mk_named_object(STATUE, &mons[u.umonnum], u.ux, u.uy,
                                svp.plname);
+        /* every role monster is human: the statue of a hero in their
+           own form has the sex and the race recorded with it */
+        if (!Upolyd) {
+            otmp->spe = flags.female ? CORPSTAT_FEMALE : CORPSTAT_MALE;
+            otmp = record_player_race(otmp, u.umonnum, gu.urace.mnum,
+                                      flags.female ? MM_FEMALE : MM_MALE,
+                                      svp.plname);
+        }
 
         drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);
         if (!otmp)

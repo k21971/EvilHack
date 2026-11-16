@@ -1799,19 +1799,36 @@ really_done(int how)
        this grave in the current level's features for #overview */
     if (bones_ok && u.ugrave_arise == NON_PM
         && !(svm.mvitals[u.umonnum].mvflags & G_NOCORPSE)) {
-        /* Base corpse on race when not poly'd since original u.umonnum
-           is based on role, and all role monsters are human. */
-        int mnum = !Upolyd ? gu.urace.mnum : u.umonnum,
-            was_already_grave = IS_GRAVE(levl[u.ux][u.uy].typ);
+        int was_already_grave = IS_GRAVE(levl[u.ux][u.uy].typ);
+        /* a hero in their own form whose race leaves no corpse (a
+           crowned Infidel is a demon) leaves none either; the grave
+           is dug all the same */
+        boolean bodiless = (!Upolyd
+                            && (mons[gu.urace.mnum].geno & G_NOCORPSE) != 0);
 
-        if (!Withering) {
+        if (!Withering && !bodiless) {
             /* withering suppresses the actual corpse from being created
                but still allows creation of a grave (and it doesn't
                matter whether or not withering was the actual cause of
                death; dying while withering is assumed to just wither
                the rest of the body without any vitality to stop it) */
-            corpse = mk_named_object(CORPSE, &mons[mnum], u.ux, u.uy,
+            corpse = mk_named_object(CORPSE, &mons[u.umonnum], u.ux, u.uy,
                                      svp.plname);
+            /* u.umonnum is the role when not polymorphed, and every
+               role monster is human: the corpse of a hero in their own
+               form has the sex and the race recorded with it */
+            if (!Upolyd) {
+                corpse->spe = flags.female ? CORPSTAT_FEMALE : CORPSTAT_MALE;
+                corpse = record_player_race(corpse, u.umonnum,
+                                            gu.urace.mnum,
+                                            flags.female ? MM_FEMALE
+                                                         : MM_MALE,
+                                            svp.plname);
+                /* with no record, a corpse of the race says more than
+                   a human one of the role */
+                if (!has_omonst(corpse))
+                    set_corpsenm(corpse, gu.urace.mnum);
+            }
         }
         Sprintf(pbuf, "%s, ", svp.plname);
         formatkiller(eos(pbuf), sizeof pbuf - Strlen(pbuf), how, TRUE);

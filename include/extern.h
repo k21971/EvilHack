@@ -3710,6 +3710,8 @@ extern void topten(int, time_t);
 extern void prscore(int, char **);
 extern struct toptenentry *get_rnd_toptenentry(void);
 extern char *get_rnd_tt_name(boolean);
+extern struct obj *record_player_race(struct obj *, int, int, mmflags_nht,
+                                      const char *) NONNULLARG1;
 extern struct obj *tt_oname(struct obj *, boolean *) NONNULLARG2;
 extern int tt_doppel(struct monst *) NONNULLARG1;
 
