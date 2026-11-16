@@ -815,21 +815,22 @@ savebones(int how, time_t when, struct obj *corpse)
         if (!has_ebones(mtmp))
             newebones(mtmp);
         if (has_ebones(mtmp)) {
-            for (i = 0; i <= NUM_ROLES; ++i) {
-                if (!strcmp(gu.urole.name.m, roles[i].name.m)) {
+            /* matched on the monster, not the name, and never past the
+               last real entry: a Dark Knight's role comes from a table
+               of its own under a name roles[] does not have, and a
+               crowned Infidel's race is in no table at all; what finds
+               no match keeps index 0 */
+            for (i = 0; i < NUM_ROLES; ++i) {
+                if (roles[i].mnum == gu.urole.mnum) {
                     EBONES(mtmp)->role = i;
                     break;
                 }
-                /* impossible("savebones: bad gu.urole.name.m \"%s\"",
-                              gu.urole.name.m); */
             }
-            for (i = 0; i <= NUM_RACES; ++i) {
-                if (!strcmp(gu.urace.noun, races[i].noun)) {
+            for (i = 0; i < NUM_RACES; ++i) {
+                if (races[i].mnum == gu.urace.mnum) {
                     EBONES(mtmp)->race = i;
                     break;
                 }
-                /* impossible("savebones: bad gu.urace.noun \"%s\"",
-                              gu.urace.noun); */
             }
             EBONES(mtmp)->oldalign = u.ualign;
             EBONES(mtmp)->deathlevel = u.ulevel;
