@@ -17,8 +17,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-16, session 342: a monster
-  casting at another monster rolls the spellbook-spell chance once, as
+- Phase 2 status (refreshed 2026-11-16, session 343: Vecna's relics
+  go by an aasimar's race in every form - a polymorphed aasimar had the
+  Eye's powers, could invoke the relics, wear the Hand and eat the Eye,
+  and kept the Eye's powers for good after dropping it in its own
+  shape (ruled, beyond 0.9.3); a pet leaves the corpse of a zombie's
+  kill where it lies (ruled); a tame engulfer gains an intrinsic only
+  from a meal that fed it, as on 0.9.3; and the monster whose touch
+  began a five-turn stoning is credited when the statue forms - a pet
+  with the livelog line, any stoner with the growth (ruled; struct
+  monst grew, older saves are refused); three rows closed, two minted -
+  after session 342, earlier the same day, made a monster
+  casting at another monster roll the spellbook-spell chance once, as
   on 0.9.3 - the port's castmm() rolled it twice, so a caster with one
   book spell reached for it on 36% of picks against 0.9.3's 20%, and
   threw the attack away when nothing learned worked on the target;
@@ -146,8 +156,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 60 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 58 LOW):
-  754 rows closed, 60 open
+  prefix; 59 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 57 LOW):
+  757 rows closed, 59 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -923,7 +933,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the endgame plane order and the Convict / Infidel pet names
     turned out landed in Phase 3 and were ticked by session 310),
     and the standing per-subsystem archive sweep.
-  - 58 LOW: small parity rows, quirks and watch/record-only items.
+  - 57 LOW: small parity rows, quirks and watch/record-only items.
     Session 309 closed the session 302 record pair: a hero under the
     water with goggles sees through puddles and sewage, and a tiny
     hero under a puddle that dries up comes out at once
@@ -37015,6 +37025,40 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (dat/quest.lua; master's quest.txt the same). (j) Genesis of
       Death brings a saddled Pale Horse that attacks on its own:
       freeze both when staging.
+      Item (a) SETTLED 2026-11-16, session 343 (BUG-3193, commit
+      pending s343-C3): a tame engulfer gains only from a meal that
+      fed it - tame, not a minion, corpse_chance() passed, prey not
+      G_NOCORPSE - through a `fed` flag from mhitm_ad_dgst() to
+      mdamagem(); a hostile engulfer keeps 5.0's roll. BATTERY:
+      tame purple worm against black pudding PRE 30 / 30, POST
+      0 / 30; winter wolf 30 / 30 on both; winter wolf cub PRE
+      60 / 60, POST 28 / 60; hostile worm 42 / 60 and 36 / 60. The
+      minion half was read, not run. The rest of this row stands.
+- [ ] LOW, record: session 343 residue (minted 2026-11-16, plan
+      stress test, reviewer and batteries; record unless a ruling
+      wants a change). (a) dog_goal()'s apport clause has no zombie
+      test, so a pet may walk onto the square of a corpse it will
+      not take (a zombie's own, or one about to rise) and the
+      zombie then rises beside it; master the same for a zombie's
+      own corpse. (b) The hero can still hand a pet such a corpse
+      (pickup.c exchange_objects_with_mon(); no test on either
+      tree, and it is the hero's own choice). (c) A tame
+      engulfer's intrinsic comes after the kill and after any
+      change of its form, where master's came before both; it is
+      skipped when the prey survives the kill. (d) Reviewer LOW,
+      not taken: the statue step does not reset a stale
+      set_pet_killer() when the stoner is missing or not tame; no
+      stale value was shown to exist, and every bare monstone() /
+      mondied() in m_calcdistress() shares the exposure. (e) ^X
+      names no source for the Eye of Vecna's cold resistance ("You
+      are 100% cold resistant."), on both builds. (f) A relic that
+      is not identified reads "the eyeball named the Eye of Vecna"
+      in the recoil and soul lines. (g) A hero's hit unfreezes a
+      paralysed monster 1 time in 10 (mon_maybe_unparalyze()), and
+      life saving undoes a freeze: staging notes, not defects. (h)
+      The tame-minion leg of the engulfer battery could not be
+      staged: a forced isminion bit with no EMIN behind it crashes
+      mon_aligntyp().
 - [x] LOW: edibility_prompts() computes its own rot (minted
       2026-11-12, session 325, catch-up 3 plan stress test).
       eat.c edibility_prompts() repeats vanilla's
@@ -37040,7 +37084,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       PRE "The corpse smells like it could be rotten!", POST "...
       could be tainted!"; a plain corpse of the same age gets no rot
       warning on either build.
-- [ ] LOW: a pet still fetches a zombie's kill (minted 2026-11-12,
+- [x] LOW: a pet still fetches a zombie's kill (minted 2026-11-12,
       session 325, catch-up 3 reviewer; record unless a ruling
       wants a change). dogmove.c's carry test is
       `!obj->zombie_corpse`, not zombie_infected(): a pet will not
@@ -37048,6 +37092,16 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       up, and it rises from the pet's pack. Master the same for the
       carry. Left out of BUG-3050 on purpose, with pray.c's Draugr
       kin test and muse.c.
+      CLOSED 2026-11-16, session 343 (BUG-3192, commit pending
+      s343-C2). RULED "pet leaves it alone": dog_invent()'s carry
+      test is zombie_infected(). pray.c's kin test and muse.c stay
+      as they are, as ruled. BATTERY (large dog on a wished
+      "zombifying kobold corpse", dog_invent() called from gdb):
+      PRE picked up on call 1, 3 and 1; POST 0 / 40 twice; a long
+      sword is fetched on both. In play on POST the corpse rose
+      where it lay. Only a strong pet could ever lift one (a kitten
+      or little dog carries 51 against the lightest such corpse's
+      400).
 - [x] LOW: a vampire refused a corpse still breaks conducts (minted
       2026-11-12, session 325, catch-up 3 reviewer and battery).
       eatcorpse() counts unvegan / unvegetarian (and can livelog
@@ -37193,7 +37247,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       observation, unread). (k) Observed joust rates 54% at Skilled
       (83 of 154) and 76% at Expert (76 of 100) against 60 / 80;
       joust() is untouched and both are within two deviations.
-- [ ] LOW: a pet's stoning kill earns the pet no credit (minted
+- [x] LOW: a pet's stoning kill earns the pet no credit (minted
       2026-11-12, session 326, archive sweep; master BUG-1305's
       deferral). The gradual stoning that replaced 5.0's instant arm
       ends in a plain monstone() five turns after the pet's touch, so
@@ -37203,6 +37257,34 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       m_id kept on the victim (a struct monst field; saves break
       freely before 1.0.0). Medusa's instant gaze still credits a
       tame Medusa.
+      CLOSED 2026-11-16, session 343 (BUG-3194, commit pending
+      s343-C4). RULED "stoning now, a row for the other three
+      delayed deaths; the stoner grows whether tame or not". New
+      `unsigned mstoner` on struct monst (280 -> 288 bytes; older
+      saves are refused); start_mon_stoning() takes the attacker;
+      the countdown's last step looks the id up on the level, calls
+      set_pet_killer() for a tame stoner and grow_up() for any
+      stoner still alive. A cure, bones and revival clear the id.
+      BATTERY (tame cockatrice, Gollum frozen first): PRE no
+      livelog line and mhpmax 36 -> 36; POST "pet cockatrice killed
+      Gollum" and mhpmax 26 -> 32. A hostile stoner grew 21 -> 26
+      with no line; a stoner dead or off the level got nothing; the
+      id survived save and restore; the hero's own stoning kills
+      read the same on both builds.
+- [ ] LOW: the other three delayed deaths credit nobody (minted
+      2026-11-16, session 343, ruling; BUG-1305's deferral; master
+      the same). m_calcdistress()'s zombie sickness ("dies from its
+      illness"), disease ("dies from its infection") and withering
+      ("withers away completely!") deaths remember only the hero
+      (msickbyu, mdiseabyu, mwither_from_u): a pet zombie's, a
+      diseased pet's or a withering pet's kill of a unique gets no
+      pet-kill livelog line, and no attacker grows. Fix shape:
+      BUG-3194's - the attacker's m_id on the victim, looked up when
+      the death comes. Wider than stoning, which has one start
+      function: about ten setters (uhitm.c, mhitm.c, mhitu.c,
+      artifact.c, eat.c, read.c) and twenty-five clears (mon.c,
+      zap.c, muse.c, potion.c, makemon.c, dothrow.c), with no
+      central start or stop to hang the id on - write those first.
 - [ ] LOW: gradual stoning residue (minted 2026-11-12, session 326,
       plan stress test, reviewer and batteries; record unless a
       ruling wants a change). (a) The countdown does not run while
@@ -39231,7 +39313,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       shop at once (u_left_shop()). (c) The config-line pet names
       skip sanitize_name(), which the OPTIONS path runs (dogname and
       catname too).
-- [ ] LOW: an aasimar's Vecna-relic denial follows the current form
+- [x] LOW: an aasimar's Vecna-relic denial follows the current form
       (minted 2026-11-14, session 333, reviewer; not from this
       session's change). vecna_relic_denied() tests racial_aasimar(),
       false for an aasimar polymorphed into something else. Picking
@@ -39241,6 +39323,25 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       properties to take away. The reverse order grants nothing and
       removes nothing. Read, not run. Fix shape: decide the denial
       from the hero's race, not the form.
+      CLOSED 2026-11-16, session 343 (BUG-3191, commit pending
+      s343-C1; plan
+      /root/.claude/plans/bugfix-vecna-relic-race-and-pet-rows.md).
+      RULED "race decides, everywhere", beyond 0.9.3: the same form
+      test sat in the Hand's two wear tests (do_wear.c) and the
+      Eye-eating arm (eat.c), so a polymorphed aasimar could also
+      invoke the relics, put the Hand on and eat the Eye. All five
+      are Race_if(PM_AASIMAR) now; hack.c's weight capacity stays
+      form-keyed on purpose. Decided in the plan: a fallen aasimar
+      carrying the Eye gets its powers at the fall
+      (aasimar_lose_celestial_blood()), not at the next pick-up.
+      Loser: an aasimar can no longer polymorph to use the relics.
+      BATTERY (aasimar Priest, XL11): polymorphed pick-up, return,
+      drop - PRE on / on / still on (u.xray_range 3, W_ART on
+      telepathy, half spell damage, cold resistance), POST none
+      throughout; POST refuses the invoke, the Hand and the meal
+      ("... consumes your celestial soul!") in a form; the fall
+      turns a carried Eye on at once; a human control gains and
+      loses on both builds.
 - [ ] LOW, record: two more worn-mask display kludges (minted
       2026-11-14, session 333, reviewer; vanilla 5.0 and master the
       same). weldmsg() (wield.c) zeroes the welded weapon's whole
@@ -42324,6 +42425,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-16 | Monster spell picks as on 0.9.3 (Phase 2 session 340, AskUserQuestion x3 with 6 questions; every answer as recommended, one unrecommended option left unticked - marked below; the batteries were named in the plan and asked once more after the review folds). (1) SLICE: "monster casting leftovers", the session 339 residue row's rate items (not taken: the six master gaps read out of the verify rows that day - Death's 500 hit point cap, the dead hero's racial corpse and statue, the tower cavern's ceiling, --listroles, pet intrinsic odds, whose READ notes are on those rows, and the unseen cast line, which went into this slice instead; the doorway thread; the wording and parity rulings). (2) THE SLIDE: MASTER'S RE-ROLL for an attacking caster - a useless pick is thrown out and the level rolled again, where 5.0 slid it down a rung; 5.0's one-in-five geyser skip goes with it (BUG-3170, BUG-3171). (3) THE LADDERS: MASTER'S VALUES on both lists (BUG-3172, BUG-3173). (4) THE CAST LINE: BOTH, AS MASTER - "You hear something cast a spell!" for an unseen caster's undirected spell, and no cast line for a peaceful priest in his own temple (BUG-3176, BUG-3177). (5) REVIEW FINDS (2026-11-16, a multi-select of two): DRUID WARDS AS MASTER taken (BUG-3175); ASMODEUS CASTS FIRE PILLAR not taken - his lightning on the summon minion roll stays, the branch's reading since b13220f70, and now holds at range too; the level cap at 50 was folded without a question and the question said so (BUG-3174). (6) BATTERIES: launch now (three testers: A and B gdb tallies, C in play). Approved with the plan, each stated: an attack cast can come up empty after 40 tries, as on master; a clerical demon lord casts fire pillar from range again on its summon minion roll (12.2 -> 22.1% of lined-up casts measured); a wizard of level 25 or more that is not attacking throws fire and ice blasts a little more (5.7 -> 7.5% of free picks measured); a level-16 wizard loses summon nasties on free picks and a level-17 one keeps one roll of it; an arch-lich's touch of death against a hero without magic resistance goes from 15 to 19 adjacent casts in 100 (measured on a fresh stand-in). Recorded, residue row: Asmodeus's lightning; the bolts' undirected wording; a tame caster's empty casts. Minted open: castmm()'s doubled learned-spell roll. |
 | 2026-11-16 | Six master gaps, the Convict rule and a bones crash (Phase 2 session 341, AskUserQuestion x4 with 7 questions; six answers as recommended, one not - marked below). (1) SLICE: the six master gaps session 340 confirmed by reading (not taken: castmm()'s doubled learned-spell roll, the doorway thread, the wording and parity rulings). (2) PETS: 0.9.3'S RULE, HOSTILES KEEP THE ROLL, over the recommended "0.9.3's rule everywhere" - a pet gains the intrinsic it picks and the energy boost counts as a pick; monsters 0.9.3 gave nothing keep 5.0's level roll (rejected: the energy pick alone, which would have lowered pets further; leave 5.0's odds) (BUG-3187). (3) CONVICT: FOLD IN, OWN COMMIT - master 8c573257a's readers of ROLE_NORACEALIGN (rejected: a MED row for a later slice) (BUG-3185). (4) STATUES BY RACE, beyond master (rejected: by role, as 0.9.3) (BUG-3183). (5) DEMON HERO: NO CORPSE, the grave is still dug, beyond master and in line with session 319's scoreboard ruling (rejected: 0.9.3's infidel corpse with the demon race) (BUG-3180). (6) BATTERY: launch all three testers. (7) BONES CRASH, found by the battery on both builds: FIX NOW, OWN COMMIT (rejected: a HIGH row for its own session) (BUG-3188). Approved with the plan, three premises of the ruling questions corrected by its stress test: the menus never offered dwarf or hobbit to a Convict, and the wrong alignment was a fresh rn2(3) at every start and restore, not a stored lawful; on 0.9.3 only a tame digester gains, so ruling 2 is one test - tame gets 0.9.3's rule however the meal arrives, anything else is untouched; the branch had no sanity complaint for Death, only the 999 ceiling. Also stated and approved: the bones corpse is unnamed, as on 0.9.3; a pet eating a spellcaster's corpse gains less often than before (kobold shaman's telepathy 100 -> 50%); if the race cannot be recorded the corpse is the race monster's. Review folds, taken without a question: the throwaway monster made as if during level creation (BUG-3181), the stored name sanitized on bones load (BUG-3182), --listroles in the VMS and libnh mains. Recorded, residue row: no-corpse digestion grants, the unbuilt platform lines, the missing 0.9.3 comparison of --listroles. | maintainer |
 | 2026-11-16 | castmm()'s doubled learned-spell roll and the dud cast (Phase 2 session 342, AskUserQuestion x2 with 3 questions, all as recommended; the battery was named in the plan and launched on its approval). (1) SLICE: castmm()'s doubled learned-spell roll (not taken: the doorway thread, the wording and parity rulings, the census leftovers with the session 341 residue). (2) UNTAME ORDER: 0.9.3'S - the charm-monster override follows the pick loop, so a loop that comes up empty is a miss with no untaming: 2.4 to 4.4% of casts for a hasted, invisible, unhurt wizard-list caster of level 11 to 13 at range with no usable book spell, nil next to the pet (rejected: always untame, the branch's order) (BUG-3189). (3) DUD CASTS: FOLD IN THE GUARD, OWN COMMIT - an empty book-spell pick in castmm() is a miss with no line and no cooldown, the guard castmu() has had since BUG-2869 (rejected: the guard plus a vegetation test in the usefulness check, which would change casts at the hero too; a LOW row only) (BUG-3190). Session calls, plan-approved: the post-loop reject block deleted rather than kept, the loop applying the same test; the two `undirected` lines left as they were. Corrected by the plan's stress test before approval: the first draft said the pick loop could not come up empty against a monster target - it can, and ruling 2 came from that; the stand-in's expected rates. Reviewer LOWs not taken: the vegetation test (ruling 3) and two cosmetic leftovers, so the battery-tested binary is the final one. Recorded, monster casting residue row: entangle off vegetation, the level-0 caster's missing curse line, cast_learned_spell()'s dead pick. | maintainer (1-3); session, plan-approved (rest) |
+| 2026-11-16 | Vecna's relics and three pet rows (Phase 2 session 343, AskUserQuestion x2 with 4 questions, all as recommended; the battery was named in the plan and launched on its approval). (1) SLICE: the aasimar's Vecna-relic row and the three pet rows (not taken: the doorway thread, the wording and parity rulings, the census leftovers). (2) RELICS: RACE DECIDES, EVERYWHERE, beyond 0.9.3 - an aasimar is refused in any form: no powers from a carried Eye, no invoke, the Hand will not go on, eating the Eye is fatal; an aasimar can no longer polymorph to use them (rejected: keep the form rule and re-check at each change of form; race for the powers and the invoke only, which left the Hand a trap) (BUG-3191). (3) ZOMBIE'S KILL: THE PET LEAVES IT ALONE - the carry test covers a corpse about to rise; pray.c's Draugr kin test and muse.c stay (rejected: record only) (BUG-3192). (4) KILL CREDIT: STONING NOW, A ROW FOR THE OTHER THREE DELAYED DEATHS - the victim remembers the monster that began its stoning; a tame stoner gets the pet-kill livelog line and any stoner still alive on the level grows (rejected: zombie sickness, disease and withering in the same slice; pets only) (BUG-3194). Under session 341's ruling 2, no new question: a tame engulfer gains only from a meal that fed it, a hostile one keeps 5.0's call (BUG-3193). Session calls, plan-approved: a fallen aasimar carrying the Eye gets its powers at the fall; the engulfer's grant keeps 5.0's place after the kill; struct monst grows by the stoner's id and older saves are refused. Corrected by the plan's stress test before approval: stop_mon_stoning() does nothing once the count is 0, so the last step clears the id by hand; the staging of every battery group. Reviewer LOW not taken: a reset of a stale pet-kill attribution before the statue step, not shown to exist, so the battery-tested binary is the final one. Not run: the tame-minion leg (a forced minion bit crashes the old build). Recorded, session 343 residue row. | maintainer (1-4); session, plan-approved (rest) |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 

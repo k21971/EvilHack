@@ -562,6 +562,11 @@ tracker; sNNN = port session.
   and can pick the energy boost of a spellcaster's corpse; monsters
   that are not tame keep the roll (ruled s341, BUG-3187, 3b75f14b7;
   master 49c2a81e1 / 1daeccb4e).
+- [x] A tame engulfer gaining a corpse intrinsic from every digestion
+  kill, prey that leaves no corpse and tame minions included -> only
+  from a meal that fed it (tame, not a minion, a corpse possible);
+  an engulfer that is not tame keeps 5.0's call (under the s341
+  ruling, s343, BUG-3193, commit pending s343-C3; master c37746364).
 
 ### 2.4 Text and logs
 
