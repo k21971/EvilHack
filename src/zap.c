@@ -11,6 +11,8 @@
  * indicate that the monster should be disintegrated.
  */
 #define MAGIC_COOKIE 1000
+/* Death grows when hit by a death ray, but no further than this */
+#define DEATH_PROOF 500
 
 staticfn int zaptype(int);
 staticfn void probe_objchain(struct obj *) NO_NNARGS;
@@ -5879,9 +5881,13 @@ zhitm(
         if (abs(type) != ZT_BREATH(ZT_DEATH)) { /* death */
             tmp = d(4, 6);
             if (mon->data == &mons[PM_DEATH]) {
-                healmon(mon, mon->mhpmax * 3 / 2, mon->mhpmax / 2);
-                if (mon->mhpmax >= MAGIC_COOKIE)
-                    mon->mhpmax = MAGIC_COOKIE - 1;
+                /* the ray feeds Death, up to a ceiling; written
+                   directly because healmon() cannot clamp downward */
+                sho_shieldeff = TRUE;
+                mon->mhpmax += mon->mhpmax / 2;
+                if (mon->mhpmax > DEATH_PROOF)
+                    mon->mhpmax = DEATH_PROOF;
+                mon->mhp = mon->mhpmax;
                 tmp = 0;
                 break;
             }
