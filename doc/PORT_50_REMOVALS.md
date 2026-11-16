@@ -551,17 +551,17 @@ tracker; sNNN = port session.
 - [x] A fire gaze burning a monster under water -> "but nothing
   happens." (s332, BUG-3123, 557705adb; master 61fbffdee).
 - [x] Death growing to 999 hit points under death rays -> master's
-  ceiling of 500, with the shield flash (s341, BUG-3178, commit
-  pending; master 42471dfca).
+  ceiling of 500, with the shield flash (s341, BUG-3178, a32477bdb;
+  master 42471dfca).
 - [x] A dead hero's corpse being a plain corpse of the race monster,
   and the bones statue carrying no race -> the role monster's corpse
   and statue with the sex and the race recorded (s341, BUG-3179,
-  commit pending; master 21a1453b6).
+  ae0dc8397; master 21a1453b6).
 - [x] A pet passing 5.0's level roll (the corpse's level in 15) before
   it gains a corpse intrinsic -> a tame monster gains what it picks,
   and can pick the energy boost of a spellcaster's corpse; monsters
-  that are not tame keep the roll (ruled s341, BUG-3187, commit
-  pending; master 49c2a81e1 / 1daeccb4e).
+  that are not tame keep the roll (ruled s341, BUG-3187, 3b75f14b7;
+  master 49c2a81e1 / 1daeccb4e).
 
 ### 2.4 Text and logs
 
@@ -648,7 +648,7 @@ tracker; sNNN = port session.
   in his own temple -> no cast line, master's "cut down on the
   temple spam" (ruled s340, BUG-3177, aed92c0fe).
 - [x] "sky" overhead for the open air inside Vlad's Tower -> "rock
-  cavern" (s341, BUG-3184, commit pending; master 58dbad406).
+  cavern" (s341, BUG-3184, 4fd514f4b; master 58dbad406).
 
 ### 2.5 Levels and content
 

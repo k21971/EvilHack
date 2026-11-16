@@ -155,8 +155,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     (BUG-3186) and the pet intrinsic rule (BUG-3187, ruled); the dead
     hero's race on corpse and statue with statues by race and no
     corpse for a demon (BUG-3179 to BUG-3183, two ruled); the tower
-    cavern's ceiling (BUG-3184); commit pending; the rows and the
-    Decisions log have the detail.
+    cavern's ceiling (BUG-3184); a32477bdb, ae0dc8397, 820fe1fea,
+    4fd514f4b, 8da41bd98, 451cee723, 3b75f14b7 and a8d2f38d9; the rows
+    and the Decisions log have the detail.
     Session 340 minted and closed two MED rows and a LOW in the
     monster spell picker: master's re-roll for an attacking
     caster in place of 5.0's slide, with the geyser skip gone
@@ -36723,40 +36724,40 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       with no traits. Not fixed.
       CLOSED 2026-11-16, session 341 (plan
       /root/.claude/plans/bugfix-six-master-gaps-death-cap-hero-race-convict-pets.md;
-      BUG-3179, BUG-3180, BUG-3181, BUG-3182, BUG-3183; commit
-      pending). tt_oname()'s record block is now record_player_race()
-      in topten.c, and really_done() and savebones() call it: the
-      hero's corpse is the role monster's again with the sex and the
-      race recorded (a corpse of the race monster when no record can
-      be made), and the bones statue likewise. In bones the corpse
-      reads "elven wizard corpse", unnamed as on master (role monsters
-      sort below SPECIAL_PM); the name lives in the stored record, so
-      undead turning brings back an elven Wizard player monster under
-      the hero's name where the branch gave a plain elf. RULED
-      2026-11-16, both beyond master: a statue with a race record
-      weighs by the race (hobbit 750, gnome 975, elf / drow 1200, orc
-      1275, dwarf 1350, tortle 2400, giant / centaur 3300; all were
-      2175), and a hero whose race leaves no corpse - a crowned
-      Infidel is a demon - leaves a grave and no corpse (master: an
-      infidel corpse with the demon race; the branch had a "demon
-      corpse"). Reviewer LOW, both taken: the throwaway monster is
-      made as if during level creation, so it cannot interrupt a dying
-      hero's meal or a grave dig (session 319's note), and the name
-      stored with a corpse's or statue's monster is sanitized when
-      bones load (vanilla gap, upstream row). Battery B: a male elven
-      Wizard's corpse at death is PM_WIZARD, male, with the elf
-      record, weight 800 (PRE: PM_ELF, nothing stored); from bones "an
-      elven wizard corpse" revives as an "elven wizard called wizard",
-      hostile (PRE: "an elf corpse", "The elf is resurrected!"); a
-      female dwarven Priest leaves "a dwarven priestess corpse"; a
-      stoned female dwarven Valkyrie leaves "a statue of a dwarven
-      valkyrie named wizard" of 1350 without its contents (PRE: "a
-      statue of a valkyrie named wizard", 2175); a ^G valkyrie with a
-      dwarf record turned to stone, 1350 (PRE 2175 whatever the race);
-      a demon Infidel leaves a grave marked empty and nothing on it
-      (PRE: a PM_DEMON corpse), and a statue when stoned; a
-      polymorphed hero's corpse is the form's, with nothing recorded,
-      as before.
+      BUG-3179, BUG-3180, BUG-3181, BUG-3182, BUG-3183; ae0dc8397, and
+      820fe1fea for the statue weight). tt_oname()'s record block is
+      now record_player_race() in topten.c, and really_done() and
+      savebones() call it: the hero's corpse is the role monster's
+      again with the sex and the race recorded (a corpse of the race
+      monster when no record can be made), and the bones statue
+      likewise. In bones the corpse reads "elven wizard corpse",
+      unnamed as on master (role monsters sort below SPECIAL_PM); the
+      name lives in the stored record, so undead turning brings back
+      an elven Wizard player monster under the hero's name where the
+      branch gave a plain elf. RULED 2026-11-16, both beyond master: a
+      statue with a race record weighs by the race (hobbit 750, gnome
+      975, elf / drow 1200, orc 1275, dwarf 1350, tortle 2400, giant /
+      centaur 3300; all were 2175), and a hero whose race leaves no
+      corpse - a crowned Infidel is a demon - leaves a grave and no
+      corpse (master: an infidel corpse with the demon race; the
+      branch had a "demon corpse"). Reviewer LOW, both taken: the
+      throwaway monster is made as if during level creation, so it
+      cannot interrupt a dying hero's meal or a grave dig (session
+      319's note), and the name stored with a corpse's or statue's
+      monster is sanitized when bones load (vanilla gap, upstream
+      row). Battery B: a male elven Wizard's corpse at death is
+      PM_WIZARD, male, with the elf record, weight 800 (PRE: PM_ELF,
+      nothing stored); from bones "an elven wizard corpse" revives as
+      an "elven wizard called wizard", hostile (PRE: "an elf corpse",
+      "The elf is resurrected!"); a female dwarven Priest leaves "a
+      dwarven priestess corpse"; a stoned female dwarven Valkyrie
+      leaves "a statue of a dwarven valkyrie named wizard" of 1350
+      without its contents (PRE: "a statue of a valkyrie named
+      wizard", 2175); a ^G valkyrie with a dwarf record turned to
+      stone, 1350 (PRE 2175 whatever the race); a demon Infidel leaves
+      a grave marked empty and nothing on it (PRE: a PM_DEMON corpse),
+      and a statue when stoned; a polymorphed hero's corpse is the
+      form's, with nothing recorded, as before.
 - [ ] LOW, verify: census leftovers not yet read against the branch
       (minted 2026-11-09, session 315): --listroles, iflags
       .suppress_worn (quiver text while throwing), Death's 500 HP cap
@@ -36805,28 +36806,28 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       map is AIR around its floor, as in master's tower.des. The
       branch's ceiling() (dungeon.c) lacks the In_V_tower() arm.
       Not fixed.
-      CLOSED 2026-11-16, session 341 (BUG-3184; commit pending).
-      ceiling() answers "rock cavern" for AIR inside Vlad's Tower, and
-      ceiling() and surface() gained master's isok() guards (master
-      BUG-1041), their map reads moved below the guard. Battery A2:
-      levitating over the open air of the cavern level, a wand of
-      probing zapped upward says "You probe towards the rock cavern."
-      (PRE "the sky"); a floor square there says "the ceiling" on both
-      builds; the Plane of Air still says "the sky".
+      CLOSED 2026-11-16, session 341 (BUG-3184; 4fd514f4b). ceiling()
+      answers "rock cavern" for AIR inside Vlad's Tower, and ceiling()
+      and surface() gained master's isok() guards (master BUG-1041),
+      their map reads moved below the guard. Battery A2: levitating
+      over the open air of the cavern level, a wand of probing zapped
+      upward says "You probe towards the rock cavern." (PRE "the
+      sky"); a floor square there says "the ceiling" on both builds;
+      the Plane of Air still says "the sky".
 - [x] LOW: Death grew to 999 hit points under death rays (minted and
       CLOSED 2026-11-16, session 341, from the census leftovers row;
-      BUG-3178; commit pending). Master caps the growth at DEATH_PROOF
-      500 (42471dfca) and flashes the shield (408721654); the branch
-      had vanilla's healmon() and a 999 ceiling. zhitm() now has
-      master's arm. Vanilla's own arm leaves mhp above the clamped
-      maximum (upstream row; the branch's zhitm() tail hid it).
-      Battery A1: POST 146 -> 219, 328, 492, 500, 500, 500 with a
-      shieldeff() call from zhitm(); PRE 143 -> 214, 321, 481, 721,
-      999, 999 and no shieldeff(); set to 900, one ray gives 500 on
-      POST and 999 on PRE.
+      BUG-3178; a32477bdb). Master caps the growth at DEATH_PROOF 500
+      (42471dfca) and flashes the shield (408721654); the branch had
+      vanilla's healmon() and a 999 ceiling. zhitm() now has master's
+      arm. Vanilla's own arm leaves mhp above the clamped maximum
+      (upstream row; the branch's zhitm() tail hid it). Battery A1:
+      POST 146 -> 219, 328, 492, 500, 500, 500 with a shieldeff() call
+      from zhitm(); PRE 143 -> 214, 321, 481, 721, 999, 999 and no
+      shieldeff(); set to 900, one ray gives 500 on POST and 999 on
+      PRE.
 - [x] LOW: --listroles unported (minted and CLOSED 2026-11-16, session
-      341, from the census leftovers row; BUG-3186; commit pending).
-      Master f1a0e5a74: every valid role / race / gender / alignment
+      341, from the census leftovers row; BUG-3186; 451cee723). Master
+      f1a0e5a74: every valid role / race / gender / alignment
       combination as file codes, one to a line, then exit. listroles()
       in role.c; an early argument in earlyarg.c, so unixmain.c,
       pcmain.c and windmain.c have it (master: unixmain.c only);
@@ -36840,8 +36841,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       session.
 - [x] LOW: pets rolled 5.0's level chance for a corpse intrinsic and
       never picked the energy boost (minted and CLOSED 2026-11-16,
-      session 341, from the census leftovers row; BUG-3187; commit
-      pending). The row named master's energy pick; reading
+      session 341, from the census leftovers row; BUG-3187;
+      3b75f14b7). The row named master's energy pick; reading
       dog_givit() found the larger gap - master's pets gain the picked
       intrinsic every time (the maintainer's own merge 1daeccb4e
       switched the roll off in 2019), where 5.0's mon_givit() rolls
@@ -36865,41 +36866,40 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] MED: ROLE_NORACEALIGN was set and never read - a dwarven or
       hobbit Convict had no legal alignment (minted and CLOSED
       2026-11-16, session 341, found reading --listroles' companion
-      commit; BUG-3185; commit pending). Master 8c573257a lets a
-      Convict's alignment stand in for its race's; Phase 1 carried the
-      flag over without its seven readers. The menus never offered
-      dwarf or hobbit to a Convict; through `-p Con -r dwa`, the
-      options file or a random pick the game started with
-      "Incompatible alignment!" and role_init() re-rolled the stored
-      alignment with rn2(3) at every start and every restore - the
-      hero stayed chaotic (u_init_role()) while the Striped Shirt, the
-      gift artifacts and the quest leader took the rolled alignment,
-      and a Shirt that is not chaotic blasts its Convict. X11's and
-      Qt's selection looped forever on the pair. RULED 2026-11-16:
-      fold in, as its own commit. validalign(), randalign(), ok_race()
-      (after the race test - race and alignment bits overlap),
-      ok_align(), role_selection_prolog() and role_menu_extra() honor
-      the flag. Battery C1, flags.initalign / the Shirt / Robert the
-      Lifer: PRE five launches 1/0/0, 2/-1/-3, 1/0/0, 2/-1/-3, 2/-1/-3
-      and three restores of one game 0/+1/+3, 2/-1/-3, 1/0/0, with
-      u.ualign.type -1 throughout and no dwarf or hobbit in the
-      Convict's race menu; POST both races listed, "role forces
-      chaotic", 2/-1/-3 on all six launches and restores, and the PRE
-      save with the lawful Shirt restored on POST reads 2/-1/-3. A
-      human Convict and a dwarven Valkyrie select the same on both
-      builds.
+      commit; BUG-3185; 8da41bd98). Master 8c573257a lets a Convict's
+      alignment stand in for its race's; Phase 1 carried the flag over
+      without its seven readers. The menus never offered dwarf or
+      hobbit to a Convict; through `-p Con -r dwa`, the options file
+      or a random pick the game started with "Incompatible alignment!"
+      and role_init() re-rolled the stored alignment with rn2(3) at
+      every start and every restore - the hero stayed chaotic
+      (u_init_role()) while the Striped Shirt, the gift artifacts and
+      the quest leader took the rolled alignment, and a Shirt that is
+      not chaotic blasts its Convict. X11's and Qt's selection looped
+      forever on the pair. RULED 2026-11-16: fold in, as its own
+      commit. validalign(), randalign(), ok_race() (after the race
+      test - race and alignment bits overlap), ok_align(),
+      role_selection_prolog() and role_menu_extra() honor the flag.
+      Battery C1, flags.initalign / the Shirt / Robert the Lifer: PRE
+      five launches 1/0/0, 2/-1/-3, 1/0/0, 2/-1/-3, 2/-1/-3 and three
+      restores of one game 0/+1/+3, 2/-1/-3, 1/0/0, with u.ualign.type
+      -1 throughout and no dwarf or hobbit in the Convict's race menu;
+      POST both races listed, "role forces chaotic", 2/-1/-3 on all
+      six launches and restores, and the PRE save with the lawful
+      Shirt restored on POST reads 2/-1/-3. A human Convict and a
+      dwarven Valkyrie select the same on both builds.
 - [x] HIGH: saving bones aborted the game for a crowned Infidel or a
       Dark Knight (minted and CLOSED 2026-11-16, session 341, found by
       battery B on the previous build and the new one alike; BUG-3188;
-      commit pending). 5.0's savebones() fills the ghost's EBONES
-      record by looking the hero's role and race up by name with loops
-      that run onto the table's terminator when nothing matches;
-      vanilla always matches. A crowned Infidel's race (race_demon) is
-      in no table, and a chaotic Knight's role is "Dark Knight" from
-      align_roles[]: strcmp() got a null name and the game aborted
-      after the dumplog and before the tombstone and topten(), so the
-      death was never logged. (A Draugr or Vampire hero gets no ghost,
-      so never reached the lookup.) Master has no such record. RULED
+      a8d2f38d9). 5.0's savebones() fills the ghost's EBONES record by
+      looking the hero's role and race up by name with loops that run
+      onto the table's terminator when nothing matches; vanilla always
+      matches. A crowned Infidel's race (race_demon) is in no table,
+      and a chaotic Knight's role is "Dark Knight" from align_roles[]:
+      strcmp() got a null name and the game aborted after the dumplog
+      and before the tombstone and topten(), so the death was never
+      logged. (A Draugr or Vampire hero gets no ghost, so never
+      reached the lookup.) Master has no such record. RULED
       2026-11-16: fix now, own commit. Both loops stop at the last
       real entry and match on the monster number; a demon keeps index
       0; nothing reads the two indexes. Battery D: a chaotic human
@@ -41536,8 +41536,8 @@ see its row), cut against 74ebd09ed.
 | 2026-11-15 | A wish for `blue glass named Bob` gives a gem named "f blue glass": readobjnam_postparse1() cuts " named " in place and points d->name 7 bytes on in the same buffer, then readobjnam_postparse2()'s glass arm copies "worthless piece of " + the color text back over d->bp, 19 bytes longer, over the start of the name (`piece of blue glass named Bob` gives "ass"; d->un and d->dn sit there the same way). A failed "<x> glass" wish also pre-fills the retry prompt with the rewritten text. Same code in fd4d169b6 and in 3.6 readobjnam(). Run on the branch 2026-11-15. Fix on the branch: build the canonical text in d->globbuf and point d->bp there, as the glob arm does; BUG-3157, src/objnam.c, branch commit be674634b | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | A meal that never happens still counts: doeat() counts the food conduct and writes "ate for the first time - ..." to the livelog, then touchfood() splits one item off a carried stack, cannot put it back into a full pack and drops it, and when lava burns the piece (or a hole takes it) touchfood() returns null and doeat() returns with the count kept. Same order in fd4d169b6; EvilHack master rolls the count back. Run on the branch 2026-11-15 (52 slots in use, levitating over lava, an apple from a stack of two: "You see the apple hit lava and burn up!", u.uconduct.food 1 and the livelog line). Fix on the branch: count the conduct after touchfood() succeeds; BUG-3159, src/eat.c, branch commit 628677386 | fixed on the branch; not sent; triage pending |
 | 2026-11-15 | Monsters cast summoning spells about twice as often as in 3.6. mcastu.c choose_monster_spell() (upstream 3917f5493, the 2026-04-01 reorg) returns the highest spell at or below the level roll that spell_would_be_useless() accepts, so a useless pick slides to the next spell down. The slide is deliberate for an attacker (the same commit's touch of death 1-in-2 and geyser 1-in-5 skips rely on it), but castmu()'s comment says a monster that is not attacking selects a spell once, and dochug()'s undirected call slides too: double trouble (rolls 18-19, useless for any non-Wizard) and half of touch of death land on summon nasties (arch-lich at range 26% of free moves, 3.6.7 12%), and a peaceful or out-of-sight hurt caster lands on cure self on about 95% of them (3.6.7 4%). The reorg also gave curse items one level, 10, for both lists; 3.6.7's cleric ladder had it on rolls 9-10 and insects on 8, so cleric roll 9 now summons insects (aligned priest 8% -> 17% of picks, high priest 6% -> 14%). Same code in 74ebd09ed; no upstream issue or PR. Vanilla patch (rulings in the decisions log): the picker takes an `attacking` argument (castmu()'s thinks_it_foundyou) and tests usefulness only for an attacker; clerics get curse items one level sooner. Run 2026-11-15 on scratch builds of 74ebd09ed with and without the patch, 5000 gdb calls of the picker per figure: mage list at m_lev 25, summon nasties 26.1% before and 26.1% attacking / 14.0% not attacking after; cleric list at m_lev 12 / 25, insects 16.8% / 14.3% before and 8.8% / 6.9% attacking, 8.2% / 7.2% not attacking after, curse items 8.0% / 7.3% before and 15.4% / 15.1%, 16.1% / 13.7% after; in play a hurt peaceful level-25 caster cured itself 73 times in 150 turns before and 6 times after; both paniclogs clean. On the branch, whose picker is its own (rung rolls, the close-range list), the not-attacking slide went in Phase 2 session 339 (BUG-3168, 24d09a930) with the same `attacking` rule; the attack-path slide stayed, as in the patch, until Phase 2 session 340 took master's re-roll for attack casts too (BUG-3170, ruled; 305c42b08), so the branch's picker no longer takes `attacking`; the cleric half does not apply (the branch has master's ladder: insects on their own rung, BUG-3165); the ruled ranged summon nasties is BUG-3164 | not-attacking half fixed on the branch 2026-11-15 (BUG-3168, 24d09a930); patch cut 2026-11-15 on the maintainer's request (gameplay tier, outside the queue), /root/nh50-mcast-summon-rate.patch; sent as PR #1745 (2026-11-15), fix-mcast-summon-rate 68e3e2e1d |
-| 2026-11-16 | zap.c zhitm(), the death-ray arm for Death: `healmon(mon, mon->mhpmax * 3 / 2, mon->mhpmax / 2)` and then `if (mon->mhpmax >= MAGIC_COOKIE) mon->mhpmax = MAGIC_COOKIE - 1;` clamp the maximum and leave mhp above it (Death at 757 ends with mhpmax 999 and mhp 1135), which the monster sanity check reports; nothing after it in zhitm() clamps mhp. Same code in fd4d169b6. Read, not run on vanilla: the branch's own zhitm() tail clamped mhp, and the arm is now master's (cap 500, direct writes); BUG-3178, branch commit pending | fixed on the branch; not sent; triage pending |
-| 2026-11-16 | bones.c resetobjs() sanitizes ONAME() of the objects in loaded bones and getbones() the names of its monsters, but not the given name inside the monster stored with a corpse or statue (OMONST): a named pet's corpse brings the previous player's text through unsanitized, and it is printed when the corpse is revived or the statue animated. Same code in fd4d169b6. Fix on the branch: `if (has_omonst(otmp) && has_mgivenname(OMONST(otmp))) sanitize_name(MGIVENNAME(OMONST(otmp)));` in the restore arm; BUG-3182, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-16 | zap.c zhitm(), the death-ray arm for Death: `healmon(mon, mon->mhpmax * 3 / 2, mon->mhpmax / 2)` and then `if (mon->mhpmax >= MAGIC_COOKIE) mon->mhpmax = MAGIC_COOKIE - 1;` clamp the maximum and leave mhp above it (Death at 757 ends with mhpmax 999 and mhp 1135), which the monster sanity check reports; nothing after it in zhitm() clamps mhp. Same code in fd4d169b6. Read, not run on vanilla: the branch's own zhitm() tail clamped mhp, and the arm is now master's (cap 500, direct writes); BUG-3178, branch commit a32477bdb | fixed on the branch; not sent; triage pending |
+| 2026-11-16 | bones.c resetobjs() sanitizes ONAME() of the objects in loaded bones and getbones() the names of its monsters, but not the given name inside the monster stored with a corpse or statue (OMONST): a named pet's corpse brings the previous player's text through unsanitized, and it is printed when the corpse is revived or the statue animated. Same code in fd4d169b6. Fix on the branch: `if (has_omonst(otmp) && has_mgivenname(OMONST(otmp))) sanitize_name(MGIVENNAME(OMONST(otmp)));` in the restore arm; BUG-3182, branch commit ae0dc8397 | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
