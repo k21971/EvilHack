@@ -1634,10 +1634,16 @@ str2gend(const char *str)
 boolean
 validalign(int rolenum, int racenum, int alignnum)
 {
-    /* Assumes validrole and validrace */
+    /* Assumes validrole and validrace; the role has to allow the
+       alignment, and so does the race unless the role overrides its
+       races' alignments */
     return (boolean) (alignnum >= 0 && alignnum < ROLE_ALIGNS
-                      && (roles[rolenum].allow & races[racenum].allow
-                          & aligns[alignnum].allow & ROLE_ALIGNMASK));
+                      && (roles[rolenum].allow & aligns[alignnum].allow
+                          & ROLE_ALIGNMASK) != 0
+                      && ((races[racenum].allow & aligns[alignnum].allow
+                           & ROLE_ALIGNMASK) != 0
+                          || (roles[rolenum].allow
+                              & ROLE_NORACEALIGN) != 0));
 }
 
 int
@@ -1647,16 +1653,14 @@ randalign(int rolenum, int racenum)
 
     /* Count the number of valid alignments */
     for (i = 0; i < ROLE_ALIGNS; i++)
-        if (roles[rolenum].allow & races[racenum].allow & aligns[i].allow
-            & ROLE_ALIGNMASK)
+        if (validalign(rolenum, racenum, i))
             n++;
 
     /* Pick a random alignment */
     if (n)
         n = rn2(n);
     for (i = 0; i < ROLE_ALIGNS; i++)
-        if (roles[rolenum].allow & races[racenum].allow & aligns[i].allow
-            & ROLE_ALIGNMASK) {
+        if (validalign(rolenum, racenum, i)) {
             if (n)
                 n--;
             else
@@ -1771,9 +1775,17 @@ ok_race(int rolenum, int racenum, int gendnum, int alignnum)
         if (gr.rfilter.race_mask & races[racenum].selfmask)
             return FALSE;
         allow = races[racenum].allow;
-        if (IndexOkT(rolenum, roles)
-            && !(allow & roles[rolenum].mhrace & races[racenum].selfmask))
-            return FALSE;
+        if (IndexOkT(rolenum, roles)) {
+            if (!(allow & roles[rolenum].mhrace & races[racenum].selfmask))
+                return FALSE;
+            /* a role that overrides its races' alignments: the role's
+               alignment bits stand in for the race's; only after the
+               race test, because race and alignment bits overlap */
+            if ((roles[rolenum].allow & ROLE_NORACEALIGN) != 0) {
+                allow &= ~ROLE_ALIGNMASK;
+                allow |= (roles[rolenum].allow & ROLE_ALIGNMASK);
+            }
+        }
         if (gendnum >= 0 && gendnum < ROLE_GENDERS
             && !(allow & genders[gendnum].allow & ROLE_GENDMASK))
             return FALSE;
@@ -1787,9 +1799,15 @@ ok_race(int rolenum, int racenum, int gendnum, int alignnum)
             if (gr.rfilter.race_mask & races[i].selfmask)
                 continue;
             allow = races[i].allow;
-            if (IndexOkT(rolenum, roles)
-                && !(allow & roles[rolenum].mhrace & races[i].selfmask))
-                continue;
+            if (IndexOkT(rolenum, roles)) {
+                if (!(allow & roles[rolenum].mhrace & races[i].selfmask))
+                    continue;
+                /* as above, and again only after the race test */
+                if ((roles[rolenum].allow & ROLE_NORACEALIGN) != 0) {
+                    allow &= ~ROLE_ALIGNMASK;
+                    allow |= (roles[rolenum].allow & ROLE_ALIGNMASK);
+                }
+            }
             if (gendnum >= 0 && gendnum < ROLE_GENDERS
                 && !(allow & genders[gendnum].allow & ROLE_GENDMASK))
                 continue;
@@ -1906,9 +1924,13 @@ ok_align(int rolenum, int racenum, int gendnum UNUSED, int alignnum)
         if (gr.rfilter.mask & aligns[alignnum].allow)
             return FALSE;
         allow = aligns[alignnum].allow;
-        if (IndexOkT(rolenum, roles)
-            && !(allow & roles[rolenum].allow & ROLE_ALIGNMASK))
-            return FALSE;
+        if (IndexOkT(rolenum, roles)) {
+            if (!(allow & roles[rolenum].allow & ROLE_ALIGNMASK))
+                return FALSE;
+            /* the role overrides its races' alignments */
+            if ((roles[rolenum].allow & ROLE_NORACEALIGN) != 0)
+                return TRUE;
+        }
         if (IndexOkT(racenum, races)
             && !(allow & races[racenum].allow & ROLE_ALIGNMASK))
             return FALSE;
@@ -1919,9 +1941,12 @@ ok_align(int rolenum, int racenum, int gendnum UNUSED, int alignnum)
             if (gr.rfilter.mask & aligns[i].allow)
                 continue;
             allow = aligns[i].allow;
-            if (IndexOkT(rolenum, roles)
-                && !(allow & roles[rolenum].allow & ROLE_ALIGNMASK))
-                continue;
+            if (IndexOkT(rolenum, roles)) {
+                if (!(allow & roles[rolenum].allow & ROLE_ALIGNMASK))
+                    continue;
+                if ((roles[rolenum].allow & ROLE_NORACEALIGN) != 0)
+                    return TRUE;
+            }
             if (IndexOkT(racenum, races)
                 && !(allow & races[racenum].allow & ROLE_ALIGNMASK))
                 continue;
@@ -2485,7 +2510,10 @@ role_selection_prolog(int which, winid where)
     }
     if (c >= 0) {
         assert(IndexOkT(c, races));
-        allowmask = races[c].allow;
+        /* the race's alignments, unless the role overrides them */
+        allowmask = (r >= 0 && (roles[r].allow & ROLE_NORACEALIGN) != 0)
+                        ? roles[r].allow
+                        : races[c].allow;
         if ((allowmask & ROLE_ALIGNMASK) == AM_LAWFUL)
             a = 0; /* aligns[lawful] */
         else if ((allowmask & ROLE_ALIGNMASK) == AM_NEUTRAL)
@@ -2633,7 +2661,8 @@ role_menu_extra(int which, winid where, boolean preselect)
             if (a >= 0)
                 constrainer = "role";
         }
-        if (c >= 0 && !constrainer) {
+        if (c >= 0 && !constrainer
+            && !(r >= 0 && (roles[r].allow & ROLE_NORACEALIGN) != 0)) {
             allowmask = races[c].allow & ROLE_ALIGNMASK;
             if (allowmask == AM_LAWFUL)
                 a = 0; /* aligns[lawful] */
