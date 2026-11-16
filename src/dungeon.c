@@ -1823,9 +1823,12 @@ avoid_ceiling(d_level *lev)
 const char *
 ceiling(coordxy x, coordxy y)
 {
-    struct rm *lev = &levl[x][y];
+    struct rm *lev;
     const char *what;
 
+    if (!isok(x, y))
+        return "rock cavern";
+    lev = &levl[x][y];
     /* other room types will no longer exist when we're interested --
      * see check_special_room()
      */
@@ -1839,7 +1842,8 @@ ceiling(coordxy x, coordxy y)
         /* water plane has no surface; its air bubbles aren't below sky */
         what = "water above";
     else if (IS_AIR(lev->typ))
-        what = "sky";
+        /* the open air around Vlad's Tower lies inside a cavern */
+        what = In_V_tower(&u.uz) ? "rock cavern" : "sky";
     else if (Is_firelevel(&u.uz))
         what = "flames above";
     else if (In_quest(&u.uz))
@@ -1859,9 +1863,13 @@ ceiling(coordxy x, coordxy y)
 const char *
 surface(coordxy x, coordxy y)
 {
-    struct rm *lev = &levl[x][y];
-    int levtyp = SURFACE_AT(x, y);
+    struct rm *lev;
+    int levtyp;
 
+    if (!isok(x, y))
+        return "ground";
+    lev = &levl[x][y];
+    levtyp = SURFACE_AT(x, y);
     if (u_at(x, y) && u.uswallow && is_animal(u.ustuck->data))
         /* 'husk' is iffy but maw is wrong for 't' class */
         return digests(u.ustuck->data) ? "maw"
