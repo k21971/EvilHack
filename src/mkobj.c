@@ -2191,11 +2191,17 @@ weight(struct obj *obj)
         int cwt;
 
         if (obj->otyp == STATUE && ismnum(obj->corpsenm)) {
-            int msize = (int) mons[obj->corpsenm].msize, /* 0..7 */
-                minwt = (msize + msize + 1) * 100;
+            int mnum = obj->corpsenm, msize, minwt;
+
+            /* a racial statue is sized by its race, as a racial corpse
+               is below */
+            if (has_omonst(obj) && has_erac(OMONST(obj)))
+                mnum = ERAC(OMONST(obj))->rmnum;
+            msize = (int) mons[mnum].msize; /* 0..7 */
+            minwt = (msize + msize + 1) * 100;
 
             /* default statue weight is 1.5 times corpse weight */
-            wt = 3 * (int) mons[obj->corpsenm].cwt / 2;
+            wt = 3 * (int) mons[mnum].cwt / 2;
             /* some monsters that never leave a corpse when they die have
                corpse weight defined as 0; statues resembling them need to
                have non-zero weight; others are so tiny (killer bee) that
