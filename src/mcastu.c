@@ -3040,7 +3040,7 @@ int
 castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
 {
     int dmg, ml = min((int) mtmp->m_lev, 50);
-    int ret, spellnum = -1, spell_count;
+    int ret, spellnum = -1;
     short learned_otyp = 0;
     boolean undirected;
     boolean seecaster = (canseemon(mtmp) || tp_sensemon(mtmp)
@@ -3060,45 +3060,24 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
         return M_ATTK_MISS;
 
     if (!elemental) {
-        /* spells learned from spellbooks; the chance scales with
-           repertoire size like choose_monster_spell() */
-        spell_count = mcount_castable_spells(mtmp);
-        if (spell_count > 0) {
-            int chance = 15 + spell_count * 5;
+        int cnt = 40;
 
-            if (chance > 40)
-                chance = 40;
-            if (rn2(100) < chance
-                && mchoose_learned_spell(mtmp, (struct monst *) 0, 0, 0,
-                                         FALSE) != 0)
-                spellnum = MCAST_LEARNED_SPELL;
-        }
+        /* pick from the caster's list with the retry discipline
+           castmu() uses; choose_monster_spell() makes the roll for
+           a spell learned from a spellbook, and
+           spell_would_be_useless() throws that pick back when
+           nothing learned would work on this target */
+        do {
+            spellnum = choose_monster_spell(mtmp, mattk->adtyp);
+        } while (--cnt > 0
+                 && spell_would_be_useless(mtmp, mdef, spellnum, TRUE));
+        if (cnt == 0)
+            return M_ATTK_MISS;
 
         /* if attacking a tame monster and we know charm monster, use
            the untame spell instead */
         if (mdef->mtame && mknows_spell(mtmp, SPE_CHARM_MONSTER))
             spellnum = MCAST_UNTAME_PET;
-
-        /* nothing pre-empted; select from the innate spell lists with
-           the same retry discipline castmu() uses */
-        if (spellnum < 0) {
-            int cnt = 40;
-
-            do {
-                spellnum = choose_monster_spell(mtmp, mattk->adtyp);
-            } while (--cnt > 0
-                     && spell_would_be_useless(mtmp, mdef, spellnum, TRUE));
-            if (cnt == 0)
-                return M_ATTK_MISS;
-        }
-
-        /* reject the learned meta when the entire offensive repertoire
-           would resist out against this target and no useful self-buff
-           is queued; don't waste the attack */
-        if (spellnum == MCAST_LEARNED_SPELL
-            && !mhas_useful_selfbuff_spell(mtmp)
-            && !mhas_castable_offensive_spell(mtmp, mdef))
-            return M_ATTK_MISS;
     }
 
     /* monster unable to cast spells? */
