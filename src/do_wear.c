@@ -3161,7 +3161,8 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             }
             err++;
         } else if (is_art(otmp, ART_HAND_OF_VECNA)
-                   && racial_aasimar(&gy.youmonst)) {
+                   /* in any form, as for the relics' powers */
+                   && Race_if(PM_AASIMAR)) {
             if (noisy)
                 You("recoil from %s; such an unholy relic is anathema"
                     " to your celestial nature.", the(xname(otmp)));
@@ -3263,7 +3264,7 @@ u_can_wear_armor(struct obj *otmp)
         return !((!wizard && is_art(otmp, ART_GAUNTLETS_OF_PURITY)
                   && (u.ualign.record < 20 || Role_if(PM_INFIDEL)))
                  || (is_art(otmp, ART_HAND_OF_VECNA)
-                     && racial_aasimar(&gy.youmonst)));
+                     && Race_if(PM_AASIMAR)));
     if (is_suit(otmp))
         return !(gy.youmonst.data->msize < MZ_HUGE
                  && otmp->otyp == LARGE_SPLINT_MAIL);

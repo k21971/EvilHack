@@ -1158,14 +1158,17 @@ protects(struct obj *otmp, boolean being_worn)
 
 /* an aasimar's celestial nature draws no power from Vecna's relics; the
    Eye confers intrinsics while merely carried, the Hand only while worn
-   (and an aasimar cannot wear it) -- deny both */
+   (and an aasimar cannot wear it) -- deny both. The hero's race decides,
+   whatever form it is in: a test of the form would grant the powers to
+   a polymorphed aasimar and then find nothing to take away once it was
+   back in its own shape */
 staticfn boolean
 vecna_relic_denied(struct obj *obj)
 {
     return (boolean) (obj
                       && (is_art(obj, ART_EYE_OF_VECNA)
                           || is_art(obj, ART_HAND_OF_VECNA))
-                      && racial_aasimar(&gy.youmonst));
+                      && Race_if(PM_AASIMAR));
 }
 
 /*

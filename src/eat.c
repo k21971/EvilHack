@@ -3143,8 +3143,8 @@ fpostfx(struct obj *otmp)
         if (!otmp->oartifact)
             break;
         /* an aasimar's celestial nature cannot abide consuming Vecna's
-           unholy relic; it is instantly fatal */
-        if (racial_aasimar(&gy.youmonst)) {
+           unholy relic; it is instantly fatal, in any form */
+        if (Race_if(PM_AASIMAR)) {
             pline("%s consumes your celestial soul!", The(xname(otmp)));
             svk.killer.format = KILLED_BY;
             Strcpy(svk.killer.name, "eating the Eye of Vecna");

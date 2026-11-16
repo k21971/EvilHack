@@ -2298,6 +2298,7 @@ void
 aasimar_lose_celestial_blood(void)
 {
     const struct innate *abil;
+    struct obj *obj;
     int i;
     boolean was_flying = !!Flying;
 
@@ -2312,6 +2313,13 @@ aasimar_lose_celestial_blood(void)
        bits) and its trailing aasimar_check_abuse() would re-grant the
        clean-alignment intrinsics. races[0] is the human entry */
     gu.urace = races[0];
+
+    /* the Eye of Vecna gave an aasimar nothing while it was carried;
+       its powers arrive now, as if it had just been picked up (the
+       Hand has none to give until it is worn) */
+    for (obj = gi.invent; obj; obj = obj->nobj)
+        if (is_art(obj, ART_EYE_OF_VECNA))
+            set_artifact_intrinsic(obj, TRUE, W_ART);
 
     /* Strip the FROMRACE intrinsic layer. The table-driven racial
        abilities come from amr_abil[]; the alignment-gated grants and
