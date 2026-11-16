@@ -1511,6 +1511,7 @@ mdamagem(
     mhm.damage = d((int) mattk->damn, (int) mattk->damd);
     mhm.hitflags = M_ATTK_MISS;
     mhm.permdmg = 0;
+    mhm.fed = FALSE;
     mhm.specialdmg = 0;
     mhm.dieroll = dieroll;
     mhm.mwep = mwep;
@@ -1716,7 +1717,12 @@ mdamagem(
             } else if (pd == &mons[PM_NURSE]) {
                 healmon(magr, magr->mhpmax, 0);
             }
-            mon_givit(magr, pd);
+            /* a pet gains from prey that fed it, as it would from the
+               corpse: nothing from a monster that leaves none, and a
+               minion is never fed; any other engulfer takes its chance
+               on whatever it swallowed */
+            if (!magr->mtame || mhm.fed)
+                mon_givit(magr, pd);
         }
         /* caveat: above digestion handling doesn't keep `pa' up to date */
 

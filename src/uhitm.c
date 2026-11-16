@@ -7728,6 +7728,9 @@ mhitm_ad_dgst(
             if (nutrit > 1)
                 nutrit /= 2;
             EDOG(magr)->hungrytime += nutrit;
+            /* and the meal can pass on an intrinsic, once the kill is
+               done */
+            mhm->fed = TRUE;
         }
     }
 }
@@ -8218,6 +8221,7 @@ damageum(
     mhm.damage = d((int) mattk->damn, (int) mattk->damd);
     mhm.hitflags = M_ATTK_MISS;
     mhm.permdmg = 0;
+    mhm.fed = FALSE;
     mhm.specialdmg = specialdmg;
     mhm.mwep = (struct obj *) 0;
     mhm.done = FALSE;

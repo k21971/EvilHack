@@ -109,6 +109,8 @@ struct mhitm_data {
     int hitflags; /* M_ATTK_DEF_DIED | M_ATTK_AGR_DIED | ... */
     boolean done;
     boolean permdmg;
+    boolean fed; /* AD_DGST: a tame engulfer drew nourishment from its
+                    prey */
     int specialdmg;
     int dieroll;
     /* weapon swung for this AT_WEAP hit - the off-hand one for a

@@ -1840,6 +1840,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
 
     mhm.hitflags = M_ATTK_MISS;
     mhm.permdmg = 0;
+    mhm.fed = FALSE;
     mhm.specialdmg = 0;
     mhm.mwep = mon_currwep;
     mhm.done = FALSE;
@@ -3284,6 +3285,7 @@ screamu(struct monst *mtmp, struct attack *mattk)
         mhm.hitflags = M_ATTK_MISS;
         mhm.done = FALSE;
         mhm.permdmg = FALSE;
+        mhm.fed = FALSE;
         mhm.specialdmg = 0;
         mhm.dieroll = 0;
         mhm.mwep = (struct obj *) 0;
