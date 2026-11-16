@@ -1606,7 +1606,22 @@ m_stone_countdown(struct monst *mtmp)
                 gs.stoned = TRUE;
                 xkilled(mtmp, XKILL_NOMSG);
             } else {
+                /* the statue is the kill of whichever monster began
+                   it, if that one is still alive and on this level:
+                   a pet is named for it, and any monster grows as it
+                   would after a kill of its own. The count is already
+                   0, so monstone() will not clear the id */
+                unsigned stoner_id = mtmp->mstoner;
+                struct monst *stoner;
+
+                mtmp->mstoner = 0;
+                stoner = stoner_id ? find_mid(stoner_id, FM_FMON)
+                                   : (struct monst *) 0;
+                if (stoner && stoner->mtame)
+                    set_pet_killer(stoner);
                 monstone(mtmp);
+                if (stoner && DEADMONSTER(mtmp) && !DEADMONSTER(stoner))
+                    (void) grow_up(stoner, mtmp);
             }
             break;
         }
@@ -2259,7 +2274,7 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
             /* a petrifying meal: a golem or an ent changes at once,
                anything else that is not resistant starts turning to
                stone */
-            start_mon_stoning(mtmp, FALSE);
+            start_mon_stoning(mtmp, FALSE, (struct monst *) 0);
             if (DEADMONSTER(mtmp))
                 return;
         }
@@ -6942,11 +6957,12 @@ mon_to_stone(struct monst *mtmp)
 /* a petrifying effect has taken hold of a monster: a golem or an ent
    changes into its stone form at once, anything else begins the
    five-turn countdown that m_stone_countdown() runs; byu records
-   whether the hero is to be credited with the statue. A resistant
+   whether the hero is to be credited with the statue, and otherwise
+   stoner is the monster to credit, if there is one. A resistant
    monster and one that is already turning to stone are left alone;
    the monster may be dead on return (the form change can kill) */
 void
-start_mon_stoning(struct monst *mtmp, boolean byu)
+start_mon_stoning(struct monst *mtmp, boolean byu, struct monst *stoner)
 {
     if (mtmp->mstone || resists_ston(mtmp) || defended(mtmp, AD_STON))
         return;
@@ -6956,6 +6972,9 @@ start_mon_stoning(struct monst *mtmp, boolean byu)
     }
     mtmp->mstone = 5;
     mtmp->mstonebyu = byu ? 1 : 0;
+    /* kept as an id so that it survives a save; every start sets it,
+       so a stale one is never read */
+    mtmp->mstoner = (!byu && stoner && stoner != mtmp) ? stoner->m_id : 0;
     /* said once, here; the countdown's own first step is silent */
     if (canseemon(mtmp) && mtmp->data->mmove)
         pline_mon(mtmp, "%s is slowing down.", Monnam(mtmp));
@@ -6975,6 +6994,7 @@ stop_mon_stoning(struct monst *mtmp)
     stiff = (mtmp->mstone <= 2);
     mtmp->mstone = 0;
     mtmp->mstonebyu = 0;
+    mtmp->mstoner = 0;
     if (stiff && !mtmp->mfrozen)
         mtmp->mcanmove = 1;
 }

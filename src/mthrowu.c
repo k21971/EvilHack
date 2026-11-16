@@ -762,7 +762,7 @@ ohitmon(
             if (resists_ston(mtmp) || defended(mtmp, AD_STON))
                 damage = 0;
             else
-                start_mon_stoning(mtmp, !svc.context.mon_moving);
+                start_mon_stoning(mtmp, !svc.context.mon_moving, magr);
         }
 
         /* might already be dead (if petrified) */

@@ -1337,6 +1337,7 @@ montraits(
         /* nor does a petrification it died in the middle of resume */
         mtmp2->mstone = 0;
         mtmp2->mstonebyu = 0;
+        mtmp2->mstoner = 0;
         mtmp2->mentangled = 0;
         mtmp2->mentangletime = 0;
         mtmp2->msummoned = 0;

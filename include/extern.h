@@ -2044,7 +2044,8 @@ extern void unstuck_if_apart(struct monst *) NONNULLARG1;
 extern void killed(struct monst *) NONNULLARG1;
 extern void xkilled(struct monst *, int) NONNULLARG1;
 extern void mon_to_stone(struct monst *) NONNULLARG1;
-extern void start_mon_stoning(struct monst *, boolean) NONNULLARG1;
+extern void start_mon_stoning(struct monst *, boolean,
+                              struct monst *) NONNULLARG1;
 extern void stop_mon_stoning(struct monst *) NONNULLARG1;
 extern void m_into_limbo(struct monst *) NONNULLARG1;
 extern void migrate_mon(struct monst *, xint16, xint16) NONNULLARG1;

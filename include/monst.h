@@ -215,6 +215,8 @@ struct monst {
     uchar vuln_acid;         /* ...to acid */
     uchar mbreathtyp;        /* skeletal dragon: fixed breath adtyp,
                                 chosen at creation (0 = unassigned) */
+    unsigned mstoner;        /* m_id of the monster that started this
+                                one turning to stone; 0 for none */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC

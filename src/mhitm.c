@@ -670,7 +670,7 @@ mattackm(
                        handler never looks at the weapon; a physical hit
                        has already been through do_stone_mon(), and a
                        target that is turning to stone is left to it */
-                    start_mon_stoning(mdef, FALSE);
+                    start_mon_stoning(mdef, FALSE, magr);
                     /* a golem's or an ent's change of form can be
                        fatal: a handless one lets its own wielded
                        cockatrice corpse touch it */

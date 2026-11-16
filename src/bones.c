@@ -852,6 +852,9 @@ savebones(int how, time_t when, struct obj *corpse)
            death this one set in motion */
         mtmp->mstonebyu = mtmp->msickbyu = mtmp->mdiseabyu = 0;
         mtmp->mwither_from_u = 0;
+        /* nor a monster of that game, by an id that means nothing in
+           the next one */
+        mtmp->mstoner = 0;
         /* observations about the current hero won't apply to future game */
         mtmp->seen_resistance = M_SEEN_NOTHING;
         /* nor has the next hero seen an object-mimic's look up close;

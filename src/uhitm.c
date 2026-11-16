@@ -1798,7 +1798,7 @@ hmon_hitmon_misc_obj(
             if (resists_ston(mon) || defended(mon, AD_STON))
                 break;
             setmangry(mon, TRUE);
-            start_mon_stoning(mon, TRUE);
+            start_mon_stoning(mon, TRUE, (struct monst *) 0);
             hmd->doreturn = TRUE;
             hmd->retval = !DEADMONSTER(mon);
             return;
@@ -1853,7 +1853,7 @@ hmon_hitmon_misc_obj(
             if (resists_ston(mon) || defended(mon, AD_STON))
                 break;
             setmangry(mon, TRUE);
-            start_mon_stoning(mon, TRUE);
+            start_mon_stoning(mon, TRUE, (struct monst *) 0);
             hmd->doreturn = TRUE;
             hmd->retval = !DEADMONSTER(mon);
             return;
@@ -6825,7 +6825,7 @@ do_stone_mon(
             /* a touch, a bite, a beholder's gaze or a wielded corpse
                starts the five-turn countdown, unless the defender is
                resistant or already turning to stone */
-            start_mon_stoning(mdef, FALSE);
+            start_mon_stoning(mdef, FALSE, magr);
             mhm->damage = (mattk->adtyp == AD_STON ? 0 : 1);
             return;
         }
