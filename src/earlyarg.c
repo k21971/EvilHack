@@ -37,6 +37,7 @@ static const struct early_opt earlyopts[] = {
     { ARG_DEBUG, "debug", 5, TRUE },
     { ARG_VERSION, "version", 4, TRUE },
     { ARG_SHOWPATHS, "showpaths", 8, FALSE },
+    { ARG_LISTROLES, "listroles", 9, FALSE },
 #ifndef NODUMPENUMS
     { ARG_DUMPENUMS, "dumpenums", 9, FALSE },
 #endif
@@ -275,6 +276,13 @@ early_options(int *argc_p, char ***argv_p, char **hackdir_p)
                 || lopt(arg, ArgValDisallowed | ArgNamOneLetter, "-?",
                         origarg, &argc, &argv))
                 opt_usage(*hackdir_p); /* doesn't return */
+            break;
+        case 'l':
+            /* --listroles: every valid starting combination */
+            if (argcheck(argc, argv, ARG_LISTROLES) == 2) {
+                opt_terminate();
+                /*NOTREACHED*/
+            }
             break;
         case 'n':
             if (!strcmp(arg, "-no-evilhackrc")) { /* no abbreviation
@@ -606,6 +614,9 @@ argcheck(int argc, char *argv[], enum earlyarg e_arg)
             return 2;
         }
         case ARG_SHOWPATHS:
+            return 2;
+        case ARG_LISTROLES:
+            listroles();
             return 2;
 #ifndef NODUMPENUMS
         case ARG_DUMPENUMS:

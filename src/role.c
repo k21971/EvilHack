@@ -1984,6 +1984,29 @@ pick_align(int rolenum, int racenum, int gendnum, int pickhow)
     return ROLE_NONE;
 }
 
+/* list every valid role, race, gender and alignment combination, one to
+   a line as file codes joined by hyphens (Rog-Orc-Mal-Cha), for
+   scoreboards and other outside tools; "--listroles" on the command
+   line */
+void
+listroles(void)
+{
+    int rol, rac, gen, ali;
+
+    for (rol = 0; roles[rol].filecode; rol++)
+        for (rac = 0; races[rac].filecode; rac++)
+            for (gen = 0; gen < ROLE_GENDERS; gen++)
+                for (ali = 0; ali < ROLE_ALIGNS; ali++)
+                    if (ok_role(rol, rac, gen, ali)
+                        && ok_race(rol, rac, gen, ali)
+                        && ok_gend(rol, rac, gen, ali)
+                        && ok_align(rol, rac, gen, ali))
+                        raw_printf("%s-%s-%s-%s", roles[rol].filecode,
+                                   races[rac].filecode,
+                                   genders[gen].filecode,
+                                   aligns[ali].filecode);
+}
+
 void
 rigid_role_checks(void)
 {

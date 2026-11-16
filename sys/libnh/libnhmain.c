@@ -102,6 +102,8 @@ nhmain(int argc, char *argv[])
     if (argc > 1) {
         if (argcheck(argc, argv, ARG_VERSION) == 2)
             exit(EXIT_SUCCESS);
+        if (argcheck(argc, argv, ARG_LISTROLES) == 2)
+            exit(EXIT_SUCCESS);
 
 #ifdef CRASHREPORT
         if (argcheck(argc, argv, ARG_BIDSHOW))

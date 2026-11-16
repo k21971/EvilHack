@@ -127,6 +127,11 @@ evilhack --showpaths
   includes the name and location for the run-time configuration file which
   can vary from platform to platform.
 
+evilhack --listroles
+  list every valid combination of role, race, gender and alignment, one
+  to a line as three-letter codes joined by hyphens (Rog-Orc-Mal-Cha),
+  then exit; meant for scoreboards and other outside tools.
+
 evilhack --usage
 evilhack --help
   show this text; 'evilhack -?' and 'evilhack ?' also work but the question

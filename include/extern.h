@@ -3175,6 +3175,7 @@ extern boolean ok_gend(int, int, int, int);
 extern int pick_gend(int, int, int, int);
 extern boolean ok_align(int, int, int, int);
 extern int pick_align(int, int, int, int);
+extern void listroles(void);
 extern void rigid_role_checks(void);
 extern boolean setrolefilter(const char *) NONNULLARG1;
 extern boolean gotrolefilter(void);

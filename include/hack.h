@@ -477,7 +477,7 @@ enum lua_theme_group {
 };
 
 enum earlyarg {
-    ARG_DEBUG, ARG_VERSION, ARG_SHOWPATHS
+    ARG_DEBUG, ARG_VERSION, ARG_SHOWPATHS, ARG_LISTROLES
 #ifndef NODUMPENUMS
     , ARG_DUMPENUMS
 #endif
