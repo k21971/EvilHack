@@ -2823,11 +2823,16 @@ mon_give_prop(struct monst *mtmp, int prop)
     }
 }
 
-/* Maybe give an intrinsic to monster from eating corpse that confers it. */
+/* Maybe give an intrinsic to monster from eating corpse that confers it.
+   A pet picks among everything the corpse gives, the energy boost
+   included, and gains its pick whenever a monster can use it; any other
+   monster picks among the real intrinsics and then has to pass the
+   chance roll */
 void
 mon_givit(struct monst *mtmp, struct permonst *ptr)
 {
-    int prop = corpse_intrinsic(ptr);
+    boolean pet = (mtmp->mtame != 0);
+    int prop = corpse_intrinsic(ptr, pet);
     boolean vis = canseemon(mtmp);
 
     if (DEADMONSTER(mtmp))
@@ -2870,7 +2875,7 @@ mon_givit(struct monst *mtmp, struct permonst *ptr)
     if (prop == 0)
         return; /* no intrinsic from this corpse */
 
-    if (!should_givit(prop, ptr))
+    if (!pet && !should_givit(prop, ptr))
         return; /* failed die roll */
 
     mon_give_prop(mtmp, prop);

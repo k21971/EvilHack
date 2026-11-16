@@ -1624,9 +1624,12 @@ RESTORE_WARNING_FORMAT_NONLITERAL
  * For the special not-real-prop cases of strength gain from giants
  * return fake prop value of -1.
  * Non-deterministic; should only be called once per corpse.
+ * With 'energy', the magical energy a spellcaster's or a newt's corpse
+ * gives the hero is one more candidate, fake prop value -2, which no
+ * monster can use: for a pet such a corpse is less of a sure thing
  */
 int
-corpse_intrinsic(struct permonst *ptr)
+corpse_intrinsic(struct permonst *ptr, boolean energy)
 {
     /* Check the monster for all of the intrinsics.  If this
      * monster can give more than one, pick one to try to give
@@ -1641,6 +1644,13 @@ corpse_intrinsic(struct permonst *ptr)
         count = 1;
         prop = -1; /* use -1 as fake prop index for STR */
         debugpline1("\"Intrinsic\" strength, %d", prop);
+    }
+    if (energy && (attacktype(ptr, AT_MAGC) || ptr == &mons[PM_NEWT])) {
+        ++count;
+        if (!rn2(count)) {
+            prop = -2; /* and -2 for the energy boost */
+            debugpline1("\"Intrinsic\" energy gain, %d", prop);
+        }
     }
     for (i = 1; i <= LAST_PROP; i++) {
         if (!intrinsic_possible(i, ptr))

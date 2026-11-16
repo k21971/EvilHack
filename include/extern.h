@@ -1074,7 +1074,7 @@ extern void morehungry(int);
 extern void lesshungry(int);
 extern boolean is_fainted(void);
 extern void reset_faint(void);
-extern int corpse_intrinsic(struct permonst *) NONNULLARG1;
+extern int corpse_intrinsic(struct permonst *, boolean) NONNULLARG1;
 extern void violated_vegetarian(void);
 extern void newuhs(boolean);
 extern struct obj *floorfood(const char *, int) NONNULLARG1;
