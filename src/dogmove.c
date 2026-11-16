@@ -910,7 +910,9 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
                 return dog_eat(mtmp, obj, omx, omy, FALSE);
 
             carryamt = can_carry(mtmp, obj);
-            if (carryamt > 0 && !obj->cursed && !obj->zombie_corpse
+            /* a zombie's corpse, or one about to rise as a zombie, is
+               left where it lies */
+            if (carryamt > 0 && !obj->cursed && !zombie_infected(obj)
                 /* a handless pet (dog, cat, &c) can carry only one
                    unworn/unwielded item; the 'don't drop items' order
                    must not let it hoard more */
