@@ -3096,6 +3096,19 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
         return M_ATTK_MISS;
     }
 
+    /* the learned-spell meta doesn't decide which spell is cast until
+       cast_learned_spell() runs; resolve it now, before the cooldown,
+       so the casting message goes by the spell actually cast
+       (self-buff or directed at mdef) and the same spell is handed
+       on. Nothing castable after all (entangle needs vegetation at
+       the target, repair armor tests a random armor piece): no
+       spell, no cooldown */
+    if (spellnum == MCAST_LEARNED_SPELL) {
+        learned_otyp = mpick_learned_spell(mtmp, mdef, FALSE);
+        if (!learned_otyp)
+            return M_ATTK_MISS;
+    }
+
     /* casting cost, same formula as castmu(); innate elemental
        attacks are gated by mspec but never charge it */
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
@@ -3133,12 +3146,7 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
         return M_ATTK_MISS;
     }
 
-    /* resolve the learned-spell meta now so the casting message
-       reflects the spell actually cast (self-buff vs directed at
-       mdef); the same spell is reused below so message and effect
-       cannot diverge */
-    if (spellnum == MCAST_LEARNED_SPELL)
-        learned_otyp = mpick_learned_spell(mtmp, mdef, FALSE);
+    /* a learned spell's line goes by the spell resolved above */
     undirected = elemental ? FALSE : is_undirected_spell(mtmp, spellnum);
     if (learned_otyp)
         undirected = IS_SELFBUFF_SPELL(learned_otyp);
