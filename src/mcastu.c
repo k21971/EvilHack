@@ -23,7 +23,9 @@ static struct _mcast_data mcast_data[] = {
 #undef MCASTU_INIT
 
 /* spell lists for specific monster casters */
-/* the spells in the list should be in ascending level order */
+/* the spells in a list should be in ascending order of
+   mcast_rung_level(): the table level, except where the two lists
+   put a spell they share on different rolls */
 static int mon_cleric_spells[] = {
     MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_PROTECTION, MCAST_CONFUSE_YOU,
     MCAST_PARALYZE, MCAST_VULN_YOU, MCAST_BLIND_YOU, MCAST_INSECTS,
@@ -33,8 +35,8 @@ static int mon_cleric_spells[] = {
 static int mon_wizard_spells[] = {
     MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_SELF, MCAST_STUN_YOU,
     MCAST_DISAPPEAR, MCAST_WEAKEN_YOU, MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS,
-    MCAST_AGGRAVATION, MCAST_ACID_BLAST, MCAST_SUMMON_MONS, MCAST_CLONE_WIZ,
-    MCAST_DEATH_TOUCH, MCAST_FIRE_BOLT
+    MCAST_AGGRAVATION, MCAST_ACID_BLAST, MCAST_CANCELLATION,
+    MCAST_SUMMON_MONS, MCAST_CLONE_WIZ, MCAST_DEATH_TOUCH, MCAST_FIRE_BOLT
 };
 
 /* self-buff learned spells that can be cast through the undirected path */
@@ -49,6 +51,7 @@ staticfn boolean mon_has_eregen_artifact(struct monst *);
 staticfn boolean is_boss_caster(struct monst *);
 staticfn int druid_ward_subst(struct monst *, int);
 staticfn int choose_bolt_spell(struct monst *);
+staticfn int mcast_rung_level(int, int);
 staticfn int choose_monster_spell(struct monst *, int);
 staticfn struct monst *find_adjacent_pet(struct monst *);
 staticfn void do_untame_pet(struct monst *, struct monst *);
@@ -145,22 +148,21 @@ cursetxt(struct monst *mtmp, boolean undirected)
     }
 }
 
-/* choose a spell for monster to cast */
+/* the druid circle's self-wards, in place of two clerical picks */
 staticfn int
 druid_ward_subst(struct monst *mtmp, int spellnum)
 {
     /* Elanee and her circle ward themselves with the druidic skin
        spells in place of the generic clerical picks of the same
-       level; once either ward is up the generic pick stands (the
-       wards are mutually exclusive) */
+       level; the generic pick stands only while that same ward is
+       up. The wards are mutually exclusive, so with the other one
+       up the ward is picked, found useless and dropped */
     if (mtmp->data != &mons[PM_ELANEE] && mtmp->data != &mons[PM_DRUID]
         && mtmp->data != &mons[PM_ASPIRANT])
         return spellnum;
-    if (has_barkskin(mtmp) || has_stoneskin(mtmp))
-        return spellnum;
-    if (spellnum == MCAST_BLIND_YOU)
+    if (spellnum == MCAST_BLIND_YOU && !has_stoneskin(mtmp))
         return MCAST_STONESKIN;
-    if (spellnum == MCAST_PROTECTION)
+    if (spellnum == MCAST_PROTECTION && !has_barkskin(mtmp))
         return MCAST_BARKSKIN;
     return spellnum;
 }
@@ -184,6 +186,17 @@ choose_bolt_spell(struct monst *mtmp)
     }
 }
 
+/* the level roll a spell answers to on a list; the two lists share
+   the table, and curse items sits lower on the clerical one */
+staticfn int
+mcast_rung_level(int adtyp, int spellnum)
+{
+    if (adtyp == AD_CLRC && spellnum == MCAST_CURSE_ITEMS)
+        return 9;
+    return mcast_data[spellnum].level;
+}
+
+/* choose a spell for monster to cast */
 staticfn int
 choose_monster_spell(struct monst *mtmp, int adtyp)
 {
@@ -219,24 +232,21 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
         return MCAST_PSI_BOLT;
 
     /* max spell level in this monster spell list */
-    maxlev = mcast_data[list[len - 1]].level;
+    maxlev = mcast_rung_level(adtyp, list[len - 1]);
 
     /* which level spell to cast? The hero's polymorphed casting level
-       comes from the form (gy.youmonst.m_lev is never maintained) */
+       comes from the form (gy.youmonst.m_lev is never maintained); a
+       monster's level counts up to 50 */
     spellval = rn2((mtmp == &gy.youmonst) ? mons[u.umonnum].mlevel
-                                          : (int) mtmp->m_lev);
-    cap = maxlev;
-    if (adtyp == AD_CLRC) {
-        /* the clerical ladder runs two steps past its last spell,
-           where a caster usually opens wounds (rolled on the summon
-           minion rung below); a roll higher still is thrown again
-           beneath itself until it fits, or now and then stands */
-        cap += 2;
-        while (spellval > cap && rn2(cap + 1))
-            spellval = rn2(spellval);
-    } else if (spellval > maxlev && rn2(maxlev)) {
-        spellval = rn2(maxlev);
-    }
+                                          : min((int) mtmp->m_lev, 50));
+    /* each ladder runs a little past its last spell: the clerical
+       one by two steps, where a caster usually opens wounds (rolled
+       on the summon minion rung below), the wizard one by a second
+       step of the bolt rung. A roll higher still is thrown again
+       beneath itself until it fits, or now and then stands */
+    cap = maxlev + ((adtyp == AD_CLRC) ? 2 : 1);
+    while (spellval > cap && rn2(cap + 1))
+        spellval = rn2(spellval);
 
     /* a caster down to a quarter of its hit points makes curing
        itself the priority */
@@ -244,6 +254,11 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
                                : (mtmp->mhpmax > 0
                                   && mtmp->mhp * 4 <= mtmp->mhpmax))
         spellval = 1;
+
+    /* a roll that stood above the ladder gets the first spell in the
+       list, as the lowest roll does */
+    if (spellval > cap)
+        spellval = 0;
 
     /* find the rung the roll lands on, or fall back to the first
        spell in the list. The pick goes back as it fell: a caller
@@ -254,23 +269,20 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
        indirect and castable by the peaceful circle) */
     candidate = -1;
     for (i = len - 1; i > 0; i--) {
-        if (mcast_data[list[i]].level > spellval)
+        if (mcast_rung_level(adtyp, list[i]) > spellval)
             continue;
         candidate = list[i];
-        /* some rungs stand for a random pick between same-level
-           spells. The summon minion rung also answers for the two
-           steps above it: open wounds two times in three, and
-           always for a roll that stayed higher still. Demons (other
-           than Lolth, who keeps her insects) and both Kathryns cast
-           the vulnerability curse where others summon insects */
-        if (candidate == MCAST_CONFUSE_YOU && rn2(2))
-            candidate = MCAST_PROTECTION;
-        else if (candidate == MCAST_AGGRAVATION && rn2(2))
+        /* some rungs stand for more than one spell. The aggravation
+           rung is an even pick between it and the reflection ward.
+           The summon minion rung also answers for the two steps
+           above it, where a caster opens wounds two times in three.
+           Demons (other than Lolth, who keeps her insects) and both
+           Kathryns cast the vulnerability curse where others summon
+           insects */
+        if (candidate == MCAST_AGGRAVATION && rn2(2))
             candidate = MCAST_REFLECTION;
-        else if (candidate == MCAST_SUMMON_MONS && !rn2(3))
-            candidate = MCAST_CANCELLATION;
         else if (candidate == MCAST_SUMMON_MINION && spellval > maxlev
-                 && (spellval > cap || rn2(3)))
+                 && rn2(3))
             candidate = MCAST_OPEN_WOUNDS;
         else if (candidate == MCAST_INSECTS
                  && ((is_demon(mtmp->data) && mtmp->data != &mons[PM_LOLTH])

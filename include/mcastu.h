@@ -25,7 +25,7 @@ MONSPELL(PSI_BOLT,     0, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(OPEN_WOUNDS,  0, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 MONSPELL(CURE_SELF,    1, MCF_INDIRECT),
 MONSPELL(HASTE_SELF,   2, MCF_INDIRECT),
-MONSPELL(CONFUSE_YOU,  2, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
+MONSPELL(CONFUSE_YOU,  3, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
 MONSPELL(STUN_YOU,     3, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
 MONSPELL(DISAPPEAR,    4, MCF_INDIRECT),
 MONSPELL(PARALYZE,     4, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
@@ -33,13 +33,14 @@ MONSPELL(BLIND_YOU,    6, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
 MONSPELL(WEAKEN_YOU,   6, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
 MONSPELL(DESTRY_ARMR,  8, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
 MONSPELL(INSECTS,      7, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
-MONSPELL(CURSE_ITEMS, 10, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
-MONSPELL(LIGHTNING,   11, MCF_HOSTILE|MCF_SIGHT),
-MONSPELL(FIRE_PILLAR, 12, MCF_HOSTILE|MCF_SIGHT),
-MONSPELL(GEYSER,      13, MCF_HOSTILE|MCF_SIGHT),
+/* the wizard ladder's level; mcast_rung_level() has the clerical one */
+MONSPELL(CURSE_ITEMS, 11, MCF_HOSTILE|MCF_SIGHT|MCF_MELEE),
+MONSPELL(LIGHTNING,   10, MCF_HOSTILE|MCF_SIGHT),
+MONSPELL(FIRE_PILLAR, 11, MCF_HOSTILE|MCF_SIGHT),
+MONSPELL(GEYSER,      12, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(AGGRAVATION, 13,
          MCF_INDIRECT|MCF_HOSTILE|MCF_SIGHT|MCF_MELEE|MCF_FREE),
-MONSPELL(SUMMON_MONS, 15,
+MONSPELL(SUMMON_MONS, 16,
          MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT|MCF_MELEE|MCF_FREE),
 MONSPELL(CLONE_WIZ,   18,
          MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT|MCF_MELEE|MCF_FREE),
@@ -63,16 +64,16 @@ MONSPELL(ICE_BOLT,    23, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 /* elemental vulnerability debuff; clerical-ladder pick */
 MONSPELL(VULN_YOU,     5, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 /* summon an aligned servant; clerical-ladder pick, melee range only */
-MONSPELL(SUMMON_MINION, 14, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT|MCF_MELEE),
+MONSPELL(SUMMON_MINION, 13, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT|MCF_MELEE),
 /* reflection self-ward; the wizard ladder's aggravation rung rolls
    between the two */
 MONSPELL(REFLECTION,   13, MCF_INDIRECT),
-/* protection self-ward; clerical-ladder pick sharing its rung with
-   the confusion spell */
+/* protection self-ward; clerical-ladder pick, the rung below the
+   confusion spell */
 MONSPELL(PROTECTION,    2, MCF_INDIRECT),
-/* cancel the target's magic; reached through the wizard ladder's
-   summoning rung roll. A directed spell, unlike the other late
-   wizard picks */
+/* cancel the target's magic; wizard-ladder pick, the rung below
+   summon nasties. A directed spell, unlike the other late wizard
+   picks */
 MONSPELL(CANCELLATION, 15, MCF_HOSTILE|MCF_SIGHT),
 /* summon undead at the caster; clerical-ladder pick, melee range,
    undead/demonic/evil-priest casters and quest nemeses only */
