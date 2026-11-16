@@ -36836,9 +36836,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       doc/evilhack.6 document it. Battery A3: exit 0, 318 lines, each
       four three-letter codes, 18 Convict lines all Cha with the
       dwarven and hobbit ones present, `-listroles` identical,
-      `--listrole` an unknown option, nothing written to disk. Not
-      compared with 0.9.3's own list - no 0.9.3 binary was run in the
-      session.
+      `--listrole` an unknown option, nothing written to disk.
+      Compared after the commits landed (the maintainer ran the live
+      0.9.3 binary): 318 lines on both, identical byte for byte.
 - [x] LOW: pets rolled 5.0's level chance for a corpse intrinsic and
       never picked the energy boost (minted and CLOSED 2026-11-16,
       session 341, from the census leftovers row; BUG-3187;
@@ -36923,21 +36923,21 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       corpse and `!isminion`). (b) `-s --listroles` runs the scores
       first; master's unixmain.c ran the list first. (c) --listroles
       in vmsmain.c and libnhmain.c has not been built anywhere. (d)
-      --listroles was not compared with 0.9.3's own output; the branch
-      prints 318 lines. (e) A hero of a single-sex role whose sex was
-      changed leaves a corpse whose sex bits and stored record
-      disagree; the role's name has no gendered form, so nothing
-      shows. (f) A demon hero's ghost record has race index 0, there
-      being no table entry; nothing reads it. (g) With dwarf back in
-      the Convict's race menu the letters shift (drow d -> r, draugr r
-      -> a). (h) 5.0 puts a wished corpse that would kill on touch on
-      the floor ("Careful! The cockatrice corpse materializes on the
-      floor!"); on master it lands in the pack, where
-      hold_another_object() makes no touch test. (i) The tower
-      cavern's entry line reads "an rock cavern" (dat/quest.lua;
-      master's quest.txt the same). (j) Genesis of Death brings a
-      saddled Pale Horse that attacks on its own: freeze both when
-      staging.
+      SETTLED 2026-11-16, after landing: --listroles was compared with
+      0.9.3's own output, 318 lines on both, identical byte for byte.
+      (e) A hero of a single-sex role whose sex was changed leaves a
+      corpse whose sex bits and stored record disagree; the role's
+      name has no gendered form, so nothing shows. (f) A demon hero's
+      ghost record has race index 0, there being no table entry;
+      nothing reads it. (g) With dwarf back in the Convict's race menu
+      the letters shift (drow d -> r, draugr r -> a). (h) 5.0 puts a
+      wished corpse that would kill on touch on the floor ("Careful!
+      The cockatrice corpse materializes on the floor!"); on master it
+      lands in the pack, where hold_another_object() makes no touch
+      test. (i) The tower cavern's entry line reads "an rock cavern"
+      (dat/quest.lua; master's quest.txt the same). (j) Genesis of
+      Death brings a saddled Pale Horse that attacks on its own:
+      freeze both when staging.
 - [x] LOW: edibility_prompts() computes its own rot (minted
       2026-11-12, session 325, catch-up 3 plan stress test).
       eat.c edibility_prompts() repeats vanilla's
