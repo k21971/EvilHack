@@ -37303,7 +37303,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       zap.c, muse.c, potion.c, makemon.c, dothrow.c), with no
       central start or stop to hang the id on - write those first.
       CLOSED 2026-11-17, session 344 (BUG-3196,
-      commit pending s344-C2; plan
+      49acd0714; plan
       /root/.claude/plans/bugfix-delayed-death-credit.md). RULED
       with the slice pick: BUG-3194's shape - a pet gets the livelog
       line, any attacker grows, the last monster to start or worsen
@@ -37337,7 +37337,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mdiseasetime back to 6-15, so a monster that kept being
       stabbed never died of the disease.
       CLOSED 2026-11-17, session 344 (BUG-3195,
-      commit pending s344-C1). RULED "Grimtooth follows the common rule": only a
+      ff0043adc). RULED "Grimtooth follows the common rule": only a
       hit that infects touches the countdown (fresh 6-14, then 1-3
       shorter), for the hero and a monster wielder alike.
       BATTERY: a countdown pinned at 100 read 5 at the next PRE hit
@@ -37351,7 +37351,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the countdown running; the next bite continued from the
       leftover, and one below zero never ran out.
       CLOSED 2026-11-17, session 344 (BUG-3197,
-      commit pending s344-C3). RULED "a monster that is not ill starts a fresh
+      2e0c288fd). RULED "a monster that is not ill starts a fresh
       countdown": the start functions test the flag, not the
       countdown.
       BATTERY: leftover pinned at 3 - PRE the next bite left 1 and
@@ -37363,7 +37363,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the hero's direct-kill rule (no zombie for a hero holding a
       weapon) over the value the sickness block had set.
       CLOSED 2026-11-17, session 344 (BUG-3198,
-      commit pending s344-C4). RULED "the illness decides", and kept when asked
+      13e7462e3). RULED "the illness decides", and kept when asked
       again after the battery corrected the option text: the risen
       zombie is peaceful to an un-polymorphed Draugr 2 times in 3
       (peace_minded()), not hostile. XKILL_INDIRECT at the hero's
@@ -37380,7 +37380,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the hero's zombie-sickness victim, or by a conjured helper's
       zombifying kill, got the timer and rose too.
       CLOSED 2026-11-17, session 344 (BUG-3199,
-      commit pending s344-C5). RULED "fix it now": the flag is off while the
+      991e272e4). RULED "fix it now": the flag is off while the
       treasure is made and back for the victim's own corpse.
       BATTERY (roll forced by gdb): gz.zombify at the treasure's
       mkobj() 1 on the old binary, 0 on the new; a corpse made at
