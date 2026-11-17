@@ -6697,7 +6697,13 @@ xkilled(
             && mdat->mlet != S_KOP
             /* no items from cloned monsters */
             && !mtmp->mcloned) {
+            /* the drop is not the victim's body: a corpse that turns
+               up in it must not rise because its owner is about to */
+            boolean save_zombify = gz.zombify;
+
+            gz.zombify = FALSE;
             otmp = mkobj(RANDOM_CLASS, TRUE);
+            gz.zombify = save_zombify;
             /* don't create large objects from small monsters */
             otyp = otmp->otyp;
             if (otmp->oclass == FOOD_CLASS && !(mdat->mflags2 & M2_COLLECT)
