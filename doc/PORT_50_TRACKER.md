@@ -17,7 +17,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-16, session 343: Vecna's relics
+- Phase 2 status (refreshed 2026-11-17, session 344: a monster whose
+  bite, sting or touch kills later is credited when the death comes -
+  a victim of zombie sickness, disease or withering remembers the
+  monster that started or last worsened it, a pet gets the livelog
+  line and any attacker grows, as the slow stoning does since
+  session 343 (ruled; struct monst grew again, older saves are
+  refused); and four things found beside it, all the same on 0.9.3
+  and all ruled: Grimtooth no longer sets its victim's disease
+  countdown back on every hit, a cured monster bitten again starts a
+  fresh countdown, an armed Draugr's bite victims rise as an
+  empty-handed one's do, and a random corpse dropped by such a victim
+  no longer rises with it; one row closed, four minted and closed,
+  one residue row minted -
+  after session 343, the day before, made Vecna's relics
   go by an aasimar's race in every form - a polymorphed aasimar had the
   Eye's powers, could invoke the relics, wear the Hand and eat the Eye,
   and kept the Eye's powers for good after dropping it in its own
@@ -157,7 +170,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
   prefix; 59 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 57 LOW):
-  757 rows closed, 59 open
+  762 rows closed, 59 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -37059,6 +37072,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       The tame-minion leg of the engulfer battery could not be
       staged: a forced isminion bit with no EMIN behind it crashes
       mon_aligntyp().
+      Session 344 (2026-11-17) settled (d) for the four delayed
+      deaths: credit_delayed_kill() names nobody when it finds no
+      tame attacker, before the statue step and the illness,
+      infection and wither deaths (BUG-3196). The rest stands.
 - [x] LOW: edibility_prompts() computes its own rot (minted
       2026-11-12, session 325, catch-up 3 plan stress test).
       eat.c edibility_prompts() repeats vanilla's
@@ -37271,7 +37288,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       with no line; a stoner dead or off the level got nothing; the
       id survived save and restore; the hero's own stoning kills
       read the same on both builds.
-- [ ] LOW: the other three delayed deaths credit nobody (minted
+- [x] LOW: the other three delayed deaths credit nobody (minted
       2026-11-16, session 343, ruling; BUG-1305's deferral; master
       the same). m_calcdistress()'s zombie sickness ("dies from its
       illness"), disease ("dies from its infection") and withering
@@ -37285,6 +37302,120 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       artifact.c, eat.c, read.c) and twenty-five clears (mon.c,
       zap.c, muse.c, potion.c, makemon.c, dothrow.c), with no
       central start or stop to hang the id on - write those first.
+      CLOSED 2026-11-17, session 344 (BUG-3196,
+      commit pending s344-C2; plan
+      /root/.claude/plans/bugfix-delayed-death-credit.md). RULED
+      with the slice pick: BUG-3194's shape - a pet gets the livelog
+      line, any attacker grows, the last monster to start or worsen
+      the affliction is the one credited. Three ids on struct monst
+      (msickener, minfector, mwitherer; 288 -> 296 bytes, older
+      saves are refused). The starts are central now -
+      start_mon_sickness(), start_mon_disease(),
+      start_mon_withering() in mon.c, called from the ten attack
+      sites - and the deaths credit through credit_delayed_kill()
+      and delayed_kill_growth(), which the stoning step shares. The
+      25 cure sites needed no change: the hero's flags already
+      relied on every start assigning them, and an id assigned at
+      every start is never read stale. A gray fungus is credited
+      with what its passive infects; a thrown Grimtooth credits its
+      thrower; a withering victim brought back by life saving still
+      credits the attacker at its second death.
+      BATTERY (frozen Gollum; tame human zombie, locust, gray
+      fungus, gnome mummy): PRE no livelog line and no growth in
+      any of the four; POST "pet human zombie killed Gollum"
+      (mhpmax 34 -> 42), "pet locust killed Gollum" (35 -> 39),
+      "pet gray fungus killed Gollum" (24 -> 30), "pet gnome mummy
+      killed Gollum" (17 -> 24). A hostile zombie grew 19 -> 24
+      with no line; an attacker dead or off the level got nothing;
+      the id survived save and restore; hero then pet credits the
+      pet, pet then hero the hero; the hero's own three kills and
+      the stoning regression read the same on both builds.
+- [x] LOW: Grimtooth resets its victim's disease countdown on every
+      hit (minted and closed 2026-11-17, session 344, found reading
+      the start sites; master the same - its 2023 countdown rework
+      missed artifact.c). Every hit, infecting or not, set
+      mdiseasetime back to 6-15, so a monster that kept being
+      stabbed never died of the disease.
+      CLOSED 2026-11-17, session 344 (BUG-3195,
+      commit pending s344-C1). RULED "Grimtooth follows the common rule": only a
+      hit that infects touches the countdown (fresh 6-14, then 1-3
+      shorter), for the hero and a monster wielder alike.
+      BATTERY: a countdown pinned at 100 read 5 at the next PRE hit
+      and 99, 98, 94 on POST; pinned at 3, twelve PRE hits brought
+      no death and the first POST hit "The hill orc dies from her
+      infection."
+- [x] LOW: a cured monster keeps its old sickness or disease
+      countdown (minted and closed 2026-11-17, session 344, found
+      reading the start sites; master the same). A unicorn horn, a
+      healing potion and a eucalyptus leaf clear the flag and leave
+      the countdown running; the next bite continued from the
+      leftover, and one below zero never ran out.
+      CLOSED 2026-11-17, session 344 (BUG-3197,
+      commit pending s344-C3). RULED "a monster that is not ill starts a fresh
+      countdown": the start functions test the flag, not the
+      countdown.
+      BATTERY: leftover pinned at 3 - PRE the next bite left 1 and
+      the victim died, POST a fresh 10; pinned at -5 - PRE death at
+      the next bite, POST a fresh 13; disease the same.
+- [x] LOW: an armed Draugr's bite victims never rise (minted and
+      closed 2026-11-17, session 344, found reading the sickness
+      death; master the same). xkilled() recomputed gz.zombify from
+      the hero's direct-kill rule (no zombie for a hero holding a
+      weapon) over the value the sickness block had set.
+      CLOSED 2026-11-17, session 344 (BUG-3198,
+      commit pending s344-C4). RULED "the illness decides", and kept when asked
+      again after the battery corrected the option text: the risen
+      zombie is peaceful to an un-polymorphed Draugr 2 times in 3
+      (peace_minded()), not hostile. XKILL_INDIRECT at the hero's
+      sickness kill; kills by a blow keep their rule.
+      BATTERY (hill giant): armed - PRE no zombify timer and
+      nothing rose, POST "The giant zombie rises from the dead!";
+      empty-handed rises on both; a mastodon (plain strain) on
+      neither; bitten, then polymorphed into a jackal - PRE no
+      timer, POST a hostile zombie.
+- [x] LOW: xkilled()'s treasure drop is made with the victim's
+      rise-as-a-zombie flag set (minted and closed 2026-11-17,
+      session 344, reviewer; master the same; not vanilla's - 5.0
+      sets the flag at the corpse step). A random corpse dropped by
+      the hero's zombie-sickness victim, or by a conjured helper's
+      zombifying kill, got the timer and rose too.
+      CLOSED 2026-11-17, session 344 (BUG-3199,
+      commit pending s344-C5). RULED "fix it now": the flag is off while the
+      treasure is made and back for the victim's own corpse.
+      BATTERY (roll forced by gdb): gz.zombify at the treasure's
+      mkobj() 1 on the old binary, 0 on the new; a corpse made at
+      that moment timed on the old, not on the new; the victim's
+      own corpse timed and risen on both.
+- [ ] LOW, record: session 344 residue (minted 2026-11-17, plan
+      stress test, reviewer and batteries; record unless a ruling
+      wants a change). (a) The hero's disease kill prints two
+      lines, "<Mon> dies from its infection." and "You kill
+      <mon>!" (XKILL_GIVEMSG; the sickness arm passes
+      XKILL_NOMSG); master the same. (b) An armed hero's kills by
+      a blow raise no zombies even when the bite lands the kill
+      (`!uwep` in xkilled()); the ruling left that rule alone. (c)
+      read.c create_particular's wizard-mode "sick" / "diseased"
+      flags write a new monster's fields directly (msick 1, never
+      the rising strain). (d) montraits() and clone_mon() carry
+      the three ids over while zeroing the afflictions; the monster
+      cure sickness arm leaves the wither flag and id; a potion,
+      horn or leaf cure leaves msickener / minfector set with the
+      flags clear - all harmless, every start reassigns. (e) No
+      pet-handling training for a delayed kill; a `uexp` helper is
+      not routed to the hero (none has these attacks). (f)
+      mon_regen() keeps decrementing a countdown below zero
+      (harmless since BUG-3197). (g) mhitm_ad_pest()'s hero-attacker
+      arm would now set msickbyu; unreachable, polyself refuses a
+      Rider. (h) A wither death that life saving undoes still
+      prints "withers away completely!" before "But wait...". (i)
+      Seen once under a gdb-forced mattackm() and not followed up:
+      "The hill orc gores the hill orc." for a dagger hit. (j)
+      Staging notes: Grimtooth is always poisoned (use a
+      poison-resistant victim) and a wished one can come cursed
+      and turn on the hero; the illness lines read "his" / "her"
+      for a sexed victim; a gray fungus is generated at m_lev 4;
+      MIGR_RANDOM has no symbol (0); the struct monst mismatch
+      now reads "at 40".
 - [ ] LOW: gradual stoning residue (minted 2026-11-12, session 326,
       plan stress test, reviewer and batteries; record unless a
       ruling wants a change). (a) The countdown does not run while
@@ -42426,6 +42557,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-16 | Six master gaps, the Convict rule and a bones crash (Phase 2 session 341, AskUserQuestion x4 with 7 questions; six answers as recommended, one not - marked below). (1) SLICE: the six master gaps session 340 confirmed by reading (not taken: castmm()'s doubled learned-spell roll, the doorway thread, the wording and parity rulings). (2) PETS: 0.9.3'S RULE, HOSTILES KEEP THE ROLL, over the recommended "0.9.3's rule everywhere" - a pet gains the intrinsic it picks and the energy boost counts as a pick; monsters 0.9.3 gave nothing keep 5.0's level roll (rejected: the energy pick alone, which would have lowered pets further; leave 5.0's odds) (BUG-3187). (3) CONVICT: FOLD IN, OWN COMMIT - master 8c573257a's readers of ROLE_NORACEALIGN (rejected: a MED row for a later slice) (BUG-3185). (4) STATUES BY RACE, beyond master (rejected: by role, as 0.9.3) (BUG-3183). (5) DEMON HERO: NO CORPSE, the grave is still dug, beyond master and in line with session 319's scoreboard ruling (rejected: 0.9.3's infidel corpse with the demon race) (BUG-3180). (6) BATTERY: launch all three testers. (7) BONES CRASH, found by the battery on both builds: FIX NOW, OWN COMMIT (rejected: a HIGH row for its own session) (BUG-3188). Approved with the plan, three premises of the ruling questions corrected by its stress test: the menus never offered dwarf or hobbit to a Convict, and the wrong alignment was a fresh rn2(3) at every start and restore, not a stored lawful; on 0.9.3 only a tame digester gains, so ruling 2 is one test - tame gets 0.9.3's rule however the meal arrives, anything else is untouched; the branch had no sanity complaint for Death, only the 999 ceiling. Also stated and approved: the bones corpse is unnamed, as on 0.9.3; a pet eating a spellcaster's corpse gains less often than before (kobold shaman's telepathy 100 -> 50%); if the race cannot be recorded the corpse is the race monster's. Review folds, taken without a question: the throwaway monster made as if during level creation (BUG-3181), the stored name sanitized on bones load (BUG-3182), --listroles in the VMS and libnh mains. Recorded, residue row: no-corpse digestion grants, the unbuilt platform lines, the missing 0.9.3 comparison of --listroles. | maintainer |
 | 2026-11-16 | castmm()'s doubled learned-spell roll and the dud cast (Phase 2 session 342, AskUserQuestion x2 with 3 questions, all as recommended; the battery was named in the plan and launched on its approval). (1) SLICE: castmm()'s doubled learned-spell roll (not taken: the doorway thread, the wording and parity rulings, the census leftovers with the session 341 residue). (2) UNTAME ORDER: 0.9.3'S - the charm-monster override follows the pick loop, so a loop that comes up empty is a miss with no untaming: 2.4 to 4.4% of casts for a hasted, invisible, unhurt wizard-list caster of level 11 to 13 at range with no usable book spell, nil next to the pet (rejected: always untame, the branch's order) (BUG-3189). (3) DUD CASTS: FOLD IN THE GUARD, OWN COMMIT - an empty book-spell pick in castmm() is a miss with no line and no cooldown, the guard castmu() has had since BUG-2869 (rejected: the guard plus a vegetation test in the usefulness check, which would change casts at the hero too; a LOW row only) (BUG-3190). Session calls, plan-approved: the post-loop reject block deleted rather than kept, the loop applying the same test; the two `undirected` lines left as they were. Corrected by the plan's stress test before approval: the first draft said the pick loop could not come up empty against a monster target - it can, and ruling 2 came from that; the stand-in's expected rates. Reviewer LOWs not taken: the vegetation test (ruling 3) and two cosmetic leftovers, so the battery-tested binary is the final one. Recorded, monster casting residue row: entangle off vegetation, the level-0 caster's missing curse line, cast_learned_spell()'s dead pick. | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-16 | Vecna's relics and three pet rows (Phase 2 session 343, AskUserQuestion x2 with 4 questions, all as recommended; the battery was named in the plan and launched on its approval). (1) SLICE: the aasimar's Vecna-relic row and the three pet rows (not taken: the doorway thread, the wording and parity rulings, the census leftovers). (2) RELICS: RACE DECIDES, EVERYWHERE, beyond 0.9.3 - an aasimar is refused in any form: no powers from a carried Eye, no invoke, the Hand will not go on, eating the Eye is fatal; an aasimar can no longer polymorph to use them (rejected: keep the form rule and re-check at each change of form; race for the powers and the invoke only, which left the Hand a trap) (BUG-3191). (3) ZOMBIE'S KILL: THE PET LEAVES IT ALONE - the carry test covers a corpse about to rise; pray.c's Draugr kin test and muse.c stay (rejected: record only) (BUG-3192). (4) KILL CREDIT: STONING NOW, A ROW FOR THE OTHER THREE DELAYED DEATHS - the victim remembers the monster that began its stoning; a tame stoner gets the pet-kill livelog line and any stoner still alive on the level grows (rejected: zombie sickness, disease and withering in the same slice; pets only) (BUG-3194). Under session 341's ruling 2, no new question: a tame engulfer gains only from a meal that fed it, a hostile one keeps 5.0's call (BUG-3193). Session calls, plan-approved: a fallen aasimar carrying the Eye gets its powers at the fall; the engulfer's grant keeps 5.0's place after the kill; struct monst grows by the stoner's id and older saves are refused. Corrected by the plan's stress test before approval: stop_mon_stoning() does nothing once the count is 0, so the last step clears the id by hand; the staging of every battery group. Reviewer LOW not taken: a reset of a stale pet-kill attribution before the statue step, not shown to exist, so the battery-tested binary is the final one. Not run: the tame-minion leg (a forced minion bit crashes the old build). Recorded, session 343 residue row. | maintainer (1-4); session, plan-approved (rest) |
+| 2026-11-17 | Delayed-death credit and four things beside it (Phase 2 session 344, AskUserQuestion x3 with 4 questions, all as recommended where a recommendation was given; the batteries were named in the plan and launched on its approval). (1) SLICE: the delayed-death credit row (not taken: the doorway thread, the wording and parity rulings, the census leftovers). KILL CREDIT, under session 343's ruling 4 and the row's own fix shape, no new question: a victim of zombie sickness, disease or withering remembers the monster that started or last worsened it; a tame attacker gets the pet-kill livelog line and any attacker still alive on the level grows (BUG-3196). (2) FOLD-INS, multi-select, all three taken, each its own commit: A CURED MONSTER STARTS A FRESH COUNTDOWN - only a monster still ill gets worse (BUG-3197); GRIMTOOTH FOLLOWS THE COMMON RULE - only a hit that infects touches the countdown (BUG-3195); THE ILLNESS DECIDES - an armed Draugr's bite victim rises as an empty-handed one's does, offered without a recommendation (BUG-3198) (rejected: record only). (3) After the battery, the Draugr fix asked again because its option text was wrong - the risen zombie is peaceful to an un-polymorphed Draugr 2 times in 3, not "hostile, as any risen zombie": KEPT (rejected: drop it and keep "an armed hero never raises zombies" for both kinds of kill). (4) The reviewer's treasure-drop LOW: FIX IT NOW - xkilled() no longer makes the random treasure object with the victim's rise-as-a-zombie flag set (rejected: record only) (BUG-3199). Session calls, plan-approved: the 25 cure sites stay untouched (every start assigns the id); the gray fungus is credited with its passive's infection and a thrown Grimtooth credits its thrower; the id is not spent at the death, so a withering victim brought back by life saving still credits its attacker; the credit helper names nobody when it finds no tame attacker (session 343 residue (d)); no pet-handling training for a delayed kill; struct monst grows by three ids and older saves are refused. Who the Draugr rule also catches, in the plan: a hero no longer a zombie when the illness comes due (rises), a plain-strain victim since polymorphed into something zombifiable (no longer rises). Corrected by the plan's stress test before approval: the helper's name (delayed_killer is end.c's), the wither id across life saving, the zombify reset before the growth, the thrower of a thrown Grimtooth, the staging of every battery group. Reviewer: one LOW became ruling 4, one comment reworded, one left (ids carried by revival and cloning, harmless). Recorded, session 344 residue row. | maintainer (1-4); session, plan-approved (rest) |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
