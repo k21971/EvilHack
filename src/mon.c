@@ -7054,7 +7054,9 @@ credited_mid(struct monst *mtmp, struct monst *magr)
 void
 start_mon_sickness(struct monst *mtmp, struct monst *magr)
 {
-    if (mtmp->msicktime)
+    /* only a monster that is ill gets worse: most cures leave the old
+       countdown running, and a fresh bout does not take it up */
+    if (mtmp->msick)
         mtmp->msicktime -= rnd(3);
     else
         mtmp->msicktime = rn1(9, 6);
@@ -7067,7 +7069,7 @@ start_mon_sickness(struct monst *mtmp, struct monst *magr)
 void
 start_mon_disease(struct monst *mtmp, struct monst *magr)
 {
-    if (mtmp->mdiseasetime)
+    if (mtmp->mdiseased)
         mtmp->mdiseasetime -= rnd(3);
     else
         mtmp->mdiseasetime = rn1(9, 6);
