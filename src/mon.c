@@ -1728,7 +1728,10 @@ m_calcdistress(struct monst *mtmp)
             mtmp->msick = 0;
             mtmp->mhp = -1;
             if (mtmp->msickbyu) {
-                xkilled(mtmp, XKILL_NOMSG);
+                /* the illness decides whether the corpse rises, as it
+                   does for a monster zombie's victim, not what the
+                   hero is or holds when it comes due */
+                xkilled(mtmp, XKILL_NOMSG | XKILL_INDIRECT);
             } else {
                 magr = credit_delayed_kill(mtmp->msickener);
                 mondied(mtmp);
@@ -6721,8 +6724,9 @@ xkilled(
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
             /* for kills by monsters credited to the hero (mon->uexp),
                zombify will have been set already by the caller where
-               the attacking monster was known; for actual kills by
-               the hero we can figure it out here */
+               the attacking monster was known, and likewise for a
+               victim of the hero's zombie sickness; for the hero's
+               kills by a blow we can figure it out here */
             if (!indirect)
                 gz.zombify = (!gt.thrownobj && !gs.stoned && !uwep
                              && zombie_maker(&gy.youmonst)
