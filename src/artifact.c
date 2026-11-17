@@ -2965,8 +2965,14 @@ artifact_hit(
         if (youdefend && magr && !rn2(5)) {
             (void) diseasemu(magr);
         } else if (!youdefend) {
-            mdef->mdiseasetime = rnd(10) + 5;
             if (!no_sick && !rn2(5)) {
+                /* the first infection starts the countdown and each
+                   later one shortens it, as with any other disease; a
+                   hit that does not infect leaves it alone */
+                if (mdef->mdiseasetime)
+                    mdef->mdiseasetime -= rnd(3);
+                else
+                    mdef->mdiseasetime = rn1(9, 6);
                 if (canseemon(mdef))
                     pline_mon(mdef, "%s looks %s.", Monnam(mdef),
                               mdef->mdiseased ? "even worse" : "diseased");
