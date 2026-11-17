@@ -3325,8 +3325,10 @@ mcast_nodir_spell(struct monst *caster, struct monst *target,
             }
             caster->msick = 0;
             caster->msickbyu = 0;
+            caster->msickener = 0;
             caster->mdiseased = 0;
             caster->mdiseabyu = 0;
+            caster->minfector = 0;
             caster->msicktime = 0;
             caster->mdiseasetime = 0;
             caster->mwither = 0;

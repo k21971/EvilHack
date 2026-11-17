@@ -2966,20 +2966,15 @@ artifact_hit(
             (void) diseasemu(magr);
         } else if (!youdefend) {
             if (!no_sick && !rn2(5)) {
-                /* the first infection starts the countdown and each
-                   later one shortens it, as with any other disease; a
-                   hit that does not infect leaves it alone */
-                if (mdef->mdiseasetime)
-                    mdef->mdiseasetime -= rnd(3);
-                else
-                    mdef->mdiseasetime = rn1(9, 6);
                 if (canseemon(mdef))
                     pline_mon(mdef, "%s looks %s.", Monnam(mdef),
                               mdef->mdiseased ? "even worse" : "diseased");
-                mdef->mdiseased = 1;
-                /* only a hero-swung weapon credits the hero when the
-                   disease kills; a monster-wielded Grimtooth must not */
-                mdef->mdiseabyu = youattack ? TRUE : FALSE;
+                /* the first infection starts the countdown and each
+                   later one shortens it, as with any other disease; a
+                   hit that does not infect leaves it alone. Whoever
+                   swung or threw the dagger is credited if the disease
+                   kills */
+                start_mon_disease(mdef, youattack ? &gy.youmonst : mkiller);
             }
         }
         return realizes_damage;

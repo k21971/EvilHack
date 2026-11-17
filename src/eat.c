@@ -879,12 +879,7 @@ eat_brains(
                 if (visflag && canspotmon(mdef))
                     pline_mon(mdef, "%s looks %s.", Monnam(mdef),
                               mdef->msick ? "much worse" : "rather ill");
-                if (mdef->msicktime)
-                    mdef->msicktime -= rnd(3);
-                else
-                    mdef->msicktime = rn1(9, 6);
-                mdef->msick = can_become_zombie(r_data(mdef)) ? 3 : 1;
-                mdef->msickbyu = FALSE;
+                start_mon_sickness(mdef, magr);
             }
         }
     }

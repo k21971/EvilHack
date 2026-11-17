@@ -5418,15 +5418,10 @@ mhitm_ad_drin(
         if (((!Upolyd && Race_if(PM_DRAUGR)) || is_zombie(gy.youmonst.data))
             && rn2(5)) {
             if (!(resists_sick(mdef) || defended(mdef, AD_DISE))) {
-                if (mdef->msicktime)
-                    mdef->msicktime -= rnd(3);
-                else
-                    mdef->msicktime = rn1(9, 6);
                 if (canseemon(mdef))
                     pline_mon(mdef, "%s looks %s.", Monnam(mdef),
                               mdef->msick ? "much worse" : "rather ill");
-                mdef->msick = can_become_zombie(r_data(mdef)) ? 3 : 1;
-                mdef->msickbyu = TRUE;
+                start_mon_sickness(mdef, &gy.youmonst);
             }
             return; /* plus the normal damage */
         }
@@ -5582,12 +5577,7 @@ mhitm_ad_drin(
             if (gv.vis && canspotmon(mdef))
                 pline_mon(mdef, "%s looks %s.", Monnam(mdef),
                           mdef->msick ? "much worse" : "rather ill");
-            if (mdef->msicktime)
-                mdef->msicktime -= rnd(3);
-            else
-                mdef->msicktime = rn1(9, 6);
-            mdef->msick = can_become_zombie(r_data(mdef)) ? 3 : 1;
-            mdef->msickbyu = FALSE;
+            start_mon_sickness(mdef, magr);
             return; /* plus the normal damage */
         }
         amu = which_armor(mdef, W_AMUL);
@@ -6425,18 +6415,14 @@ mhitm_ad_wthr(
         if (canseemon(mdef))
             pline_mon(mdef, "%s is withering away!", Monnam(mdef));
 
-        if (mdef->mwither + withertime > UCHAR_MAX)
-            mdef->mwither = UCHAR_MAX;
-        else
-            mdef->mwither += withertime;
+        /* whoever lays the latest touch, the hero or a monster, is
+           credited with the eventual death */
+        start_mon_withering(mdef, magr, (int) withertime);
 
         if (lose_maxhp && mdef->mhpmax > 1) {
             mdef->mhpmax--;
             mdef->mhp = min(mdef->mhp, mdef->mhpmax);
         }
-        /* the hero gets credit for the eventual death; a monster
-           attacker, pet or not, does not */
-        mdef->mwither_from_u = (magr == &gy.youmonst);
     }
 }
 
@@ -6502,14 +6488,8 @@ mhitm_ad_pest(
             mdef->mhp /= 2;
         if (mdef->mhp > mdef->mhpmax)
             mdef->mhp = mdef->mhpmax;
-        if (!(resists_sick(mdef) || defended(mdef, AD_DISE))) {
-            if (mdef->msicktime)
-                mdef->msicktime -= rnd(3);
-            else
-                mdef->msicktime = rn1(9, 6);
-            mdef->msick = can_become_zombie(r_data(mdef)) ? 3 : 1;
-            mdef->msickbyu = FALSE;
-        }
+        if (!(resists_sick(mdef) || defended(mdef, AD_DISE)))
+            start_mon_sickness(mdef, magr);
     }
 }
 
@@ -7777,15 +7757,10 @@ mhitm_ad_dise(
     if (magr == &gy.youmonst) {
         /* uhitm */
         if (!(resists_sick(mdef) || defended(mdef, AD_DISE))) {
-            if (mdef->mdiseasetime)
-                mdef->mdiseasetime -= rnd(3);
-            else
-                mdef->mdiseasetime = rn1(9, 6);
             if (canseemon(mdef))
                 pline_mon(mdef, "%s looks %s.", Monnam(mdef),
                           mdef->mdiseased ? "even worse" : "diseased");
-            mdef->mdiseased = 1;
-            mdef->mdiseabyu = TRUE;
+            start_mon_disease(mdef, &gy.youmonst);
         }
         /* plus ordinary damage */
     } else if (mdef == &gy.youmonst) {
@@ -7800,15 +7775,10 @@ mhitm_ad_dise(
                 pline_mon(mdef, "%s resists infection.", Monnam(mdef));
             mhm->damage = 0;
         } else {
-            if (mdef->mdiseasetime)
-                mdef->mdiseasetime -= rnd(3);
-            else
-                mdef->mdiseasetime = rn1(9, 6);
             if (gv.vis && canseemon(mdef))
                 pline_mon(mdef, "%s looks %s.", Monnam(mdef),
                           mdef->mdiseased ? "even worse" : "diseased");
-            mdef->mdiseased = 1;
-            mdef->mdiseabyu = FALSE;
+            start_mon_disease(mdef, magr);
             /* plus ordinary damage */
         }
     }

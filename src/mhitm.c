@@ -2459,15 +2459,11 @@ passivemm(
                 tmp = 0;
                 break;
             }
-            if (magr->mdiseasetime)
-                magr->mdiseasetime -= rnd(3);
-            else
-                magr->mdiseasetime = rn1(9, 6);
             if (canseemon(magr))
                 pline_mon(magr, "%s looks %s.", Monnam(magr),
                           magr->mdiseased ? "even worse" : "diseased");
-            magr->mdiseased = 1;
-            magr->mdiseabyu = FALSE;
+            /* the one it attacked is credited if the infection kills */
+            start_mon_disease(magr, mdef);
             break;
         case AD_SLOW: /* orange dragon */
             if (mhitb && !mdef->mcan && magr->mspeed != MSLOW && !rn2(3))

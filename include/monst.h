@@ -217,6 +217,9 @@ struct monst {
                                 chosen at creation (0 = unassigned) */
     unsigned mstoner;        /* m_id of the monster that started this
                                 one turning to stone; 0 for none */
+    unsigned msickener;      /* ...that made it ill (msick) */
+    unsigned minfector;      /* ...that infected it (mdiseased) */
+    unsigned mwitherer;      /* ...that set it withering (mwither) */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC

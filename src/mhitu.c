@@ -4390,15 +4390,10 @@ passiveum(
                 tmp = 0;
                 break;
             }
-            if (mtmp->mdiseasetime)
-                mtmp->mdiseasetime -= rnd(3);
-            else
-                mtmp->mdiseasetime = rn1(9, 6);
             if (canseemon(mtmp))
                 pline_mon(mtmp, "%s looks %s.", Monnam(mtmp),
                           mtmp->mdiseased ? "even worse" : "diseased");
-            mtmp->mdiseased = 1;
-            mtmp->mdiseabyu = TRUE;
+            start_mon_disease(mtmp, &gy.youmonst);
             break;
         case AD_SLEE: /* black fungus */
             if (sleep_monst(mtmp, rn2(3) + 8, -1)) {

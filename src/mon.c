@@ -11,7 +11,10 @@ staticfn void sanity_check_single_mon(struct monst *, boolean, const char *);
 staticfn struct obj *make_corpse(struct monst *, unsigned);
 staticfn int minliquid_core(struct monst *);
 staticfn void m_calcdistress(struct monst *);
+staticfn struct monst *credit_delayed_kill(unsigned);
+staticfn void delayed_kill_growth(struct monst *, struct monst *);
 staticfn void m_stone_countdown(struct monst *);
+staticfn unsigned credited_mid(struct monst *, struct monst *);
 staticfn int mloot_container(struct monst *, struct obj *,
                              boolean) NONNULLARG12;
 staticfn int mopen_container(struct monst *, struct obj *) NONNULLARG12;
@@ -1558,6 +1561,30 @@ growing_original_vine(struct monst *mtmp)
                       && mtmp->mhp >= (mtmp->mhpmax * 2) / 3);
 }
 
+/* a death that some monster set in motion earlier has come due for a
+   victim that kept its id: find that monster, which has to be alive
+   and on this level to count, and name it as the killer for the death
+   call that follows if it is a pet - nobody otherwise, so that no
+   earlier attribution is inherited. The id is left as it is: a
+   withering victim that life saving brings back goes on withering */
+staticfn struct monst *
+credit_delayed_kill(unsigned mid)
+{
+    struct monst *magr = mid ? find_mid(mid, FM_FMON) : (struct monst *) 0;
+
+    set_pet_killer((magr && magr->mtame) ? magr : (struct monst *) 0);
+    return magr;
+}
+
+/* after that death call: the attacker grows as it would after a kill
+   of its own, whether tame or not; it might die of growing up */
+staticfn void
+delayed_kill_growth(struct monst *magr, struct monst *mdef)
+{
+    if (magr && DEADMONSTER(mdef) && !DEADMONSTER(magr))
+        (void) grow_up(magr, mdef);
+}
+
 /* one step of a monster's petrification countdown, modelled on the
    hero's own: it loses its speed, its limbs stiffen and then turn to
    stone, which stops it moving, and on the fifth step it is a statue */
@@ -1615,13 +1642,9 @@ m_stone_countdown(struct monst *mtmp)
                 struct monst *stoner;
 
                 mtmp->mstoner = 0;
-                stoner = stoner_id ? find_mid(stoner_id, FM_FMON)
-                                   : (struct monst *) 0;
-                if (stoner && stoner->mtame)
-                    set_pet_killer(stoner);
+                stoner = credit_delayed_kill(stoner_id);
                 monstone(mtmp);
-                if (stoner && DEADMONSTER(mtmp) && !DEADMONSTER(stoner))
-                    (void) grow_up(stoner, mtmp);
+                delayed_kill_growth(stoner, mtmp);
             }
             break;
         }
@@ -1692,27 +1715,28 @@ m_calcdistress(struct monst *mtmp)
         if (resists_sick(mtmp) || defended(mtmp, AD_DISE)) {
             mtmp->msick = 0;
         } else {
+            struct monst *magr = (struct monst *) 0;
+
             if (canseemon(mtmp))
                 pline_mon(mtmp, "%s dies from %s illness.",
                           Monnam(mtmp), noit_mhis(mtmp));
+            /* a victim of the zombie strain leaves a corpse that
+               rises */
             if ((mtmp->msick & 2) && !nonliving(mtmp->data)
-                && can_become_zombie(r_data(mtmp))) {
+                && can_become_zombie(r_data(mtmp)))
                 gz.zombify = (zombie_form(r_data(mtmp)) != NON_PM);
-                mtmp->msick = 0;
-                mtmp->mhp = -1;
-                if (mtmp->msickbyu)
-                    xkilled(mtmp, XKILL_NOMSG);
-                else
-                    mondied(mtmp);
-                gz.zombify = FALSE; /* reset */
+            mtmp->msick = 0;
+            mtmp->mhp = -1;
+            if (mtmp->msickbyu) {
+                xkilled(mtmp, XKILL_NOMSG);
             } else {
-                mtmp->msick = 0;
-                mtmp->mhp = -1;
-                if (mtmp->msickbyu)
-                    xkilled(mtmp, XKILL_NOMSG);
-                else
-                    mondied(mtmp);
+                magr = credit_delayed_kill(mtmp->msickener);
+                mondied(mtmp);
             }
+            /* reset before the attacker grows: growing up can kill it,
+               and its corpse is no zombie's victim */
+            gz.zombify = FALSE;
+            delayed_kill_growth(magr, mtmp);
             return;
         }
     }
@@ -1722,15 +1746,20 @@ m_calcdistress(struct monst *mtmp)
         if (resists_sick(mtmp) || defended(mtmp, AD_DISE)) {
             mtmp->mdiseased = 0;
         } else {
+            struct monst *magr = (struct monst *) 0;
+
             if (canseemon(mtmp))
                 pline_mon(mtmp, "%s dies from %s infection.",
                           Monnam(mtmp), noit_mhis(mtmp));
             mtmp->mdiseased = 0;
             mtmp->mhp = -1;
-            if (mtmp->mdiseabyu)
+            if (mtmp->mdiseabyu) {
                 xkilled(mtmp, XKILL_GIVEMSG);
-            else
+            } else {
+                magr = credit_delayed_kill(mtmp->minfector);
                 mondied(mtmp);
+            }
+            delayed_kill_growth(magr, mtmp);
         }
         return;
     }
@@ -1739,20 +1768,28 @@ m_calcdistress(struct monst *mtmp)
     if (mtmp->mwither) {
         mtmp->mhp -= (rnd(2) - (regenerates(mtmp->data) ? 1 : 0));
         if (DEADMONSTER(mtmp)) {
+            struct monst *magr = (struct monst *) 0;
+
             if (canspotmon(mtmp))
                 pline_mon(mtmp, "%s withers away completely!",
                           Monnam(mtmp));
             /* the line above announces the death, so no fltxt: a
                non-null one would add a second "is destroyed" line */
-            if (mtmp->mwither_from_u)
+            if (mtmp->mwither_from_u) {
                 xkilled(mtmp, XKILL_NOCORPSE | XKILL_NOMSG);
-            else
+            } else {
+                magr = credit_delayed_kill(mtmp->mwitherer);
                 monkilled(mtmp, (char *) 0, AD_WTHR);
+            }
+            delayed_kill_growth(magr, mtmp);
             return;
         }
         mtmp->mwither--; /* one turn closer to recovery */
-        if (!mtmp->mwither)
-            mtmp->mwither_from_u = FALSE; /* clear player responsibility */
+        if (!mtmp->mwither) {
+            /* recovered: nobody is responsible any more */
+            mtmp->mwither_from_u = FALSE;
+            mtmp->mwitherer = 0;
+        }
     }
 
     /* possibly polymorph shapechangers and lycanthropes */
@@ -6997,6 +7034,55 @@ stop_mon_stoning(struct monst *mtmp)
     mtmp->mstoner = 0;
     if (stiff && !mtmp->mfrozen)
         mtmp->mcanmove = 1;
+}
+
+/* what a victim remembers of the monster to credit with a death that
+   comes later: its id, which survives a save where a pointer would
+   not. The hero is remembered by a flag instead, and no monster is
+   credited with its own death */
+staticfn unsigned
+credited_mid(struct monst *mtmp, struct monst *magr)
+{
+    return (magr && magr != &gy.youmonst && magr != mtmp) ? magr->m_id : 0;
+}
+
+/* the zombie sickness takes hold of a monster, or the illness it has
+   gets worse; magr is credited if it dies of it - the hero, a monster,
+   or null for nobody. Every start on an existing monster comes through
+   here, so the credit an earlier bout left behind is never read. The
+   caller has tested for resistance and given its message */
+void
+start_mon_sickness(struct monst *mtmp, struct monst *magr)
+{
+    if (mtmp->msicktime)
+        mtmp->msicktime -= rnd(3);
+    else
+        mtmp->msicktime = rn1(9, 6);
+    mtmp->msick = can_become_zombie(r_data(mtmp)) ? 3 : 1;
+    mtmp->msickbyu = (magr == &gy.youmonst);
+    mtmp->msickener = credited_mid(mtmp, magr);
+}
+
+/* likewise for a disease */
+void
+start_mon_disease(struct monst *mtmp, struct monst *magr)
+{
+    if (mtmp->mdiseasetime)
+        mtmp->mdiseasetime -= rnd(3);
+    else
+        mtmp->mdiseasetime = rn1(9, 6);
+    mtmp->mdiseased = 1;
+    mtmp->mdiseabyu = (magr == &gy.youmonst);
+    mtmp->minfector = credited_mid(mtmp, magr);
+}
+
+/* and for withering, which lasts that many turns longer */
+void
+start_mon_withering(struct monst *mtmp, struct monst *magr, int turns)
+{
+    mtmp->mwither = (uchar) min((int) mtmp->mwither + turns, UCHAR_MAX);
+    mtmp->mwither_from_u = (magr == &gy.youmonst);
+    mtmp->mwitherer = credited_mid(mtmp, magr);
 }
 
 boolean

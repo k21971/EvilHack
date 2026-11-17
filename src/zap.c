@@ -233,18 +233,21 @@ sickness_spell_dice(void)
 }
 
 /* clear a monster's illness, infection and withering along with their
-   timers and the hero's kill credit */
+   timers and the kill credit, the hero's or a monster's */
 staticfn void
 cure_mon_sickness(struct monst *mtmp)
 {
     mtmp->msick = 0;
     mtmp->msickbyu = 0;
+    mtmp->msickener = 0;
     mtmp->mdiseased = 0;
     mtmp->mdiseabyu = 0;
+    mtmp->minfector = 0;
     mtmp->msicktime = 0;
     mtmp->mdiseasetime = 0;
     mtmp->mwither = 0;
     mtmp->mwither_from_u = FALSE;
+    mtmp->mwitherer = 0;
 }
 
 /* dispel evil may banish a monster that failed to resist it to a random
