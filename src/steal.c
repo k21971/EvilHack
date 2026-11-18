@@ -440,9 +440,9 @@ int
 steal(struct monst *mtmp, char *objnambuf)
 {
     struct obj *otmp;
-    char Monnambuf[BUFSZ];
+    char Monnambuf[BUFSZ], pronounbuf[10], takebuf[20];
     int tmp, could_petrify, armordelay, olddelay, icnt,
-        named = 0, retrycnt = 0;
+        named = 0, retrycnt = 0, pgndr;
     /* monkey_business: true iff an animal or rogue is doing the thievery */
     boolean monkey_business = (is_animal(mtmp->data) || is_rogue(mtmp->data)),
             seen = canspotmon(mtmp),
@@ -461,6 +461,11 @@ steal(struct monst *mtmp, char *objnambuf)
        having those stolen; remember the name as it is now; if unseen,
        nymphs will be "Someone" and monkeys will be "Something" */
     Strcpy(Monnambuf, Some_Monnam(mtmp));
+    /* the thief's pronouns go by its sex whether or not it is seen:
+       Graz'zt and an incubus are no "she" */
+    pgndr = pronoun_gender(mtmp, PRONOUN_NO_IT);
+    (void) upstart(strcpy(pronounbuf, genders[pgndr].he));
+    Sprintf(takebuf, "let %s take", genders[pgndr].him);
 
     /* food being eaten might already be used up but will not have
        been removed from inventory yet; we don't want to steal that,
@@ -670,17 +675,28 @@ steal(struct monst *mtmp, char *objnambuf)
 
                 otmp->cursed = 0;
                 slowly = (armordelay >= 1 || gm.multi < 0);
-                if (flags.female)
+                /* specific feedback for Graz'zt */
+                if (mtmp->data == &mons[PM_GRAZ_ZT])
+                    urgent_pline("%s enthralls you.  You gladly %s your %s.",
+                                 !seen ? pronounbuf : Monnambuf,
+                                 curssv ? takebuf
+                                 : !slowly ? "hand over"
+                                   : was_doffing ? "continue removing"
+                                     : "start removing",
+                                 armor_simple_name(otmp));
+                /* below here is nymph feedback */
+                else if (flags.female)
                     urgent_pline("%s charms you.  You gladly %s your %s.",
-                                 !seen ? "She" : Monnambuf,
-                                 curssv ? "let her take"
+                                 !seen ? pronounbuf : Monnambuf,
+                                 curssv ? takebuf
                                  : !slowly ? "hand over"
                                    : was_doffing ? "continue removing"
                                      : "start removing",
                                  armor_simple_name(otmp));
                 else
                     urgent_pline("%s seduces you and %s off your %s.",
-                                 !seen ? "She" : Adjmonnam(mtmp, "beautiful"),
+                                 !seen ? pronounbuf
+                                       : Adjmonnam(mtmp, "beautiful"),
                                  curssv ? "helps you to take"
                                  : !slowly ? "you take"
                                    : was_doffing ? "you continue taking"
@@ -742,7 +758,8 @@ steal(struct monst *mtmp, char *objnambuf)
     if (iflags.last_msg == PLNMSG_MON_TAKES_OFF_ITEM
         && mtmp->data->mlet == S_NYMPH)
         ++named;
-    urgent_pline("%s stole %s.", named ? "She" : Monnambuf, doname(otmp));
+    urgent_pline("%s stole %s.", named ? pronounbuf : Monnambuf,
+                 doname(otmp));
     encumber_msg();
     could_petrify = (otmp->otyp == CORPSE
                      && touch_petrifies(&mons[otmp->corpsenm]));
