@@ -1058,6 +1058,8 @@ mksobj_init(struct obj **obj, boolean artif)
             curse(otmp);
         else if (otmp->otyp == ROCK)
             otmp->quan = (long) rn1(6, 6);
+        else if (otmp->otyp == SLING_BULLET)
+            otmp->quan = (long) rn1(7, 8);
         else if (otmp->otyp != LUCKSTONE && !rn2(6))
             otmp->quan = 2L;
         else
