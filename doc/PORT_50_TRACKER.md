@@ -37110,7 +37110,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       comes up a sling bullet, as it does a rock; the branch
       embedded it.
       CLOSED 2026-11-18, session 346 (BUG-3208,
-      commit pending s346-C1). RULED fold-in. One test in
+      83852728d). RULED fold-in. One test in
       mineralize(), which serves mklev and des.mineralize alike.
       BATTERY: on dungeon level 14 PRE embedded two single bullets in
       stone squares in 14 remakes; POST sent a stack of 13 to
@@ -37123,7 +37123,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       monster started with one bullet, random finds were singles and
       the forge's 3 rocks + a dart gave 1 or 2.
       CLOSED 2026-11-18, session 346 (BUG-3209,
-      commit pending s346-C2). RULED fold-in. rn1(7, 8) in the gem
+      53950aa64). RULED fold-in. rn1(7, 8) in the gem
       arm; hobbits (m_initthrow()), polymorph and wishes are
       unchanged.
       BATTERY: a new Caveman - PRE rn2(6) and "an uncursed sling
@@ -37139,7 +37139,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       readies sling bullets and carried boulders the way it does
       rocks; the branch had only rocks, known flint and known glass.
       CLOSED 2026-11-18, session 346 (BUG-3210,
-      commit pending s346-C3). RULED fold-in. Master's arm exactly,
+      65af437e9). RULED fold-in. Master's arm exactly,
       quirks included: while slinging the last matching item wins,
       and unidentified "shiny stones" are readied.
       BATTERY: bullets with a sling wielded, in the alternate slot or
@@ -37154,7 +37154,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       top of the usual roll (about 1 lost in 6); the branch gave it
       none (2 in 3).
       CLOSED 2026-11-18, session 346 (BUG-3211,
-      commit pending s346-C4). RULED fold-in.
+      e23859c2c). RULED fold-in.
       should_mulch_missile() rolls rn2(4) for a bullet and keeps
       vanilla's rn2(2) for flint and hard gems. The helper also
       serves a monster's shot (drop_throw()), so a monster's bullets
@@ -37173,7 +37173,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Sokoban level, and when a giant Druid's wildshape drops one;
       the branch charged nothing.
       CLOSED 2026-11-18, session 346 (BUG-3212,
-      commit pending s346-C5). RULED "counts as cheating" and, after
+      d4a399e87). RULED "counts as cheating" and, after
       the review corrected my premise (sokoban_guilt() takes 1 from a
       hero who cannot throw rocks; 0.9.3 charges the wildshape drop),
       "flat 2, wildshape too": a new sokoban_boulder_guilt()
@@ -37195,7 +37195,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       remarked on a copy of either ("I may have been misquoted
       there"), as on 0.9.3.
       CLOSED 2026-11-18, session 346 (BUG-3213,
-      commit pending s346-C6). RULED "they don't count" and
+      ddd69cbe5). RULED "they don't count" and
       "Discworld novels only": discworld_novel() (do_name.c) gates
       the achievement in study_book() and u_have_novel(); the
       one-time +20 experience and the illiterate conduct are
@@ -41287,7 +41287,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       salamander entering the lava and staying. (b), (e) and (f)
       keep this row open.
       CLOSED 2026-11-18, session 346 (BUG-3214,
-      commit pending s346-C7; plan
+      b6f5d2b87; plan
       /root/.claude/plans/bugfix-blacksmith-cookbook-sling-bullets.md).
       (b) was already ported: the ice bolt pick, the vulnerability
       substitution with its cold arm and the snow golem minion are
