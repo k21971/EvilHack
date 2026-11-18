@@ -1755,6 +1755,8 @@ static const char *const sir_Terry_novels[] = {
 #define NVL_MASKERADE 17
 #define NVL_AMAZING_MAURICE 27
 #define NVL_THUD 33
+/* the titles from here to the end of the list are not Discworld novels */
+#define NVL_FIRST_NONDISCWORLD 41
 
 const char *
 noveltitle(int *novidx)
@@ -1807,6 +1809,14 @@ lookup_novel(const char *lookname, int *idx)
         return sir_Terry_novels[*idx];
 
     return (const char *) 0;
+}
+
+/* True if the novel with this index is one of the Discworld titles
+   rather than one of the other books at the end of the list */
+boolean
+discworld_novel(int novidx)
+{
+    return (novidx >= 0 && novidx < NVL_FIRST_NONDISCWORLD);
 }
 
 /* a Healer can sense how badly hurt a monster is; return a description

@@ -585,8 +585,11 @@ study_book(struct obj *spellbook)
 
                 check_unpaid(spellbook);
                 makeknown(booktype);
-                if (!u.uevent.read_tribute) {
+                /* the journal and the cookbook are not Discworld novels */
+                if (discworld_novel(spellbook->novelidx)
+                    && !achievement_recorded(ACH_NOVL))
                     record_achievement(ACH_NOVL);
+                if (!u.uevent.read_tribute) {
                     /* give bonus of 20 xp and 4*20+0 pts */
                     more_experienced(20, 0);
                     newexplevel();

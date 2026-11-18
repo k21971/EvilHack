@@ -1841,8 +1841,9 @@ u_have_novel(void)
 {
     struct obj *otmp;
 
+    /* the journal and the cookbook are not Discworld novels */
     for (otmp = gi.invent; otmp; otmp = otmp->nobj)
-        if (otmp->otyp == SPE_NOVEL)
+        if (otmp->otyp == SPE_NOVEL && discworld_novel(otmp->novelidx))
             return otmp;
     return (struct obj *) 0;
 }
