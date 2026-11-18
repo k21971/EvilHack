@@ -715,6 +715,10 @@ tracker; sNNN = port session.
 - [r] Strength to-hit at exactly 18/50: abon()'s +2 (5.0, so gnomes and
   orcs gain a point at their cap) kept over master's / vanilla 3.6's +1
   (ruled 2026-10-23, s252).
+- [r] Count-less wishes: 5.0 treats a wish with no number as one
+  ("arrow" gives 1, "arrows" 2; sling bullets 1 five times in 6)
+  where 0.9.3 gives the item's natural stack; kept (ruled
+  2026-11-18, s346). A typed number works the same on both.
 - [r] Gazes on a helpless hero: 5.0's gazemu() cancels every gaze
   while the hero is asleep, fainted or unconscious; kept over
   master's form, where a sleeper is stoned or burned (ruled
@@ -788,4 +792,6 @@ sparkle frame count (BUG-2487), the inventory weight / slots header
 (BUG-2490), the strength damage table (BUG-2520), a free hand for
 throwing and firing (BUG-3202), one wresting attempt on an empty
 wand (BUG-3204), the cursed-wand backfire zap and 1-in-30
-explosion (BUG-3205 / 3206).
+explosion (BUG-3205 / 3206), sling bullet stacks of 8-14 and their
+3-in-4 save from breaking (BUG-3209 / 3211), the Sokoban boulder
+penalty (BUG-3212).

@@ -17,10 +17,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-18, session 345: the last unread
-  lists of the master-only census were read - 225 partly matching
+- Phase 2 status (refreshed 2026-11-18, session 346: the Blacksmith's
+  Cookbook can be read - its 13 chapters had not come over, so the
+  book in Goblintown was "an incomprehensible foreign translation" -
+  with chapter 12 corrected to the game's own rule (a charge for each
+  gemstone affixed, ruled); checking its recipes against the forge
+  brought back four 0.9.3 sling bullet rules (stacks of 8-14, so a
+  Caveman starts with more than one; autoquiver readies bullets and a
+  giant's boulders; a bullet that hits is lost 1 time in 6, not 2 in
+  3; none form inside rock) and the 2 Luck 0.9.3 takes for a boulder
+  carried into Sokoban and dropped, thrown or shed by wildshape, which
+  now also counts in the Sokoban conduct (ruled twice); EvilHack's two
+  own books no longer earn "read a Discworld novel" or Death's remark
+  (ruled); six rows minted and closed, one residue row minted, the
+  Icequeen riders row closed in Phase 5 -
+  after session 345, earlier the same day, read the last unread
+  lists of the master-only census - 225 partly matching
   strings, 318 names, and two blind spots the plan's stress test
-  found - and the eight 0.9.3 rules they turned up came back: a demon
+  found - and brought back the eight 0.9.3 rules they turned up: a demon
   lord or prince on the level usually stops a cursed potion of gain
   level; the hero's ordinary teleport takes 0.9.3's roll against them
   on any level in place of 5.0's Gehennom demon court (ruled);
@@ -183,8 +197,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 59 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 57 LOW):
-  771 rows closed, 59 open
+  prefix; 60 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 58 LOW):
+  777 rows closed, 60 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -37089,6 +37103,154 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       wand of teleportation moves a monster on a court level on both
       builds - u_teleport_mon() asks the court only for an engulfer,
       as on 0.9.3; battery leg A9 expected a refusal and was wrong.
+- [x] LOW: sling bullets form inside solid rock (minted and closed
+      2026-11-18, session 346, the sling bullet census that the
+      Cookbook's "3 to 4 sling bullets" line started; master
+      25fb6879b). 0.9.3's mineralize() throws away a random gem that
+      comes up a sling bullet, as it does a rock; the branch
+      embedded it.
+      CLOSED 2026-11-18, session 346 (BUG-3208,
+      commit pending s346-C1). RULED fold-in. One test in
+      mineralize(), which serves mklev and des.mineralize alike.
+      BATTERY: on dungeon level 14 PRE embedded two single bullets in
+      stone squares in 14 remakes; POST sent a stack of 13 to
+      dealloc_obj() and placed none.
+- [x] LOW: sling bullets are made one at a time, 0.9.3 makes 8-14
+      (minted and closed 2026-11-18, session 346, found checking the
+      Cookbook's "3 to 4 sling bullets" line; master 867ebecd9).
+      mksobj_init()'s gem arm had lost 0.9.3's stack rule, so a
+      stack was 1 (2 one time in 6): a Caveman hero or player
+      monster started with one bullet, random finds were singles and
+      the forge's 3 rocks + a dart gave 1 or 2.
+      CLOSED 2026-11-18, session 346 (BUG-3209,
+      commit pending s346-C2). RULED fold-in. rn1(7, 8) in the gem
+      arm; hobbits (m_initthrow()), polymorph and wishes are
+      unchanged.
+      BATTERY: a new Caveman - PRE rn2(6) and "an uncursed sling
+      bullet", POST rn2(7) from mksobj_init() under ini_inv(), forced
+      0 and 6: 8 and 14 bullets; a ^G caveman's kit - PRE 1, POST 11
+      with the roll forced to 3 (ini_mon_inv()); the forge - PRE
+      "You have successfully forged a sling bullet.", POST 3, and 4
+      with doforging()'s rn2(4) forced to 0.
+- [x] LOW: autoquiver skips sling bullets and a giant's boulders
+      (minted and closed 2026-11-18, session 346, the sling bullet
+      census; master 867ebecd9, and 211c49f5f for the boulder).
+      With the autoquiver option on and an empty quiver, 0.9.3's f
+      readies sling bullets and carried boulders the way it does
+      rocks; the branch had only rocks, known flint and known glass.
+      CLOSED 2026-11-18, session 346 (BUG-3210,
+      commit pending s346-C3). RULED fold-in. Master's arm exactly,
+      quirks included: while slinging the last matching item wins,
+      and unidentified "shiny stones" are readied.
+      BATTERY: bullets with a sling wielded, in the alternate slot or
+      absent - PRE "You have nothing appropriate for your quiver.",
+      POST "You ready: k - 10 sling bullets." (fireassist swaps to an
+      alternate sling); a giant's boulder - PRE nothing appropriate,
+      POST "You ready: e - a boulder." and it is thrown; daggers, or
+      arrows with a bow, win over either on both builds.
+- [x] LOW: sling bullets break as often as arrows (minted and closed
+      2026-11-18, session 346, the sling bullet census; master
+      dc002eb80). 0.9.3 gives a bullet that hits a 3-in-4 save on
+      top of the usual roll (about 1 lost in 6); the branch gave it
+      none (2 in 3).
+      CLOSED 2026-11-18, session 346 (BUG-3211,
+      commit pending s346-C4). RULED fold-in.
+      should_mulch_missile() rolls rn2(4) for a bullet and keeps
+      vanilla's rn2(2) for flint and hard gems. The helper also
+      serves a monster's shot (drop_throw()), so a monster's bullets
+      get the same save - on 0.9.3 they never broke (told and
+      accepted; residue row).
+      BATTERY: PRE rn2(3) only, the bullet lost on a forced 1; POST
+      rn2(3) then rn2(4) from should_mulch_missile() under
+      thitmonst() and under drop_throw() - forced 1 and 0 the bullet
+      is gone, forced 1 and 2 it lies on the square; flint rolls
+      rn2(2) and an arrow gets no save on both; a bullet's oc_tough
+      is 0 on both (the reviewer had said otherwise).
+- [x] LOW: no Sokoban penalty for a carried boulder (minted and
+      closed 2026-11-18, session 346, the plan's stress test beside
+      the quiver change; master c2b7583d8). 0.9.3 takes 2 Luck each
+      time a hero throws or drops a boulder brought into an unsolved
+      Sokoban level, and when a giant Druid's wildshape drops one;
+      the branch charged nothing.
+      CLOSED 2026-11-18, session 346 (BUG-3212,
+      commit pending s346-C5). RULED "counts as cheating" and, after
+      the review corrected my premise (sokoban_guilt() takes 1 from a
+      hero who cannot throw rocks; 0.9.3 charges the wildshape drop),
+      "flat 2, wildshape too": a new sokoban_boulder_guilt()
+      (trap.c) counts the Sokoban conduct and takes 2 Luck whatever
+      the hero's form, called from throw_obj(), drop() and polymon()'s
+      wildshape drop. sokoban_guilt() itself is untouched. Loser: a
+      giant can no longer fill the holes for free, by hand or by
+      wildshape.
+      BATTERY (a giant Valkyrie, a giant Druid): drop, throw and f
+      from the auto-filled quiver - PRE Luck and the count unchanged,
+      POST -2 and +1 each; as a hill orc -2, not -1; wildshape to a
+      wolf "You drop 2 boulders." and -2 / +1; an ordinary level and
+      a level with the Sokoban flag cleared cost nothing.
+- [x] LOW: the Journal and the Cookbook count as Discworld novels
+      (minted and closed 2026-11-18, session 346, the plan's stress
+      test and the reviewer). The first successful read of any novel
+      recorded 5.0's "read a Discworld novel" achievement (#chronicle
+      and the dumplog), EvilHack's two own books included; and Death
+      remarked on a copy of either ("I may have been misquoted
+      there"), as on 0.9.3.
+      CLOSED 2026-11-18, session 346 (BUG-3213,
+      commit pending s346-C6). RULED "they don't count" and
+      "Discworld novels only": discworld_novel() (do_name.c) gates
+      the achievement in study_book() and u_have_novel(); the
+      one-time +20 experience and the illiterate conduct are
+      unchanged.
+      BATTERY: the Cookbook first - +20 experience, no achievement;
+      then Mort - the achievement and its #chronicle line, no second
+      bonus; PRE recorded it for the Journal. Death - PRE "AH, SO YOU
+      HAVE A COPY OF /THE BLACKSMITH'S COOKBOOK/.", POST a plain
+      quote, and the remark once Mort is carried.
+- [ ] LOW, record: session 346 residue (minted 2026-11-18, plan
+      stress test, reviewer and batteries; record unless a ruling
+      wants a change). (a) A monster's slung flint and sling bullets
+      never broke on 0.9.3 (drop_throw() rolled only for multigen
+      weapons and rocks); 5.0's shared roll loses a monster's flint
+      1 time in 3 and, since BUG-3211, its bullets 1 in 6. (b)
+      0.9.3's gem-affixing commit message (3cdcbaced) says 35% base
+      odds and a charge for every attempt; the code on both trees
+      says 30% and success only (RULED: the code; the Cookbook
+      corrected). A hammer at 0 charges still affixes and its count
+      goes below zero. (c) Cookbook sentences that are loose but not
+      false, left as 0.9.3 wrote them: chapter 1's "secondary object
+      ... enchantments" (the higher of the two when the classes
+      match) and chapter 10's "normal or lesser quality" (an
+      inferior input always gives inferior; a gem or tool ingredient
+      is ignored). (d) Count-less wishes, RULED kept as 5.0's: "arrow"
+      gives 1 and "arrows" 2, sling bullets 1 five times in 6, where
+      0.9.3 gives the natural stack (second sighting; the first was
+      eggs, session 162). "20 sling bullets" gives 8-14 on both
+      trees: bullets are not in the up-to-20 list. (e) "You can't
+      forge such a thing!" costs a move on the branch and none on
+      0.9.3; the forge blows up on both. (f) A hand-thrown sling
+      bullet at a unicorn is caught as glass, as on 0.9.3. (g) A
+      boulder dropped while swallowed is not charged, as on 0.9.3; a
+      boulder cannot be picked up inside Sokoban at all ("You cannot
+      get your hand around this boulder."), so only boulders brought
+      in are charged. (h) "read a Discworld novel" is LL_MINORAC |
+      LL_DUMP: it reaches #chronicle and the dumplog, not the livelog
+      file under the shipped LIVELOG=0x0FFF (my question had said
+      livelog). (i) 0.9.3's autoquiver quirks came with BUG-3210:
+      while slinging the last matching item wins, so a boulder can
+      beat flint; unidentified "shiny stones" are readied. (j)
+      Battery oddities not chased: on PRE the first ^G caveman held
+      no bullet after its kit roll (two later ones did); on PRE two
+      ^V arrivals in Sokoban landed a giant on a boulder's square and
+      on POST neither did (one sample a game); two of five ^G player
+      monsters printed "lands on the floor."; a random extra bullet
+      stack in a player monster's loot can merge with the kit stack
+      (19 seen). (k) Staging notes: a wizard wish takes the typed
+      count, so stack rolls need a fresh start; mineralize() gave no
+      bullet on level 1 in 21 remakes and several on level 14; a
+      wished novel reads "paperback book" until first read; Death
+      speaks in capitals; the forge's output merges with an earlier
+      stack; with autoquiver on a wished stack that fits the wielded
+      launcher is quivered on arrival; gdb's `list` on a PRE binary
+      shows the working tree's source - use `info line`.
 - [x] LOW: master's whip grab condition unported (minted 2026-11-11,
       session 324, census of master 8e1817da0): a whip flicked down
       reaches the floor for a hero who is `!grounded()` or water
@@ -41053,7 +41215,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       mspec_used cooldown, one heal per call) and 31f78b83d's
       incapacitated-caster skip. All three riders are discharged, so
       the row closes.]
-- [ ] Icequeen-slice riders on unported features (minted 2026-08-14
+- [x] Icequeen-slice riders on unported features (minted 2026-08-14
       by the icequeen slice): (a) master's has_cold_feet() +
       maybe_freeze_underfoot() walk-freezes-terrain feature
       (white-dragon-scaled armor + the freeze_step() snow-walker
@@ -41124,6 +41286,26 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       suited orc crossing, the eel's and the salamander's holds, the
       salamander entering the lava and staying. (b), (e) and (f)
       keep this row open.
+      CLOSED 2026-11-18, session 346 (BUG-3214,
+      commit pending s346-C7; plan
+      /root/.claude/plans/bugfix-blacksmith-cookbook-sling-bullets.md).
+      (b) was already ported: the ice bolt pick, the vulnerability
+      substitution with its cold arm and the snow golem minion are
+      in mcastu.c. (f) was already fixed: in_iceq_effects() and
+      lava_effects() read the polymorphed pool (a4b8b0468). (e): the
+      Cookbook's 13 chapters are in dat/tribute, master's block with
+      two ruled corrections - "Uruk-hai shield" capitalized, and
+      chapter 12 says the hammer uses a charge "with each gemstone
+      it affixes" (the code's rule; 0.9.3's book said every
+      attempt). All 96 recipe lines match fusions[], which is
+      identical to master's. Checking the "3 to 4 sling bullets"
+      line found the six rows minted in Phase 2 this session.
+      BATTERY: PRE "It seems to be an incomprehensible foreign
+      translation of "The Blacksmith's Cookbook"!"; POST 13 reads
+      gave chapters 3, 10, 13, 4, 1, 7, 5, 11, 9, 12, 2, 8, 6, each
+      page equal to dat/tribute line for line, rn2(13) from
+      choose_passage() and the count falling to 0; the Journal and
+      the Death quotes beside the insert still read.
 - [x] Hdgn-slice riders on unported features (minted 2026-08-15 by
       the hdgn slice): (a) master's monster gradual-stoning
       subsystem is payload-partial on the branch - the mstone/
@@ -42764,6 +42946,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-16 | Vecna's relics and three pet rows (Phase 2 session 343, AskUserQuestion x2 with 4 questions, all as recommended; the battery was named in the plan and launched on its approval). (1) SLICE: the aasimar's Vecna-relic row and the three pet rows (not taken: the doorway thread, the wording and parity rulings, the census leftovers). (2) RELICS: RACE DECIDES, EVERYWHERE, beyond 0.9.3 - an aasimar is refused in any form: no powers from a carried Eye, no invoke, the Hand will not go on, eating the Eye is fatal; an aasimar can no longer polymorph to use them (rejected: keep the form rule and re-check at each change of form; race for the powers and the invoke only, which left the Hand a trap) (BUG-3191). (3) ZOMBIE'S KILL: THE PET LEAVES IT ALONE - the carry test covers a corpse about to rise; pray.c's Draugr kin test and muse.c stay (rejected: record only) (BUG-3192). (4) KILL CREDIT: STONING NOW, A ROW FOR THE OTHER THREE DELAYED DEATHS - the victim remembers the monster that began its stoning; a tame stoner gets the pet-kill livelog line and any stoner still alive on the level grows (rejected: zombie sickness, disease and withering in the same slice; pets only) (BUG-3194). Under session 341's ruling 2, no new question: a tame engulfer gains only from a meal that fed it, a hostile one keeps 5.0's call (BUG-3193). Session calls, plan-approved: a fallen aasimar carrying the Eye gets its powers at the fall; the engulfer's grant keeps 5.0's place after the kill; struct monst grows by the stoner's id and older saves are refused. Corrected by the plan's stress test before approval: stop_mon_stoning() does nothing once the count is 0, so the last step clears the id by hand; the staging of every battery group. Reviewer LOW not taken: a reset of a stale pet-kill attribution before the statue step, not shown to exist, so the battery-tested binary is the final one. Not run: the tame-minion leg (a forced minion bit crashes the old build). Recorded, session 343 residue row. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-17 | Delayed-death credit and four things beside it (Phase 2 session 344, AskUserQuestion x3 with 4 questions, all as recommended where a recommendation was given; the batteries were named in the plan and launched on its approval). (1) SLICE: the delayed-death credit row (not taken: the doorway thread, the wording and parity rulings, the census leftovers). KILL CREDIT, under session 343's ruling 4 and the row's own fix shape, no new question: a victim of zombie sickness, disease or withering remembers the monster that started or last worsened it; a tame attacker gets the pet-kill livelog line and any attacker still alive on the level grows (BUG-3196). (2) FOLD-INS, multi-select, all three taken, each its own commit: A CURED MONSTER STARTS A FRESH COUNTDOWN - only a monster still ill gets worse (BUG-3197); GRIMTOOTH FOLLOWS THE COMMON RULE - only a hit that infects touches the countdown (BUG-3195); THE ILLNESS DECIDES - an armed Draugr's bite victim rises as an empty-handed one's does, offered without a recommendation (BUG-3198) (rejected: record only). (3) After the battery, the Draugr fix asked again because its option text was wrong - the risen zombie is peaceful to an un-polymorphed Draugr 2 times in 3, not "hostile, as any risen zombie": KEPT (rejected: drop it and keep "an armed hero never raises zombies" for both kinds of kill). (4) The reviewer's treasure-drop LOW: FIX IT NOW - xkilled() no longer makes the random treasure object with the victim's rise-as-a-zombie flag set (rejected: record only) (BUG-3199). Session calls, plan-approved: the 25 cure sites stay untouched (every start assigns the id); the gray fungus is credited with its passive's infection and a thrown Grimtooth credits its thrower; the id is not spent at the death, so a withering victim brought back by life saving still credits its attacker; the credit helper names nobody when it finds no tame attacker (session 343 residue (d)); no pet-handling training for a delayed kill; struct monst grows by three ids and older saves are refused. Who the Draugr rule also catches, in the plan: a hero no longer a zombie when the illness comes due (rises), a plain-strain victim since polymorphed into something zombifiable (no longer rises). Corrected by the plan's stress test before approval: the helper's name (delayed_killer is end.c's), the wither id across life saving, the zombify reset before the growth, the thrower of a thrown Grimtooth, the staging of every battery group. Reviewer: one LOW became ruling 4, one comment reworded, one left (ids carried by revival and cloning, harmless). Recorded, session 344 residue row. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-18 | Census leftovers: eight unported 0.9.3 rules (Phase 2 session 345, AskUserQuestion x4 with 5 questions - one a battery launch ask - all as recommended). (1) SLICE: the census leftovers row (the doorway thread, the wording and parity rulings and the residue items not taken). (2) HERO TELEPORT: 0.9.3's roll - each demon lord stops the hero's ordinary teleport 9 times in 10 and each prince 19 in 20 on any level, and 5.0's Gehennom demon court stops applying to the hero; monsters keep it (rejected: both rules - the court in Gehennom and the roll outside; leaving teleport alone). (3) FOLD-INS: wand wresting (one attempt at 1 in 7 / 6 / 5, then dust) and "ascended (in dishonor)" (rejected: record only). (4) FOLD-INS from the plan's stress test: the cursed-wand backfire zap (1 in 8) and the 1-in-30 explosion odds (rejected: record only). (5) Battery: launch all three testers. Session calls, plan-approved: a steed carrying the hero leaves the court with the hero; 5.0's cursed magic whistle hop takes the roll just before it moves the hero; vault teleporters and fixed-destination traps do not roll; the "stole" pronoun goes by the thief's sex through pronoun_gender(PRONOUN_NO_IT), not master's mhe() ("It" for an unseen thief), and after the review every pronoun in steal()'s charm lines does; master's drained-corpse tests are not ported (no reachable difference - that slice-question item was wrong); the dumplog keeps plain "ascended", as on 0.9.3. BUG-3200..3207. | maintainer (1-5); session, plan-approved (rest) |
+| 2026-11-18 | The Blacksmith's Cookbook, sling bullets and a Sokoban penalty (Phase 2 session 346, AskUserQuestion x6 with 12 questions - one a battery launch ask - eleven as recommended). (1) SLICE: the Blacksmith's Cookbook, the Icequeen riders row's item (e) (the wording and parity rulings, the doorway thread and the residue rulings not taken). (2) FOLD-INS: all four 0.9.3 sling bullet rules the Cookbook check found - stacks of 8-14, autoquiver for bullets and a giant's boulders, the 3-in-4 save from breaking, none inside rock (anything not picked would have been a row). (3) CHAPTER 12: CORRECT THE BOOK, over my recommended "charge every attempt" (0.9.3's commit message and book say every attempt, its code success only): the code stays and the sentence reads "with each gemstone it affixes", picked from three renderings (rejected also: leave both). (4) AFFIX ODDS stay 30%, the code and its comment (rejected: the commit message's 35%). (5) "Uruk-hai shield" gets its capital (rejected: 0.9.3's text). (6) SOKOBAN: fold in the boulder penalty, COUNTS AS CHEATING (rejected: Luck only; a row); then, re-asked after the reviewer showed sokoban_guilt() takes 1 from a hero who cannot throw rocks and that 0.9.3 charges the Druid wildshape drop: FLAT 2, WILDSHAPE TOO (rejected: 2 or 1; no wildshape charge). (7) COUNT-LESS WISHES keep 5.0's rule - "arrow" gives 1, "arrows" 2 (rejected: 0.9.3's natural stack). (8) DISCWORLD: EvilHack's two books do not earn "read a Discworld novel" (rejected: leave it), and Death remarks on Discworld novels only (rejected: leave as 0.9.3). (9) Battery: three testers in parallel. Session calls, plan-approved: a monster's bullets get the hero's save through 5.0's shared roll (0.9.3's never broke); master's autoquiver quirks come along; the rock test lands before the stack rule and the book last. Premise corrections made in-session: the Sokoban amount (re-asked, above), and that the achievement line reaches #chronicle and the dumplog, not the livelog file under the shipped LIVELOG mask (stated; the ruling's effect is unchanged). BUG-3208..3214. | maintainer (1-9); session, plan-approved (rest) |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
