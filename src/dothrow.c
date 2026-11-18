@@ -183,6 +183,9 @@ throw_obj(struct obj *obj, int shotlimit)
     }
     if (is_wet_towel(obj))
         dry_a_towel(obj, -1, FALSE);
+    /* a boulder brought along and thrown is a way around the puzzle */
+    if (obj->otyp == BOULDER)
+        sokoban_boulder_guilt();
 
     /* Multishot calculations
      * (potential volley of up to N missiles; default for N is 1)

@@ -937,6 +937,9 @@ drop(struct obj *obj)
             dosinkring(obj);
             return ECMD_TIME;
         }
+        /* a boulder brought along and dropped is a way around the puzzle */
+        if (obj->otyp == BOULDER)
+            sokoban_boulder_guilt();
         if (!can_reach_floor(TRUE)) {
             /* we might be levitating due to #invoke Heart of Ahriman;
                if so, levitation would end during call to freeinv()

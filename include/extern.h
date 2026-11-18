@@ -3827,6 +3827,7 @@ extern boolean in_iceq_effects(void);
 extern boolean lava_effects(void);
 extern void sink_into_lava(void);
 extern void sokoban_guilt(void);
+extern void sokoban_boulder_guilt(void);
 extern const char * trapname(int, boolean);
 extern void ignite_items(struct obj *) NO_NNARGS;
 extern void trap_ice_effects(coordxy x, coordxy y, boolean ice_is_melting);

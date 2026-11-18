@@ -1399,6 +1399,8 @@ polymon(int mntmp)
                 setuswapwep((struct obj *) 0);
             else if (bigrock == uquiver)
                 setuqwep((struct obj *) 0);
+            if (!u.uswallow)
+                sokoban_boulder_guilt();
             You("drop %s.", doname(bigrock));
             dropx(bigrock);
         }

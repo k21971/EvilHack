@@ -9370,6 +9370,18 @@ sokoban_guilt(void)
     }
 }
 
+/* called when the hero throws or puts down a boulder brought along to a
+   sokoban level; that gets around the puzzle whatever form the hero is
+   in, so it always costs what a rock thrower pays */
+void
+sokoban_boulder_guilt(void)
+{
+    if (Sokoban) {
+        u.uconduct.sokocheat++;
+        change_luck(-2);
+    }
+}
+
 /* called when a trap has been deleted or had its ttyp replaced */
 staticfn void
 maybe_finish_sokoban(void)
