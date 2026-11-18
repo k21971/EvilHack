@@ -574,7 +574,7 @@ tracker; sNNN = port session.
   in 10 for each lord and 19 in 20 for each prince ("Demonic
   forces prevent you from teleporting."); a steed carrying the
   hero follows the hero, monsters keep the court (ruled s345,
-  BUG-3201, commit pending s345-C2; master 828b155d5).
+  BUG-3201, 80b8c1c01; master 828b155d5).
 
 ### 2.4 Text and logs
 

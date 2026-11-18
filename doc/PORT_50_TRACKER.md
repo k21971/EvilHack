@@ -36920,7 +36920,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       had on the branch; peffect_gain_level() had none, so a lair
       could always be left by drinking.
       CLOSED 2026-11-18, session 345 (BUG-3200,
-      commit pending s345-C1). The loop is one function,
+      07a38822a). The loop is one function,
       demons_prevent_u() (teleport.c), called from level_tele() and
       peffect_gain_level().
       BATTERY: beside a frozen Juiblex PRE made no roll and rose
@@ -36937,7 +36937,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       level; the branch had 5.0's court instead - never in a Gehennom
       level with a lord or prince, always outside Gehennom.
       CLOSED 2026-11-18, session 345 (BUG-3201,
-      commit pending s345-C2). RULED "0.9.3's roll": the hero and a
+      80b8c1c01). RULED "0.9.3's roll": the hero and a
       steed carrying the hero leave the court (noteleport_level()),
       scrolltele() rolls and still identifies a blocked scroll, and
       5.0's cursed magic whistle hop rolls just before it moves the
@@ -36964,7 +36964,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master tests freehand(), so a tortle in its shell could throw
       and fire.
       CLOSED 2026-11-18, session 345 (BUG-3202,
-      commit pending s345-C3). Master's arm, and with it master's
+      802972419). Master's arm, and with it master's
       other cases: a welded two-hander, a welded weapon with a
       cursed shield, and a cursed bow or crossbow (two-handed in
       EvilHack) can no longer throw or fire.
@@ -36980,7 +36980,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       2026-11-18, session 345, census leftovers - "%s enthralls
       you."; master fc9798962). steal() gave him the nymph's lines.
       CLOSED 2026-11-18, session 345 (BUG-3203,
-      commit pending s345-C4). Master's Graz'zt line, and every
+      f58f8b1eb). Master's Graz'zt line, and every
       pronoun in these lines now goes by the thief's sex, seen or
       not (session call over master's mhe(), which says "It" for an
       unseen thief; the reviewer's sibling, an incubus sent here by
@@ -37000,7 +37000,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       blessed - and the wand turns to dust either way; the branch had
       rn2(121) on every zap, any number of tries.
       CLOSED 2026-11-18, session 345 (BUG-3204,
-      commit pending s345-C5). RULED fold-in. zappable() has
+      8ce25ede5). RULED fold-in. zappable() has
       master's body; WAND_WREST_CHANCE is gone.
       BATTERY: the roll read in gdb - PRE rn2(121) for all three,
       POST rn2(5) blessed, rn2(6) uncursed, rn2(7) cursed; a failed
@@ -37016,7 +37016,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       13-character "%s backfires!" is under the string census's
       length floor; master 8d4fcdb65).
       CLOSED 2026-11-18, session 345 (BUG-3205,
-      commit pending s345-C6). RULED fold-in. dozap(): a cursed
+      6420a19c6). RULED fold-in. dozap(): a cursed
       wand that takes a direction rolls rn2(8) once the direction
       is given and zaps the hero on 0.
       BATTERY: PRE no rn2(8) from dozap(); POST rn2(8) after the
@@ -37028,7 +37028,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       test - a constant whose name did not change; master
       4c99130c1).
       CLOSED 2026-11-18, session 345 (BUG-3206,
-      commit pending s345-C7). RULED fold-in. WAND_BACKFIRE_CHANCE
+      d62a2327c). RULED fold-in. WAND_BACKFIRE_CHANCE
       is 30, read by dozap(), the engrave wand arm and a monster's
       precheck().
       BATTERY: PRE rn2(100) and POST rn2(30) from dozap() and from
@@ -37040,7 +37040,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       2026-11-18, session 345, master-only names - end.c's
       KILLER_APPEND; master a312c880c).
       CLOSED 2026-11-18, session 345 (BUG-3207,
-      commit pending s345-C8). RULED fold-in. really_done() appends
+      ecde5e635). RULED fold-in. really_done() appends
       the suffix when the hero ascends under an alignment other than
       the starting one; the dumplog's own line is written earlier
       and stays "ascended", as on 0.9.3.
@@ -42051,7 +42051,7 @@ see its row), cut against 74ebd09ed.
 | 2026-11-15 | Monsters cast summoning spells about twice as often as in 3.6. mcastu.c choose_monster_spell() (upstream 3917f5493, the 2026-04-01 reorg) returns the highest spell at or below the level roll that spell_would_be_useless() accepts, so a useless pick slides to the next spell down. The slide is deliberate for an attacker (the same commit's touch of death 1-in-2 and geyser 1-in-5 skips rely on it), but castmu()'s comment says a monster that is not attacking selects a spell once, and dochug()'s undirected call slides too: double trouble (rolls 18-19, useless for any non-Wizard) and half of touch of death land on summon nasties (arch-lich at range 26% of free moves, 3.6.7 12%), and a peaceful or out-of-sight hurt caster lands on cure self on about 95% of them (3.6.7 4%). The reorg also gave curse items one level, 10, for both lists; 3.6.7's cleric ladder had it on rolls 9-10 and insects on 8, so cleric roll 9 now summons insects (aligned priest 8% -> 17% of picks, high priest 6% -> 14%). Same code in 74ebd09ed; no upstream issue or PR. Vanilla patch (rulings in the decisions log): the picker takes an `attacking` argument (castmu()'s thinks_it_foundyou) and tests usefulness only for an attacker; clerics get curse items one level sooner. Run 2026-11-15 on scratch builds of 74ebd09ed with and without the patch, 5000 gdb calls of the picker per figure: mage list at m_lev 25, summon nasties 26.1% before and 26.1% attacking / 14.0% not attacking after; cleric list at m_lev 12 / 25, insects 16.8% / 14.3% before and 8.8% / 6.9% attacking, 8.2% / 7.2% not attacking after, curse items 8.0% / 7.3% before and 15.4% / 15.1%, 16.1% / 13.7% after; in play a hurt peaceful level-25 caster cured itself 73 times in 150 turns before and 6 times after; both paniclogs clean. On the branch, whose picker is its own (rung rolls, the close-range list), the not-attacking slide went in Phase 2 session 339 (BUG-3168, 24d09a930) with the same `attacking` rule; the attack-path slide stayed, as in the patch, until Phase 2 session 340 took master's re-roll for attack casts too (BUG-3170, ruled; 305c42b08), so the branch's picker no longer takes `attacking`; the cleric half does not apply (the branch has master's ladder: insects on their own rung, BUG-3165); the ruled ranged summon nasties is BUG-3164 | not-attacking half fixed on the branch 2026-11-15 (BUG-3168, 24d09a930); patch cut 2026-11-15 on the maintainer's request (gameplay tier, outside the queue), /root/nh50-mcast-summon-rate.patch; sent as PR #1745 (2026-11-15), fix-mcast-summon-rate 68e3e2e1d |
 | 2026-11-16 | zap.c zhitm(), the death-ray arm for Death: `healmon(mon, mon->mhpmax * 3 / 2, mon->mhpmax / 2)` and then `if (mon->mhpmax >= MAGIC_COOKIE) mon->mhpmax = MAGIC_COOKIE - 1;` clamp the maximum and leave mhp above it (Death at 757 ends with mhpmax 999 and mhp 1135), which the monster sanity check reports; nothing after it in zhitm() clamps mhp. Same code in fd4d169b6. Read, not run on vanilla: the branch's own zhitm() tail clamped mhp, and the arm is now master's (cap 500, direct writes); BUG-3178, branch commit a32477bdb | fixed on the branch; not sent; triage pending |
 | 2026-11-16 | bones.c resetobjs() sanitizes ONAME() of the objects in loaded bones and getbones() the names of its monsters, but not the given name inside the monster stored with a corpse or statue (OMONST): a named pet's corpse brings the previous player's text through unsanitized, and it is printed when the corpse is revived or the statue animated. Same code in fd4d169b6. Fix on the branch: `if (has_omonst(otmp) && has_mgivenname(OMONST(otmp))) sanitize_name(MGIVENNAME(OMONST(otmp)));` in the restore arm; BUG-3182, branch commit ae0dc8397 | fixed on the branch; not sent; triage pending |
-| 2026-11-18 | steal.c steal() calls every thief that charms a worn armor piece off the hero "She" ("She charms you", "let her take", "She stole ..."). With SEDUCE=0 in sysconf mhitm_ad_ssex() sends an incubus to mhitm_ad_sedu() and so to steal(), and a male demon gets the nymph's pronouns. Same code in fd4d169b6 and in 3.6. Fix on the branch: the pronouns come from pronoun_gender(mtmp, PRONOUN_NO_IT); BUG-3203, branch commit pending s345-C4 | fixed on the branch; not sent; triage pending |
+| 2026-11-18 | steal.c steal() calls every thief that charms a worn armor piece off the hero "She" ("She charms you", "let her take", "She stole ..."). With SEDUCE=0 in sysconf mhitm_ad_ssex() sends an incubus to mhitm_ad_sedu() and so to steal(), and a male demon gets the nymph's pronouns. Same code in fd4d169b6 and in 3.6. Fix on the branch: the pronouns come from pronoun_gender(mtmp, PRONOUN_NO_IT); BUG-3203, branch f58f8b1eb | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
