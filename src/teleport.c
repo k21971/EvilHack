@@ -36,8 +36,12 @@ noteleport_level(struct monst *mon)
     if (svl.level.flags.noteleport)
         return TRUE;
 
-    /* demon court in Gehennom prevent others from teleporting */
-    if (In_hell(&u.uz) && !(is_dlord(mon->data) || is_dprince(mon->data)))
+    /* demon court in Gehennom prevent others from teleporting; it does
+       not hold the hero, nor a steed carrying the hero, whose teleports
+       roll against the demons present on any level instead (see
+       demons_prevent_u()) */
+    if (In_hell(&u.uz) && mon != &gy.youmonst && mon != u.usteed
+        && !(is_dlord(mon->data) || is_dprince(mon->data)))
         if (get_iter_mons(m_blocks_teleporting))
             return TRUE;
 
@@ -939,7 +943,10 @@ tele_to_rnd_pet(void)
         coordxy tx = pet->mx + rn2(3) - 1,
                 ty = pet->my + rn2(3) - 1;
 
-        if (isok(tx, ty) && teleok(tx, ty, FALSE))
+        /* this hop does not go through scrolltele(), so the demons'
+           roll is made here, and only when the hop would happen */
+        if (isok(tx, ty) && teleok(tx, ty, FALSE)
+            && !demons_prevent_u("teleporting"))
             teleds(tx, ty, TELEDS_TELEPORT);
     }
 }
@@ -962,6 +969,13 @@ scrolltele(struct obj *scroll)
         pline("A mysterious force prevents you from teleporting!");
         if (scroll)
             learnscroll(scroll); /* this is obviously a teleport scroll */
+        return;
+    }
+    /* Being in the presence of demon lords/princes can negate
+       teleportation most of the time */
+    if (demons_prevent_u("teleporting")) {
+        if (scroll)
+            learnscroll(scroll);
         return;
     }
 
