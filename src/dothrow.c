@@ -2513,10 +2513,10 @@ should_mulch_missile(struct obj *obj)
     if (obj->blessed && (svc.context.mon_moving ? !rn2(3) : !rnl(4)))
         broken = FALSE;
 
-    /* Flint and hard gems don't break easily */
+    /* Flint and hard gems don't break easily; sling bullets still less */
     if (((obj->oclass == GEM_CLASS && objects[obj->otyp].oc_tough)
-         || obj->otyp == FLINT)
-        && !rn2(2))
+         || obj->otyp == FLINT || is_bullet(obj))
+        && (is_bullet(obj) ? rn2(4) : !rn2(2)))
         broken = FALSE;
 
     return broken;
