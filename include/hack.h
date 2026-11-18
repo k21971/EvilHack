@@ -1543,7 +1543,6 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 /* Some misc definitions */
 #define POTION_OCCUPANT_CHANCE(n) (13 + 2 * (n))
 #define WAND_BACKFIRE_CHANCE 100
-#define WAND_WREST_CHANCE 121
 #define BALL_IN_MON (u.uswallow && uball && uball->where == OBJ_FREE)
 #define CHAIN_IN_MON (u.uswallow && uchain && uchain->where == OBJ_FREE)
 #define NODIAG(monnum) ((monnum) == PM_GRID_BUG)
