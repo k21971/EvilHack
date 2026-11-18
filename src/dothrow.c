@@ -376,7 +376,10 @@ ok_to_throw(int *shotlimit_p) /* (see dothrow()) */
             You_cant("throw or shoot without hands.");
             return FALSE;
         }
-        /*[what about !freehand(), aside from cursed missile launcher?]*/
+    } else if (!freehand()) {
+        You_cant("throw or shoot without free use of your %s.",
+                 makeplural(body_part(HAND)));
+        return FALSE;
     }
     if (check_capacity((char *) 0))
         return FALSE;
