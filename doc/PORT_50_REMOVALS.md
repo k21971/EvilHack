@@ -567,6 +567,14 @@ tracker; sNNN = port session.
   from a meal that fed it (tame, not a minion, a corpse possible);
   an engulfer that is not tame keeps 5.0's call (under the s341
   ruling, s343, BUG-3193, d96c11890; master c37746364).
+- [x] The Gehennom demon court for the hero: every hero teleport
+  refused on a Gehennom level holding a demon lord or prince ("A
+  mysterious force ...", the wrenching sensation on a trap) and
+  none refused outside Gehennom -> master's roll on any level, 9
+  in 10 for each lord and 19 in 20 for each prince ("Demonic
+  forces prevent you from teleporting."); a steed carrying the
+  hero follows the hero, monsters keep the court (ruled s345,
+  BUG-3201, commit pending s345-C2; master 828b155d5).
 
 ### 2.4 Text and logs
 
@@ -777,4 +785,7 @@ Con curve, s198), magic fountains and restore ability (BUG-2228..2244),
 the Astral Red Horse in place of the guardian Angel and its Conflict
 Angels (BUG-2448), master's random-saddle odds (BUG-2451), the
 sparkle frame count (BUG-2487), the inventory weight / slots header
-(BUG-2490), the strength damage table (BUG-2520).
+(BUG-2490), the strength damage table (BUG-2520), a free hand for
+throwing and firing (BUG-3202), one wresting attempt on an empty
+wand (BUG-3204), the cursed-wand backfire zap and 1-in-30
+explosion (BUG-3205 / 3206).

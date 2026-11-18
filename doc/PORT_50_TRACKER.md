@@ -17,8 +17,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-17, session 344: a monster whose
-  bite, sting or touch kills later is credited when the death comes -
+- Phase 2 status (refreshed 2026-11-18, session 345: the last unread
+  lists of the master-only census were read - 225 partly matching
+  strings, 318 names, and two blind spots the plan's stress test
+  found - and the eight 0.9.3 rules they turned up came back: a demon
+  lord or prince on the level usually stops a cursed potion of gain
+  level; the hero's ordinary teleport takes 0.9.3's roll against them
+  on any level in place of 5.0's Gehennom demon court (ruled);
+  throwing and firing need a free hand, so a tortle in its shell, a
+  welded two-hander and a cursed bow cannot; Graz'zt is a "he" when
+  he steals; an empty wand gets one attempt at a last charge and
+  turns to dust (ruled); a cursed wand backfires on its user 1 zap in
+  8 and explodes 1 time in 30 (both ruled); and an ascension under a
+  changed alignment reads "ascended (in dishonor)" (ruled); one row
+  closed, eight minted and closed, one residue row minted -
+  after session 344, the day before, credited a monster whose
+  bite, sting or touch kills later when the death comes -
   a victim of zombie sickness, disease or withering remembers the
   monster that started or last worsened it, a pet gets the livelog
   line and any attacker grows, as the slow stoning does since
@@ -170,7 +184,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
   prefix; 59 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 57 LOW):
-  762 rows closed, 59 open
+  771 rows closed, 59 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -36858,7 +36872,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       a grave marked empty and nothing on it (PRE: a PM_DEMON corpse),
       and a statue when stoned; a polymorphed hero's corpse is the
       form's, with nothing recorded, as before.
-- [ ] LOW, verify: census leftovers not yet read against the branch
+- [x] LOW, verify: census leftovers not yet read against the branch
       (minted 2026-11-09, session 315): --listroles, iflags
       .suppress_worn (quiver text while throwing), Death's 500 HP cap
       under a death ray (branch 999), pet intrinsic odds from magical
@@ -36885,6 +36899,196 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       rule. What is left of this row: the 217 partial-match strings
       and the roughly 400 master-only local names, unread; rerun the
       string census to list them.
+      CLOSED 2026-11-18, session 345 (BUG-3200..3207; commits in the
+      eight rows below). The census was rerun (402 master strings
+      missing, 225 of them partial matches) and every partial paired
+      with its closest branch text; an identifier pass listed 727
+      master-only names, 318 outside the master-only color file and
+      the display, save and options code, read per file; and the two
+      blind spots the plan's stress test named were closed by hand
+      (33 strings under the 14-character floor, 284 same-name
+      numeric defines). Eight 0.9.3 rules were missing; each has a
+      row below. One thing the slice question listed was wrong: a
+      blood-drained corpse cannot be tinned on the branch either
+      (residue row, item (a)).
+- [x] LOW: a cursed potion of gain level ignores demon lords and
+      princes (minted and closed 2026-11-18, session 345, census
+      leftovers - the partial-match string "Demonic forces prevent
+      you from rising up."; master 88a09b1eb, 828b155d5). On 0.9.3
+      each living demon lord on the level stops the potion 9 times
+      in 10 and each prince 19 in 20, the roll level_tele() already
+      had on the branch; peffect_gain_level() had none, so a lair
+      could always be left by drinking.
+      CLOSED 2026-11-18, session 345 (BUG-3200,
+      commit pending s345-C1). The loop is one function,
+      demons_prevent_u() (teleport.c), called from level_tele() and
+      peffect_gain_level().
+      BATTERY: beside a frozen Juiblex PRE made no roll and rose
+      (dungeon level 7 to 6); POST rn2(10) from demons_prevent_u() -
+      forced to block: the wizard-mode Override question, then
+      "Demonic forces prevent you from rising up." and the hero
+      stayed; forced to pass: "You rise up, through the ceiling!";
+      beside Orcus the roll is rn2(20) and the line "Powerful demonic
+      forces prevent you from rising up."
+- [x] LOW: the hero's ordinary teleport ran 5.0's demon court, not
+      0.9.3's roll (minted and closed 2026-11-18, session 345, found
+      reading the gain level commit whole). Master's scrolltele()
+      rolls against every lord (9 in 10) and prince (19 in 20) on any
+      level; the branch had 5.0's court instead - never in a Gehennom
+      level with a lord or prince, always outside Gehennom.
+      CLOSED 2026-11-18, session 345 (BUG-3201,
+      commit pending s345-C2). RULED "0.9.3's roll": the hero and a
+      steed carrying the hero leave the court (noteleport_level()),
+      scrolltele() rolls and still identifies a blocked scroll, and
+      5.0's cursed magic whistle hop rolls just before it moves the
+      hero (session call); monsters keep the court. REMOVALS 2.3 has
+      the line.
+      BATTERY: a scroll on a Gehennom level with a frozen Juiblex,
+      flags.debug cleared - PRE "A mysterious force prevents you from
+      teleporting!" and no roll; POST rn2(10) from demons_prevent_u()
+      <- scrolltele(), blocked "Demonic forces prevent you from
+      teleporting." with the scroll becoming known, passed "You
+      materialize in a different location!"; on a Dungeons level PRE
+      teleported with no roll, POST the same roll and line; a teleport
+      trap - PRE teleported in the Dungeons and "You feel a wrenching
+      sensation." in Gehennom, POST the roll through tele_trap() on
+      both; the cursed whistle - PRE hopped beside the pet with no
+      roll, POST rolled only when a hop was coming; noteleport_level()
+      for the hero, the steed, an ogre and Juiblex read 1 / 1 / 1 / 0
+      on PRE and 0 / 0 / 1 / 0 on POST; level teleport rolls and
+      blocks on both.
+- [x] LOW: throwing and firing ask for no free hand (minted and closed
+      2026-11-18, session 345, census leftovers - "throw or shoot
+      without free use of your %s."; master 1cf67acc9, the tortle
+      shell commit). ok_to_throw() kept vanilla's comment where
+      master tests freehand(), so a tortle in its shell could throw
+      and fire.
+      CLOSED 2026-11-18, session 345 (BUG-3202,
+      commit pending s345-C3). Master's arm, and with it master's
+      other cases: a welded two-hander, a welded weapon with a
+      cursed shield, and a cursed bow or crossbow (two-handed in
+      EvilHack) can no longer throw or fire.
+      BATTERY: a tortle in its shell threw and fired on PRE, and on
+      POST got "You can't throw or shoot without free use of your
+      claws." for both with no object question; a welded two-handed
+      sword, a cursed bow (quiver 20 -> 19 on PRE, 20 on POST) and a
+      cursed long sword with a cursed small shield threw on PRE and
+      were refused ("... your hands.") on POST; empty hands, an
+      uncursed long sword and a welded long sword with no shield
+      threw on both.
+- [x] LOW: Graz'zt is "she" when he steals (minted and closed
+      2026-11-18, session 345, census leftovers - "%s enthralls
+      you."; master fc9798962). steal() gave him the nymph's lines.
+      CLOSED 2026-11-18, session 345 (BUG-3203,
+      commit pending s345-C4). Master's Graz'zt line, and every
+      pronoun in these lines now goes by the thief's sex, seen or
+      not (session call over master's mhe(), which says "It" for an
+      unseen thief; the reviewer's sibling, an incubus sent here by
+      SEDUCE=0, is vanilla's own - upstream row 2026-11-18).
+      BATTERY: Graz'zt and a female hero - PRE "Graz'zt charms you.
+      You gladly hand over your shirt." / "She stole ...", POST
+      "Graz'zt enthralls you.  ..." / "He stole ..."; a male hero -
+      PRE "The beautiful Graz'zt seduces you and you take off your
+      shirt."; unseen - PRE "She charms you.", POST "He enthralls
+      you."; a cursed piece - "let her take" / "let him take"; an
+      incubus - PRE "She stole", POST "He charms you." / "He stole";
+      a water nymph read the same on both builds, seen and unseen.
+- [x] LOW: wand wresting is vanilla's (minted and closed 2026-11-18,
+      session 345, master-only names - zappable()'s `zap_it` and
+      `prob`; master fee02b384, 9f5384640, 4a1ff498a). 0.9.3 gives
+      an empty wand one attempt - 1 in 7 cursed, 6 uncursed, 5
+      blessed - and the wand turns to dust either way; the branch had
+      rn2(121) on every zap, any number of tries.
+      CLOSED 2026-11-18, session 345 (BUG-3204,
+      commit pending s345-C5). RULED fold-in. zappable() has
+      master's body; WAND_WREST_CHANCE is gone.
+      BATTERY: the roll read in gdb - PRE rn2(121) for all three,
+      POST rn2(5) blessed, rn2(6) uncursed, rn2(7) cursed; a failed
+      roll - PRE "Nothing happens." three times with the wand still
+      at 0, POST "Nothing happens.  The wand of light turns to
+      dust."; a forced success wrests, lights and dusts on both;
+      engraving - PRE "The wand is too worn out to engrave.", POST
+      "The wand of light glows violently, then turns to dust."; a
+      broken empty wand says "But nothing else happens..." on both;
+      a wand already at -1 makes no roll.
+- [x] LOW: a cursed wand never backfires on its user (minted and
+      closed 2026-11-18, session 345, the plan's stress test - the
+      13-character "%s backfires!" is under the string census's
+      length floor; master 8d4fcdb65).
+      CLOSED 2026-11-18, session 345 (BUG-3205,
+      commit pending s345-C6). RULED fold-in. dozap(): a cursed
+      wand that takes a direction rolls rn2(8) once the direction
+      is given and zaps the hero on 0.
+      BATTERY: PRE no rn2(8) from dozap(); POST rn2(8) after the
+      direction - forced 0 "The iron wand backfires!" and the hero's
+      own status line (a wand of probing), forced 1 an ordinary zap;
+      an uncursed wand makes no such roll.
+- [x] LOW: a cursed wand explodes 1 time in 100, 0.9.3 has 1 in 30
+      (minted and closed 2026-11-18, session 345, the plan's stress
+      test - a constant whose name did not change; master
+      4c99130c1).
+      CLOSED 2026-11-18, session 345 (BUG-3206,
+      commit pending s345-C7). RULED fold-in. WAND_BACKFIRE_CHANCE
+      is 30, read by dozap(), the engrave wand arm and a monster's
+      precheck().
+      BATTERY: PRE rn2(100) and POST rn2(30) from dozap() and from
+      precheck() (a gnome lord's cursed wand: "The gnome lord zaps
+      an iridium wand, which suddenly explodes!  The gnome lord is
+      killed!"); forced 0 "The wand of light suddenly explodes!" on
+      both.
+- [x] LOW: "ascended (in dishonor)" is missing (minted and closed
+      2026-11-18, session 345, master-only names - end.c's
+      KILLER_APPEND; master a312c880c).
+      CLOSED 2026-11-18, session 345 (BUG-3207,
+      commit pending s345-C8). RULED fold-in. really_done() appends
+      the suffix when the hero ascends under an alignment other than
+      the starting one; the dumplog's own line is written earlier
+      and stays "ascended", as on 0.9.3.
+      BATTERY: a lawful Valkyrie in a helm of opposite alignment
+      offering the Amulet on Loki's altar - xlogfile `death=ascended`
+      on PRE, `death=ascended (in dishonor)` on POST, the logfile
+      line the same; without the helm at Tyr's altar `ascended` on
+      both.
+- [ ] LOW, record: session 345 residue (minted 2026-11-18, plan
+      stress test, reviewer and batteries; record unless a ruling
+      wants a change). (a) Master's drained-corpse tests (apply.c
+      tinnable() and use_tinning_kit(), shk.c contained_cost(),
+      billable() and sellobj()) are not on the branch and make no
+      reachable difference: every writer of odrained leaves oeaten
+      set, and floorfood() says "You can't tin that!" first. (b)
+      5.0's fixed-destination teleport traps (one themed room, never
+      in Gehennom) and vault teleporters move the hero without the
+      demons' roll; master's vault_tele() the same. (c) Monsters
+      judge a teleport at the hero by their own court (muse.c,
+      mcastu.c): a non-lord in a lair "learns" teleporting is
+      useless from one zap the roll stopped and never tries again.
+      (d) A failed wrest with the floor out of reach leaves a (0:-1)
+      wand in the pack, not dusted, and recharging revives it; the
+      same on 0.9.3. Engrave's "too worn out to engrave" line is
+      now unreachable. (e) An unpaid empty wand pays its usage fee
+      on the failed attempt and its full price when it dusts. (f) A
+      cursed bow or crossbow cannot be fired, nor a welded polearm
+      used through `f` (#apply still works): 0.9.3's rule, new on
+      the branch. (g) The dumplog reads "You ascended!" for a
+      dishonored ascension. (h) The census's blind spots, closed by
+      hand this session: strings under 14 characters (33 read) and
+      a #define whose value changed under the same name (284
+      compared; TAINT_AGE has its own rows). (i) Read and found
+      ported under another name or dead on master: former_rank
+      (EBONES), the slime conduct (polymon()), EvilHack's
+      achievement bits (achieveX), the spell-failure penalties, the
+      skill-scaled spell dice, racial gift substitution, tame
+      vampires, AD_PSYC in damageum() (no monster has it),
+      sokostart_level, likes_ice, is_magical_staff,
+      Sting_effects_offhand, match_shkrace. (j) Staging notes:
+      offer_real_amulet() destroys a worn helm of opposite alignment
+      on the Astral Plane 1 time in 3 and blocks the ascension; a
+      self-probe prints only the status line; a blindfold is as
+      likely as the shirt to be a thief's pick (use a potion of
+      blindness); putting the helm on drew an erinys. (k) The hero's
+      wand of teleportation moves a monster on a court level on both
+      builds - u_teleport_mon() asks the court only for an engulfer,
+      as on 0.9.3; battery leg A9 expected a refusal and was wrong.
 - [x] LOW: master's whip grab condition unported (minted 2026-11-11,
       session 324, census of master 8e1817da0): a whip flicked down
       reaches the floor for a hero who is `!grounded()` or water
@@ -41847,6 +42051,7 @@ see its row), cut against 74ebd09ed.
 | 2026-11-15 | Monsters cast summoning spells about twice as often as in 3.6. mcastu.c choose_monster_spell() (upstream 3917f5493, the 2026-04-01 reorg) returns the highest spell at or below the level roll that spell_would_be_useless() accepts, so a useless pick slides to the next spell down. The slide is deliberate for an attacker (the same commit's touch of death 1-in-2 and geyser 1-in-5 skips rely on it), but castmu()'s comment says a monster that is not attacking selects a spell once, and dochug()'s undirected call slides too: double trouble (rolls 18-19, useless for any non-Wizard) and half of touch of death land on summon nasties (arch-lich at range 26% of free moves, 3.6.7 12%), and a peaceful or out-of-sight hurt caster lands on cure self on about 95% of them (3.6.7 4%). The reorg also gave curse items one level, 10, for both lists; 3.6.7's cleric ladder had it on rolls 9-10 and insects on 8, so cleric roll 9 now summons insects (aligned priest 8% -> 17% of picks, high priest 6% -> 14%). Same code in 74ebd09ed; no upstream issue or PR. Vanilla patch (rulings in the decisions log): the picker takes an `attacking` argument (castmu()'s thinks_it_foundyou) and tests usefulness only for an attacker; clerics get curse items one level sooner. Run 2026-11-15 on scratch builds of 74ebd09ed with and without the patch, 5000 gdb calls of the picker per figure: mage list at m_lev 25, summon nasties 26.1% before and 26.1% attacking / 14.0% not attacking after; cleric list at m_lev 12 / 25, insects 16.8% / 14.3% before and 8.8% / 6.9% attacking, 8.2% / 7.2% not attacking after, curse items 8.0% / 7.3% before and 15.4% / 15.1%, 16.1% / 13.7% after; in play a hurt peaceful level-25 caster cured itself 73 times in 150 turns before and 6 times after; both paniclogs clean. On the branch, whose picker is its own (rung rolls, the close-range list), the not-attacking slide went in Phase 2 session 339 (BUG-3168, 24d09a930) with the same `attacking` rule; the attack-path slide stayed, as in the patch, until Phase 2 session 340 took master's re-roll for attack casts too (BUG-3170, ruled; 305c42b08), so the branch's picker no longer takes `attacking`; the cleric half does not apply (the branch has master's ladder: insects on their own rung, BUG-3165); the ruled ranged summon nasties is BUG-3164 | not-attacking half fixed on the branch 2026-11-15 (BUG-3168, 24d09a930); patch cut 2026-11-15 on the maintainer's request (gameplay tier, outside the queue), /root/nh50-mcast-summon-rate.patch; sent as PR #1745 (2026-11-15), fix-mcast-summon-rate 68e3e2e1d |
 | 2026-11-16 | zap.c zhitm(), the death-ray arm for Death: `healmon(mon, mon->mhpmax * 3 / 2, mon->mhpmax / 2)` and then `if (mon->mhpmax >= MAGIC_COOKIE) mon->mhpmax = MAGIC_COOKIE - 1;` clamp the maximum and leave mhp above it (Death at 757 ends with mhpmax 999 and mhp 1135), which the monster sanity check reports; nothing after it in zhitm() clamps mhp. Same code in fd4d169b6. Read, not run on vanilla: the branch's own zhitm() tail clamped mhp, and the arm is now master's (cap 500, direct writes); BUG-3178, branch commit a32477bdb | fixed on the branch; not sent; triage pending |
 | 2026-11-16 | bones.c resetobjs() sanitizes ONAME() of the objects in loaded bones and getbones() the names of its monsters, but not the given name inside the monster stored with a corpse or statue (OMONST): a named pet's corpse brings the previous player's text through unsanitized, and it is printed when the corpse is revived or the statue animated. Same code in fd4d169b6. Fix on the branch: `if (has_omonst(otmp) && has_mgivenname(OMONST(otmp))) sanitize_name(MGIVENNAME(OMONST(otmp)));` in the restore arm; BUG-3182, branch commit ae0dc8397 | fixed on the branch; not sent; triage pending |
+| 2026-11-18 | steal.c steal() calls every thief that charms a worn armor piece off the hero "She" ("She charms you", "let her take", "She stole ..."). With SEDUCE=0 in sysconf mhitm_ad_ssex() sends an incubus to mhitm_ad_sedu() and so to steal(), and a male demon gets the nymph's pronouns. Same code in fd4d169b6 and in 3.6. Fix on the branch: the pronouns come from pronoun_gender(mtmp, PRONOUN_NO_IT); BUG-3203, branch commit pending s345-C4 | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -42558,6 +42763,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-16 | castmm()'s doubled learned-spell roll and the dud cast (Phase 2 session 342, AskUserQuestion x2 with 3 questions, all as recommended; the battery was named in the plan and launched on its approval). (1) SLICE: castmm()'s doubled learned-spell roll (not taken: the doorway thread, the wording and parity rulings, the census leftovers with the session 341 residue). (2) UNTAME ORDER: 0.9.3'S - the charm-monster override follows the pick loop, so a loop that comes up empty is a miss with no untaming: 2.4 to 4.4% of casts for a hasted, invisible, unhurt wizard-list caster of level 11 to 13 at range with no usable book spell, nil next to the pet (rejected: always untame, the branch's order) (BUG-3189). (3) DUD CASTS: FOLD IN THE GUARD, OWN COMMIT - an empty book-spell pick in castmm() is a miss with no line and no cooldown, the guard castmu() has had since BUG-2869 (rejected: the guard plus a vegetation test in the usefulness check, which would change casts at the hero too; a LOW row only) (BUG-3190). Session calls, plan-approved: the post-loop reject block deleted rather than kept, the loop applying the same test; the two `undirected` lines left as they were. Corrected by the plan's stress test before approval: the first draft said the pick loop could not come up empty against a monster target - it can, and ruling 2 came from that; the stand-in's expected rates. Reviewer LOWs not taken: the vegetation test (ruling 3) and two cosmetic leftovers, so the battery-tested binary is the final one. Recorded, monster casting residue row: entangle off vegetation, the level-0 caster's missing curse line, cast_learned_spell()'s dead pick. | maintainer (1-3); session, plan-approved (rest) |
 | 2026-11-16 | Vecna's relics and three pet rows (Phase 2 session 343, AskUserQuestion x2 with 4 questions, all as recommended; the battery was named in the plan and launched on its approval). (1) SLICE: the aasimar's Vecna-relic row and the three pet rows (not taken: the doorway thread, the wording and parity rulings, the census leftovers). (2) RELICS: RACE DECIDES, EVERYWHERE, beyond 0.9.3 - an aasimar is refused in any form: no powers from a carried Eye, no invoke, the Hand will not go on, eating the Eye is fatal; an aasimar can no longer polymorph to use them (rejected: keep the form rule and re-check at each change of form; race for the powers and the invoke only, which left the Hand a trap) (BUG-3191). (3) ZOMBIE'S KILL: THE PET LEAVES IT ALONE - the carry test covers a corpse about to rise; pray.c's Draugr kin test and muse.c stay (rejected: record only) (BUG-3192). (4) KILL CREDIT: STONING NOW, A ROW FOR THE OTHER THREE DELAYED DEATHS - the victim remembers the monster that began its stoning; a tame stoner gets the pet-kill livelog line and any stoner still alive on the level grows (rejected: zombie sickness, disease and withering in the same slice; pets only) (BUG-3194). Under session 341's ruling 2, no new question: a tame engulfer gains only from a meal that fed it, a hostile one keeps 5.0's call (BUG-3193). Session calls, plan-approved: a fallen aasimar carrying the Eye gets its powers at the fall; the engulfer's grant keeps 5.0's place after the kill; struct monst grows by the stoner's id and older saves are refused. Corrected by the plan's stress test before approval: stop_mon_stoning() does nothing once the count is 0, so the last step clears the id by hand; the staging of every battery group. Reviewer LOW not taken: a reset of a stale pet-kill attribution before the statue step, not shown to exist, so the battery-tested binary is the final one. Not run: the tame-minion leg (a forced minion bit crashes the old build). Recorded, session 343 residue row. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-17 | Delayed-death credit and four things beside it (Phase 2 session 344, AskUserQuestion x3 with 4 questions, all as recommended where a recommendation was given; the batteries were named in the plan and launched on its approval). (1) SLICE: the delayed-death credit row (not taken: the doorway thread, the wording and parity rulings, the census leftovers). KILL CREDIT, under session 343's ruling 4 and the row's own fix shape, no new question: a victim of zombie sickness, disease or withering remembers the monster that started or last worsened it; a tame attacker gets the pet-kill livelog line and any attacker still alive on the level grows (BUG-3196). (2) FOLD-INS, multi-select, all three taken, each its own commit: A CURED MONSTER STARTS A FRESH COUNTDOWN - only a monster still ill gets worse (BUG-3197); GRIMTOOTH FOLLOWS THE COMMON RULE - only a hit that infects touches the countdown (BUG-3195); THE ILLNESS DECIDES - an armed Draugr's bite victim rises as an empty-handed one's does, offered without a recommendation (BUG-3198) (rejected: record only). (3) After the battery, the Draugr fix asked again because its option text was wrong - the risen zombie is peaceful to an un-polymorphed Draugr 2 times in 3, not "hostile, as any risen zombie": KEPT (rejected: drop it and keep "an armed hero never raises zombies" for both kinds of kill). (4) The reviewer's treasure-drop LOW: FIX IT NOW - xkilled() no longer makes the random treasure object with the victim's rise-as-a-zombie flag set (rejected: record only) (BUG-3199). Session calls, plan-approved: the 25 cure sites stay untouched (every start assigns the id); the gray fungus is credited with its passive's infection and a thrown Grimtooth credits its thrower; the id is not spent at the death, so a withering victim brought back by life saving still credits its attacker; the credit helper names nobody when it finds no tame attacker (session 343 residue (d)); no pet-handling training for a delayed kill; struct monst grows by three ids and older saves are refused. Who the Draugr rule also catches, in the plan: a hero no longer a zombie when the illness comes due (rises), a plain-strain victim since polymorphed into something zombifiable (no longer rises). Corrected by the plan's stress test before approval: the helper's name (delayed_killer is end.c's), the wither id across life saving, the zombify reset before the growth, the thrower of a thrown Grimtooth, the staging of every battery group. Reviewer: one LOW became ruling 4, one comment reworded, one left (ids carried by revival and cloning, harmless). Recorded, session 344 residue row. | maintainer (1-4); session, plan-approved (rest) |
+| 2026-11-18 | Census leftovers: eight unported 0.9.3 rules (Phase 2 session 345, AskUserQuestion x4 with 5 questions - one a battery launch ask - all as recommended). (1) SLICE: the census leftovers row (the doorway thread, the wording and parity rulings and the residue items not taken). (2) HERO TELEPORT: 0.9.3's roll - each demon lord stops the hero's ordinary teleport 9 times in 10 and each prince 19 in 20 on any level, and 5.0's Gehennom demon court stops applying to the hero; monsters keep it (rejected: both rules - the court in Gehennom and the roll outside; leaving teleport alone). (3) FOLD-INS: wand wresting (one attempt at 1 in 7 / 6 / 5, then dust) and "ascended (in dishonor)" (rejected: record only). (4) FOLD-INS from the plan's stress test: the cursed-wand backfire zap (1 in 8) and the 1-in-30 explosion odds (rejected: record only). (5) Battery: launch all three testers. Session calls, plan-approved: a steed carrying the hero leaves the court with the hero; 5.0's cursed magic whistle hop takes the roll just before it moves the hero; vault teleporters and fixed-destination traps do not roll; the "stole" pronoun goes by the thief's sex through pronoun_gender(PRONOUN_NO_IT), not master's mhe() ("It" for an unseen thief), and after the review every pronoun in steal()'s charm lines does; master's drained-corpse tests are not ported (no reachable difference - that slice-question item was wrong); the dumplog keeps plain "ascended", as on 0.9.3. BUG-3200..3207. | maintainer (1-5); session, plan-approved (rest) |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
