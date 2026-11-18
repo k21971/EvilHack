@@ -58,6 +58,33 @@ covetous_noteleport(struct monst *mon UNUSED)
     return FALSE;
 }
 
+/* demon lords and princes on the level usually stop the hero from
+   teleporting, level teleporting or rising up through the ceiling:
+   each lord blocks 9 times in 10 and each prince 19 in 20; 'doing' is
+   what the hero attempted, for the message */
+boolean
+demons_prevent_u(const char *doing)
+{
+    struct monst *mtmp;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp))
+            continue;
+        if (is_dlord(mtmp->data) && rn2(10)
+            && (!wizard
+                || y_n("A Demon Lord exists here.  Override?") != 'y')) {
+            pline("Demonic forces prevent you from %s.", doing);
+            return TRUE;
+        } else if (is_dprince(mtmp->data) && rn2(20)
+            && (!wizard
+                || y_n("A Demon Prince exists here.  Override?") != 'y')) {
+            pline("Powerful demonic forces prevent you from %s.", doing);
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 /* this is an approximation of onscary() that doesn't use any 'struct monst'
    fields aside from 'monst->data'; used primarily for new monster creation
    and monster teleport destination, not for ordinary monster movement */
@@ -1301,7 +1328,6 @@ level_tele(void)
     const char *escape_by_flying = 0; /* when surviving dest of -N */
     char buf[BUFSZ];
     boolean force_dest = FALSE;
-    struct monst *mtmp;
 
     if (iflags.debug_fuzzer) {
         do {
@@ -1331,21 +1357,8 @@ level_tele(void)
     }
     /* Being in the presence of demon lords/princes can negate
        level teleportation most of the time */
-    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp))
-            continue;
-        if (is_dlord(mtmp->data) && rn2(10)
-            && (!wizard
-                || y_n("A Demon Lord exists here.  Override?") != 'y')) {
-            pline("Demonic forces prevent you from teleporting.");
-            return;
-        } else if (is_dprince(mtmp->data) && rn2(20)
-            && (!wizard
-                || y_n("A Demon Prince exists here.  Override?") != 'y')) {
-            pline("Powerful demonic forces prevent you from teleporting.");
-            return;
-        }
-    }
+    if (demons_prevent_u("teleporting"))
+        return;
     /* prevent levelporting in the Wizard's tower until the
        Wizard has been defeated for the first time */
     if (!u.uevent.udemigod && On_W_tower_level(&u.uz)

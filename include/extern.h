@@ -3631,6 +3631,7 @@ extern boolean m_dotelekinesis(struct monst *) NONNULLARG1;
 
 extern boolean noteleport_level(struct monst *) NONNULLARG1;
 extern boolean covetous_noteleport(struct monst *) NONNULLARG1;
+extern boolean demons_prevent_u(const char *) NONNULLARG1;
 /* rloc_engr() passes NULL monst arg to goodpos()*/
 extern boolean goodpos(coordxy, coordxy, struct monst *,
                        mmflags_nht) NO_NNARGS;

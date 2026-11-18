@@ -1348,6 +1348,10 @@ peffect_gain_level(struct obj *otmp)
             You("have an uneasy feeling.");
             return;
         }
+        /* being in the presence of demon lords/princes can negate
+           cursed potions of gain level most of the time */
+        if (demons_prevent_u("rising up"))
+            return;
         /* they went up a level */
         if (on_lvl_1 ? u.uhave.amulet : Can_rise_up(u.ux, u.uy, &u.uz)) {
             int newlev;
