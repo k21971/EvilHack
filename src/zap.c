@@ -3531,9 +3531,13 @@ dozap(void)
         if (!Blind)
             pline("%s glows and fades.", The(xname(obj)));
         /* make him pay for knowing !NODIR */
-    } else if (need_dir && !u.dx && !u.dy && !u.dz) {
+    } else if (need_dir && ((!u.dx && !u.dy && !u.dz)
+                            /* a cursed wand sometimes turns on its user */
+                            || (obj->cursed && !rn2(8)))) {
         char buf[BUFSZ];
 
+        if (u.dx || u.dy || u.dz)
+            pline("%s backfires!", The(xname(obj)));
         /* the effect may free obj; capture the killer name first, then
            track obj across the effect via current_wand */
         Snprintf(buf, sizeof buf, "zapped %sself with %s", uhim(),
