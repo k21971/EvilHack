@@ -1870,7 +1870,9 @@ surface(coordxy x, coordxy y)
         return "ground";
     lev = &levl[x][y];
     levtyp = SURFACE_AT(x, y);
-    if (u_at(x, y) && u.uswallow && is_animal(u.ustuck->data))
+    if (u_at(x, y) && u.uswallow
+        /* a dragon swallows whole too, without being an animal */
+        && (is_animal(u.ustuck->data) || digests(u.ustuck->data)))
         /* 'husk' is iffy but maw is wrong for 't' class */
         return digests(u.ustuck->data) ? "maw"
                : enfolds(u.ustuck->data) ? "husk"

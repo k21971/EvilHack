@@ -4753,7 +4753,7 @@ float_up(void)
         spoteffects(TRUE);
     } else if (u.uswallow) {
         /* FIXME: this isn't correct for trapper/lurker above */
-        if (is_animal(u.ustuck->data))
+        if (digests(u.ustuck->data))
             You("float away from the %s.", surface(u.ux, u.uy));
         else
             You("spiral up into %s.", mon_nam(u.ustuck));

@@ -2285,7 +2285,7 @@ dospinweb(void)
     }
     if (u.uswallow) {
         You("release web fluid inside %s.", mon_nam(u.ustuck));
-        if (is_animal(u.ustuck->data)) {
+        if (digests(u.ustuck->data)) {
             expels(u.ustuck, u.ustuck->data, TRUE);
             return ECMD_OK;
         }

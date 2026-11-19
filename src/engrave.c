@@ -566,7 +566,7 @@ u_can_engrave(void)
     int levtyp = SURFACE_AT(u.ux, u.uy);
 
     if (u.uswallow) {
-        if (is_animal(u.ustuck->data)) {
+        if (digests(u.ustuck->data)) {
             pline("What would you write?  \"Jonah was here\"?");
             return FALSE;
         } else if (is_whirly(u.ustuck->data)) {
@@ -645,7 +645,7 @@ doengrave_ctx_init(struct _doengrave_ctx *de)
         || maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE)))
         de->type = ENGR_BLOOD;
 
-    de->jello = (u.uswallow && !(is_animal(u.ustuck->data)
+    de->jello = (u.uswallow && !(digests(u.ustuck->data)
                                  || is_whirly(u.ustuck->data)));
     de->frosted = is_ice(u.ux, u.uy);
 }

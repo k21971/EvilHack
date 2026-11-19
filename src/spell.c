@@ -1303,7 +1303,7 @@ cast_protection(int skill)
                                 ? ((pm == &mons[PM_FOG_CLOUD]) ? "mist"
                                    : is_whirly(pm) ? "maelstrom"
                                      : enfolds(pm) ? "folds"
-                                       : is_animal(pm) ? "maw"
+                                       : digests(pm) ? "maw"
                                          : engulfer_haze(pm))
                                 : (u.uinwater ? hliquid("water")
                                    : (rmtyp == CLOUD) ? "cloud"
