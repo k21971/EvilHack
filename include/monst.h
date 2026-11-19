@@ -295,6 +295,11 @@ struct monst {
      || (mon)->cham == PM_VAMPIRE_ROYAL || (mon)->cham == PM_VAMPIRE_MAGE   \
      || (mon)->cham == PM_KAS || (mon)->cham == PM_VLAD_THE_IMPALER)
 #define vampshifted(mon) (is_vampshifter((mon)) && !is_vampire((mon)->data))
+/* the other shapeshifters; one killed in a borrowed shape goes back to
+   its own shape instead of dying, as a shifted vampire does */
+#define is_changeling(mon) \
+    ((mon)->cham == PM_CHAMELEON || (mon)->cham == PM_DOPPELGANGER \
+     || (mon)->cham == PM_SANDESTIN)
 /* Vlad might be vampshifted so just checking monst->data is insufficient */
 #define is_Vlad(m) ((m)->data == &mons[PM_VLAD_THE_IMPALER]  \
                     || (m)->cham == PM_VLAD_THE_IMPALER)

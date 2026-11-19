@@ -13,6 +13,7 @@ staticfn int minliquid_core(struct monst *);
 staticfn void m_calcdistress(struct monst *);
 staticfn struct monst *credit_delayed_kill(unsigned);
 staticfn void delayed_kill_growth(struct monst *, struct monst *);
+staticfn boolean reverts_when_stoned(struct monst *);
 staticfn void m_stone_countdown(struct monst *);
 staticfn unsigned credited_mid(struct monst *, struct monst *);
 staticfn int mloot_container(struct monst *, struct obj *,
@@ -1585,6 +1586,25 @@ delayed_kill_growth(struct monst *magr, struct monst *mdef)
         (void) grow_up(magr, mdef);
 }
 
+/* would being turned to stone put this shapeshifter back in its own
+   shape instead of leaving a statue?  the tests are vamp_stone()'s,
+   which does the work; keep the two in step */
+staticfn boolean
+reverts_when_stoned(struct monst *mtmp)
+{
+    int mndx = mtmp->cham;
+
+    if (!ismnum(mndx))
+        return FALSE;
+    /* a sandestin, whatever shape it is in */
+    if (!is_vampshifter(mtmp) && (mons[mndx].mresists & MR_STONE) != 0)
+        return TRUE;
+    /* a vampire, chameleon or doppelganger in a borrowed shape */
+    return (boolean) ((is_vampshifter(mtmp) || is_changeling(mtmp))
+                      && mndx != monsndx(mtmp->data)
+                      && !(svm.mvitals[mndx].mvflags & G_GENOD));
+}
+
 /* one step of a monster's petrification countdown, modelled on the
    hero's own: it loses its speed, its limbs stiffen and then turn to
    stone, which stops it moving, and on the fifth step it is a statue */
@@ -1625,7 +1645,9 @@ m_stone_countdown(struct monst *mtmp)
             mtmp->mcanmove = 0;
             break;
         case 1:
-            if (canspotmon(mtmp))
+            /* no statue is announced for a shapeshifter that this
+               puts back in its own shape; that has its own lines */
+            if (canspotmon(mtmp) && !reverts_when_stoned(mtmp))
                 pline_mon(mtmp, "%s is a statue.", Monnam(mtmp));
             if (mtmp->mstonebyu) {
                 /* the statue step was announced above */
@@ -1649,8 +1671,8 @@ m_stone_countdown(struct monst *mtmp)
             break;
         }
     }
-    /* a survivor of the last step (life saving, a vampire or sandestin
-       back in its own shape) has the use of its limbs again */
+    /* a survivor of the last step (life saving, a vampire or other
+       shapeshifter back in its own shape) has the use of its limbs again */
     if (!mtmp->mstone && !mtmp->mfrozen)
         mtmp->mcanmove = 1;
 }
@@ -5464,7 +5486,9 @@ lifesaved_monster(struct monst *mtmp)
 
 /* when a shape-shifted vampire is killed, it reverts to base form instead
    of dying; returns True if mtmp successfully revives, False otherwise;
-   "successfully revived" vampire might be killed by a booby trapped door */
+   "successfully revived" vampire might be killed by a booby trapped door;
+   a chameleon, doppelganger or sandestin killed in a borrowed shape
+   comes back the same way, and is cancelled so that it stays itself */
 staticfn boolean
 vamprises(struct monst *mtmp)
 {
@@ -5509,10 +5533,23 @@ vamprises(struct monst *mtmp)
             else
                 uunstick(sticks(gy.youmonst.data));
         }
+        /* letting the hero out can put it in a trap, or take it off
+           the level when there is no room for it */
+        if (mon_lost_in_rloc(mtmp))
+            return TRUE;
 
         if (!newcham(mtmp, &mons[mndx], NO_NC_FLAGS))
             return !DEADMONSTER(mtmp);
+        /* a chameleon, doppelganger or sandestin is cancelled, so that
+           it stays in its own shape; tested before 'cham' is rewritten */
+        if (is_changeling(mtmp))
+            mtmp->mcan = 1;
         mtmp->cham = (mtmp->data == &mons[mndx]) ? NON_PM : mndx;
+        /* the change itself can kill it or take it off the map (its
+           rider is thrown, a wielded cockatrice corpse gets touched);
+           that has been dealt with by the time newcham() returns */
+        if (mon_lost_in_rloc(mtmp))
+            return TRUE;
 
         if (canspotmon(mtmp)) {
             /* 3.6.0 used a_monnam(mtmp); that was weird if mtmp was
@@ -5871,8 +5908,9 @@ mondead(struct monst *mtmp)
         return;
     }
 
-    /* vampire in bat/fog/wolf form reverts to vampire instead of dying */
-    if (is_vampshifter(mtmp) && vamprises(mtmp))
+    /* vampire in bat/fog/wolf form reverts to vampire instead of dying;
+       so does a chameleon, doppelganger or sandestin in a borrowed shape */
+    if ((is_vampshifter(mtmp) || is_changeling(mtmp)) && vamprises(mtmp))
         return;
 
     /* the Ice Queen is defeated rather than killed; her revival as
@@ -7163,7 +7201,16 @@ vamp_stone(struct monst *mtmp)
             return FALSE;   /* didn't petrify */
         }
     } else if (ismnum(mtmp->cham)
-               && (mons[mtmp->cham].mresists & MR_STONE)) {
+               && ((mons[mtmp->cham].mresists & MR_STONE)
+                   || (is_changeling(mtmp)
+                       && mtmp->cham != monsndx(mtmp->data)
+                       && !(svm.mvitals[mtmp->cham].mvflags & G_GENOD)))) {
+        int mndx = mtmp->cham;
+        /* a chameleon or doppelganger loses its borrowed shape for
+           good, as it does when killed any other way in one; this is
+           decided before any statue is made, so that none is left */
+        boolean lastshape = !(mons[mndx].mresists & MR_STONE);
+
         /* sandestins are stoning-immune so if hit by stoning damage
            they revert to innate shape rather than become a statue */
         mtmp->mcanmove = 1;
@@ -7171,8 +7218,24 @@ vamp_stone(struct monst *mtmp)
         mtmp->mstone = 0;
         set_mon_min_mhpmax(mtmp, 10); /* mtmp->mhpmax=max(mtmp->m_lev+1,10) */
         mtmp->mhp = mtmp->mhpmax;
-        (void) newcham(mtmp, &mons[mtmp->cham], NC_SHOW_MSG);
-        newsym(mtmp->mx, mtmp->my);
+        if (lastshape) {
+            /* the hero is let out first; otherwise the change counts
+               as breaking out of an engulfer and nearly kills it */
+            if (engulfing_u(mtmp))
+                expels(mtmp, mtmp->data, FALSE);
+            if (mon_lost_in_rloc(mtmp))
+                return FALSE;
+        }
+        (void) newcham(mtmp, &mons[mndx], NC_SHOW_MSG);
+        if (lastshape) {
+            /* cancelled, so that it stays in its own shape */
+            mtmp->mcan = 1;
+            if (mtmp->data == &mons[mndx])
+                mtmp->cham = NON_PM;
+        }
+        /* the change can throw a rider and take it off the map */
+        if (!mon_lost_in_rloc(mtmp))
+            newsym(mtmp->mx, mtmp->my);
         return FALSE;   /* didn't petrify */
     }
     return TRUE;
