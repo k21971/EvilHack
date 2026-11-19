@@ -8990,7 +8990,7 @@ valid_vampshiftform(int base, int form)
 {
     if (base >= LOW_PM && is_vampire(&mons[base])) {
         if (form == PM_VAMPIRE_BAT || form == PM_FOG_CLOUD
-            || (form == PM_WOLF && base != PM_VAMPIRE))
+            || (form == PM_WOLF && base != PM_VAMPIRE_SOVEREIGN))
             return TRUE;
     }
     return FALSE;
