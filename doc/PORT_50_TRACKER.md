@@ -36392,7 +36392,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       14 enfolds() sites (mhitu.c, mhitm.c, uhitm.c, insight.c,
       detect.c, spell.c, dungeon.c). Master says "engulfs you!" and
       uses the ordinary expel lines. Wording to be ruled when taken.
-      CLOSED 2026-11-19, session 347 (BUG-3216, commit pending).
+      CLOSED 2026-11-19, session 347 (BUG-3216, 8d55b03ec).
       RULED "ordinary lines, fitted tails": enfolds() also tests for
       the trapper class, so its 14 live sites fall to their ordinary
       arms ("engulfs you!", "expels", "You engulf ...") and 5.0's
@@ -36420,7 +36420,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       passivemm() AD_DISN; the branch's passive_disint_gear() rolls
       each test separately. Only a weapon-wielding kicker in boots
       differs (the boots get a second roll). Read, not run.
-      CLOSED 2026-11-19, session 347 (BUG-3219, commit pending).
+      CLOSED 2026-11-19, session 347 (BUG-3219, 9f65a33d7).
       VERIFIED and fixed: passive_disint_gear() takes `one_roll`; the
       two AD_DISN form callers draw once for weapon, boots and gloves
       as 0.9.3's `chance` does, the two worn-scales callers keep a
@@ -36443,7 +36443,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ansimpleoname() in place of a distance-based xname() in three
       mon.c item lines. The two "falls to pieces!" gates landed with
       BUG-2999; the rest are unread against the branch.
-      CLOSED 2026-11-19, session 347 (BUG-3220, commit pending).
+      CLOSED 2026-11-19, session 347 (BUG-3220, 3da67c0bb).
       READ hunk by hunk: the AD_BHED, AD_LOUD, AD_DISE and zombie
       bite gates are on the branch; the six `!Deaf` tests are moot
       (You_hear() tests Deaf itself); the container lines already use
@@ -36707,7 +36707,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       monster arms then add 5.0's "<Monster> slows down."; master's
       arms print nothing of their own. Two lines for one slow when
       the monster is seen, 5.0's line alone when it is only sensed.
-      CLOSED 2026-11-19, session 347 (BUG-3215, commit pending).
+      CLOSED 2026-11-19, session 347 (BUG-3215, cddb0c9f6).
       RULED "one line everywhere": 0.9.3 dropped "slows down." on
       purpose (e01d2306b, 2023), and its own 2025 code re-added the
       double for a monster's wand or spell of slow monster
@@ -37344,7 +37344,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       what the hero is expelled from and how; the tails were ported
       but gulpmu()'s timer arm kept 5.0's short line, so the usual
       way out of a vortex never printed them.
-      CLOSED 2026-11-19, session 347 (BUG-3217, commit pending).
+      CLOSED 2026-11-19, session 347 (BUG-3217, 19c12e6d9).
       RULED fold in, own commit: expel_msg() (split out of expels())
       prints the full line in that arm, before the hero is moved.
       BATTERY (tester A): nine engulfers timed out - PRE "You get
@@ -37359,7 +37359,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       thrown cockatrice corpse did not stone it, floating up said
       "You spiral up into the red dragon.", and the surroundings
       read "ooze" or the real floor.
-      CLOSED 2026-11-19, session 347 (BUG-3218, commit pending).
+      CLOSED 2026-11-19, session 347 (BUG-3218, 77c193867).
       RULED fold in, own commit, and the thrown-corpse site after
       the review: digests() at engrave.c (two tests), polyself.c
       dospinweb(), dothrow.c thitmonst(), trap.c float_up(), spell.c

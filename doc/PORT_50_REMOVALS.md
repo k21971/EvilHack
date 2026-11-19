@@ -665,20 +665,20 @@ tracker; sNNN = port session.
 - [x] "<Monster> slows down." after mon_adjust_speed()'s "seems to be
   moving slower." -> gone at the hero's hit, a monster's hit and a
   monster's wand or spell of slow monster; one line, and none for a
-  monster sensed but not seen (ruled s347, BUG-3215, commit pending;
+  monster sensed but not seen (ruled s347, BUG-3215, cddb0c9f6;
   master e01d2306b, the wand site beyond master).
 - [x] 5.0's trapper wording ("folds itself around you", "unfolds and
   you are released", "encloses", "release", "folds") for EvilHack's
   AD_WRAP engulfers -> the ordinary engulfer lines with fitted expel
   tails; the code stays for a trapper that enfolds, which the branch
-  does not have (ruled s347, BUG-3216, commit pending).
+  does not have (ruled s347, BUG-3216, 8d55b03ec).
 - [x] The bare "You get expelled!" / "You get released!" when an
   engulfer's timer runs out -> master's full line with its tail
-  (ruled s347, BUG-3217, commit pending; master 5f5567f6e).
+  (ruled s347, BUG-3217, 19c12e6d9; master 5f5567f6e).
 - [x] 5.0's animals-only test for a swallower at seven sites -> any
   digester, so a dragon's stomach is a maw: no engraving, web fluid
   and a thrown cockatrice corpse work as inside a purple worm
-  (ruled s347, BUG-3218, commit pending; master 96c9d9294).
+  (ruled s347, BUG-3218, 77c193867; master 96c9d9294).
 
 ### 2.5 Levels and content
 
