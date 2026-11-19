@@ -1380,6 +1380,13 @@ mattacku(struct monst *mtmp)
                             || (!thick_skinned(gy.youmonst.data)
                                 && !Barkskin && !Stoneskin))
                             sum[i] = hitmu(mtmp, mattk);
+                        /* any bite of Medusa's that lands starts the
+                           slow stoning, unless she has been cancelled;
+                           the bite is the last of her attacks */
+                        if (mdat == &mons[PM_MEDUSA]
+                            && mattk->aatyp == AT_BITE && !mtmp->mcan
+                            && !DEADMONSTER(mtmp))
+                            (void) do_stone_u(mtmp);
                     } else {
                         missmu(mtmp, tmp, j, mattk);
                         /* a shield gets some practice from any blow
