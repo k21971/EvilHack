@@ -7330,7 +7330,7 @@ mhitm_ad_ston(
                  * become a little harder.  Clearing out cockatrice nests
                  * during a new moon could become quite a bit harder.
                  */
-                if (!rn2(10) || flags.moonphase == NEW_MOON) {
+                if (!rn2(6) || flags.moonphase == NEW_MOON) {
                     if (do_stone_u(magr)) {
                         mhm->hitflags = M_ATTK_HIT;
                         mhm->done = TRUE;
