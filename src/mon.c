@@ -6745,6 +6745,17 @@ xkilled(
                 pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
             }
         }
+        /* a dragon is big enough to leave a corpse, and maybe its
+           scales, even when the hero carved it up from the inside */
+        if (wasinside && is_dragon(mtmp->data)
+            && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
+            cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
+                                                   : CORPSTAT_NONE);
+            if (burycorpse && cadaver && cansee(x, y) && !mtmp->minvis
+                && cadaver->where == OBJ_BURIED && !nomsg) {
+                pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
+            }
+        }
     }
 
     if (wasinside) {
