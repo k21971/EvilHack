@@ -20,6 +20,7 @@ staticfn void pickpocket_watch_responds(struct monst *) NONNULLARG1;
 staticfn void steal_it(struct monst *, struct attack *) NONNULLARG1;
 staticfn struct obj *really_steal(struct obj *, struct monst *) NONNULLPTRS;
 staticfn struct monst *find_steal_target(void);
+staticfn boolean should_cleave(void);
 /* hitum_cleave() has contradictory information. There's a comment
  * beside the 1st arg 'target' stating non-null, but later on there
  * is a test for 'target' being null */
@@ -933,6 +934,42 @@ known_hitum(
     return malive;
 }
 
+/* return True unless a bystander stands in cleaving range, to the left
+   or the right of the target space; assumes u.dx and u.dy have been
+   set; a cursed weapon sweeps regardless, and so does the hero when
+   fighting deliberately */
+staticfn boolean
+should_cleave(void)
+{
+    int i, dir = xytodir(u.dx, u.dy);
+    boolean bystanders = FALSE;
+
+    if (dir == DIR_ERR) {
+        impossible("should_cleave: unknown target direction [%d,%d,%d]?",
+                   u.dx, u.dy, u.dz);
+        return FALSE; /* better safe than sorry */
+    }
+
+    /* the square on each side of the target; the target itself is not
+       checked, and a monster shown only by warning or as a remembered
+       unseen monster does not count; pets are peaceful too */
+    for (i = 0; i < 2; i++) {
+        int flank = i ? DIR_RIGHT(dir) : DIR_LEFT(dir);
+        coordxy x = u.ux + xdir[flank], y = u.uy + ydir[flank];
+        struct monst *mtmp;
+
+        if (!isok(x, y))
+            continue;
+        mtmp = m_at(x, y);
+        if (mtmp && canspotmon(mtmp) && mtmp->mpeaceful)
+            bystanders = TRUE;
+    }
+
+    if (bystanders && !uwep->cursed && !svc.context.forcefight)
+        return FALSE;
+    return TRUE;
+}
+
 /* hit the monster next to you and the monsters to the left and right of it;
    return False if the primary target is killed, True otherwise */
 staticfn boolean
@@ -1101,7 +1138,8 @@ hitum(struct monst *mon, struct attack *uattk)
        it can't be part of dual-wielding but we guard against that anyway;
        cleave return value reflects status of primary target ('mon') */
     if (is_art(uwep, ART_CLEAVER) && !u.twoweap
-        && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum))
+        && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum)
+        && should_cleave())
         return hitum_cleave(mon, uattk);
 
     /* 0: single hit, 1: first of two hits; affects silver rings;
