@@ -305,10 +305,11 @@ struct monst {
                     || (m)->cham == PM_VLAD_THE_IMPALER)
 
 /* monsters which cannot be displaced: temple priests, shopkeepers,
-   vault guards, the Oracle, quest leader */
+   vault guards, the Oracle, Charon, quest leader */
 #define mundisplaceable(mon) \
     ((mon)->ispriest || (mon)->isshk                    \
      || (mon)->isgd || (mon)->data == &mons[PM_ORACLE]  \
+     || (mon)->data == &mons[PM_CHARON]                 \
      || (mon)->m_id == svq.quest_status.leader_m_id)
 
 /* mimic appearances that block vision/light */
