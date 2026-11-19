@@ -4086,7 +4086,8 @@ mhitm_ad_drli(
                    considered to be primarily a non-physical effect */
                 lesshungry(min(mhm->damage, mdef->mhp) * 6);
             }
-            pline("%s becomes weaker!", Monnam(mdef));
+            if (canseemon(mdef))
+                pline("%s becomes weaker!", Monnam(mdef));
             if (mdef->mhpmax - mhm->damage > (int) mdef->m_lev) {
                 mdef->mhpmax -= mhm->damage;
             } else {
@@ -5427,7 +5428,8 @@ mhitm_ad_drin(
         }
 
         if (gn.notonhead || !has_head(pd)) {
-            pline("%s doesn't seem harmed.", Monnam(mdef));
+            if (canseemon(mdef))
+                pline("%s doesn't seem harmed.", Monnam(mdef));
             /* hero should skip remaining AT_TENT+AD_DRIN attacks
                because they'll be just as harmless as this one (and also
                to reduce verbosity) */
@@ -5445,14 +5447,16 @@ mhitm_ad_drin(
             return;
 
         if ((helmet = which_armor(mdef, W_ARMH)) != 0 && rn2(8)) {
-            pline("%s %s blocks your attack to %s head.",
-                  s_suffix(Monnam(mdef)), helm_simple_name(helmet),
-                  mhis(mdef));
+            if (!Blind)
+                pline("%s %s blocks your attack to %s head.",
+                      s_suffix(Monnam(mdef)), helm_simple_name(helmet),
+                      mhis(mdef));
             return;
         }
         if ((barding = which_armor(mdef, W_BARDING)) != 0 && rn2(8)) {
-            pline("%s barding blocks your attack to %s head.",
-                  s_suffix(Monnam(mdef)), mhis(mdef));
+            if (!Blind)
+                pline("%s barding blocks your attack to %s head.",
+                      s_suffix(Monnam(mdef)), mhis(mdef));
             return;
         }
         amu = which_armor(mdef, W_AMUL);
