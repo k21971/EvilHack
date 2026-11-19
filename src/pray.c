@@ -2399,8 +2399,13 @@ offer_different_alignment_altar(
                                    : u.ualign.type ? NH_BLACK
                                      : (const char *) "gray"));
 
-            if (rnl(u.ulevel) > 6 && u.ualign.record > 0
-                && rnd(u.ualign.record) > (3 * ALIGNLIM) / 4)
+            /* the altar's god often sends a minion after the convert:
+               the higher the hero's level the more likely, and an
+               altar in a temple counts as level 12 */
+            if (u.ualign.record > 0
+                && rnd(u.ualign.record)
+                   > (3 * ALIGNLIM) / (temple_occupied(u.urooms)
+                                       ? 12 : u.ulevel))
                 summon_minion(altaralign, TRUE);
             /* very small chance fracturing an altar after conversion */
             if (!rn2(100))
