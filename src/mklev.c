@@ -2321,8 +2321,16 @@ mktrap(
        should prevent cases where that might not happen) but be paranoid */
     kind = t ? t->ttyp : NO_TRAP;
 
-    if (kind == WEB && !(mktrapflags & MKTRAP_NOSPIDERONWEB))
-        (void) makemon(&mons[PM_GIANT_SPIDER], m.x, m.y, NO_MM_FLAGS);
+    if (kind == WEB && !(mktrapflags & MKTRAP_NOSPIDERONWEB)) {
+        /* a web's spider isn't always a giant one */
+        static const int web_spiders[] = {
+            PM_JUMPING_SPIDER, PM_CAVE_SPIDER, PM_LARGE_SPIDER,
+            PM_GIANT_SPIDER
+        };
+
+        (void) makemon(&mons[web_spiders[rn2(SIZE(web_spiders))]],
+                       m.x, m.y, NO_MM_FLAGS);
+    }
     if (t && (mktrapflags & MKTRAP_SEEN))
         t->tseen = TRUE;
     if (kind == MAGIC_PORTAL && (u.ucamefrom.dnum || u.ucamefrom.dlevel)) {
