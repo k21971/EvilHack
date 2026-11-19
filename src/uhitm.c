@@ -6428,7 +6428,7 @@ mhitm_ad_famn(
     struct attack *mattk UNUSED,
     struct monst *mdef, struct mhitm_data *mhm)
 {
-    struct permonst *pd = mdef->data;
+    boolean seeit;
 
     if (magr == &gy.youmonst) {
         /* uhitm; hero can't polymorph into anything with this attack
@@ -6445,11 +6445,24 @@ mhitm_ad_famn(
         /* plus the normal damage */
     } else {
  mhitm_famn:
-        /* mhitm; it's possible for Famine to hit another monster;
-           if target is something that doesn't eat, it won't be harmed;
-           otherwise, just inflict the normal damage */
-        if (!(carnivorous(pd) || herbivorous(pd) || metallivorous(pd)))
-            mhm->damage = 0;
+        /* mhitm; it's possible for Famine to hit another monster: a
+           pet goes hungry, anything else is hurt some more */
+        seeit = (gv.vis && canseemon(mdef) && magr != &gy.youmonst);
+        if (seeit) {
+            char buf[BUFSZ];
+
+            Strcpy(buf, s_suffix(mon_nam(mdef)));
+            pline_mon(magr, "%s reaches out, and %s body shrivels.",
+                      Monnam(magr), buf);
+        }
+        if (mdef->mtame && !mdef->isminion && has_edog(mdef)) {
+            EDOG(mdef)->hungrytime -= rn1(120, 120);
+        } else {
+            mhm->damage += rnd(10); /* lacks a food rating */
+            if (mhm->damage >= mdef->mhp && seeit)
+                pline_mon(mdef, "%s starves.", Monnam(mdef));
+        }
+        /* plus the normal damage */
     }
 }
 
