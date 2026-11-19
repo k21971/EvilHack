@@ -2052,7 +2052,8 @@ passivemm(
                     }
                 } else if (passive_contact_attack(aatyp)
                            /* a weapon, boots or gloves go first */
-                           && !passive_disint_gear(magr, aatyp, 12, TRUE)) {
+                           && !passive_disint_gear(magr, aatyp, 12, FALSE,
+                                                   TRUE)) {
                     if (rn2(40)) {
                         if (canseemon(magr))
                             pline_mon(magr, "%s partially disintegrates!",
@@ -2233,7 +2234,7 @@ passivemm(
             } else if (passive_contact_attack(aatyp)
                        /* a weapon, boots or gloves go first */
                        && !passive_disint_gear(magr, aatyp, vortex ? 3 : 6,
-                                               !vortex)) {
+                                               TRUE, !vortex)) {
                 if (vortex ? rn2(10) : rn2(20)) {
                     if (canseemon(magr))
                         pline("%s %s partially disintegrates %s!",

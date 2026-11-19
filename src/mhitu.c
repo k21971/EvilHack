@@ -125,7 +125,9 @@ passive_contact_attack(int aatyp)
 /* A disintegrating hide or suit of armor reaches for the attacker's
    gear before the attacker itself: its wielded weapon, its boots on a
    kick, or its gloves on a bare-handed blow, each with a 1 in odds
-   chance. Dragonbane gloves are spared when spare_dragonbane is set.
+   chance. A hide or a vortex draws that chance once for all three
+   (one_roll); a worn suit draws it for each piece in turn.
+   Dragonbane gloves are spared when spare_dragonbane is set.
    Returns TRUE when something was destroyed, which spares the
    attacker's body this time. */
 boolean
@@ -133,11 +135,14 @@ passive_disint_gear(
     struct monst *magr,
     int aatyp,
     int odds,
+    boolean one_roll,
     boolean spare_dragonbane)
 {
     struct obj *otmp;
+    boolean drawn = one_roll ? !rn2(odds) : FALSE;
 
-    if ((otmp = MON_WEP(magr)) != 0 && !rn2(odds)) {
+    if ((otmp = MON_WEP(magr)) != 0
+        && (one_roll ? drawn : !rn2(odds))) {
         if (canseemon(magr))
             pline_mon(magr, "%s %s is disintegrated!",
                       s_suffix(Monnam(magr)), xname(otmp));
@@ -149,7 +154,7 @@ passive_disint_gear(
         return TRUE;
     }
     if ((magr->misc_worn_check & W_ARMF) != 0L && aatyp == AT_KICK
-        && !rn2(odds)) {
+        && (one_roll ? drawn : !rn2(odds))) {
         otmp = which_armor(magr, W_ARMF);
         if (canseemon(magr))
             pline_mon(magr, "%s %s are disintegrated!",
@@ -159,7 +164,7 @@ passive_disint_gear(
     }
     if ((magr->misc_worn_check & W_ARMG) != 0L
         && (aatyp == AT_WEAP || aatyp == AT_CLAW || aatyp == AT_TUCH)
-        && !MON_WEP(magr) && !rn2(odds)) {
+        && !MON_WEP(magr) && (one_roll ? drawn : !rn2(odds))) {
         otmp = which_armor(magr, W_ARMG);
         if (spare_dragonbane && otmp->oartifact == ART_DRAGONBANE)
             return FALSE;
@@ -3999,7 +4004,7 @@ passiveum(
             } else if (passive_contact_attack((int) mattk->aatyp)
                        /* a weapon, boots or gloves go first */
                        && !passive_disint_gear(mtmp, (int) mattk->aatyp,
-                                               12, TRUE)) {
+                                               12, FALSE, TRUE)) {
                 if (rn2(40)) {
                     if (canseemon(mtmp))
                         pline_mon(mtmp, "%s partially disintegrates!",
@@ -4191,7 +4196,7 @@ passiveum(
         } else if (passive_contact_attack((int) mattk->aatyp)
                    /* a weapon, boots or gloves go first */
                    && !passive_disint_gear(mtmp, (int) mattk->aatyp,
-                                           vortex ? 3 : 6,
+                                           vortex ? 3 : 6, TRUE,
                                            spare_dragonbane)) {
             if (vortex ? rn2(10) : rn2(20)) {
                 if (canseemon(mtmp))

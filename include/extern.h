@@ -1724,8 +1724,8 @@ extern void rustm(struct monst *, struct obj *);
 
 extern void mon_currwep_gone(struct obj *);
 extern boolean passive_contact_attack(int);
-extern boolean passive_disint_gear(struct monst *, int, int, boolean)
-    NONNULLARG1;
+extern boolean passive_disint_gear(struct monst *, int, int, boolean,
+                                   boolean) NONNULLARG1;
 extern void hitmsg(struct monst *, struct attack *) NONNULLARG12;
 extern const char *mswings_verb(struct obj *, boolean) NONNULLARG1;
 extern const char *mpoisons_subj(struct monst *, struct attack *) NONNULLARG12;
