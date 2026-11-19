@@ -594,7 +594,10 @@ remove_mon_from_bones(struct monst *mtmp)
            in Valley bones but never travel in any other level's */
         || (mtmp->iscerberus && !Is_valley(&u.uz))
         || (mptr == &mons[PM_CHARON] && !Is_valley(&u.uz))
+        /* Kas might be vampshifted, the Rat King wereshifted */
+        || mptr == &mons[PM_KAS] || mtmp->cham == PM_KAS
         || mptr == &mons[PM_RAT_KING] || mtmp->cham == PM_RAT_KING
+        || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
         || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
         || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
         mongone(mtmp);
