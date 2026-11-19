@@ -1434,11 +1434,12 @@ u_init_race(void)
         if (!Role_if(PM_CONVICT))
             ini_inv(Dra_food);
         if (!Role_if(PM_CONVICT) && !Role_if(PM_INFIDEL)) {
-            /* same starting alignment penalty as the typical Convict;
-               assigned directly instead of via adjalign() so that it
-               is not charged as alignment abuse and stays idempotent
-               if inventory is rerolled */
-            u.ualign.record = -20;
+            /* the role's starting alignment less 20, which for most
+               of them is where the typical Convict starts; assigned
+               directly instead of via adjalign() so that it is not
+               charged as alignment abuse and stays idempotent if
+               inventory is rerolled */
+            u.ualign.record = gu.urole.initrecord - 20;
         }
         break;
 
@@ -1452,7 +1453,7 @@ u_init_race(void)
         init_oclass_probs();
         if (!Role_if(PM_CONVICT) && !Role_if(PM_INFIDEL)) {
             /* same starting alignment penalty as draugr above */
-            u.ualign.record = -20;
+            u.ualign.record = gu.urole.initrecord - 20;
         }
         break;
 
