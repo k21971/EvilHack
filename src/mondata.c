@@ -184,6 +184,10 @@ Resists_Elem(struct monst *mon, int propindx)
 
     if (is_you ? u_resist : ((mon_resistancebits(mon) & rsstmask) != 0))
         return TRUE;
+    /* a monster's skin of stone cannot be turned to stone; the hero's
+       own stoneskin sets the intrinsic tested above */
+    if (!is_you && propindx == STONE_RES && has_stoneskin(mon))
+        return TRUE;
     /* check for resistance granted by wielded weapon */
     o = is_you ? uwep : MON_WEP(mon);
     if (o && o->oartifact && defends(damgtype, o))

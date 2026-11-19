@@ -1931,6 +1931,13 @@ m_calcdistress(struct monst *mtmp)
                   s_suffix(Monnam(mtmp)), mbodypart(mtmp, SKIN));
         /* stone resistance also goes away */
         mtmp->mextrinsics &= ~(MR2_STONESKIN);
+        /* and with it the protection from a cockatrice corpse it may
+           have taken in its bare hands while the spell lasted */
+        if (!(mtmp->misc_worn_check & W_ARMG)) {
+            mselftouch(mtmp, "No longer petrify-resistant, ", FALSE);
+            if (mon_lost_in_rloc(mtmp))
+                return;
+        }
     }
     if (mtmp->mentangled && mtmp->mentangletime < 1) {
         mtmp->mentangled = 0;

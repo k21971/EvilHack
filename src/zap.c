@@ -4341,6 +4341,7 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
     boolean youdefend = (mdef == &gy.youmonst);
     int onum = 0, oindex = 0, cnt = 0;
     struct obj *otmp;
+    boolean mstoneskin_gone = FALSE; /* a monster target's, that is */
     /* magic resistance does not shield the hero's own deliberate
        self-zap, and it only protects the cancellation core at the
        bottom - the buff strips and the inventory pass land anyway */
@@ -4538,6 +4539,7 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
                               mbodypart(mdef, SKIN));
                     mdef->mextrinsics &= ~(MR2_STONESKIN);
                     mdef->mstoneskintime = 0;
+                    mstoneskin_gone = TRUE;
                 }
                 if (mdef->vuln_fire) {
                     if (canseemon(mdef))
@@ -4629,6 +4631,17 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
             }
             update_inventory();
         }
+    }
+
+    /* a monster's stoneskin may have been all that kept a cockatrice
+       corpse in its bare hands safe, as for the hero above; the skin
+       is gone whether or not the rest is resisted, and a target this
+       kills counts as cancelled, as one killed by its form change
+       below does */
+    if (mstoneskin_gone && !(mdef->misc_worn_check & W_ARMG)) {
+        mselftouch(mdef, "No longer petrify-resistant, ", youattack);
+        if (mon_lost_in_rloc(mdef))
+            return TRUE;
     }
 
     if (resisted)
