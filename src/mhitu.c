@@ -28,6 +28,7 @@ static const char *const mwep_none[] = {
 staticfn void missmu(struct monst *, int, int, struct attack *);
 staticfn void mswings(struct monst *, struct obj *, boolean);
 staticfn void wildmiss(struct monst *, struct attack *);
+staticfn void expel_msg(struct monst *, struct permonst *);
 staticfn void calc_mattacku_vars(struct monst *, boolean *, boolean *,
                                  boolean *, boolean *);
 staticfn void summonmu(struct monst *, boolean);
@@ -619,6 +620,64 @@ wildmiss(struct monst *mtmp, struct attack *mattk)
     }
 }
 
+/* the line for the hero leaving an engulfer; said before expels()
+   moves anything, while the engulfer can still be named */
+staticfn void
+expel_msg(
+    struct monst *mtmp,
+    struct permonst *mdat) /* if mtmp is polymorphed, mdat != mtmp->data */
+{
+    if (digests(mdat)) {
+        You("get regurgitated!");
+    } else if (enfolds(mdat)) {
+        pline_mon(mtmp, "%s unfolds and you are released!", Monnam(mtmp));
+    } else {
+        char blast[40];
+        struct attack *attk = attacktype_fordmg(mdat, AT_ENGL, AD_ANY);
+
+        blast[0] = '\0';
+        if (!attk) {
+            impossible("Swallower has no engulfing attack?");
+        } else {
+            if (is_whirly(mdat)) {
+                switch (attk->adtyp) {
+                case AD_ELEC:
+                    Strcpy(blast, " in a shower of sparks");
+                    break;
+                case AD_COLD:
+                    Strcpy(blast, " in a blast of frost");
+                    break;
+                case AD_FIRE:
+                    if (mdat == &mons[PM_STEAM_VORTEX])
+                        Strcpy(blast, " in a blast of steam");
+                    else
+                        Strcpy(blast, " in a blast of fire");
+                    break;
+                case AD_DISN:
+                    Strcpy(blast, " in a haze of antiparticles");
+                    break;
+                case AD_BLND:
+                case AD_PHYS:
+                    Strcpy(blast, " with a woosh");
+                    break;
+                }
+            } else if (mdat == &mons[PM_WATER_ELEMENTAL]
+                       || mdat == &mons[PM_SEA_DRAGON]) {
+                Strcpy(blast, " in a rush of water");
+            } else if (mdat == &mons[PM_CREEPING_MOUND]) {
+                Strcpy(blast, " in a tangle of vines");
+            } else if (mdat == &mons[PM_FIRE_ELEMENTAL]) {
+                Strcpy(blast, " in a blast of fire");
+            } else if (mdat == &mons[PM_EARTH_ELEMENTAL]) {
+                Strcpy(blast, " in a shower of debris");
+            } else {
+                Strcpy(blast, " with a squelch");
+            }
+            You("get expelled from %s%s!", mon_nam(mtmp), blast);
+        }
+    }
+}
+
 void
 expels(
     struct monst *mtmp,
@@ -626,57 +685,8 @@ expels(
     boolean message)
 {
     disp.botl = TRUE;
-    if (message) {
-        if (digests(mdat)) {
-            You("get regurgitated!");
-        } else if (enfolds(mdat)) {
-            pline_mon(mtmp, "%s unfolds and you are released!", Monnam(mtmp));
-        } else {
-            char blast[40];
-            struct attack *attk = attacktype_fordmg(mdat, AT_ENGL, AD_ANY);
-
-            blast[0] = '\0';
-            if (!attk) {
-                impossible("Swallower has no engulfing attack?");
-            } else {
-                if (is_whirly(mdat)) {
-                    switch (attk->adtyp) {
-                    case AD_ELEC:
-                        Strcpy(blast, " in a shower of sparks");
-                        break;
-                    case AD_COLD:
-                        Strcpy(blast, " in a blast of frost");
-                        break;
-                    case AD_FIRE:
-                        if (mdat == &mons[PM_STEAM_VORTEX])
-                            Strcpy(blast, " in a blast of steam");
-                        else
-                            Strcpy(blast, " in a blast of fire");
-                        break;
-                    case AD_DISN:
-                        Strcpy(blast, " in a haze of antiparticles");
-                        break;
-                    case AD_BLND:
-                    case AD_PHYS:
-                        Strcpy(blast, " with a woosh");
-                        break;
-                    }
-                } else if (mdat == &mons[PM_WATER_ELEMENTAL]
-                           || mdat == &mons[PM_SEA_DRAGON]) {
-                    Strcpy(blast, " in a rush of water");
-                } else if (mdat == &mons[PM_CREEPING_MOUND]) {
-                    Strcpy(blast, " in a tangle of vines");
-                } else if (mdat == &mons[PM_FIRE_ELEMENTAL]) {
-                    Strcpy(blast, " in a blast of fire");
-                } else if (mdat == &mons[PM_EARTH_ELEMENTAL]) {
-                    Strcpy(blast, " in a shower of debris");
-                } else {
-                    Strcpy(blast, " with a squelch");
-                }
-                You("get expelled from %s%s!", mon_nam(mtmp), blast);
-            }
-        }
-    }
+    if (message)
+        expel_msg(mtmp, mdat);
     unstuck(mtmp); /* ball&chain returned in unstuck() */
     mnexto(mtmp, RLOC_NOMSG);
     newsym(u.ux, u.uy);
@@ -2591,9 +2601,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
            expels now so the !u.uswldtim case is no longer possible;
            however, polymorphing into a huge form while already
            swallowed is still possible */
-        You("get %s!", digests(mtmp->data) ? "regurgitated"
-                       : enfolds(mtmp->data) ? "released"
-                         : "expelled");
+        expel_msg(mtmp, mtmp->data);
         if (flags.verbose
             && (digests(mtmp->data) && Slow_digestion))
             pline("Obviously %s doesn't like your taste.", mon_nam(mtmp));
