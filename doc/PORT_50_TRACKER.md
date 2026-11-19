@@ -17,8 +17,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-18, session 346: the Blacksmith's
-  Cookbook can be read - its 13 chapters had not come over, so the
+- Phase 2 status (refreshed 2026-11-19, session 347: the four
+  wording and parity rows of sessions 321 / 323 are closed - a slowed
+  monster is announced once (0.9.3 had dropped "slows down." on
+  purpose; ruled one line everywhere); water elementals, sea dragons,
+  gelatinous cubes and creeping mounds no longer speak 5.0's trapper
+  lines and are expelled "in a rush of water" / "in a tangle of
+  vines" / "with a squelch", the fire and earth elementals "in a
+  blast of fire" / "in a shower of debris", with the protection
+  spell's haze worded to match (ruled: ordinary lines, fitted
+  tails); a black dragon's hide and an antimatter vortex draw their
+  gear chance once per hit, as 0.9.3; three hit messages no longer
+  name a monster the hero cannot see - and two gaps found beside
+  them were folded in by ruling: the timed-out expel prints 0.9.3's
+  full line, and a dragon that swallowed the hero counts as a
+  swallower at seven places (no engraving, web fluid and a thrown
+  cockatrice corpse work as inside a purple worm, the surroundings
+  are a "maw"); four rows closed, two minted and closed, one residue
+  row minted -
+  after session 346, the day before, made the Blacksmith's
+  Cookbook readable - its 13 chapters had not come over, so the
   book in Goblintown was "an incomprehensible foreign translation" -
   with chapter 12 corrected to the game's own rule (a charge for each
   gemstone affixed, ruled); checking its recipes against the forge
@@ -197,8 +215,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 60 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 58 LOW):
-  777 rows closed, 60 open
+  prefix; 57 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 55 LOW):
+  783 rows closed, 57 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -21518,7 +21536,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       trapper, purple worm, neothelid, giant anaconda; the sea dragon
       is AD_WRAP on both), and the branch already uses digests() at
       every other master is_swallower() site (upstream adopted the
-      vocabulary) - no macro, no row; touch_of_death() serves both
+      vocabulary; CORRECTED 2026-11-19, session 347: seven tests
+      still asked 5.0's is_animal(), which no dragon passes -
+      BUG-3218) - no macro, no row; touch_of_death() serves both
       Death's melee touch and the MGC_DEATH_TOUCH spell on 5.0 and is
       no longer an instadeath, so the spell's fatal touch loots too
       (master's spell path never set the pointer); the drain-strength
@@ -36362,7 +36382,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       undiggable ones for 31 turns; hero forms the same, with "You
       hurt your teeth on the bars." The one paniclog line ("vision
       blocking") came from the tester's raw gdb terrain write.
-- [ ] LOW: the AD_WRAP engulfers speak 5.0's trapper lines (minted
+- [x] LOW: the AD_WRAP engulfers speak 5.0's trapper lines (minted
       2026-11-11, session 321, Plan stress test). enfolds() is 5.0's
       test for an AT_ENGL AD_WRAP attack; on the branch it matches
       the water elemental, sea dragon, gelatinous cube and creeping
@@ -36372,20 +36392,74 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       14 enfolds() sites (mhitu.c, mhitm.c, uhitm.c, insight.c,
       detect.c, spell.c, dungeon.c). Master says "engulfs you!" and
       uses the ordinary expel lines. Wording to be ruled when taken.
-- [ ] LOW, verify: passive disintegration rolls once per item (minted
+      CLOSED 2026-11-19, session 347 (BUG-3216, commit pending).
+      RULED "ordinary lines, fitted tails": enfolds() also tests for
+      the trapper class, so its 14 live sites fall to their ordinary
+      arms ("engulfs you!", "expels", "You engulf ...") and 5.0's
+      code stays for a future AD_WRAP trapper; the expel line's tail
+      is fitted - water elemental and sea dragon "in a rush of
+      water", creeping mound "in a tangle of vines", gelatinous cube
+      "with a squelch", and beyond 0.9.3 the fire elemental "in a
+      blast of fire" and the earth elemental "in a shower of debris";
+      the protection spell's haze names water, vegetation, fire or
+      debris the same way (engulfer_haze(), spell.c). CORRECTION to
+      the row above: the "husk" (dungeon.c) and "being squashed"
+      sites were never reached for the four - none is an animal and
+      none has an AD_PHYS engulf.
+      BATTERY (tester A): engulf line PRE "folds itself around you!"
+      / POST "engulfs you!" for all four; a wand of opening inside a
+      water elemental PRE "unfolds and you are released!" / POST
+      "You get expelled from the water elemental in a rush of
+      water!"; the haze word inside ten engulfers as ruled; a
+      water-elemental-form hero and a tame water elemental PRE
+      "enclose" / "release", POST "engulf" / "expel".
+- [x] LOW, verify: passive disintegration rolls once per item (minted
       2026-11-11, session 321, census of master 501e23bec): master
       HEAD draws ONE `chance` (1 in 6, vortex 1 in 3) for the
       attacker's weapon, boots and gloves tests in passiveum() and
       passivemm() AD_DISN; the branch's passive_disint_gear() rolls
       each test separately. Only a weapon-wielding kicker in boots
       differs (the boots get a second roll). Read, not run.
-- [ ] LOW: master's feedback gates unported (minted 2026-11-11,
+      CLOSED 2026-11-19, session 347 (BUG-3219, commit pending).
+      VERIFIED and fixed: passive_disint_gear() takes `one_roll`; the
+      two AD_DISN form callers draw once for weapon, boots and gloves
+      as 0.9.3's `chance` does, the two worn-scales callers keep a
+      draw per piece (0.9.3 does the same there). Who differed: an
+      armed kicker in boots (clerics, monks, Aleax, Elanee, the Arch
+      Priest) - 30.6% gear loss a kick against 0.9.3's 16.7%, vortex
+      55.6% against 33.3%. REACH, narrower than read: a monster
+      hitting a black dragon or antimatter vortex MONSTER, or a hero
+      in antimatter vortex form; a kick never lands on a hero in
+      dragon form (mattacku() skips hitmu() for a kick against thick
+      skin, both trees).
+      BATTERY (tester B, the draws read by `break rn2`): a kick PRE
+      two draws, POST one, against a vortex-form hero and between
+      monsters; forced, PRE loses the boots on the second draw, POST
+      the mace on the single draw; worn scales two draws on both.
+- [x] LOW: master's feedback gates unported (minted 2026-11-11,
       session 321, reviewer; master ba46f54c8, 2020): about 18
       canseemon() / Deaf / Blind tests on messages across damageum()'s
       arms (now the mhitm_ad_*() uhitm arms), mhitm.c and mon.c, plus
       ansimpleoname() in place of a distance-based xname() in three
       mon.c item lines. The two "falls to pieces!" gates landed with
       BUG-2999; the rest are unread against the branch.
+      CLOSED 2026-11-19, session 347 (BUG-3220, commit pending).
+      READ hunk by hunk: the AD_BHED, AD_LOUD, AD_DISE and zombie
+      bite gates are on the branch; the six `!Deaf` tests are moot
+      (You_hear() tests Deaf itself); the container lines already use
+      ansimpleoname(); the AD_PEST hunk is 0.9.3's own slip and the
+      branch's form is the correct one; AD_SLOW is BUG-3215. THREE
+      were missing, all in hero-attacker arms, and are back: a
+      draining hit's "becomes weaker!" and a brain-eating hit's
+      "doesn't seem harmed." need the monster seen; the helmet and
+      barding "blocks your attack" lines need the hero not Blind. A
+      sweep of 0.9.3's whole damageum() (32 gated lines) found no
+      other.
+      BATTERY (tester B): sighted, every line on both builds;
+      blindfolded or against an invisible target PRE "It becomes
+      weaker!" / "It doesn't seem harmed." / the helm line, POST
+      none; the drain, the skipped tentacles and the block itself
+      unchanged.
 - [x] MED: a flipped level leaves a magic beam trap's launch point
       behind (minted 2026-11-11, session 322, reviewer; no master
       shape - 3.6 does not flip levels). maketrap() picks the beam's
@@ -36627,12 +36701,25 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (BUG-3017 / 3018, 34b506fea).
       Battery: skeleton warrior form, 33 landed slowing touches, 13
       slows.
-- [ ] LOW: 5.0's second line for a slowed monster (minted 2026-11-11,
+- [x] LOW: 5.0's second line for a slowed monster (minted 2026-11-11,
       session 323, battery). mon_adjust_speed() says "<Monster>
       seems to be moving slower." and mhitm_ad_slow()'s hero and
       monster arms then add 5.0's "<Monster> slows down."; master's
       arms print nothing of their own. Two lines for one slow when
       the monster is seen, 5.0's line alone when it is only sensed.
+      CLOSED 2026-11-19, session 347 (BUG-3215, commit pending).
+      RULED "one line everywhere": 0.9.3 dropped "slows down." on
+      purpose (e01d2306b, 2023), and its own 2025 code re-added the
+      double for a monster's wand or spell of slow monster
+      (mbhitm()); all three sites print mon_adjust_speed()'s line
+      alone now, the third beyond 0.9.3. Losers: a monster sensed
+      but not seen, frozen, asleep, already slow or in speed boots
+      gets no slow line.
+      BATTERY (tester B): a slowing touch on a seen jackal PRE two
+      lines, POST one; on a frozen jackal PRE "slows down." alone,
+      POST none; mbhitm() on a kitten PRE both lines and "slows
+      down." again once slow, POST one line then nothing, the wand
+      known on both.
 - [x] LOW: small master behaviors unported (minted 2026-11-09, session
       315 census): #jump fails when stunned or confused (78d9fc27b); a
       phasing hero is not hurtled (624e7d268); a container dropped on
@@ -37251,6 +37338,81 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       stack; with autoquiver on a wished stack that fits the wielded
       launcher is quivered on arrival; gdb's `list` on a PRE binary
       shows the working tree's source - use `info line`.
+- [x] LOW: the timed-out expel prints a bare "You get expelled!"
+      (minted and closed 2026-11-19, session 347, read beside the
+      AD_WRAP engulfers row; master 5f5567f6e, 2020). 0.9.3 names
+      what the hero is expelled from and how; the tails were ported
+      but gulpmu()'s timer arm kept 5.0's short line, so the usual
+      way out of a vortex never printed them.
+      CLOSED 2026-11-19, session 347 (BUG-3217, commit pending).
+      RULED fold in, own commit: expel_msg() (split out of expels())
+      prints the full line in that arm, before the hero is moved.
+      BATTERY (tester A): nine engulfers timed out - PRE "You get
+      released!" or "You get expelled!", POST the full line with its
+      tail, each once; a purple worm with slow digestion identical
+      on both builds.
+- [x] LOW: a dragon that swallowed the hero is not a swallower
+      (minted and closed 2026-11-19, session 347, plan stress test
+      and reviewer; master 96c9d9294, 2021). Seven tests kept 5.0's
+      is_animal() where 0.9.3 asks is_swallower(): inside a dragon
+      the hero could engrave, web fluid did not get him spat out, a
+      thrown cockatrice corpse did not stone it, floating up said
+      "You spiral up into the red dragon.", and the surroundings
+      read "ooze" or the real floor.
+      CLOSED 2026-11-19, session 347 (BUG-3218, commit pending).
+      RULED fold in, own commit, and the thrown-corpse site after
+      the review: digests() at engrave.c (two tests), polyself.c
+      dospinweb(), dothrow.c thitmonst(), trap.c float_up(), spell.c
+      cast_protection(); dungeon.c surface() asks either. The
+      reviewer tabulated 0.9.3's 38 is_swallower() sites: no other
+      mismatch. PREMISE CORRECTED in-session: the hero's own "didn't
+      like its taste" line was never different (told at the fold
+      question; that edit was taken back out).
+      BATTERY (tester A, inside a frozen red dragon): the Jonah
+      line, "You float away from the maw.", "You get regurgitated!"
+      after web fluid, "maw" for the haze, and the dragon turned to
+      a statue by the corpse - all POST only; purple worm controls
+      identical on both builds.
+- [ ] LOW, record: session 347 residue (minted 2026-11-19, plan
+      stress test, reviewer and batteries; record unless a ruling
+      wants a change). (a) Sight gates as 0.9.3 wrote them: a blind
+      hero who senses the monster by telepathy gets none of the
+      three gated lines (a mind flayer form is telepathic, so this
+      is its usual case when blind), and a hero biting from inside
+      an engulfer gets none either. (b) 5.0's "becomes weaker!"
+      stays where 0.9.3 says "suddenly seems weaker!"; the helm
+      lines keep "head" where 0.9.3 calls mbodypart(). (c) The
+      disintegration helper, shared with 0.9.3: an armed monster's
+      weapon is the piece at risk whatever the attack, a bite or
+      kick included; the line names a whole stack with "is" though
+      one item goes; only the main-hand weapon is tested for a
+      two-weapon monster; the lines need the attacker seen, so an
+      eyeless vortex-form hero loses them. With one_roll the draw
+      is made on entry even when no piece can go (0.9.3 draws
+      before its resistance test). (d) Taste lines: 5.0's
+      `digests && Slow_digestion` stays in gulpmu() (0.9.3 also
+      covers a huge form, which polymon() now expels first) and
+      gulpum() requires a digesting form (0.9.3 also prints for a
+      non-digesting form with slow digestion). (e) Dead 5.0 code
+      kept for merges: every enfolds() arm, surface()'s "husk" /
+      "nonesuch", insight.c's `is_animal(pm) && !enfolds(pm)` and
+      its comment, float_up()'s FIXME. (f) gulpum() and gulpmm()
+      print no expel tail on either tree; ochre jelly, green slime
+      and Juiblex keep "with a squelch". (g) 0.9.3's AD_PEST gate
+      prints only for a resistant target; the branch's form stays.
+      (h) Battery observations, both builds alike: a hero expelled
+      by a fog cloud stands in its vapor and the square shows the
+      cloud, not @ (vanilla's region display); stoning an engulfer
+      from inside prints only "You float through an opening in the
+      new statue of ..."; a gelatinous cube can move a square with
+      the hero inside. (i) Staging notes: eyeless forms (lichen,
+      water elemental, antimatter vortex) leave the hero Blind; a
+      mind flayer form has telepathy and see invisible; every hit
+      on a frozen target rolls mon_maybe_unparalyze(); a fresh
+      aligned cleric holds its mace unwielded and may be an illithid
+      with no spells; a monster's breath cooldown is mbreath_attk,
+      not mspec_used; `call cast_protection(1)` prints the haze
+      line with no spell known.
 - [x] LOW: master's whip grab condition unported (minted 2026-11-11,
       session 324, census of master 8e1817da0): a whip flicked down
       reaches the floor for a hero who is `!grounded()` or water
@@ -42947,6 +43109,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-17 | Delayed-death credit and four things beside it (Phase 2 session 344, AskUserQuestion x3 with 4 questions, all as recommended where a recommendation was given; the batteries were named in the plan and launched on its approval). (1) SLICE: the delayed-death credit row (not taken: the doorway thread, the wording and parity rulings, the census leftovers). KILL CREDIT, under session 343's ruling 4 and the row's own fix shape, no new question: a victim of zombie sickness, disease or withering remembers the monster that started or last worsened it; a tame attacker gets the pet-kill livelog line and any attacker still alive on the level grows (BUG-3196). (2) FOLD-INS, multi-select, all three taken, each its own commit: A CURED MONSTER STARTS A FRESH COUNTDOWN - only a monster still ill gets worse (BUG-3197); GRIMTOOTH FOLLOWS THE COMMON RULE - only a hit that infects touches the countdown (BUG-3195); THE ILLNESS DECIDES - an armed Draugr's bite victim rises as an empty-handed one's does, offered without a recommendation (BUG-3198) (rejected: record only). (3) After the battery, the Draugr fix asked again because its option text was wrong - the risen zombie is peaceful to an un-polymorphed Draugr 2 times in 3, not "hostile, as any risen zombie": KEPT (rejected: drop it and keep "an armed hero never raises zombies" for both kinds of kill). (4) The reviewer's treasure-drop LOW: FIX IT NOW - xkilled() no longer makes the random treasure object with the victim's rise-as-a-zombie flag set (rejected: record only) (BUG-3199). Session calls, plan-approved: the 25 cure sites stay untouched (every start assigns the id); the gray fungus is credited with its passive's infection and a thrown Grimtooth credits its thrower; the id is not spent at the death, so a withering victim brought back by life saving still credits its attacker; the credit helper names nobody when it finds no tame attacker (session 343 residue (d)); no pet-handling training for a delayed kill; struct monst grows by three ids and older saves are refused. Who the Draugr rule also catches, in the plan: a hero no longer a zombie when the illness comes due (rises), a plain-strain victim since polymorphed into something zombifiable (no longer rises). Corrected by the plan's stress test before approval: the helper's name (delayed_killer is end.c's), the wither id across life saving, the zombify reset before the growth, the thrower of a thrown Grimtooth, the staging of every battery group. Reviewer: one LOW became ruling 4, one comment reworded, one left (ids carried by revival and cloning, harmless). Recorded, session 344 residue row. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-11-18 | Census leftovers: eight unported 0.9.3 rules (Phase 2 session 345, AskUserQuestion x4 with 5 questions - one a battery launch ask - all as recommended). (1) SLICE: the census leftovers row (the doorway thread, the wording and parity rulings and the residue items not taken). (2) HERO TELEPORT: 0.9.3's roll - each demon lord stops the hero's ordinary teleport 9 times in 10 and each prince 19 in 20 on any level, and 5.0's Gehennom demon court stops applying to the hero; monsters keep it (rejected: both rules - the court in Gehennom and the roll outside; leaving teleport alone). (3) FOLD-INS: wand wresting (one attempt at 1 in 7 / 6 / 5, then dust) and "ascended (in dishonor)" (rejected: record only). (4) FOLD-INS from the plan's stress test: the cursed-wand backfire zap (1 in 8) and the 1-in-30 explosion odds (rejected: record only). (5) Battery: launch all three testers. Session calls, plan-approved: a steed carrying the hero leaves the court with the hero; 5.0's cursed magic whistle hop takes the roll just before it moves the hero; vault teleporters and fixed-destination traps do not roll; the "stole" pronoun goes by the thief's sex through pronoun_gender(PRONOUN_NO_IT), not master's mhe() ("It" for an unseen thief), and after the review every pronoun in steal()'s charm lines does; master's drained-corpse tests are not ported (no reachable difference - that slice-question item was wrong); the dumplog keeps plain "ascended", as on 0.9.3. BUG-3200..3207. | maintainer (1-5); session, plan-approved (rest) |
 | 2026-11-18 | The Blacksmith's Cookbook, sling bullets and a Sokoban penalty (Phase 2 session 346, AskUserQuestion x6 with 12 questions - one a battery launch ask - eleven as recommended). (1) SLICE: the Blacksmith's Cookbook, the Icequeen riders row's item (e) (the wording and parity rulings, the doorway thread and the residue rulings not taken). (2) FOLD-INS: all four 0.9.3 sling bullet rules the Cookbook check found - stacks of 8-14, autoquiver for bullets and a giant's boulders, the 3-in-4 save from breaking, none inside rock (anything not picked would have been a row). (3) CHAPTER 12: CORRECT THE BOOK, over my recommended "charge every attempt" (0.9.3's commit message and book say every attempt, its code success only): the code stays and the sentence reads "with each gemstone it affixes", picked from three renderings (rejected also: leave both). (4) AFFIX ODDS stay 30%, the code and its comment (rejected: the commit message's 35%). (5) "Uruk-hai shield" gets its capital (rejected: 0.9.3's text). (6) SOKOBAN: fold in the boulder penalty, COUNTS AS CHEATING (rejected: Luck only; a row); then, re-asked after the reviewer showed sokoban_guilt() takes 1 from a hero who cannot throw rocks and that 0.9.3 charges the Druid wildshape drop: FLAT 2, WILDSHAPE TOO (rejected: 2 or 1; no wildshape charge). (7) COUNT-LESS WISHES keep 5.0's rule - "arrow" gives 1, "arrows" 2 (rejected: 0.9.3's natural stack). (8) DISCWORLD: EvilHack's two books do not earn "read a Discworld novel" (rejected: leave it), and Death remarks on Discworld novels only (rejected: leave as 0.9.3). (9) Battery: three testers in parallel. Session calls, plan-approved: a monster's bullets get the hero's save through 5.0's shared roll (0.9.3's never broke); master's autoquiver quirks come along; the rock test lands before the stack rule and the book last. Premise corrections made in-session: the Sokoban amount (re-asked, above), and that the achievement line reaches #chronicle and the dumplog, not the livelog file under the shipped LIVELOG mask (stated; the ruling's effect is unchanged). BUG-3208..3214. | maintainer (1-9); session, plan-approved (rest) |
+| 2026-11-19 | Wording and parity rows: the slow line, the suffocating engulfers, the disintegration draw, the sight gates (Phase 2 session 347, AskUserQuestion x6 with 10 questions - one with the battery launch - all as recommended but one, which went beyond the recommendation). (1) SLICE: the four wording and parity rows (the doorway thread, the EvilHack-only object census and the parked residue rulings not taken). (2) SLOW LINE: ONE LINE EVERYWHERE - "slows down." goes at the hero's hit, a monster's hit and a monster's wand or spell of slow monster, the last beyond 0.9.3, whose own 2025 code re-added the double there (rejected: 0.9.3 exactly; the second line only where the first cannot print; keep both). (3) ENGULF WORDING: ORDINARY LINES, FITTED TAILS, over my recommended plain ordinary lines - the four AD_WRAP engulfers speak as any non-digesting engulfer and the expel tail is fitted (rejected: keep 5.0's trapper lines). (4) TAILS: "in a rush of water" for the water elemental and sea dragon, "in a tangle of vines" for the creeping mound, the gelatinous cube keeps "with a squelch" (rejected: brine and rot; torrent and leaves). (5) SIBLINGS: the fire elemental "in a blast of fire" and the earth elemental "in a shower of debris", both beyond 0.9.3 (rejected: neither). (6) TIMED-OUT EXPEL: fold in 0.9.3's full line, own commit (rejected: a row; keep 5.0's short line). (7) HAZE WORD: fitted - water, vegetation, ooze (rejected: "ooze" for all four). (8) DRAGON'S MAW: fold in, own commit (rejected: a row). (9) REVIEW FOLD: the thrown cockatrice corpse inside a dragon, and launch the battery (rejected: fold and hold the battery; a row). Session calls, plan-approved: "fire" and "debris" as haze words for the two sibling elementals; one draw for a black dragon's hide or an antimatter vortex and a draw per piece for worn scales, as 0.9.3; the three sight gates in 0.9.3's own form; 5.0's "becomes weaker!" and "head" kept; enfolds() narrowed rather than removed. Premise corrections made in-session: the hero's "didn't like its taste" line was never different (told at question 9, the edit taken back out); a kick never reaches the disintegration helper against a hero in dragon form, so the draw matters between monsters and for a vortex-form hero; the row's "husk" site was unreachable. BUG-3215..3220. | maintainer (1-9); session, plan-approved (rest) |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
