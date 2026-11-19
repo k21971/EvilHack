@@ -6244,13 +6244,9 @@ mhitm_ad_slow(
     /* a blow slows one time in three, whoever lands it */
     if (magr == &gy.youmonst) {
         /* uhitm */
-        if (!negated && !warded && mdef->mspeed != MSLOW && !rn2(3)) {
-            unsigned int oldspeed = mdef->mspeed;
-
+        /* mon_adjust_speed() says so when the slowing can be seen */
+        if (!negated && !warded && mdef->mspeed != MSLOW && !rn2(3))
             mon_adjust_speed(mdef, -1, (struct obj *) 0);
-            if (mdef->mspeed != oldspeed && canseemon(mdef))
-                pline("%s slows down.", Monnam(mdef));
-        }
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
@@ -6262,12 +6258,8 @@ mhitm_ad_slow(
         /* mhitm; a gaze always slows */
         if (!negated && !warded && mdef->mspeed != MSLOW
             && (mattk->aatyp == AT_GAZE || !rn2(3))) {
-            unsigned int oldspeed = mdef->mspeed;
-
             mon_adjust_speed(mdef, -1, (struct obj *) 0);
             mdef->mstrategy &= ~STRAT_WAITFORU;
-            if (mdef->mspeed != oldspeed && gv.vis && canspotmon(mdef))
-                pline_mon(mdef, "%s slows down.", Monnam(mdef));
         }
     }
 }

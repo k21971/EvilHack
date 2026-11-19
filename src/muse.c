@@ -2810,12 +2810,10 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
             if (!Slow)
                 u_slow_down();
         } else {
-            /* monster target - slow them */
-            if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
+            /* monster target - slow them; mon_adjust_speed() says so
+               when the slowing can be seen */
+            if (!resist(mtmp, otmp->oclass, 0, NOTELL))
                 mon_adjust_speed(mtmp, -1, otmp);
-                if (canseemon(mtmp))
-                    pline_mon(mtmp, "%s slows down.", Monnam(mtmp));
-            }
         }
         if (otmp->otyp == WAN_SLOW_MONSTER && gz.zap_oseen)
             makeknown(WAN_SLOW_MONSTER);
