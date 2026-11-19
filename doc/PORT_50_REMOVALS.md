@@ -344,7 +344,7 @@ tracker; sNNN = port session.
 - [x] Vanilla's two web-makers (cave and giant spider) -> every
   spider, drider and Lolth at home in webs; 5.0's wandering web-spin
   for the five true spiders when wild, never a pet, a drider or Lolth
-  (ruled s348 twice, BUG-3230, commit pending; master fdea9fa18,
+  (ruled s348 twice, BUG-3230, 36aa55afe; master fdea9fa18,
   d390d4d62). A tame cave or giant spider no longer spins.
 
 ### 2.3 Combat and magic rules -> master's
@@ -582,18 +582,18 @@ tracker; sNNN = port session.
   BUG-3201, 80b8c1c01; master 828b155d5).
 - [x] 5.0's 1-in-10 stoning roll after a cockatrice's hiss -> 0.9.3's
   1 in 6; 5.0's new moon stays, a carried lizard corpse changes
-  nothing (ruled s348, BUG-3222, commit pending; master 8c76416ca).
+  nothing (ruled s348, BUG-3222, d6d3a173e; master 8c76416ca).
 - [x] 5.0's exemption of a monster that does not eat from Famine's
   touch (no damage) -> 0.9.3's arm: every target is hurt, a pet goes
   hungry, the rest take rnd(10) more (plan-approved s348, BUG-3225,
-  commit pending).
+  cdafc61e1).
 - [x] Cleaver always sweeping three squares -> held back when a
   peaceful or pet the hero can see is on a flank, unless cursed or
-  force-fighting (ruled s348, BUG-3226, commit pending; master
+  force-fighting (ruled s348, BUG-3226, 81279930e; master
   20b6cd504).
 - [x] Vanilla's altar-conversion minion roll (rnl(level) > 6 and
   rnd(record) > 3/4 of ALIGNLIM) -> SporkHack's, as 0.9.3 (ruled s348,
-  BUG-3233, commit pending; master 69aa782d9).
+  BUG-3233, 166c92cc6; master 69aa782d9).
 
 ### 2.4 Text and logs
 
@@ -736,7 +736,7 @@ tracker; sNNN = port session.
 - [x] A giant spider on every web -> a jumping, cave, large or giant
   spider, 1 in 4 each, level-file webs included; this replaces the
   2026-08-08 note that 0.9.3 adds none there (ruled s348, BUG-3231,
-  commit pending; master 47640bd3b).
+  c7055c897; master 47640bd3b).
 
 ## 3. Reversed (5.0 kept after a removal was ruled or proposed)
 

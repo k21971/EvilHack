@@ -37443,7 +37443,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       of an uncancelled Medusa; the branch had only the cockatrice arm
       inside hitmu(), one hiss in three and one of those in ten. The
       rest of the Medusa revamp was read hunk by hunk and is ported.
-      CLOSED 2026-11-19, session 348 (BUG-3221, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3221, 2eb337c01). RULED
       restore. mhitu.c mattacku() calls do_stone_u() after hitmu() for
       her AT_BITE; no early return, the bite is her last attack.
       BATTERY (tester A): POST 10 of 10 landed bites started the
@@ -37453,7 +37453,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a cockatrice's hiss stones 1 time in 10, 0.9.3 1 in 6
       (minted and closed 2026-11-19, session 348, the site census;
       master 8c76416ca; not in the 2026-08-26 numeric sweep's table).
-      CLOSED 2026-11-19, session 348 (BUG-3222, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3222, d6d3a173e). RULED
       "1 in 6, no lizard help": 0.9.3's odds with 5.0's new moon
       (rejected: 0.9.3's lizard exemption; leave 1 in 10). uhitm.c
       mhitm_ad_ston().
@@ -37464,7 +37464,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       53a2ca331). 0.9.3 leaves the corpse, and so the scales roll,
       when the hero kills the dragon that swallowed him; the branch's
       xkilled() left nothing for any engulfer.
-      CLOSED 2026-11-19, session 348 (BUG-3223, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3223, 1e7051fc1). RULED
       restore. mon.c xkilled(): master's second arm.
       BATTERY (tester A): red dragon killed from inside three times -
       POST a corpse each time and scales once, hero out and unstuck;
@@ -37475,7 +37475,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       doppelganger or sandestin killed in a borrowed shape back to
       its own at full hit points, cancelled; the branch did that for
       vampires only.
-      CLOSED 2026-11-19, session 348 (BUG-3224, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3224, b7e972b20). RULED
       restore; and, after the review, RULED "reverts, no statue" for
       petrification, beyond 0.9.3, whose monstone() built the statue
       and then let mondead() raise the monster on top of it (stone to
@@ -37510,7 +37510,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: Famine does nothing special to a monster (minted and
       closed 2026-11-19, session 348, the site census; master's
       mdamagem() AD_FAMN arm, from 5a95ce355).
-      CLOSED 2026-11-19, session 348 (BUG-3225, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3225, cdafc61e1). RULED
       restore; plan-approved: 5.0's exemption for a monster that does
       not eat goes. uhitm.c mhitm_ad_famn().
       BATTERY (tester A, Famine's dice set to 1d1): a pet - PRE
@@ -37522,7 +37522,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       closed 2026-11-19, session 348, the hand pass; master 20b6cd504;
       the "should_cleave() conjunct" deferral of the artifact slice
       never had a row).
-      CLOSED 2026-11-19, session 348 (BUG-3226, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3226, 81279930e). RULED
       restore, and RULED pets count as bystanders, as 0.9.3. uhitm.c
       should_cleave(), hitum().
       BATTERY (tester A): a peaceful dwarf on the flank - PRE hit
@@ -37532,7 +37532,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: stoneskin does not stop a monster turning to stone
       (minted and closed 2026-11-19, session 348, the site census;
       master c5df38caa's resists_ston()).
-      CLOSED 2026-11-19, session 348 (BUG-3227, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3227, 115886597). RULED
       restore; and, after the review, RULED that a monster whose
       stoneskin ends touches what it wields, beyond 0.9.3. mondata.c
       Resists_Elem(); mon.c m_calcdistress() and zap.c cancel_monst()
@@ -37549,7 +37549,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       wolf to every vampire but the baron; the Phase 1 rename kept
       5.0's leader-only test, and valid_vampshiftform() named the
       player race where the baron was meant.
-      CLOSED 2026-11-19, session 348 (BUG-3228, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3228, f783acca2). RULED
       restore; plan-approved: the tier is read from youmonst.cham
       when the hero is shifted. polyself.c polyself(); mon.c
       valid_vampshiftform().
@@ -37559,7 +37559,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       baron naming "wolf" - PRE cham stays 331, POST -1.
 - [x] LOW: the hero can swap places with Charon (minted and closed
       2026-11-19, session 348, the site census).
-      CLOSED 2026-11-19, session 348 (BUG-3229, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3229, bf9de6a0e). RULED
       restore. monst.h mundisplaceable().
       BATTERY (tester B, 30 walks into him): PRE 5 swaps; POST none,
       "You stop.  Charon doesn't want to swap places." 6 times, the
@@ -37567,7 +37567,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: only cave and giant spiders are at home in webs (minted
       and closed 2026-11-19, session 348, the site census; master
       fdea9fa18, d390d4d62).
-      CLOSED 2026-11-19, session 348 (BUG-3230, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3230, 36aa55afe). RULED
       "all at home", with 5.0's wandering web-spin for every spider
       but driders and Lolth (free text), then "wild spiders only"
       after the stress test showed that pets spin and every Drow
@@ -37586,7 +37586,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       web", cave and jumping spiders "hide or to spin a web".
 - [x] LOW: every web comes with a giant spider (minted and closed
       2026-11-19, session 348, the site census; master 47640bd3b).
-      CLOSED 2026-11-19, session 348 (BUG-3231, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3231, c7055c897). RULED
       restore. mklev.c mktrap(), which serves level-file webs too.
       The 2026-08-08 ruling that kept the spiders on des.trap("web")
       rested on a note that 0.9.3 adds none there; 0.9.3's
@@ -37597,7 +37597,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       none trapped in its own web.
 - [x] LOW: Kas and the Abominable Snowman stay in bones (minted and
       closed 2026-11-19, session 348, the site census).
-      CLOSED 2026-11-19, session 348 (BUG-3232, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3232, f8573a652). RULED
       restore. bones.c remove_mon_from_bones().
       BATTERY (tester B, a bones death on Dlvl 7): PRE none of the 40
       monsters removed; POST mongone() for Kas, a bat-shaped Kas and
@@ -37605,7 +37605,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: converting an altar rarely draws a minion (minted and
       closed 2026-11-19, session 348, seen beside a census site;
       master 69aa782d9, SporkHack's odds).
-      CLOSED 2026-11-19, session 348 (BUG-3233, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3233, 166c92cc6). RULED
       restore. pray.c offer_different_alignment_altar(): alignment
       above 0 and rnd(record) > 3 * ALIGNLIM / (in a temple room ? 12
       : experience level). The failure arm keeps vanilla's roll, as
@@ -37619,7 +37619,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       adjalign(-20) acts on the role's starting record, 10 for
       Barbarian, Knight, Monk and Rogue; the branch's direct
       assignment (the Phase 1 judgment call) was a flat -20.
-      CLOSED 2026-11-19, session 348 (BUG-3234, commit pending). RULED
+      CLOSED 2026-11-19, session 348 (BUG-3234, 7b70d4b2e). RULED
       restore. u_init.c u_init_race(): initrecord - 20.
       BATTERY (tester B, 24 new games): Draugr and Vampire Barbarian,
       Knight, Monk, Rogue - PRE -20, POST -10; a Vampire Wizard -20
