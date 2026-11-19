@@ -1594,6 +1594,9 @@ polymon(int mntmp)
         static const char monsterc[] = "monster";
         struct permonst *uptr = gy.youmonst.data;
         boolean might_hide = (is_hider(uptr) || hides_under(uptr));
+        /* #monster spits before it would spin, so a web-maker that
+           spits, the drider, is not told about webs */
+        boolean can_spin = (webmaker(uptr) && !attacktype(uptr, AT_SPIT));
 
         if (can_breathe(uptr))
             pline(use_thec, monsterc, "use your breath weapon");
@@ -1603,11 +1606,11 @@ polymon(int mntmp)
             pline(use_thec, monsterc, "remove an iron ball");
         if (attacktype(uptr, AT_GAZE))
             pline(use_thec, monsterc, "gaze at monsters");
-        if (might_hide && webmaker(uptr))
+        if (might_hide && can_spin)
             pline(use_thec, monsterc, "hide or to spin a web");
         else if (might_hide)
             pline(use_thec, monsterc, "hide");
-        else if (webmaker(uptr))
+        else if (can_spin)
             pline(use_thec, monsterc, "spin a web");
         if (is_were(uptr))
             pline(use_thec, monsterc, "summon help");

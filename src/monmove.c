@@ -2100,15 +2100,22 @@ soko_allow_web(struct monst *mon)
     return FALSE;
 }
 
-/* monster might spin a web */
+/* monster might spin a web; wild spiders do as they wander, a pet does
+   not, and neither do driders or Lolth */
 staticfn void
 maybe_spin_web(struct monst *mtmp)
 {
-    if (webmaker(mtmp->data)
+    struct permonst *ptr = mtmp->data;
+
+    if (webmaker(ptr) && !mtmp->mtame
+        && ptr != &mons[PM_DRIDER] && ptr != &mons[PM_LOLTH]
         && !helpless(mtmp) && !mtmp->mspec_used
         && !t_at(mtmp->mx, mtmp->my) && soko_allow_web(mtmp)) {
         struct trap *trap;
-        int prob = ((((mtmp->data == &mons[PM_GIANT_SPIDER]) ? 15 : 5)
+        /* the two biggest spiders spin the most */
+        boolean bigspider = (ptr == &mons[PM_GIANT_SPIDER]
+                             || ptr == &mons[PM_GARGANTUAN_SPIDER]);
+        int prob = (((bigspider ? 15 : 5)
                      * (count_webbing_walls(mtmp->mx, mtmp->my) + 1))
                     - (3 * count_traps(WEB)));
 
