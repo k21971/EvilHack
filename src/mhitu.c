@@ -661,6 +661,15 @@ expels(
                         Strcpy(blast, " with a woosh");
                         break;
                     }
+                } else if (mdat == &mons[PM_WATER_ELEMENTAL]
+                           || mdat == &mons[PM_SEA_DRAGON]) {
+                    Strcpy(blast, " in a rush of water");
+                } else if (mdat == &mons[PM_CREEPING_MOUND]) {
+                    Strcpy(blast, " in a tangle of vines");
+                } else if (mdat == &mons[PM_FIRE_ELEMENTAL]) {
+                    Strcpy(blast, " in a blast of fire");
+                } else if (mdat == &mons[PM_EARTH_ELEMENTAL]) {
+                    Strcpy(blast, " in a shower of debris");
                 } else {
                     Strcpy(blast, " with a squelch");
                 }

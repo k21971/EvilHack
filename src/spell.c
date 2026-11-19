@@ -58,6 +58,7 @@ staticfn int percent_success(int);
 staticfn char *spellretention(int, char *);
 staticfn int throwspell(void);
 staticfn void cast_chain_lightning(void);
+staticfn const char *engulfer_haze(struct permonst *);
 staticfn void spell_backfire(int);
 staticfn boolean spelleffects_check(int, int *, int *);
 staticfn boolean can_center_spell_location(coordxy, coordxy);
@@ -1232,6 +1233,22 @@ cast_chain_lightning(void)
     tmp_at(DISP_END, 0);
 }
 
+/* what surrounds a hero inside an engulfer that is neither a vortex nor
+   a swallower, for the protection spell's haze */
+staticfn const char *
+engulfer_haze(struct permonst *pm)
+{
+    if (pm == &mons[PM_WATER_ELEMENTAL] || pm == &mons[PM_SEA_DRAGON])
+        return hliquid("water");
+    if (pm == &mons[PM_CREEPING_MOUND])
+        return "vegetation";
+    if (pm == &mons[PM_FIRE_ELEMENTAL])
+        return "fire";
+    if (pm == &mons[PM_EARTH_ELEMENTAL])
+        return "debris";
+    return "ooze";
+}
+
 void
 cast_protection(int skill)
 {
@@ -1287,7 +1304,7 @@ cast_protection(int skill)
                                    : is_whirly(pm) ? "maelstrom"
                                      : enfolds(pm) ? "folds"
                                        : is_animal(pm) ? "maw"
-                                         : "ooze")
+                                         : engulfer_haze(pm))
                                 : (u.uinwater ? hliquid("water")
                                    : (rmtyp == CLOUD) ? "cloud"
                                      : IS_TREES(rmtyp) ? "vegetation"

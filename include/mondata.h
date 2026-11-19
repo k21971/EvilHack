@@ -192,8 +192,12 @@
 #define hug_throttles(ptr) ((ptr) == &mons[PM_ROPE_GOLEM])
 #define digests(ptr) \
     (dmgtype_fromattack((ptr), AD_DGST, AT_ENGL) != 0) /* purple w*/
+/* 5.0's enfolding trappers; EvilHack's trappers digest, so nothing
+   matches for now, and its own AD_WRAP engulfers (water elemental, sea
+   dragon, gelatinous cube, creeping mound) speak as ordinary engulfers */
 #define enfolds(ptr) \
-    (dmgtype_fromattack((ptr), AD_WRAP, AT_ENGL) != 0) /* 't' */
+    ((ptr)->mlet == S_TRAPPER                                           \
+     && dmgtype_fromattack((ptr), AD_WRAP, AT_ENGL) != 0) /* 't' */
 #define slimeproof(ptr) \
     ((ptr) == &mons[PM_GREEN_SLIME] || flaming(ptr) || noncorporeal(ptr))
 #define lays_eggs(ptr) (((ptr)->mflags1 & M1_OVIPAROUS) != 0L)
