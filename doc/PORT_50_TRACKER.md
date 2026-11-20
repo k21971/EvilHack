@@ -37713,7 +37713,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       03e87e1bd, a015700da). 0.9.3 has an iron, glass, wood, leather
       or paper golem leave random objects forced to its material, with
       a stock item for anything that cannot be made of it.
-      CLOSED 2026-11-20, session 349 (BUG-3235, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3235, aa37c7bd1). RULED
       restore; 5.0's rope golem remains stay (rejected: none, as
       0.9.3). mon.c make_corpse(): master's five arms; the paper arm
       can never keep a random roll and is ported for shape.
@@ -37729,7 +37729,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       zombie arms read the same bit, so a cancelled pet, shopkeeper or
       unique a zombie killed never rose. 0.9.3 marks trolls and zombie
       species only.
-      CLOSED 2026-11-20, session 349 (BUG-3236, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3236, 32d244d08). RULED
       "0.9.3: victims rise" (rejected: cancelled stays down). mkobj.c
       mkcorpstat(): the mark needs a troll, a zombie species or a
       zombie race, read from the dead monster. Beyond 0.9.3: a
@@ -37747,7 +37747,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       cc3c61cf4). KEEPTRAITS() lacked `has_erac(mon)`, so the branch's
       own race readers saw nothing for an ordinary racial monster's
       corpse.
-      CLOSED 2026-11-20, session 349 (BUG-3237, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3237, 1dbe45d70). RULED
       restore. mon.c KEEPTRAITS(). Live with it, as 0.9.3:
       cannibalism, the race's intrinsic, offering and tinning by race;
       named and weighed by race; such corpses never merge; undead
@@ -37764,7 +37764,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: no mistletoe from trees, and eating it does nothing (minted
       and closed 2026-11-20, session 349, object rules item (c);
       master 1383daa7c, 8f0283929).
-      CLOSED 2026-11-20, session 349 (BUG-3238, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3238, f4ccf90d0). RULED
       restore. mkobj.c treefruits[] (dig.c's two callers get it too),
       dokick.c kick_nondoor() one at a time, eat.c fpostfx() cures
       hallucination unless cursed.
@@ -37775,7 +37775,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: only the apple is a herbivore's treat (minted and closed
       2026-11-20, session 349, object rules item (d); master
       49c218480, 1383daa7c).
-      CLOSED 2026-11-20, session 349 (BUG-3239, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3239, 740c4fb52). RULED
       restore. dog.c dogfood(): orange, pear, melon, mistletoe, kelp
       frond and slime mold share the apple's case. Premise correction:
       a thrown orange already tamed a hostile pony before (tamedog()
@@ -37785,7 +37785,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: engraving identifies only digging, fire and lightning
       (minted and closed 2026-11-20, session 349, object rules item
       (e); master 054b52671, c7599559a).
-      CLOSED 2026-11-20, session 349 (BUG-3240, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3240, 30855b88a). RULED
       restore. engrave.c: a second flag learns striking, slow monster,
       speed monster, magic missile and cold when their line prints
       (striking even blind) and polymorph at once when it changes an
@@ -37800,7 +37800,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a wished barding loses its enchantment (minted and closed
       2026-11-20, session 349, object rules item (f); master
       3b3da8b1f).
-      CLOSED 2026-11-20, session 349 (BUG-3241, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3241, 6f5af8c0f). RULED
       restore. objnam.c readobjnam(): is_barding() in the armor arm.
       BATTERY (tester B, the wizard flag cleared for the wish): twenty
       "+3 barding" - PRE none at +3 (sixteen +0), POST ten +3 and ten
@@ -37810,7 +37810,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       regression from BUG-2428's ARMOR_CLASS gate, which also made
       3b3da8b1f's +1 for mithril, steel, adamantine and dragonhide
       barding unreachable).
-      CLOSED 2026-11-20, session 349 (BUG-3242, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3242, 28ae9f4b0). RULED
       fix; this amends the 2026-10-20 "ARMOR_CLASS only" ruling for
       barding (rings and amulets still get none). worn.c
       armor_bonus().
@@ -37819,7 +37819,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a dark elven dagger is no tin opener (minted and closed
       2026-11-20, session 349, object rules item (g); master
       6974ca914).
-      CLOSED 2026-11-20, session 349 (BUG-3243, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3243, ce4dad315). RULED
       restore. eat.c start_tin().
       BATTERY (tester B): PRE "It is not so easy to open this tin."
       and 28 turns, POST "Using your etched dagger you try to open the
@@ -37828,7 +37828,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       closed 2026-11-20, session 349, object rules item (h); master
       3fb1328a9; the forging row's "Dirge / Priest / Caveman"
       deferral, never discharged for this line).
-      CLOSED 2026-11-20, session 349 (BUG-3244, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3244, 4739908fa). RULED
       restore. artifact.c hack_artifacts(); Keolewa's line is not
       re-added (the gift loop covers it, as for Demonbane).
       BATTERY (tester B): a lawful Caveperson's Giantslayer - PRE
@@ -37839,7 +37839,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       / 9168f7856, 10dc01e57, 3edf7ad73). Five lost retouch_object()
       calls: gloves off, autodig, the force-fight dig, the `>` dig, a
       caught boomerang.
-      CLOSED 2026-11-20, session 349 (BUG-3245, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3245, aa7b25fba). RULED
       restore. do_wear.c Gloves_off() / bare_hand_touch(), hack.c
       test_move() and domove_fight_empty(), do.c dodown(), zap.c
       boomhit(). Session calls, plan-approved: skipped while
@@ -37855,7 +37855,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: taking gloves off ignores the off-hand weapon (minted and
       closed 2026-11-20, session 349; 0.9.3 the same, master
       frozen-unfixed).
-      CLOSED 2026-11-20, session 349 (BUG-3246, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3246, c866a7dcd). RULED
       both hands, beyond 0.9.3 (rejected: record only). do_wear.c
       Gloves_off(); uhitm.c hitum() skips the second swing when the
       off hand let go between the blows (reviewer).
@@ -37865,7 +37865,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a cursed wand of light lights the room (minted and closed
       2026-11-20, session 349, object rules item (j); master
       9094ce27a, 6e843d712, d00ab0c54).
-      CLOSED 2026-11-20, session 349 (BUG-3247, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3247, 78e6deab5). RULED
       restore, and "cursed means cursed" beyond 0.9.3: the test is the
       wand's own curse, where 0.9.3's cursed() helper let a wielded
       cursed wand and an Infidel's light up (master frozen-unfixed).
@@ -37881,7 +37881,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       2026-11-20, session 349, object rules item (k); master
       7e68ba7f2, 052cf57fe; vanilla 5.0 too - upstream row
       2026-11-20).
-      CLOSED 2026-11-20, session 349 (BUG-3248, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3248, 6617256ad). RULED
       restore. light.c snuff_light_source() snuffs every burning
       object on the square; steal.c mpickobj() ends the burn of the
       object the engulfer took in. The commit's litroom() hunk was
@@ -37895,7 +37895,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       test; 0.9.3 the same, master frozen-unfixed). The aura covers a
       radius-5 circle whose rim squares are farther than the distance
       the hero test allowed.
-      CLOSED 2026-11-20, session 349 (BUG-3249, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3249, c50475b95). RULED
       fix, beyond 0.9.3 (rejected: record only). read.c
       u_in_litroom_area() tests the circle; monmove.c's aura of light
       uses it for a light-hating hero's hurt (reviewer, the same
@@ -37907,7 +37907,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: bone piles make the level 4 skeleton (minted and closed
       2026-11-20, session 349, object rules item (l); master
       2f365eaab).
-      CLOSED 2026-11-20, session 349 (BUG-3250, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3250, 92ec27232). RULED
       restore. zap.c create_polymon().
       BATTERY (tester A): three piles each - PRE a skeleton (a
       shrieker with skeletons genocided), POST a skeleton warrior.
@@ -37915,7 +37915,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       2026-11-20, session 349, found beside item (l); 5.0 f0698e1dc,
       and on the branch its line named the weak skeleton; 0.9.3 has no
       such arm).
-      CLOSED 2026-11-20, session 349 (BUG-3251, commit pending). RULED
+      CLOSED 2026-11-20, session 349 (BUG-3251, c8c947cb4). RULED
       "0.9.3: demons" (rejected: a skeleton warrior; leave the weak
       skeleton). minion.c msummon().
       BATTERY (tester A): forty summons each - PRE forty skeletons;
@@ -37928,7 +37928,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the walk went on from an item no longer in the pack, and it
       could rust away gauntlets a thief was still taking
       ("extract_nobj: object lost").
-      CLOSED 2026-11-20, session 349 (BUG-3252, commit pending).
+      CLOSED 2026-11-20, session 349 (BUG-3252, 37556df1c).
       Review fix, no ruling. trap.c water_damage_chain(): for the
       hero's pack an in_use item is skipped and the walk stops when
       the next item is gone, as lava_effects() does.
@@ -43067,7 +43067,7 @@ see its row), cut against 74ebd09ed.
 | 2026-11-16 | bones.c resetobjs() sanitizes ONAME() of the objects in loaded bones and getbones() the names of its monsters, but not the given name inside the monster stored with a corpse or statue (OMONST): a named pet's corpse brings the previous player's text through unsanitized, and it is printed when the corpse is revived or the statue animated. Same code in fd4d169b6. Fix on the branch: `if (has_omonst(otmp) && has_mgivenname(OMONST(otmp))) sanitize_name(MGIVENNAME(OMONST(otmp)));` in the restore arm; BUG-3182, branch commit ae0dc8397 | fixed on the branch; not sent; triage pending |
 | 2026-11-18 | steal.c steal() calls every thief that charms a worn armor piece off the hero "She" ("She charms you", "let her take", "She stole ..."). With SEDUCE=0 in sysconf mhitm_ad_ssex() sends an incubus to mhitm_ad_sedu() and so to steal(), and a male demon gets the nymph's pronouns. Same code in fd4d169b6 and in 3.6. Fix on the branch: the pronouns come from pronoun_gender(mtmp, PRONOUN_NO_IT); BUG-3203, branch f58f8b1eb | fixed on the branch; not sent; triage pending |
 | 2026-11-19 | Paying an angry shopkeeper who is away from his shop while a bill or debit is still open reaches `impossible("dopay: not to shopkeeper?")` and the pay command does nothing: dopay()'s "after blood" arm handles only `robbed`, and the bill is folded into it only by make_angry_shk() and rob_shop(), not when the shopkeeper is angered by an attack or the hero leaves while he is already outside. Same code in fd4d169b6 (src/shk.c). 0.9.3 fixed it as its BUG-1310 (d63c0dbaa): fold the open bill into `robbed` at that point. Found again by the session 348 site census; not yet fixed on the branch (text-and-small row, item g) | on neither tree's 5.0 code; not fixed on the branch yet; not sent |
-| 2026-11-20 | Darkness snuffs only one light per square, and an engulfer snuffs the wrong one. light.c snuff_light_source() returns after the first burning object light it finds at (x,y) ("Return assuming that there is only one light source attached to each object" - but several objects can share a square), so a cursed scroll of light leaves the other lamps of a floor pile burning. steal.c mpickobj() calls it for the square of an engulfer that has just taken in a lit object; with the hero inside, that square is the hero's own, and the first source in the list can be the lamp the hero is holding, which goes out with no message while the thrown lamp burns on inside the engulfer and is dropped lit when it dies. Same code in fd4d169b6 (src/light.c, src/steal.c). 0.9.3 fixed both (7e68ba7f2, 052cf57fe): save the next pointer and keep walking; `if (snuff_otmp && !freed_otmp) end_burn(otmp, TRUE);`. BUG-3248, branch commit pending | fixed on the branch; not sent; triage pending |
+| 2026-11-20 | Darkness snuffs only one light per square, and an engulfer snuffs the wrong one. light.c snuff_light_source() returns after the first burning object light it finds at (x,y) ("Return assuming that there is only one light source attached to each object" - but several objects can share a square), so a cursed scroll of light leaves the other lamps of a floor pile burning. steal.c mpickobj() calls it for the square of an engulfer that has just taken in a lit object; with the hero inside, that square is the hero's own, and the first source in the list can be the lamp the hero is holding, which goes out with no message while the thrown lamp burns on inside the engulfer and is dropped lit when it dies. Same code in fd4d169b6 (src/light.c, src/steal.c). 0.9.3 fixed both (7e68ba7f2, 052cf57fe): save the next pointer and keep walking; `if (snuff_otmp && !freed_otmp) end_burn(otmp, TRUE);`. BUG-3248, branch 6617256ad | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 

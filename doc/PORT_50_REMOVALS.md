@@ -349,7 +349,7 @@ tracker; sNNN = port session.
 - [x] 5.0's bone devil summon (always one skeleton, upstream
   f0698e1dc; on the branch the weak level 4 one) -> none, as 0.9.3: a
   bone devil gates in demons like any lesser devil (ruled s349,
-  BUG-3251, commit pending).
+  BUG-3251, c8c947cb4).
 
 ### 2.3 Combat and magic rules -> master's
 
@@ -602,15 +602,15 @@ tracker; sNNN = port session.
   quarterstaff, small shield, club, elven spear or boomerang; armor,
   cloak or saddle; blank scrolls) -> 0.9.3's random objects forced to
   the golem's material, with stock items as the fallback; the rope
-  golem's remains stay (ruled s349, BUG-3235, commit pending; master
+  golem's remains stay (ruled s349, BUG-3235, aa37c7bd1; master
   03e87e1bd, a015700da).
 - [x] 5.0's "no revive" mark on the corpse of every cancelled monster
   that keeps its traits -> trolls, zombies and zombie-race monsters
   only, so a cancelled monster a zombie kills still rises (ruled
-  s349, BUG-3236, commit pending).
+  s349, BUG-3236, 32d244d08).
 - [x] A cursed wand of light lighting the room like any other ->
   darkness for every cursed wand, zapped, engraved with or broken
-  (ruled s349, BUG-3247, commit pending; master 9094ce27a).
+  (ruled s349, BUG-3247, 78e6deab5; master 9094ce27a).
 
 ### 2.4 Text and logs
 
