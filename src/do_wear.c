@@ -28,6 +28,7 @@ staticfn int Armor_on(void);
 staticfn int Cloak_on(void);
 staticfn int Helmet_on(void);
 staticfn int Gloves_on(void);
+staticfn void bare_hand_touch(struct obj **, long, struct obj *);
 staticfn int Shield_on(void);
 staticfn int Shirt_on(void);
 staticfn void toggle_armor_light(struct obj *, boolean);
@@ -1037,6 +1038,22 @@ wielding_corpse(
     }
 }
 
+/* the gloves just came off: bare skin meets what that hand holds; the
+   sear can end a polymorph and drop the hero into lava or water while
+   callers still hold the gloves, so over either they are marked in_use,
+   which keeps them in the pack and out of the burn or the soak (only
+   there, since a hangup or death meanwhile uses up an in_use item) */
+staticfn void
+bare_hand_touch(struct obj **objp, long mask, struct obj *gloves)
+{
+    boolean was_in_use = gloves->in_use;
+
+    if (is_pool_or_lava(u.ux, u.uy))
+        gloves->in_use = 1;
+    (void) retouch_object(objp, will_touch_skin(mask), FALSE);
+    gloves->in_use = was_in_use;
+}
+
 int
 Gloves_off(void)
 {
@@ -1098,6 +1115,9 @@ Gloves_off(void)
     swapping = (gw.worn_swap_quiet && gloves == gw.worn_slot_exempt);
     if (uwep && uwep->otyp == CORPSE && !swapping)
         wielding_corpse(uwep, gloves, on_purpose);
+    /* you may now be touching some material you hate */
+    if (uwep && !swapping)
+        bare_hand_touch(&uwep, W_WEP, gloves);
     /* KMH -- ...or your secondary weapon when you're wielding it
        [This case can't actually happen; twoweapon mode won't engage
        if a corpse has been set up as either the primary or alternate

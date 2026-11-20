@@ -1472,7 +1472,10 @@ dodown(void)
         } else if (!trap || !is_hole(trap->ttyp)
                    || !Can_fall_thru(&u.uz) || !trap->tseen) {
             if (flags.autodig && !svc.context.nopick
-                && uwep && is_pick(uwep)) {
+                && uwep && is_pick(uwep)
+                /* a bare hand feels what the tool is made of, and may
+                   let it go */
+                && retouch_object(&uwep, !uarmg, FALSE) && uwep) {
                 return use_pick_axe2(uwep);
             } else {
                 You_cant("go down here%s.",

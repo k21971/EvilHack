@@ -5817,6 +5817,9 @@ boomhit(struct obj *obj, int dx, int dy)
             } else { /* we catch it */
                 tmp_at(DISP_END, 0);
                 You("skillfully catch the boomerang.");
+                /* a bare hand feels what it is made of; it is not in
+                   the pack yet, so this can only hurt */
+                (void) retouch_object(&obj, !uarmg, FALSE);
                 return &gy.youmonst;
             }
         }

@@ -1121,8 +1121,11 @@ test_move(
                 return FALSE;
         } else if (flags.autodig && !svc.context.run && !svc.context.nopick
                    && uwep && is_pick(uwep)) {
-            /* MRKR: Automatic digging when wielding the appropriate tool */
-            if (mode == DO_MOVE)
+            /* MRKR: Automatic digging when wielding the appropriate tool;
+               a bare hand feels what the tool is made of first, and may
+               let it go */
+            if (mode == DO_MOVE
+                && retouch_object(&uwep, !uarmg, FALSE) && uwep)
                 (void) use_pick_axe2(uwep);
             return FALSE;
         } else {
@@ -2975,7 +2978,10 @@ domove_fight_empty(coordxy x, coordxy y)
                 /* can we dig? */
                 && uwep && dig_typ(uwep, x, y)
                 /* should we dig? */
-                && !glyph_is_invisible(glyph) && !glyph_is_monster(glyph)) {
+                && !glyph_is_invisible(glyph) && !glyph_is_monster(glyph)
+                /* a bare hand feels what the tool is made of, and may
+                   let it go */
+                && retouch_object(&uwep, !uarmg, FALSE) && uwep) {
                 /* a refusal (held in a web) takes no time */
                 if (!(use_pick_axe2(uwep) & ECMD_TIME)) {
                     svc.context.move = 0;
