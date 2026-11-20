@@ -6114,9 +6114,16 @@ water_damage_chain(
     coordxy x, y;
     coord save_bhitpos;
     int i = 0, j;
+    unsigned nextoid;
+    boolean ours;
 
     if (!obj)
         return;
+
+    /* the hero's own pack needs care: a worn item that rusts away is
+       taken off, which can kill the hero or end a polymorph, and that
+       can take other items out of the pack */
+    ours = (!here && obj->where == OBJ_INVENT);
 
     if (count >= 1) {
         /* reservoir sampling: setup */
@@ -6155,10 +6162,18 @@ water_damage_chain(
         /* if acid explodes or other item destruction happens, otmp will be
            deleted; avoid reading garbage data from it */
         nobj = here ? otmp->nexthere : otmp->nobj;
+        nextoid = nobj ? nobj->o_id : 0;
         if (!do_container && Is_container(otmp))
             continue;
         if (count < 1) {
+            /* an item that is being taken off or used up is still
+               held by the code doing that; leave it alone */
+            if (ours && otmp->in_use)
+                continue;
             water_damage(otmp, (char *) 0, FALSE);
+            /* stop rather than follow an item that left the pack */
+            if (ours && nobj && o_on(nextoid, gi.invent) != nobj)
+                break;
         } else {
             /* reservoir sampling: replace elements with lowering
                probability */
@@ -6176,8 +6191,18 @@ water_damage_chain(
     }
 
     if (count >= 1) {
-        for (i = 0; i < count; i++)
+        for (i = 0; i < count; i++) {
+            if (ours) {
+                /* an earlier soak may have taken this one out of the
+                   pack; find it by address before looking at it */
+                for (otmp = gi.invent; otmp; otmp = otmp->nobj)
+                    if (otmp == to_damage[i])
+                        break;
+                if (!otmp || otmp->in_use)
+                    continue;
+            }
             water_damage(to_damage[i], (char *) 0, FALSE);
+        }
         free((genericptr_t) to_damage);
     }
 
