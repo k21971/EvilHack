@@ -308,8 +308,7 @@ restshk(struct monst *shkp, boolean ghostly)
     if (u.uz.dlevel) {
         struct eshk *eshkp = ESHK(shkp);
 
-        if (eshkp->bill_p != (struct bill_x *) -1000)
-            eshkp->bill_p = &eshkp->bill[0];
+        eshkp->bill_p = &eshkp->bill[0];
         /* shoplevel can change as dungeons move around */
         /* savebones guarantees that non-homed shk's will be gone */
         if (ghostly) {
@@ -572,9 +571,15 @@ call_kops(struct monst *shkp, boolean nearshop)
             mm.y = sy;
             makekops(&mm);
         }
-        /* Create swarm near shopkeeper (hinders return to shop) */
-        mm.x = shkp->mx;
-        mm.y = shkp->my;
+        /* Create swarm near shopkeeper (hinders return to shop); at
+           his post when he is away from his shop */
+        if (inhishop(shkp)) {
+            mm.x = shkp->mx;
+            mm.y = shkp->my;
+        } else {
+            mm.x = ESHK(shkp)->shk.x;
+            mm.y = ESHK(shkp)->shk.y;
+        }
         makekops(&mm);
     }
 }
@@ -608,8 +613,13 @@ u_left_shop(char *leavestring, boolean newlev)
         return;
 
     shkp = shop_keeper(*leavestring ? *leavestring : *u.ushops0);
-    if (!shkp || !inhishop(shkp))
-        return; /* shk died, teleported, changed levels... */
+    if (!shkp)
+        return; /* shk died or changed levels */
+    /* a shopkeeper who is outside his shop gives no warning at the
+       door, but walking out on an open bill is robbery all the same;
+       left open, the bill would outlive the visit */
+    if (!inhishop(shkp) && !*leavestring)
+        return;
 
     eshkp = ESHK(shkp);
     if (!eshkp->billct && !eshkp->debit) /* bill is settled */
@@ -806,10 +816,12 @@ u_entered_shop(char *enterstring)
     }
 
     eshkp = ESHK(shkp);
+    /* the bill is part of the shopkeeper wherever he is standing; a
+       shop entered while he is out is marked by the cleared u.ushops,
+       which after_shk_move() looks for */
+    eshkp->bill_p = &(eshkp->bill[0]);
 
     if (!inhishop(shkp)) {
-        /* dump core when referenced */
-        eshkp->bill_p = (struct bill_x *) -1000;
         if (!strchr(empty_shops, *enterstring))
             deserted_shop(enterstring);
         Strcpy(empty_shops, u.ushops);
@@ -817,8 +829,6 @@ u_entered_shop(char *enterstring)
         return;
     }
     record_achievement(ACH_SHOP);
-
-    eshkp->bill_p = &(eshkp->bill[0]);
 
     if ((!eshkp->visitct || *eshkp->customer)
         && strncmpi(eshkp->customer, svp.plname, PL_NSIZ)) {
@@ -5582,10 +5592,14 @@ after_shk_move(struct monst *shkp)
 {
     struct eshk *eshkp = ESHK(shkp);
 
-    if (eshkp->bill_p == (struct bill_x *) -1000 && inhishop(shkp)) {
-        /* reset bill_p, need to re-calc player's occupancy too */
-        eshkp->bill_p = &eshkp->bill[0];
-        /* only re-check occupancy if game hasn't just ended */
+    /* the hero came into the shop while its shopkeeper was out, which
+       u_entered_shop() marks by leaving the shop out of u.ushops; a
+       hero an engulfer carried in is greeted when it lets go */
+    if (inhishop(shkp) && !u.uswallow
+        && !strchr(u.ushops, eshkp->shoproom)
+        && strchr(in_rooms(u.ux, u.uy, SHOPBASE), eshkp->shoproom)) {
+        /* need to re-calc player's occupancy; only re-check it if the
+           game hasn't just ended */
         if (!program_state.gameover)
             check_special_room(FALSE);
     }
