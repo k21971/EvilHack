@@ -6318,7 +6318,7 @@ readobjnam(char *bp, struct obj *no_wish)
     } else if (wizard) {
         ; /* no restrictions except SPE_LIM */
     } else if (d.oclass == ARMOR_CLASS || d.oclass == WEAPON_CLASS
-               || is_weptool(d.otmp)
+               || is_weptool(d.otmp) || is_barding(d.otmp)
                || (d.oclass == RING_CLASS && objects[d.typ].oc_charged)) {
         if (d.spe > rnd(5) && d.spe > d.otmp->spe)
             d.spe = 0;
