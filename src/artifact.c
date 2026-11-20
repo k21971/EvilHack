@@ -121,6 +121,12 @@ hack_artifacts(void)
         artilist[ART_HAMMER_OF_THE_GODS].alignment = alignmnt;
     }
 
+    if (Role_if(PM_CAVE_DWELLER)) {
+        /* For crowning purposes; Keolewa, the giant's gift, is the
+           role's own artifact and was retargeted by the loop above */
+        artilist[ART_GIANTSLAYER].alignment = alignmnt;
+    }
+
     /* Fix up the quest artifact */
     if (gu.urole.questarti) {
         artilist[gu.urole.questarti].alignment = alignmnt;
