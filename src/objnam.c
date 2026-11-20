@@ -2020,27 +2020,33 @@ doname_base(
                 /* the Hammer tethers only for the hero; carried(), not
                    uwep, since ready_weapon() names it before setuwep() */
                 tethered = (obj->otyp == AKLYS
-                            || (carried(obj) && hammer_tethers(obj)));
+                            || (carried(obj) && hammer_tethers(obj))),
+                /* a monster's weapon is described by its own build */
+                mons_wep = mcarried(obj);
 
         /* use alternate phrasing for non-weapons and for wielded ammo
            (arrows, bolts), or missiles (darts, shuriken, boomerangs)
            except when those are being actively dual-wielded where the
            regular phrasing will list them as "in right hand" to
-           contrast with secondary weapon's "in left hand" */
+           contrast with secondary weapon's "in left hand"; a monster's
+           gets it only as a stack */
         if ((obj->quan != 1L
-             || ((obj->oclass == WEAPON_CLASS)
-                 ? (is_ammo(obj) || is_missile(obj))
-                 : !is_weptool(obj)))
+             || (!mons_wep
+                 && ((obj->oclass == WEAPON_CLASS)
+                     ? (is_ammo(obj) || is_missile(obj))
+                     : !is_weptool(obj))))
             && !twoweap_primary) {
             Concat(bp, 0, " (wielded)");
         } else {
-            const char *hand_s = body_part(HAND);
+            const char *hand_s = mons_wep ? mbodypart(obj->ocarry, HAND)
+                                          : body_part(HAND);
             char *obufp, handsbuf[40];
 
-            if (bimanual(obj)) { /* "hands" */
+            if (mons_wep ? mon_bimanual(obj->ocarry, obj)
+                         : bimanual(obj)) { /* "hands" */
                 hand_s = strcpy(handsbuf, obufp = makeplural(hand_s));
                 releaseobuf(obufp);
-            } else { /* "right hand" or "left hand" */
+            } else if (!mons_wep) { /* "right hand" or "left hand" */
                 Sprintf(handsbuf, "%s %s",
                         URIGHTY ? "right" : "left", hand_s);
                 hand_s = handsbuf;
