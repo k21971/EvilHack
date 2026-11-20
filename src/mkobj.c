@@ -2285,7 +2285,7 @@ weight(struct obj *obj)
 }
 
 static const int treefruits[] = {
-    APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF
+    APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF, MISTLETOE
 };
 
 /* called when a tree is kicked; never returns Null */

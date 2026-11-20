@@ -1357,8 +1357,9 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
         }
         if (rn2(15) && !(gm.maploc->looted & TREE_LOOTED)
             && (treefruit = rnd_treefruit_at(x, y))) {
-            long nfruit = 8L - rnl(7), nfall;
             short frtype = treefruit->otyp;
+            /* mistletoe comes down one sprig at a time */
+            long nfruit = (frtype == MISTLETOE) ? 1L : 8L - rnl(7), nfall;
 
             treefruit->quan = nfruit;
             treefruit->owt = weight(treefruit);
