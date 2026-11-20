@@ -803,6 +803,7 @@ pm_to_cham(int mndx)
 /* for deciding whether corpse will carry along full monster data */
 #define KEEPTRAITS(mon)                                                  \
     ((mon)->isshk || (mon)->mtame || unique_corpstat((mon)->data)        \
+     || has_erac(mon)                                                    \
      || is_reviver((mon)->data)                                          \
         /* normally quest leader will be unique, */                      \
         /* but he or she might have been polymorphed  */                 \
