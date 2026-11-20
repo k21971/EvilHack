@@ -617,6 +617,14 @@ look_at_monster(
                                      : base_ac < 6 ? "light " : "");
                 lookat_clause(buf, clause, reserve);
             }
+            if (MON_WEP(mtmp)) {
+                Snprintf(clause, sizeof clause, ", wielding %s",
+                         ansimpleoname(MON_WEP(mtmp)));
+                if (MON_WEP2(mtmp))
+                    Snprintf(eos(clause), sizeof clause - strlen(clause),
+                             " and %s", ansimpleoname(MON_WEP2(mtmp)));
+                lookat_clause(buf, clause, reserve);
+            }
         } else {
             /* hallucination dresses and arms the monster at random;
                display-only randomness stays off the core RNG and no
