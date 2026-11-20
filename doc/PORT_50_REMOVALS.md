@@ -611,6 +611,16 @@ tracker; sNNN = port session.
 - [x] A cursed wand of light lighting the room like any other ->
   darkness for every cursed wand, zapped, engraved with or broken
   (ruled s349, BUG-3247, 78e6deab5; master 9094ce27a).
+- [x] A confused scroll of light surrounding the hero with tame,
+  cancelled lights, and "Tiny lights sparkle in the air momentarily."
+  when lights are extinct -> 0.9.3's: darkness 4 times in 5, else one
+  ordinary yellow light, black if cursed, and no line when none can
+  be made (ruled s348, landed s350, BUG-3254, commit pending).
+- [x] Walking out of a shop on an open bill going unnoticed while its
+  shopkeeper stands outside the shop -> robbery wherever he stands,
+  so no bill stays open outside; vanilla's bad bill pointer for an
+  untended shop ("dump core when referenced") is gone with it (ruled
+  s350, BUG-3268, commit pending; beyond 0.9.3).
 
 ### 2.4 Text and logs
 
@@ -715,6 +725,11 @@ tracker; sNNN = port session.
   digester, so a dragon's stomach is a maw: no engraving, web fluid
   and a thrown cockatrice corpse work as inside a purple worm
   (ruled s347, BUG-3218, 77c193867; master 96c9d9294).
+- [x] 5.0's "(weapon in right hand)" / "(wielded)" for an object a
+  MONSTER wields, worded by the hero's handedness and build -> 0.9.3's
+  "(weapon in hand)" or "hands" by the monster's own, "(wielded)" for
+  a stack only; the hero's own text keeps 5.0's left / right (ruled
+  s350, BUG-3259, commit pending).
 
 ### 2.5 Levels and content
 

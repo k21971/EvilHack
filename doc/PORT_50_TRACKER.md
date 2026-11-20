@@ -17,8 +17,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-20, session 349: the twelve object
-  rules the site census found are back - golems leave random objects
+- Phase 2 status (refreshed 2026-11-20, session 350: the site
+  census's text and small ones are back - priests are named by race;
+  probing shows entangled and vulnerable monsters and a reflecting
+  hero; farlook says what a monster wields; an off-hand weapon shows
+  its glow or light and a monster's weapon is described by its own
+  hands; the lookup says zombies revive; cave and grizzly bears act
+  like bears in traps and three huge monsters tear through webs; a
+  sensed caster's zap is announced; eating a lustrous ring says so;
+  the two new shields start unseen; never-rusting items stack while
+  blind; a monster Druid slips past a tree (ruled: either corner);
+  paying an angry shopkeeper outside his shop works; a confused
+  scroll of light darkens or makes one hostile light (5.0's tame
+  lights removed) - and the battery found a crash shared with
+  vanilla 5.0 and 0.9.3: a bill left open by walking out past an
+  absent shopkeeper, read through a bad pointer on re-entry; ruled
+  root cause, so leaving on an open bill is robbery wherever he
+  stands; the text row closed, fifteen LOW rows and one HIGH row
+  minted and closed, one LOW row (three shop leaks left) and a
+  residue row minted - after session 349, earlier the same day,
+  brought back the twelve object
+  rules the site census found - golems leave random objects
   of their own material; a racial monster's corpse keeps its race, for
   eating, tinning, offering, weight and the zombie it rises as; trees
   drop mistletoe, which cures hallucination; six more herbivore
@@ -251,8 +270,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 60 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 58 LOW):
-  816 rows closed, 60 open
+  prefix; 61 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 59 LOW):
+  833 rows closed, 61 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -37968,7 +37987,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the wished count ("e - 3 uncursed mistletoe" with 4 held); both
       of tester C's heroes were at Luck -1 by turn 280, cause not
       traced.
-- [ ] LOW: site census, text and small ones (minted 2026-11-19,
+- [x] LOW: site census, text and small ones (minted 2026-11-19,
       session 348, the same census). RULED 2026-11-19 (decisions log):
       take all of them. Plannable.
       (a) Priests named by race (master 328dd94ce): priest.c
@@ -38004,6 +38023,315 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       to 0.9.3's (darkness 4 times in 5, else one hostile yellow or
       black light); 5.0's tame cancelled lights go. REMOVALS line when
       it lands.
+      CLOSED 2026-11-20, session 350: all eight items restored in
+      thirteen commits, one row each below (BUG-3253 to 3261 and 3263
+      to 3267), with two rules found beside them (the web tearing
+      list, BUG-3262; the self-probe ", reflecting", in BUG-3256) and
+      one crash the battery found (BUG-3268). Corrections to the
+      items: (b) 0.9.3's hero-side `HReflecting` also holds a silver
+      dragon form's bit, so that form says ", reflecting" too; (d)
+      worn armor already had the light suffix and no armor artifact
+      has a glow color, so the armor and ring glow shows only through
+      hallucination's invented color; (f) the monster Druid rule was
+      ruled to the hero's "either corner", not 0.9.3's "both".
+      sitepair.py rerun against the pre-slice tree: the slice's sites
+      pair now (PM_CAVE_BEAR, PM_GRIZZLY_BEAR, SHIELD_OF_MOBILITY and
+      SHADOW_DRAGON_SCALES leave the list; vulnerable_to 5 to 1,
+      IS_TREES 5 to 3, MON_WEP2 8 to 6, and one site less each for
+      PM_DRUID, RIN_LUSTROUS, has_erac, is_supermaterial, mentangled
+      and mon_bimanual); the rest of the list was not re-read this
+      session.
+- [x] LOW: paying an angry shopkeeper away from his shop reached
+      "dopay: not to shopkeeper?" (minted and closed 2026-11-20,
+      session 350, text row item (g); master d63c0dbaa, its BUG-1310;
+      vanilla 5.0 too).
+      CLOSED 2026-11-20, session 350 (BUG-3253, commit pending).
+      shk.c: past_due_charges() factored out of make_angry_shk();
+      dopay() folds an open bill or debit into `robbed` for an angry
+      shopkeeper who is not the resident one. Beyond master (reviewer
+      LOW): update_inventory() after the fold, or the permanent
+      inventory kept "(unpaid)".
+      BATTERY (tester A, Minetown delicatessen, keeper moved out by
+      gdb and angered): hero in the street - PRE "dopay: not to
+      shopkeeper?", nothing paid; POST "is after blood, not gold!",
+      "But since her shop has been robbed recently, you compensate
+      Berhala for her losses.", "Berhala returns to her shop.", gold
+      down 107 for an 80 zorkmid item (the angry surcharge), billct 0,
+      robbed 0, peaceful. Hero on the door square, keeper just
+      outside - PRE the impossible, POST paid (36). No gold - POST
+      "Moreover, you have no gold.", the item no longer unpaid,
+      robbed 40, still 40 after a second `p`.
+- [x] LOW: a confused scroll of light made tame lights (minted and
+      closed 2026-11-20, session 350, text row item (h)).
+      CLOSED 2026-11-20, session 350 (BUG-3254, commit pending). RULED
+      0.9.3 (2026-11-19). read.c seffect_light(): master's body -
+      darkness 4 times in 5, else create_critters() makes one ordinary
+      yellow light, black if cursed; 5.0's tame cancelled lights and
+      its "Tiny lights sparkle in the air momentarily." line for
+      extinct lights are gone (0.9.3 prints nothing there). REMOVALS
+      2.3.
+      BATTERY (tester A): PRE "Lights appear all around you!", four
+      tame cancelled lights; POST 25 confused reads - 22 "You are
+      surrounded by darkness!", 3 "A yellow light suddenly appears
+      next to you!" (5.0's own arrival line), each one hostile and not
+      cancelled; a cursed read made a black light (invisible, so no
+      line); an unconfused read lights the room as before.
+- [x] LOW: priests were not named by race (minted and closed
+      2026-11-20, session 350, text row item (a); master 328dd94ce).
+      CLOSED 2026-11-20, session 350 (BUG-3255, commit pending).
+      priest.c priestname(): the racial adjective after "invisible" /
+      "renegade" and before "high", hidden with the god's name for a
+      distant Astral high priest; 5.0's article is taken again from
+      the race word when that leads the name. RULED 2026-11-20: shown
+      while hallucinating, as 0.9.3 (rejected: hide it then).
+      BATTERY (tester B): Minetown priest - PRE "peaceful priestess of
+      Loki", POST "peaceful giant priest of Odin", "The giant priest
+      of Odin intones:", "an invisible giant priest of Odin"; all
+      fourteen race words by gdb, "an" for elven, orcish, illithid and
+      aasimar (the drow word is "dark elven"); hallucinating "giant
+      poohbah of Raijin"; Astral from afar "high priestess" on both
+      builds, m_monnam() PRE "high priestess of Odin" / POST "elven
+      high priestess of Odin", adjacent POST "peaceful elven high
+      priestess of Odin".
+- [x] LOW: probing left out entangled and vulnerable monsters and a
+      reflecting hero (minted and closed 2026-11-20, session 350, text
+      row item (b) and a sibling found beside it; master 979393c66,
+      bc05ed650).
+      CLOSED 2026-11-20, session 350 (BUG-3256, commit pending).
+      insight.c mstatusline(): ", entangled" and four ", vulnerable to
+      X" clauses through vulnerable_to(), ahead of the riding clause;
+      ustatusline(): ", reflecting" on `HReflecting` (the spell and a
+      silver dragon form, as 0.9.3). Both info[] buffers are 3 * BUFSZ
+      (worst cases about 617 and 506).
+      BATTERY (tester B): POST "in light, entangled, slow.", each
+      vulnerable clause alone and all four in order, none on PRE; a
+      red dragon with the fire field set shows no fire clause (its
+      resistance masks it) and its own ", vulnerable to cold"; self
+      after the reflection spell and in silver dragon form POST
+      ", reflecting"; a line with every state set is cut by pline()
+      on both builds, no crash. The order next to ", leashed" and
+      ", riding" was read, not staged.
+- [x] LOW: farlook did not say what a monster wields (minted and
+      closed 2026-11-20, session 350, text row item (c); the "probe
+      wielding-both" deferral; master 6dc498a00).
+      CLOSED 2026-11-20, session 350 (BUG-3257, commit pending).
+      pager.c look_at_monster(): ", wielding X" and " and Y" for the
+      off-hand weapon, sober and seen only.
+      BATTERY (tester B): POST "tame drow warrior, wearing some light
+      armor, wielding a dark elven short sword and an elven dagger";
+      PRE no clause; none on either build when the monster is only
+      sensed.
+- [x] LOW: an off-hand weapon never showed its glow or light (minted
+      and closed 2026-11-20, session 350, text row item (d), first
+      half; the "KNOWN REMAINING GAPS" note of the artifacts slice).
+      CLOSED 2026-11-20, session 350 (BUG-3258, commit pending).
+      objnam.c: doname_glow() builds the suffix once; doname_base()
+      writes it over the closing paren of the worn-armor, ring,
+      wielded and dual-wielded off-hand phrases (the hero's and a
+      monster's), whole or not at all. That closes a 5.0 hole too: a
+      suffix that did not fit used to eat the paren. Worn amulets and
+      blindfolds are not given the call (no artifact can reach it).
+      BATTERY (tester B): off-hand Sting with an orc on the level -
+      PRE "(wielded in left hand)", POST "(wielded in left hand,
+      flickering light blue)", gone when the orc dies; the primary
+      glows on both builds; "(alternate weapon; not wielded)" never;
+      "(being worn, brilliantly lit)" for gold dragon scales on both;
+      Dragonbane while hallucinating POST "(being worn, flickering
+      purpurin)", a 0.9.3 quirk (the invented color); every worn or
+      wielded phrase keeps its paren.
+- [x] LOW: a monster's weapon was described with the hero's hands
+      (minted and closed 2026-11-20, session 350, text row item (d),
+      second half; the "owner-aware doname" deferral).
+      CLOSED 2026-11-20, session 350 (BUG-3259, commit pending). RULED
+      2026-11-20: 0.9.3's text (rejected: keep 5.0's left / right).
+      objnam.c doname_base(): for a monster's wielded object the body
+      part is its own, "hands" follows mon_bimanual(), there is no
+      left or right, and "(wielded)" is for a stack only.
+      BATTERY (tester B, probing): PRE "(weapon in right hand)", POST
+      "(weapon in hand)" beside "(wielded in other hand)"; a hill
+      giant's two-handed sword PRE "hands", POST "hand"; a
+      Woodland-elf's "hands" on both; a tin PRE "(wielded)", POST
+      "(weapon in hand)"; a stack "(wielded)" on both; an aklys POST
+      "(tethered to hand)".
+- [x] LOW: the monster lookup did not say that zombies revive (minted
+      and closed 2026-11-20, session 350, text row item (e)).
+      CLOSED 2026-11-20, session 350 (BUG-3260, commit pending).
+      pager.c add_mon_info(): "revive" for is_zombie() as well;
+      is_reviver() itself stays vanilla's.
+      BATTERY (tester B): human zombie - PRE no "Can" line, POST "Can
+      revive."; a troll says it on both.
+- [x] LOW: cave and grizzly bears were not bears in traps (minted and
+      closed 2026-11-20, session 350, text row item (e)).
+      CLOSED 2026-11-20, session 350 (BUG-3261, commit pending).
+      trap.c: both join the hero's "You howl in anger!" and the two
+      unseen roars (bear trap, web).
+      BATTERY (tester C): as a cave bear and as a grizzly POST "A bear
+      trap closes on your rear paw!  You howl in anger!", PRE without
+      the howl; blindfolded, POST "You hear the roaring of an angry
+      bear!" / "of a confused bear!", PRE nothing; an owlbear roars on
+      both.
+- [x] LOW: three huge monsters were caught in webs (minted and closed
+      2026-11-20, session 350, found beside the bear lists; no row
+      before).
+      CLOSED 2026-11-20, session 350 (BUG-3262, commit pending). RULED
+      2026-11-20: take it in this slice. trap.c trapeffect_web(): the
+      vorpal jabberwock, woolly mammoth and Annam join the tearing
+      list (Annam is a giant and tore already).
+      BATTERY (tester C): woolly mammoth and vorpal jabberwock - PRE
+      "is caught in a spider web.", POST "tears through a spider
+      web!", the web gone; a mastodon tears and a newt is caught on
+      both.
+- [x] LOW: no "zaps you with" line from a caster the hero only senses
+      (minted and closed 2026-11-20, session 350, text row item (e)).
+      CLOSED 2026-11-20, session 350 (BUG-3263, commit pending).
+      mcastu.c buzzmu() / buzzmm(): master's seecaster test (seen,
+      telepathy or monster detection).
+      BATTERY (tester C): a hostile Angel four squares off, hero blind
+      and telepathic - PRE "The magic missile hits you!" alone, POST
+      "The Angel of Odin zaps you with a magic missile!" five of five;
+      seen, the line on both; blind without telepathy, none on both;
+      against a pet POST "zaps the woolly mammoth with a magic
+      missile!", PRE no line.
+- [x] LOW: eating a lustrous ring gave no transparency line (minted
+      and closed 2026-11-20, session 350, text row item (e)).
+      CLOSED 2026-11-20, session 350 (BUG-3264, commit pending).
+      eat.c eataccessory(): RIN_LUSTROUS beside RIN_INVISIBILITY.
+      BATTERY (tester A, rock mole form, the 1-in-3 roll forced): PRE
+      the property with no line; POST "Your body takes on a strange
+      transparency...". The discovery was not observable (the ring
+      has no shuffled description).
+- [x] LOW: shields of light and mobility started out seen (minted and
+      closed 2026-11-20, session 350, text row item (f); master
+      b1b4eb2c2).
+      CLOSED 2026-11-20, session 350 (BUG-3265, commit pending).
+      mkobj.c clear_dknown(): the range from the shield of reflection
+      to the shield of mobility.
+      BATTERY (tester A, wished while blind): PRE dknown 1 for both,
+      POST 0, the shield of reflection 0 on both; 1 once seen.
+- [x] LOW: never-rusting items could fail to stack while blind (minted
+      and closed 2026-11-20, session 350, text row item (f); master
+      551a8b15b).
+      CLOSED 2026-11-20, session 350 (BUG-3266, commit pending).
+      invent.c mergable(): a supermaterial object skips the fixed-bit
+      and rknown comparison. No path leaves the fixed bit on a
+      stackable supermaterial object (set_material() and
+      maybe_erodeproof() clear it), so merged()'s "learn by comparing"
+      line cannot fire for them.
+      BATTERY (tester A): two mithril daggers differing in rknown,
+      picked up blind - PRE two slots, POST "2 in total"; iron daggers
+      stay apart on POST.
+- [x] LOW: a monster Druid could not slip past a tree (minted and
+      closed 2026-11-20, session 350, text row item (f); master
+      59c80943b, f8104cddd).
+      CLOSED 2026-11-20, session 350 (BUG-3267, commit pending). RULED
+      2026-11-20: either corner a tree, the hero's rule (rejected:
+      0.9.3's monster line, both corners). mon.c mfndpos(). The
+      pathfinding maps still read a tree corner as closed (one map
+      serves every monster), so a big Druid steps through when it is
+      the nearest way but does not plan a route through one.
+      BATTERY (tester C, a rock pocket with one tree corner): a
+      giant-race Druid and one carrying 700 - PRE stay ten turns, POST
+      leave within three; with the tree swapped for rock they stay;
+      an unloaded Druid leaves on both.
+- [x] HIGH: a shop bill left open outside the shop crashed on
+      re-entry (minted and closed 2026-11-20, session 350, found by
+      tester A while staging BUG-3253; vanilla 5.0 and 0.9.3 too).
+      u_left_shop() returned early when the shopkeeper was on the
+      level but outside his shop, so a hero could walk out with
+      unpaid goods (an angry shopkeeper already outside) and keep
+      billct > 0: "unpaid_cost: object wasn't on any bill." on every
+      inventory display, and on walking back in u_entered_shop() set
+      bill_p to -1000 ("dump core when referenced"), which onbill()
+      then read - from obfree() of an unpaid item, rile_shk()'s
+      surcharge or the sanity check (SIGSEGV).
+      CLOSED 2026-11-20, session 350 (BUG-3268, commit pending). RULED
+      2026-11-20 "root cause now" (rejected: the pointer guard alone;
+      a row only). shk.c: walking out on an open bill is robbery
+      wherever the shopkeeper stands (rob_shop() and the Kops; only
+      the warning at the door stays skipped for an absent one); bill_p
+      always points at his own bill; after_shk_move() tests the real
+      state - shopkeeper home, hero in the room and not swallowed, the
+      shop missing from u.ushops - where it read the -1000 as a flag;
+      restshk() and zap.c montraits() lose their -1000 tests;
+      call_kops() makes the second swarm at his post when he is away.
+      REMOVALS 2.3; upstream row 2026-11-20.
+      REVIEW: the first cut only stopped planting the pointer;
+      CONDITIONAL PASS, MED - that value was after_shk_move()'s flag,
+      so a shopkeeper coming home no longer re-entered the hero
+      (tester A on that build: a pickup then counted as robbery).
+      Fixed as above; second pass PASS, LOW the swallowed hero.
+      BATTERY (tester A): keeper moved out and angered, hero walks
+      out - PRE no line, the item unpaid, the impossible; POST "You
+      escaped the shop without paying!  You stole 31 zorkmids worth of
+      merchandise.  You feel guilty.  An alarm sounds!  The Keystone
+      Kops appear!", billct 0, robbed 31, then `p` compensates and
+      the Kops vanish. Back in before paying - PRE SIGSEGV in onbill()
+      on the next turn, POST "This shop is untended.", eating and
+      searching fine. Door landing still pays; a keeper inside is
+      robbed alike on both builds; leaving by level teleport POST the
+      robbery lines before the level changes and no unpaid item
+      after, PRE the item unpaid with impossibles on the new level.
+      Keeper comes home with the hero inside (home_shk() and on foot)
+      - "Welcome to Parbalingga's delicatessen!", u.ushops restored
+      and the next pickup billed, both builds. Teleporting out with
+      the keeper nine squares from his post - POST 20 Kops around the
+      post, 17 by the down stairs, none by the keeper. Save and
+      restore in an untended shop - fine on both.
+- [ ] LOW: shop bill leaks left after session 350 (minted 2026-11-20,
+      reviewer and battery of BUG-3268; needs rulings). (a) A peaceful
+      shopkeeper outside his shop cannot be paid: dopay()'s
+      `shkp != resident && NOTANGRY(shkp)` arm ignores billct and
+      debit ("You do not owe X anything."), and walking out afterwards
+      is robbery. Reachable when a monster's knockback or striking
+      beam moves him (mhurtle_step() skips make_angry_shk()), or
+      through mdisplacem() / gulpmm(); he walks home within a turn or
+      two unless held. (b) SUSPECTED: a shopkeeper who changes levels
+      from outside his shop with an open bill (mlevel_tele_trap() has
+      no shopkeeper arm; mon_leave() clears residency) leaves the
+      hero's goods unpaid with no bill - "onbill: unpaid obj without
+      shopkeeper" from obfree(); not every migrate_to_level() caller
+      was traced. (c) While the hero stands in an untended shop with
+      unpaid goods (the shopkeeper outside, before the hero leaves or
+      pays), shop_obj_sanity() says "unpaid obj not inside tended
+      shop" every turn under sanity_check; the fuzzer's impossible
+      escalation would make that a panic. Vanilla 5.0 shares all three.
+- [ ] LOW, record: session 350 residue (minted 2026-11-20, stress
+      test, reviewer and batteries; record unless a ruling wants a
+      change). (a) A priest's race word shows while the hero
+      hallucinates ("giant poohbah of Raijin"); ruled, a 0.9.3 quirk.
+      (b) A warning artifact with no glow color (Dragonbane, The One
+      Ring) shows a glow in its worn phrase only while hallucinating,
+      because hcolor() invents a color; 0.9.3 the same. Worn amulets
+      and blindfolds are not given doname_glow() (no artifact can
+      reach it). (c) 5.0's "; slippery)" overwrite in doname_base()'s
+      armor arm can still eat the paren of a name with no room left;
+      vanilla code, left. (d) The pathfinding maps read a tree corner
+      as closed for a Druid monster, so it takes such a gap only as
+      the nearest step. (e) is_reviver() stays vanilla's; only the
+      lookup word takes zombies. (f) A confused scroll of light's new
+      light arrives with 5.0's "A yellow light suddenly appears next
+      to you!", which 0.9.3 lacks; a black light is invisible and
+      gets no line. (g) Blind, farlook at a remembered pet reads "tame
+      it"; both builds. (h) On the Astral Plane "The high priestess
+      intones:" names neither race nor god although the hero arrives
+      next to her; both builds. (i) A mute or helpless shopkeeper
+      gives no warning, so stepping onto the door square with unpaid
+      goods is robbery at once (vanilla's muteshk() arm). (j) An
+      angry shopkeeper's one-third surcharge is added the first time
+      he is looked up (next_shkp(), shop_keeper()), so a compensation
+      payment is N + (N + 2) / 3. (k) after_shk_move()'s occupancy
+      re-check repeats silently on every shopkeeper move while the
+      hero stands on a square shared by two shops and the other one
+      is untended. (l) Battery notes: a ^G Angel is a minion one time
+      in three (makemon()), which decides "Angel" or "Angel of Odin";
+      deltrap() on a bear trap that holds its ammo object trips an
+      impossible (use deltrap_with_ammo()); rloc_to() on a shopkeeper
+      angers him and folds the bill inside the call (use
+      place_monster()); `call u_entered_shop(u.ushops)` empties
+      u.ushops with the hero still inside; x_monnam() on an unseen
+      monster returns "it" (set DETECT_MONSTERS first); on a build
+      without BUG-3268, re-entering a shop whose keeper is out with an
+      open bill segfaults under sanity_check.
 - [ ] LOW, record: session 348 residue (minted 2026-11-19, plan
       stress test, reviewer and batteries; record unless a ruling
       wants a change). (a) A Draugr Convict chatting to a hostile
@@ -43066,8 +43394,9 @@ see its row), cut against 74ebd09ed.
 | 2026-11-16 | zap.c zhitm(), the death-ray arm for Death: `healmon(mon, mon->mhpmax * 3 / 2, mon->mhpmax / 2)` and then `if (mon->mhpmax >= MAGIC_COOKIE) mon->mhpmax = MAGIC_COOKIE - 1;` clamp the maximum and leave mhp above it (Death at 757 ends with mhpmax 999 and mhp 1135), which the monster sanity check reports; nothing after it in zhitm() clamps mhp. Same code in fd4d169b6. Read, not run on vanilla: the branch's own zhitm() tail clamped mhp, and the arm is now master's (cap 500, direct writes); BUG-3178, branch commit a32477bdb | fixed on the branch; not sent; triage pending |
 | 2026-11-16 | bones.c resetobjs() sanitizes ONAME() of the objects in loaded bones and getbones() the names of its monsters, but not the given name inside the monster stored with a corpse or statue (OMONST): a named pet's corpse brings the previous player's text through unsanitized, and it is printed when the corpse is revived or the statue animated. Same code in fd4d169b6. Fix on the branch: `if (has_omonst(otmp) && has_mgivenname(OMONST(otmp))) sanitize_name(MGIVENNAME(OMONST(otmp)));` in the restore arm; BUG-3182, branch commit ae0dc8397 | fixed on the branch; not sent; triage pending |
 | 2026-11-18 | steal.c steal() calls every thief that charms a worn armor piece off the hero "She" ("She charms you", "let her take", "She stole ..."). With SEDUCE=0 in sysconf mhitm_ad_ssex() sends an incubus to mhitm_ad_sedu() and so to steal(), and a male demon gets the nymph's pronouns. Same code in fd4d169b6 and in 3.6. Fix on the branch: the pronouns come from pronoun_gender(mtmp, PRONOUN_NO_IT); BUG-3203, branch f58f8b1eb | fixed on the branch; not sent; triage pending |
-| 2026-11-19 | Paying an angry shopkeeper who is away from his shop while a bill or debit is still open reaches `impossible("dopay: not to shopkeeper?")` and the pay command does nothing: dopay()'s "after blood" arm handles only `robbed`, and the bill is folded into it only by make_angry_shk() and rob_shop(), not when the shopkeeper is angered by an attack or the hero leaves while he is already outside. Same code in fd4d169b6 (src/shk.c). 0.9.3 fixed it as its BUG-1310 (d63c0dbaa): fold the open bill into `robbed` at that point. Found again by the session 348 site census; not yet fixed on the branch (text-and-small row, item g) | on neither tree's 5.0 code; not fixed on the branch yet; not sent |
+| 2026-11-19 | Paying an angry shopkeeper who is away from his shop while a bill or debit is still open reaches `impossible("dopay: not to shopkeeper?")` and the pay command does nothing: dopay()'s "after blood" arm handles only `robbed`, and the bill is folded into it only by make_angry_shk() and rob_shop(), not when the shopkeeper is angered by an attack or the hero leaves while he is already outside. Same code in fd4d169b6 (src/shk.c). 0.9.3 fixed it as its BUG-1310 (d63c0dbaa): fold the open bill into `robbed` at that point. Found again by the session 348 site census; fixed on the branch in session 350 (BUG-3253, text-and-small row, item g), with an update_inventory() after the fold that 0.9.3 lacks | fixed on the branch; not sent; triage pending |
 | 2026-11-20 | Darkness snuffs only one light per square, and an engulfer snuffs the wrong one. light.c snuff_light_source() returns after the first burning object light it finds at (x,y) ("Return assuming that there is only one light source attached to each object" - but several objects can share a square), so a cursed scroll of light leaves the other lamps of a floor pile burning. steal.c mpickobj() calls it for the square of an engulfer that has just taken in a lit object; with the hero inside, that square is the hero's own, and the first source in the list can be the lamp the hero is holding, which goes out with no message while the thrown lamp burns on inside the engulfer and is dropped lit when it dies. Same code in fd4d169b6 (src/light.c, src/steal.c). 0.9.3 fixed both (7e68ba7f2, 052cf57fe): save the next pointer and keep walking; `if (snuff_otmp && !freed_otmp) end_burn(otmp, TRUE);`. BUG-3248, branch 6617256ad | fixed on the branch; not sent; triage pending |
+| 2026-11-20 | A shop bill can stay open after the hero has left the shop, and re-entering then crashes. u_left_shop() returns early when the shopkeeper is on the level but outside his shop (`!inhishop(shkp)`), so a hero who walks out with unpaid goods while an angry shopkeeper is already outside keeps `billct` > 0: every inventory display then reaches `impossible("unpaid_cost: object wasn't on any bill.")`, and if the hero walks back in while the shopkeeper is still out, u_entered_shop() sets `bill_p = (struct bill_x *) -1000` ("dump core when referenced") and the next reader of the bill with billct > 0 dereferences it - onbill() from obfree() when an unpaid item is used up, rile_shk()'s surcharge loop, or shop_obj_sanity() under sanity_check (SIGSEGV seen in a battery: onbill < onshopbill < find_objowner < shop_obj_sanity). Same code in fd4d169b6 (src/shk.c) and in 0.9.3. The same open-bill state is what makes the 2026-11-19 dopay() row reachable. Branch fix (BUG-3268, session 350): leaving with an open bill is robbery wherever the shopkeeper stands; bill_p always points at the shopkeeper's own bill, and after_shk_move() tests the real state (shopkeeper home, hero in the room, shop missing from u.ushops) where it tested the -1000 value as a flag | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -43784,6 +44113,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-19 | Wording and parity rows: the slow line, the suffocating engulfers, the disintegration draw, the sight gates (Phase 2 session 347, AskUserQuestion x6 with 10 questions - one with the battery launch - all as recommended but one, which went beyond the recommendation). (1) SLICE: the four wording and parity rows (the doorway thread, the EvilHack-only object census and the parked residue rulings not taken). (2) SLOW LINE: ONE LINE EVERYWHERE - "slows down." goes at the hero's hit, a monster's hit and a monster's wand or spell of slow monster, the last beyond 0.9.3, whose own 2025 code re-added the double there (rejected: 0.9.3 exactly; the second line only where the first cannot print; keep both). (3) ENGULF WORDING: ORDINARY LINES, FITTED TAILS, over my recommended plain ordinary lines - the four AD_WRAP engulfers speak as any non-digesting engulfer and the expel tail is fitted (rejected: keep 5.0's trapper lines). (4) TAILS: "in a rush of water" for the water elemental and sea dragon, "in a tangle of vines" for the creeping mound, the gelatinous cube keeps "with a squelch" (rejected: brine and rot; torrent and leaves). (5) SIBLINGS: the fire elemental "in a blast of fire" and the earth elemental "in a shower of debris", both beyond 0.9.3 (rejected: neither). (6) TIMED-OUT EXPEL: fold in 0.9.3's full line, own commit (rejected: a row; keep 5.0's short line). (7) HAZE WORD: fitted - water, vegetation, ooze (rejected: "ooze" for all four). (8) DRAGON'S MAW: fold in, own commit (rejected: a row). (9) REVIEW FOLD: the thrown cockatrice corpse inside a dragon, and launch the battery (rejected: fold and hold the battery; a row). Session calls, plan-approved: "fire" and "debris" as haze words for the two sibling elementals; one draw for a black dragon's hide or an antimatter vortex and a draw per piece for worn scales, as 0.9.3; the three sight gates in 0.9.3's own form; 5.0's "becomes weaker!" and "head" kept; enfolds() narrowed rather than removed. Premise corrections made in-session: the hero's "didn't like its taste" line was never different (told at question 9, the edit taken back out); a kick never reaches the disintegration helper against a hero in dragon form, so the draw matters between monsters and for a vortex-form hero; the row's "husk" site was unreachable. BUG-3215..3220. | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-19 | Site census: fourteen monster rules restored, the rest ruled into rows (Phase 2 session 348, AskUserQuestion x8 with 20 questions; all as recommended but one, a free-text answer). (1) SLICE: the per-symbol site census (not taken: the doorway thread; the parked residue rulings). (2) MONSTER RULES, all twelve offered: Medusa's bite stones, a dragon killed from inside leaves its corpse, shapeshifters revert on death, Famine against monsters, Cleaver spares peacefuls, stoneskin stops stoning, wolf form for every vampire but the baron, Charon stays put, four kinds of web spider, Kas and the Abominable Snowman leave bones, SporkHack's altar-conversion minions, Draugr and Vampires start at the role's record less 20. (3) SPIDERS, free text: "Option 1, but have all but driders/Lolth spin as they move" - all seven MH_SPIDER monsters at home in webs and 5.0's wandering web-spin for every spider but driders and Lolth, over the recommended "all at home, two spin" (rejected: all spin; none spin; leave vanilla's two). (4) HISSING: 1 in 6 and 5.0's new moon, no lizard help (rejected: 0.9.3 exactly; leave 1 in 10). (5) OBJECT RULES: all twelve, as a row. (6) TEXT AND SMALL: all, BUG-1310 and the confused scroll of light going back to 0.9.3's included, as a row. (7) HARDENING (the NON_PM wrappers): its own slice later (rejected: now; leave vanilla's form). (8) SCOPE: the monster rules this session (rejected: monsters and objects; everything). (9) PET SPIDERS, after the stress test: WILD SPIDERS ONLY - no tame spider spins, which also stops the tame cave and giant spiders that spun on the branch (rejected: pets spin too; only the three new kinds stay quiet). (10) CLEAVER AND PETS: pets count as bystanders, as 0.9.3 (rejected: peacefuls only). (11) STONED SHAPESHIFTER, after the review: REVERTS, NO STATUE, beyond 0.9.3, whose own code leaves a statue and a live monster (rejected: a statue and it stays dead; 0.9.3 exactly). (12) STONESKIN'S END: a monster touches what it wields when the spell runs out or is cancelled, beyond 0.9.3 (rejected: record only). (13) BATTERY: three testers. (14) STATUE LINE, after the battery: no "is a statue." for any shapeshifter that reverts, vampires included (rejected: the two new kinds only; a fitted line; keep). (15) DRIDER TIP: a web-maker that spits is not told it can spin (rejected: leave as 0.9.3). Session calls, plan-approved: Medusa's arm does not return early; a shapeshifter on a closed-door square reverts through 5.0's door smash; 5.0's exemption of a non-eater from Famine goes; the vampire tier is read from youmonst.cham when shifted; the gargantuan spider spins at the giant spider's rate; "in a temple" is any temple room. Review fixes made without a question: the vamprises() guards, the cancellation twin of the stoneskin end, the hero let out before a petrified engulfer reverts, a genocide test. Premise corrections made in-session: "never shifts again" was too strong (a pet is re-armed at the next level change, and polymorph or restore ability re-arm any); Medusa's bite is her last attack, so ending her round shows nothing; a drider-form hero spits; the 2026-08-08 web ruling's note that 0.9.3 adds no spider to a level file's web was wrong. BUG-3221..3234. | maintainer (1-15); session, plan-approved (rest) |
 | 2026-11-20 | Site census object rules: twelve 0.9.3 rules restored, five rulings beside them (Phase 2 session 349, AskUserQuestion x4 with seven questions, all as recommended). (1) SLICE: the object rules row (not taken: text and small ones; the NON_PM hardening; the older candidates). (2) BONE DEVIL: 0.9.3 - 5.0's "summons one skeleton" arm is removed and a bone devil gates like any lesser devil, 1 in 20 a demon lord, else 1 in 6 a lesser demon, else another bone devil (rejected: a skeleton warrior; leave the weak skeleton). (3) FOLD-INS, all three: barding gets its material armor back, which amends the 2026-10-20 "armor_bonus() applies the material bonus to ARMOR_CLASS only" ruling for barding; the off-hand weapon is re-touched too when gloves come off, beyond 0.9.3; CURSED MEANS CURSED for the wand of light, beyond 0.9.3, whose helper let a wielded cursed wand and an Infidel's light up (rejected: none). (4) ROPE GOLEM: 5.0's remains stay (rejected: nothing, as 0.9.3). (5) CANCELLED, after the stress test: 0.9.3 - only trolls, zombies and zombie-race monsters keep 5.0's "will not rise" mark, so a cancelled monster a zombie kills rises, cancelled pets, shopkeepers and uniques included, which stayed down on the branch (rejected: cancelled stays down). (6) RIM LAMPS: fix, beyond 0.9.3 - the lamp message loop covers exactly the squares a monster-centred darkness covers (rejected: record only). (7) BATTERY: three testers (rejected: four; none). Session calls, plan-approved: the glove touch is skipped while poly_obj() swaps gloves and marks the gloves in_use over water or lava; the force-fight touch follows the glyph tests; Keolewa's line is not re-added; the paper golem arm is ported for shape; 0.9.3's BUG-1043 headstone hunk rides with the engraving rule; 5.0's "known when seen" stays for the wand of light, plus a light-hating hero it hurts. Review fixes made without a question: the pack soak (BUG-3252), the second swing after the off hand lets go, the aura of light on the rim squares. Premise corrections made in-session: undead turning was never blocked by the mark; 0.9.3 has no bone devil arm to rename; a thrown orange already tamed a hostile pony. BUG-3235..3252. | maintainer (1-7); session, plan-approved (rest) |
+| 2026-11-20 | Site census text and small ones: fifteen fixes, and a shop crash the battery found (Phase 2 session 350, AskUserQuestion x4 with seven questions, all as recommended). (1) SLICE: the text and small ones row (not taken: the NON_PM hardening; the engrave.c review fixes; the older candidates). (2) DRUID TREES: a monster Druid passes a tight diagonal when EITHER corner is a tree, the hero's rule and the stated reason of master f8104cddd (rejected: both corners, as 0.9.3's mfndpos() line is written). (3) PRIEST RACE: shown while hallucinating, as 0.9.3 (rejected: hide it like other racial monsters). (4) PROBE TEXT: a monster's wielded weapon reads "(weapon in hand)" / "hands" by its own build, 0.9.3's text; the hero's keeps 5.0's left / right (rejected: keep left / right for monsters). (5) SIBLINGS, both: the web tearing list (vorpal jabberwock, woolly mammoth, Annam) and the self-probe ", reflecting" (rejected: rows instead). (6) BATTERY: full, three testers (rejected: reduced; none). (7) SHOP CRASH, found by the battery in code shared with vanilla 5.0 and 0.9.3: ROOT CAUSE NOW, beyond 0.9.3 - leaving a shop on an open bill is robbery wherever the shopkeeper stands, and the bill pointer stays valid (rejected: the pointer guard alone; a row only). Session calls, plan-approved: the confused scroll of light loses 5.0's "Tiny lights sparkle" line with its tame lights; is_reviver() stays vanilla's and only the lookup word takes zombies; the hero's ", reflecting" tests bare HReflecting as 0.9.3 does (the spell and a silver dragon form); a monster's object reads "(wielded)" only as a stack and its aklys "(tethered to hand)"; the glow suffix goes on worn rings too and is written whole or not at all; dopay() refreshes the inventory after its fold (reviewer). Session calls after the ruling on the crash: the at-the-door warning stays skipped for an absent shopkeeper; after_shk_move() tests the real state instead of the old pointer value, and not for a swallowed hero; the second Kop swarm goes to the shopkeeper's post when he is away. Not fixed, one open LOW row: a peaceful shopkeeper outside his shop cannot be paid; a shopkeeper changing levels from outside his shop with an open bill; sanity-check noise in an untended shop |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
