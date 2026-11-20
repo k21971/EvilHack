@@ -3739,9 +3739,9 @@ void
 mstatusline(struct monst *mtmp)
 {
     aligntyp alignment = mon_aligntyp(mtmp);
-    /* every clause at once comes to more than BUFSZ; pline() cuts the
-       finished line */
-    char info[2 * BUFSZ], monnambuf[BUFSZ];
+    /* every clause at once comes to more than 2 * BUFSZ; pline() cuts
+       the finished line */
+    char info[3 * BUFSZ], monnambuf[BUFSZ];
 
     info[0] = 0;
     if (spot_is_dark(mtmp->mx, mtmp->my))
@@ -3842,6 +3842,8 @@ mstatusline(struct monst *mtmp)
         Strcat(info, ", scared");
     if (mtmp->mtrapped)
         Strcat(info, ", trapped");
+    if (mtmp->mentangled)
+        Strcat(info, ", entangled");
     if (mtmp->mspeed)
         Strcat(info, (mtmp->mspeed == MFAST) ? ", fast"
                       : (mtmp->mspeed == MSLOW) ? ", slow"
@@ -3896,6 +3898,14 @@ mstatusline(struct monst *mtmp)
     }
     if (mtmp->mleashed)
         Strcat(info, ", leashed");
+    if (vulnerable_to(mtmp, AD_FIRE))
+        Strcat(info, ", vulnerable to fire");
+    if (vulnerable_to(mtmp, AD_COLD))
+        Strcat(info, ", vulnerable to cold");
+    if (vulnerable_to(mtmp, AD_ELEC))
+        Strcat(info, ", vulnerable to electricity");
+    if (vulnerable_to(mtmp, AD_ACID))
+        Strcat(info, ", vulnerable to acid");
     /* last, so nothing after it reads as the steed's */
     if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
         struct monst *steed = ERID(mtmp)->mon_steed;
@@ -3926,8 +3936,9 @@ void
 ustatusline(void)
 {
     NhRegion *reg;
-    /* every condition at once, with a long holder's name, is over BUFSZ */
-    char info[2 * BUFSZ];
+    /* every condition at once, with a long holder's name, is over BUFSZ;
+       the third BUFSZ is headroom for that name */
+    char info[3 * BUFSZ];
     size_t ln;
 
     info[0] = '\0';
@@ -3997,6 +4008,8 @@ ustatusline(void)
         Strcat(info, ", disguised");
     if (Invis)
         Strcat(info, ", invisible");
+    if (HReflecting)
+        Strcat(info, ", reflecting");
     if (Vulnerable_fire
         || (!Upolyd && Race_if(PM_DRAUGR)))
         Strcat(info, ", vulnerable to fire");
