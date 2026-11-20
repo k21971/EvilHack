@@ -118,6 +118,7 @@ staticfn boolean angry_shk_exists(void);
 staticfn void home_shk(struct monst *, boolean);
 staticfn void rile_shk(struct monst *);
 staticfn void rouse_shk(struct monst *, boolean);
+staticfn void past_due_charges(struct monst *);
 staticfn boolean shk_impaired(struct monst *);
 staticfn boolean repairable_damage(struct damage *, struct monst *);
 staticfn struct damage *find_damage(struct monst *);
@@ -1548,15 +1549,10 @@ hot_pursuit(struct monst *shkp)
     clear_no_charge_pets(shkp);
 }
 
-/* Used when the shkp is teleported or falls (ox == 0) out of his shop, or
-   when the player is not on a costly_spot and he damages something inside
-   the shop.  These conditions must be checked by the calling function. */
-/*ARGSUSED*/
-void
-make_angry_shk(
-    struct monst *shkp,
-    coordxy ox UNUSED, coordxy oy UNUSED)
-    /* <ox,oy> predate 'noit_Monnam()', let alone Shknam() */
+/* an angry shk no longer does business normally; fold any pending
+   transactions into the amount owed for robbery */
+staticfn void
+past_due_charges(struct monst *shkp)
 {
     struct eshk *eshkp = ESHK(shkp);
 
@@ -1569,6 +1565,19 @@ make_angry_shk(
         /* billct, debit, loan, and credit will be cleared by setpaid */
         setpaid(shkp);
     }
+}
+
+/* Used when the shkp is teleported or falls (ox == 0) out of his shop, or
+   when the player is not on a costly_spot and he damages something inside
+   the shop. These conditions must be checked by the calling function */
+/*ARGSUSED*/
+void
+make_angry_shk(
+    struct monst *shkp,
+    coordxy ox UNUSED, coordxy oy UNUSED)
+    /* <ox,oy> predate 'noit_Monnam()', let alone Shknam() */
+{
+    past_due_charges(shkp);
 
     pline("%s %s!", Shknam(shkp), !ANGRY(shkp) ? "gets angry" : "is furious");
     hot_pursuit(shkp);
@@ -1986,6 +1995,17 @@ dopay(void)
                 make_happy_shk(shkp, FALSE);
         }
         return ECMD_TIME;
+    }
+
+    /* an angry shk who isn't tending shop couldn't collect when the
+       transactions went past due (hero and/or shk outside the shop);
+       settle the books now so payment proceeds as compensation */
+    if (shkp != resident && ANGRY(shkp)
+        && (eshkp->billct || eshkp->debit)) {
+        past_due_charges(shkp);
+        ltmp = eshkp->robbed;
+        /* nothing the hero carries is unpaid any more */
+        update_inventory();
     }
 
     /* ltmp is still eshkp->robbed here */
