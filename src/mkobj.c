@@ -907,7 +907,8 @@ clear_dknown(struct obj *obj)
        observe_object even if dknown is being set to 1 */
     obj->dknown = strchr(dknowns, obj->oclass) ? 0 : 1;
     if ((obj->otyp >= ELVEN_SHIELD && obj->otyp <= ORCISH_SHIELD)
-        || obj->otyp == SHIELD_OF_REFLECTION
+        || (obj->otyp >= SHIELD_OF_REFLECTION
+            && obj->otyp <= SHIELD_OF_MOBILITY)
         || objects[obj->otyp].oc_merge)
         obj->dknown = 0;
     /* globs always have dknown flag set (to maximize merging) but for new
