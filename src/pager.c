@@ -1602,7 +1602,7 @@ add_mon_info(winid datawin, struct permonst *pm)
     APPENDC(is_berserker(pm), "go berserk");
     APPENDC(is_support(pm), "support allies")
     APPENDC(can_flollop(pm), "flollop");
-    APPENDC(is_reviver(pm), "revive");
+    APPENDC(is_reviver(pm) || is_zombie(pm), "revive");
     if (!needspick(pm))
         APPENDC(tunnels(pm), "dig");
     if (*buf) {
