@@ -671,7 +671,12 @@ priestname(
 {
     boolean do_hallu = Hallucination,
             aligned_priest = mon->data == &mons[PM_ALIGNED_PRIEST],
-            high_priest = mon->data == &mons[PM_HIGH_PRIEST];
+            high_priest = mon->data == &mons[PM_HIGH_PRIEST],
+            /* the Astral Plane's high priests keep their race and
+               deity to themselves until the hero stands next to one */
+            reveal_all = (!high_priest || reveal_high_priest
+                          || !Is_astralevel(&u.uz) || m_next2u(mon)
+                          || program_state.gameover);
     char whatcode = '\0';
     const char *what = do_hallu ? rndmonnam(&whatcode) : mon_pmname(mon);
 
@@ -710,6 +715,17 @@ priestname(
             Strcpy(pname, "a ");
         Strcat(pname, "renegade ");
     }
+    /* a racial priest is named by race, hallucinating or not */
+    if (has_erac(mon) && reveal_all) {
+        char racebuf[BUFSZ];
+
+        (void) racial_adj(racebuf, mon);
+        /* the race word leads the name unless "invisible " or
+           "renegade " does: "an elven priestess", "a dwarven priest" */
+        if (!strcmp(pname, "a ") || !strcmp(pname, "an "))
+            (void) just_an(pname, racebuf);
+        Strcat(pname, racebuf);
+    }
 
     if (mon->ispriest || aligned_priest) {
         if (high_priest)
@@ -721,9 +737,7 @@ priestname(
 
     Strcat(pname, what);
     /* same as distant_monnam(), more or less... */
-    if (do_hallu || !high_priest || reveal_high_priest
-        || !Is_astralevel(&u.uz)
-        || m_next2u(mon) || program_state.gameover) {
+    if (do_hallu || reveal_all) {
         Strcat(pname, " of ");
         Strcat(pname, halu_gname(mon_aligntyp(mon)));
     }

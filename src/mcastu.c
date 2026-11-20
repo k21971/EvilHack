@@ -755,7 +755,8 @@ mon_killer_name(
     /* the race done_in_by() gives the current form, as x_monnam() names
        it ("a centaurian soldier", "a doppelganger imitating a dwarvish
        valkyrie"; newcham() keeps a race only for a racial form);
-       shopkeeper, priest and minion names carry none */
+       a shopkeeper's name carries none and a priest's or minion's
+       comes from priestname() */
     if (has_erac(mtmp) && !type_is_pname(mptr)
         && mptr != &mons[PM_HIGH_PRIEST]
         && !mtmp->isshk && !mtmp->ispriest && !mtmp->isminion) {
