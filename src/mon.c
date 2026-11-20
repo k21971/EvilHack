@@ -3893,9 +3893,13 @@ mfndpos(
                         continue;
                     data->info[cnt] |= NOTONL;
                 }
-                /* check for diagonal tight squeeze */
+                /* check for diagonal tight squeeze; a Druid slips past
+                   a tree as a Druid hero does */
                 if (nx != x && ny != y && bad_rock(mon, x, ny)
-                    && bad_rock(mon, nx, y) && cant_squeeze_thru(mon))
+                    && bad_rock(mon, nx, y) && cant_squeeze_thru(mon)
+                    && !(mdat == &mons[PM_DRUID]
+                         && (IS_TREES(levl[x][ny].typ)
+                             || IS_TREES(levl[nx][y].typ))))
                     continue;
                 /* The monster avoids a particular type of trap if it's
                  * familiar with the trap type.  Pets get ALLOW_TRAPS
