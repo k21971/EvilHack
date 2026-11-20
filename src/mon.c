@@ -925,16 +925,32 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         obj->age -= 100; /* this is an *OLD* corpse */
         break;
     case PM_IRON_GOLEM:
+        /* a golem leaves random objects made of its material; one that
+           can't be made of it, or a container, becomes the stock item */
         num = d(2, 6);
-        while (num--)
-            obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE);
+        while (num--) {
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, IRON) || Is_container(obj)) {
+                delobj(obj);
+                obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE);
+            }
+            set_material(obj, IRON);
+        }
         free_mgivenname(mtmp); /* don't christen obj */
         break;
     case PM_GLASS_GOLEM:
         num = d(2, 4); /* very low chance of creating all glass gems */
-        while (num--)
-            obj = mksobj_at(FIRST_GLASS_GEM + rn2(NUM_GLASS_GEMS),
-                            x, y, TRUE, FALSE);
+        while (num--) {
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, GLASS)
+                || obj->oclass == POTION_CLASS
+                || Is_container(obj)) {
+                delobj(obj);
+                obj = mksobj_at(FIRST_GLASS_GEM + rn2(NUM_GLASS_GEMS),
+                                x, y, TRUE, FALSE);
+            }
+            set_material(obj, GLASS);
+        }
         free_mgivenname(mtmp);
         break;
     case PM_CLAY_GOLEM:
@@ -952,12 +968,12 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_WOOD_GOLEM:
         num = d(2, 4);
         while (num--) {
-            obj = mksobj_at(
-                            rn2(2) ? QUARTERSTAFF
-                            : rn2(3) ? SMALL_SHIELD
-                            : rn2(3) ? CLUB
-                            : rn2(3) ? ELVEN_SPEAR : BOOMERANG,
-                            x, y, TRUE, FALSE);
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, WOOD) || Is_container(obj)) {
+                delobj(obj);
+                obj = mksobj_at(QUARTERSTAFF, x, y, TRUE, FALSE);
+            }
+            set_material(obj, WOOD);
         }
         free_mgivenname(mtmp);
         break;
@@ -972,10 +988,14 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         break;
     case PM_LEATHER_GOLEM:
         num = d(2, 4);
-        while (num--)
-            obj = mksobj_at(rn2(4) ? ARMOR
-                            : rn2(3) ? CLOAK : SADDLE,
-                            x, y, TRUE, FALSE);
+        while (num--) {
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, LEATHER) || Is_container(obj)) {
+                delobj(obj);
+                obj = mksobj_at(ARMOR, x, y, TRUE, FALSE);
+            }
+            set_material(obj, LEATHER);
+        }
         free_mgivenname(mtmp);
         break;
     case PM_GOLD_GOLEM:
@@ -985,8 +1005,17 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         break;
     case PM_PAPER_GOLEM:
         num = rnd(4);
-        while (num--)
-            obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE);
+        while (num--) {
+            obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
+            if (!valid_obj_material(obj, PAPER)
+                || obj->oclass == SCROLL_CLASS
+                || obj->oclass == SPBOOK_CLASS
+                || Is_container(obj)) {
+                delobj(obj);
+                obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE);
+            }
+            set_material(obj, PAPER);
+        }
         free_mgivenname(mtmp);
         break;
     /* only allow dead tree 'corpses' to form on certain
