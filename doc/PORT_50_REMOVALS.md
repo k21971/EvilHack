@@ -615,12 +615,12 @@ tracker; sNNN = port session.
   cancelled lights, and "Tiny lights sparkle in the air momentarily."
   when lights are extinct -> 0.9.3's: darkness 4 times in 5, else one
   ordinary yellow light, black if cursed, and no line when none can
-  be made (ruled s348, landed s350, BUG-3254, commit pending).
+  be made (ruled s348, landed s350, BUG-3254, 7adb97323).
 - [x] Walking out of a shop on an open bill going unnoticed while its
   shopkeeper stands outside the shop -> robbery wherever he stands,
   so no bill stays open outside; vanilla's bad bill pointer for an
   untended shop ("dump core when referenced") is gone with it (ruled
-  s350, BUG-3268, commit pending; beyond 0.9.3).
+  s350, BUG-3268, c3d5f192a; beyond 0.9.3).
 
 ### 2.4 Text and logs
 
@@ -729,7 +729,7 @@ tracker; sNNN = port session.
   MONSTER wields, worded by the hero's handedness and build -> 0.9.3's
   "(weapon in hand)" or "hands" by the monster's own, "(wielded)" for
   a stack only; the hero's own text keeps 5.0's left / right (ruled
-  s350, BUG-3259, commit pending).
+  s350, BUG-3259, a00b2d57b).
 
 ### 2.5 Levels and content
 

@@ -38045,7 +38045,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "dopay: not to shopkeeper?" (minted and closed 2026-11-20,
       session 350, text row item (g); master d63c0dbaa, its BUG-1310;
       vanilla 5.0 too).
-      CLOSED 2026-11-20, session 350 (BUG-3253, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3253, 31575ee85).
       shk.c: past_due_charges() factored out of make_angry_shk();
       dopay() folds an open bill or debit into `robbed` for an angry
       shopkeeper who is not the resident one. Beyond master (reviewer
@@ -38063,7 +38063,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       robbed 40, still 40 after a second `p`.
 - [x] LOW: a confused scroll of light made tame lights (minted and
       closed 2026-11-20, session 350, text row item (h)).
-      CLOSED 2026-11-20, session 350 (BUG-3254, commit pending). RULED
+      CLOSED 2026-11-20, session 350 (BUG-3254, 7adb97323). RULED
       0.9.3 (2026-11-19). read.c seffect_light(): master's body -
       darkness 4 times in 5, else create_critters() makes one ordinary
       yellow light, black if cursed; 5.0's tame cancelled lights and
@@ -38078,7 +38078,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       line); an unconfused read lights the room as before.
 - [x] LOW: priests were not named by race (minted and closed
       2026-11-20, session 350, text row item (a); master 328dd94ce).
-      CLOSED 2026-11-20, session 350 (BUG-3255, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3255, ec29ef852).
       priest.c priestname(): the racial adjective after "invisible" /
       "renegade" and before "high", hidden with the god's name for a
       distant Astral high priest; 5.0's article is taken again from
@@ -38097,7 +38097,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       reflecting hero (minted and closed 2026-11-20, session 350, text
       row item (b) and a sibling found beside it; master 979393c66,
       bc05ed650).
-      CLOSED 2026-11-20, session 350 (BUG-3256, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3256, 7bda25775).
       insight.c mstatusline(): ", entangled" and four ", vulnerable to
       X" clauses through vulnerable_to(), ahead of the riding clause;
       ustatusline(): ", reflecting" on `HReflecting` (the spell and a
@@ -38114,7 +38114,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: farlook did not say what a monster wields (minted and
       closed 2026-11-20, session 350, text row item (c); the "probe
       wielding-both" deferral; master 6dc498a00).
-      CLOSED 2026-11-20, session 350 (BUG-3257, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3257, 59e8a9de1).
       pager.c look_at_monster(): ", wielding X" and " and Y" for the
       off-hand weapon, sober and seen only.
       BATTERY (tester B): POST "tame drow warrior, wearing some light
@@ -38124,7 +38124,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: an off-hand weapon never showed its glow or light (minted
       and closed 2026-11-20, session 350, text row item (d), first
       half; the "KNOWN REMAINING GAPS" note of the artifacts slice).
-      CLOSED 2026-11-20, session 350 (BUG-3258, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3258, 2ff08d1b8).
       objnam.c: doname_glow() builds the suffix once; doname_base()
       writes it over the closing paren of the worn-armor, ring,
       wielded and dual-wielded off-hand phrases (the hero's and a
@@ -38142,7 +38142,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a monster's weapon was described with the hero's hands
       (minted and closed 2026-11-20, session 350, text row item (d),
       second half; the "owner-aware doname" deferral).
-      CLOSED 2026-11-20, session 350 (BUG-3259, commit pending). RULED
+      CLOSED 2026-11-20, session 350 (BUG-3259, a00b2d57b). RULED
       2026-11-20: 0.9.3's text (rejected: keep 5.0's left / right).
       objnam.c doname_base(): for a monster's wielded object the body
       part is its own, "hands" follows mon_bimanual(), there is no
@@ -38155,14 +38155,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "(tethered to hand)".
 - [x] LOW: the monster lookup did not say that zombies revive (minted
       and closed 2026-11-20, session 350, text row item (e)).
-      CLOSED 2026-11-20, session 350 (BUG-3260, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3260, e968fb5a9).
       pager.c add_mon_info(): "revive" for is_zombie() as well;
       is_reviver() itself stays vanilla's.
       BATTERY (tester B): human zombie - PRE no "Can" line, POST "Can
       revive."; a troll says it on both.
 - [x] LOW: cave and grizzly bears were not bears in traps (minted and
       closed 2026-11-20, session 350, text row item (e)).
-      CLOSED 2026-11-20, session 350 (BUG-3261, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3261, 2aa2ff474).
       trap.c: both join the hero's "You howl in anger!" and the two
       unseen roars (bear trap, web).
       BATTERY (tester C): as a cave bear and as a grizzly POST "A bear
@@ -38173,7 +38173,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: three huge monsters were caught in webs (minted and closed
       2026-11-20, session 350, found beside the bear lists; no row
       before).
-      CLOSED 2026-11-20, session 350 (BUG-3262, commit pending). RULED
+      CLOSED 2026-11-20, session 350 (BUG-3262, d57500ab1). RULED
       2026-11-20: take it in this slice. trap.c trapeffect_web(): the
       vorpal jabberwock, woolly mammoth and Annam join the tearing
       list (Annam is a giant and tore already).
@@ -38183,7 +38183,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       both.
 - [x] LOW: no "zaps you with" line from a caster the hero only senses
       (minted and closed 2026-11-20, session 350, text row item (e)).
-      CLOSED 2026-11-20, session 350 (BUG-3263, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3263, 43b05bbf2).
       mcastu.c buzzmu() / buzzmm(): master's seecaster test (seen,
       telepathy or monster detection).
       BATTERY (tester C): a hostile Angel four squares off, hero blind
@@ -38194,7 +38194,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       missile!", PRE no line.
 - [x] LOW: eating a lustrous ring gave no transparency line (minted
       and closed 2026-11-20, session 350, text row item (e)).
-      CLOSED 2026-11-20, session 350 (BUG-3264, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3264, d43b9c5c3).
       eat.c eataccessory(): RIN_LUSTROUS beside RIN_INVISIBILITY.
       BATTERY (tester A, rock mole form, the 1-in-3 roll forced): PRE
       the property with no line; POST "Your body takes on a strange
@@ -38203,7 +38203,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: shields of light and mobility started out seen (minted and
       closed 2026-11-20, session 350, text row item (f); master
       b1b4eb2c2).
-      CLOSED 2026-11-20, session 350 (BUG-3265, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3265, 0c25742c3).
       mkobj.c clear_dknown(): the range from the shield of reflection
       to the shield of mobility.
       BATTERY (tester A, wished while blind): PRE dknown 1 for both,
@@ -38211,7 +38211,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: never-rusting items could fail to stack while blind (minted
       and closed 2026-11-20, session 350, text row item (f); master
       551a8b15b).
-      CLOSED 2026-11-20, session 350 (BUG-3266, commit pending).
+      CLOSED 2026-11-20, session 350 (BUG-3266, 9608d52ee).
       invent.c mergable(): a supermaterial object skips the fixed-bit
       and rknown comparison. No path leaves the fixed bit on a
       stackable supermaterial object (set_material() and
@@ -38223,7 +38223,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a monster Druid could not slip past a tree (minted and
       closed 2026-11-20, session 350, text row item (f); master
       59c80943b, f8104cddd).
-      CLOSED 2026-11-20, session 350 (BUG-3267, commit pending). RULED
+      CLOSED 2026-11-20, session 350 (BUG-3267, 19ddd45c1). RULED
       2026-11-20: either corner a tree, the hero's rule (rejected:
       0.9.3's monster line, both corners). mon.c mfndpos(). The
       pathfinding maps still read a tree corner as closed (one map
@@ -38244,7 +38244,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       bill_p to -1000 ("dump core when referenced"), which onbill()
       then read - from obfree() of an unpaid item, rile_shk()'s
       surcharge or the sanity check (SIGSEGV).
-      CLOSED 2026-11-20, session 350 (BUG-3268, commit pending). RULED
+      CLOSED 2026-11-20, session 350 (BUG-3268, c3d5f192a). RULED
       2026-11-20 "root cause now" (rejected: the pointer guard alone;
       a row only). shk.c: walking out on an open bill is robbery
       wherever the shopkeeper stands (rob_shop() and the Kops; only
