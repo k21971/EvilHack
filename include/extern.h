@@ -3033,6 +3033,7 @@ extern void selective_remove_curse(void);
 extern void drop_boulder_on_player(boolean, boolean, boolean, boolean);
 extern boolean drop_boulder_on_monster(coordxy, coordxy, boolean, boolean);
 extern void wand_explode(struct obj *, int) NONNULLARG1;
+extern boolean u_in_litroom_area(coordxy, coordxy);
 extern void litroom(boolean, boolean, struct obj *, coordxy,
                     coordxy) NO_NNARGS;
 extern void do_genocide(int);

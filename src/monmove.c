@@ -1444,8 +1444,7 @@ dochug(struct monst *mtmp)
         litroom(TRUE, TRUE, (struct obj *) 0, mtmp->mx, mtmp->my);
         /* a drow or other light-hating hero caught within the
            aura is harmed, just like a wand/scroll/spell of light */
-        if (distu(mtmp->mx, mtmp->my) <= 25
-            && clear_path(mtmp->mx, mtmp->my, u.ux, u.uy))
+        if (u_in_litroom_area(mtmp->mx, mtmp->my))
             (void) lightdamage((struct obj *) 0, mtmp, FALSE, 5);
         return 0;
     }

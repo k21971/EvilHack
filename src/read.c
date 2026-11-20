@@ -3354,6 +3354,22 @@ set_lit(coordxy x, coordxy y, genericptr_t val)
     }
 }
 
+/* imported from vision.c, for the shape of the area */
+extern const coordxy circle_data[];
+extern const coordxy circle_start[];
+
+/* is the hero on a square that a monster's aura centred on <x,y>
+   reaches? the area is do_clear_area()'s circle of radius 5, whose rim
+   holds a few squares that a plain distance test leaves out */
+boolean
+u_in_litroom_area(coordxy x, coordxy y)
+{
+    int dx = abs(u.ux - x), dy = abs(u.uy - y);
+
+    return (boolean) (dy <= 5 && dx <= circle_ptr(5)[dy]
+                      && clear_path(x, y, u.ux, u.uy));
+}
+
 void
 litroom(
     boolean on,      /* True: make nearby area lit; False: cursed scroll */
@@ -3383,7 +3399,7 @@ litroom(
          *  Shouldn't this affect all lit objects in the area of effect
          *  rather than just those carried by the hero?
          */
-        if (!mon || (distu(x, y) <= 25 && clear_path(x, y, u.ux, u.uy))) {
+        if (!mon || u_in_litroom_area(x, y)) {
             for (otmp = gi.invent; otmp; otmp = nextobj) {
                 nextobj = otmp->nobj;
                 lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
