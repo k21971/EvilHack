@@ -2416,8 +2416,13 @@ mkcorpstat(
         if (!ptr)
             ptr = mtmp->data;
 
-        /* don't give a revive timer to a cancelled troll's corpse */
-        if (mtmp->mcan && !is_rider(ptr))
+        /* a cancelled troll or zombie won't come back by itself; any
+           other cancelled monster can still rise as a zombie's victim.
+           this looks at the dead monster, since a zombie's corpse is
+           made with its base species as 'ptr' */
+        if (mtmp->mcan && !is_rider(ptr)
+            && (mtmp->data->mlet == S_TROLL || is_zombie(mtmp->data)
+                || racial_zombie(mtmp)))
             otmp->norevive = 1;
     }
 
