@@ -1190,9 +1190,11 @@ hitum(struct monst *mon, struct attack *uattk)
                         || gm.multi < 0 || u.umortality > oldumort
                         || !malive || m_at(x, y) != mon
                         /* the first passive counter-attack may have
-                           destroyed the secondary weapon */
+                           destroyed the secondary weapon, or bared the
+                           hand so that it let the weapon go */
                         || (secondwep
-                            && !o_on(secondwep_id, gi.invent)))) {
+                            && (!o_on(secondwep_id, gi.invent)
+                                || secondwep != uswapwep)))) {
         gt.twohits = 2; /* second of 2 hits */
         tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
                                &armorpenalty);

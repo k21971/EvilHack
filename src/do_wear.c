@@ -1127,6 +1127,9 @@ Gloves_off(void)
        be being touched simultaneously.] */
     if (u.twoweap && uswapwep && uswapwep->otyp == CORPSE && !swapping)
         wielding_corpse(uswapwep, gloves, on_purpose);
+    /* the off hand holds a weapon too while fighting with two */
+    if (u.twoweap && uswapwep && !swapping)
+        bare_hand_touch(&uswapwep, W_SWAPWEP, gloves);
 
     if (condtests[bl_bareh].enabled)
         disp.botl = TRUE;
