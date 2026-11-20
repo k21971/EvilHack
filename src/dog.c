@@ -1686,6 +1686,12 @@ dogfood(struct monst *mon, struct obj *obj)
                    : (starving || herbi) ? ACCFOOD
                      : MANFOOD;
         case APPLE:
+        case ORANGE:
+        case PEAR:
+        case MELON:
+        case MISTLETOE:
+        case KELP_FROND:
+        case SLIME_MOLD:
             return herbi ? DOGFOOD : starving ? ACCFOOD : MANFOOD;
         case CARROT:
             return (herbi || mblind) ? DOGFOOD : starving ? ACCFOOD : MANFOOD;
