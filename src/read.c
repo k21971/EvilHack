@@ -2357,46 +2357,22 @@ staticfn void
 seffect_light(struct obj **sobjp)
 {
     struct obj *sobj = *sobjp;
-    boolean sblessed = sobj->blessed;
     boolean scursed = sobj->cursed;
     boolean confused = (Confusion != 0);
 
-    if (!confused) {
+    if (!confused || rn2(5)) {
         if (!Blind)
             gk.known = TRUE;
-        litroom(!scursed, FALSE, sobj, u.ux, u.uy);
-        if (!scursed) {
+        litroom(!confused && !scursed, FALSE, sobj, u.ux, u.uy);
+        if (!confused && !scursed) {
             if (lightdamage(sobj, (struct monst *) 0, TRUE, 5))
                 gk.known = TRUE;
         }
     } else {
-        int pm = scursed ? PM_BLACK_LIGHT : PM_YELLOW_LIGHT;
-
-        if ((svm.mvitals[pm].mvflags & G_GONE)) {
-            pline("Tiny lights sparkle in the air momentarily.");
-        } else {
-            /* surround with cancelled tame lights which won't explode */
-            struct monst *mon;
-            boolean sawlights = FALSE;
-            int i, numlights = rn1(2, 3) + (sblessed * 2);
-
-            for (i = 0; i < numlights; ++i) {
-                mon = makemon(&mons[pm], u.ux, u.uy,
-                              MM_EDOG | NO_MINVENT | MM_NOMSG);
-                if (mon) {
-                    initedog(mon, TRUE);
-                    mon->msleeping = 0;
-                    mon->mcan = TRUE;
-                    if (canspotmon(mon))
-                        sawlights = TRUE;
-                    newsym(mon->mx, mon->my);
-                }
-            }
-            if (sawlights) {
-                pline("Lights appear all around you!");
-                gk.known = TRUE;
-            }
-        }
+        /* could be scroll of create monster, don't set known ...*/
+        (void) create_critters(1, !scursed ? &mons[PM_YELLOW_LIGHT]
+                                           : &mons[PM_BLACK_LIGHT],
+                               TRUE);
     }
 }
 
