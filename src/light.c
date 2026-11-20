@@ -784,10 +784,12 @@ any_light_source(void)
 void
 snuff_light_source(coordxy x, coordxy y)
 {
-    light_source *ls;
+    light_source *ls, *ls_next;
     struct obj *obj;
 
-    for (ls = gl.light_base; ls; ls = ls->next)
+    for (ls = gl.light_base; ls; ls = ls_next) {
+        /* end_burn() below removes ls from the list */
+        ls_next = ls->next;
         /*
          * Is this position check valid??? Can I assume that the positions
          * will always be correct because the objects would have been
@@ -806,14 +808,9 @@ snuff_light_source(coordxy x, coordxy y)
                     || (obj->otyp == MAGIC_LAMP && obj->cursed))
                     continue;
                 end_burn(obj, obj->otyp != MAGIC_LAMP);
-                /*
-                 * The current ls element has just been removed (and
-                 * ls->next is now invalid).  Return assuming that there
-                 * is only one light source attached to each object.
-                 */
-                return;
             }
         }
+    }
 }
 
 /* Return TRUE if object sheds any light at all. */

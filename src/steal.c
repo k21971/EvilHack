@@ -838,8 +838,8 @@ mpickobj(struct monst *mtmp, struct obj *otmp)
        so we have to call it after doing the object checks */
     freed_otmp = add_to_minv(mtmp, otmp);
     /* and we had to defer this until object is in mtmp's inventory */
-    if (snuff_otmp)
-        snuff_light_source(mtmp->mx, mtmp->my);
+    if (snuff_otmp && !freed_otmp)
+        end_burn(otmp, TRUE);
     return freed_otmp;
 }
 
