@@ -10,6 +10,7 @@ struct _doengrave_ctx {
     boolean dengr;    /* TRUE if we wipe out the current engraving */
     boolean doblind;  /* TRUE if engraving blinds the player */
     boolean doknown;  /* TRUE if we identify the stylus */
+    boolean doknown_after; /* TRUE if its feedback identifies it */
     boolean eow;      /* TRUE if we are overwriting oep */
     boolean jello;    /* TRUE if we are engraving in slime */
     boolean ptext;    /* TRUE if we must prompt for engrave text */
@@ -42,6 +43,7 @@ struct _doengrave_ctx {
 staticfn int stylus_ok(struct obj *);
 staticfn boolean u_can_engrave(void);
 staticfn void doengrave_ctx_init(struct _doengrave_ctx *);
+staticfn void engraving_learn_wand(struct obj *);
 staticfn void doengrave_sfx_item_WAN(struct _doengrave_ctx *);
 staticfn boolean doengrave_sfx_item(struct _doengrave_ctx *);
 staticfn void doengrave_ctx_verb(struct _doengrave_ctx *);
@@ -617,6 +619,7 @@ doengrave_ctx_init(struct _doengrave_ctx *de)
     de->dengr = FALSE;
     de->doblind = FALSE;
     de->doknown = FALSE;
+    de->doknown_after = FALSE;
     de->eow = FALSE;
     de->ptext = TRUE;
     de->teleengr = FALSE;
@@ -650,6 +653,16 @@ doengrave_ctx_init(struct _doengrave_ctx *de)
     de->frosted = is_ice(u.ux, u.uy);
 }
 
+/* learn what a wand is from engraving with it */
+staticfn void
+engraving_learn_wand(struct obj *obj)
+{
+    learnwand(obj);
+    /* a wand that was already known gets these points again */
+    if (objects[obj->otyp].oc_name_known)
+        more_experienced(0, 10);
+}
+
 /* special engraving effects for WAND objects */
 staticfn void
 doengrave_sfx_item_WAN(struct _doengrave_ctx *de)
@@ -673,17 +686,20 @@ doengrave_sfx_item_WAN(struct _doengrave_ctx *de)
     case WAN_STRIKING:
         Strcpy(de->post_engr_text,
                "The wand unsuccessfully fights your attempt to write!");
+        de->doknown_after = TRUE;
         break;
     case WAN_SLOW_MONSTER:
         if (!Blind) {
             Sprintf(de->post_engr_text, "The bugs on the %s slow down!",
                     surface(u.ux, u.uy));
+            de->doknown_after = TRUE;
         }
         break;
     case WAN_SPEED_MONSTER:
         if (!Blind) {
             Sprintf(de->post_engr_text, "The bugs on the %s speed up!",
                     surface(u.ux, u.uy));
+            de->doknown_after = TRUE;
         }
         break;
     case WAN_POLYMORPH:
@@ -691,6 +707,9 @@ doengrave_sfx_item_WAN(struct _doengrave_ctx *de)
             if (!Blind) {
                 de->type = (xint16) 0; /* random */
                 (void) random_engraving(de->buf, de->ebuf);
+                /* the changed engraving is shown before any feedback
+                   text would be */
+                de->doknown = TRUE;
             } else {
                 /* keep the same type so that feels don't
                    change and only the text is altered,
@@ -716,6 +735,7 @@ doengrave_sfx_item_WAN(struct _doengrave_ctx *de)
             Sprintf(de->post_engr_text,
                     "The %s is riddled by bullet holes!",
                     surface(u.ux, u.uy));
+            de->doknown_after = TRUE;
         }
         break;
         /* can't tell sleep from death - Eric Backus */
@@ -727,9 +747,11 @@ doengrave_sfx_item_WAN(struct _doengrave_ctx *de)
         }
         break;
     case WAN_COLD:
-        if (!Blind)
+        if (!Blind) {
             Strcpy(de->post_engr_text,
                    "A few ice cubes drop from the wand.");
+            de->doknown_after = TRUE;
+        }
         if (!de->oep || (de->oep->engr_type != BURN))
             break;
         FALLTHROUGH;
@@ -1124,6 +1146,13 @@ doengrave(void)
             de->dengr = FALSE;
             de->teleengr = FALSE;
             de->buf[0] = '\0';
+            /* the wand's effect was demoted, so its feedback (flames,
+               lightning and its flash, bullet holes) goes too, and
+               with it anything that feedback would have identified;
+               the charge is still spent */
+            de->post_engr_text[0] = '\0';
+            de->doknown_after = FALSE;
+            de->doblind = FALSE;
         }
     }
 
@@ -1132,11 +1161,8 @@ doengrave(void)
      */
 
     /* Identify stylus */
-    if (de->doknown) {
-        learnwand(de->otmp);
-        if (objects[de->otmp->otyp].oc_name_known)
-            more_experienced(0, 10);
-    }
+    if (de->doknown)
+        engraving_learn_wand(de->otmp);
     if (de->teleengr) {
         rloc_engr(de->oep);
         de->oep->eread = 0;
@@ -1366,8 +1392,11 @@ doengrave(void)
     svc.context.engraving.actionct = 0;
     set_occupation(engrave, "engraving", 0);
 
-    if (de->post_engr_text[0])
+    if (de->post_engr_text[0]) {
         pline("%s", de->post_engr_text);
+        if (de->doknown_after)
+            engraving_learn_wand(de->otmp);
+    }
     if (de->doblind && !resists_blnd(&gy.youmonst)) {
         You("are blinded by the flash!");
         make_blinded((long) rnd(50), FALSE);
