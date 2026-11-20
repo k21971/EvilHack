@@ -1038,8 +1038,9 @@ armor_bonus(struct obj *armor)
     /* start with its base AC value */
     bon = objects[armor->otyp].a_ac;
     /* adjust for material; the metallic floor inside material_bonus()
-       is written for armor, so a worn ring or amulet gets none */
-    if (armor->oclass == ARMOR_CLASS)
+       is written for armor, so a worn ring or amulet gets none.
+       barding is a tool that protects like armor */
+    if (armor->oclass == ARMOR_CLASS || is_barding(armor))
         bon += material_bonus(armor);
     /* subtract erosion */
     bon -= (int) greatest_erosion(armor);
