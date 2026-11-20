@@ -17,7 +17,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-19, session 348: a per-symbol
+- Phase 2 status (refreshed 2026-11-20, session 349: the twelve object
+  rules the site census found are back - golems leave random objects
+  of their own material; a racial monster's corpse keeps its race, for
+  eating, tinning, offering, weight and the zombie it rises as; trees
+  drop mistletoe, which cures hallucination; six more herbivore
+  treats; engraving identifies striking, slow monster, speed monster,
+  magic missile, cold and polymorph; a wished barding keeps its
+  enchantment; a dark elven dagger opens tins; Giantslayer takes a
+  Caveperson's alignment; bare hands touch the weapon when gloves come
+  off, the pick before it digs and a caught boomerang; a cursed wand
+  of light spreads darkness; darkness snuffs every light on a square;
+  bone piles make skeleton warriors - with five rulings beside them: a
+  cancelled monster a zombie kills still rises (only trolls, zombies
+  and Draugr keep the mark), barding gets its material armor back, the
+  off-hand weapon is touched too, lamps on the rim of a monster's
+  darkness go out with their line, and bone devils gate demons again
+  (5.0's skeleton summon removed); 5.0's rope golem remains stay; a
+  review fix hardens the pack soak; eighteen rows minted and closed,
+  the object rules row closed, a residue row and a Phase 5 verify row
+  minted - after session 348, on 2026-11-19, ran a per-symbol
   site census - every 0.9.3 use site of an EvilHack-only symbol
   paired with the branch's - found about 45 rules that had not
   come over, and the fourteen monster rules among them are back:
@@ -233,7 +252,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
   prefix; 60 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 58 LOW):
-  797 rows closed, 60 open
+  816 rows closed, 60 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -37625,7 +37644,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Knight, Monk, Rogue - PRE -20, POST -10; a Vampire Wizard -20
       on both (it starts at 0); Draugr Convict -10, Draugr Infidel
       +10 and a human Barbarian +10 on both; no abuse recorded.
-- [ ] LOW: site census, object rules - twelve 0.9.3 rules the branch
+- [x] LOW: site census, object rules - twelve 0.9.3 rules the branch
       lacks (minted 2026-11-19, session 348, the per-symbol site
       census; every item read against both trees). RULED 2026-11-19
       (decisions log): restore all twelve as 0.9.3 has them.
@@ -37683,6 +37702,272 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       PM_SKELETON_WARRIOR (and polyuse() takes 400, not 300). 5.0's
       bone devil summon (minion.c) names PM_SKELETON too and means the
       strong one.
+      CLOSED 2026-11-20, session 349: all twelve restored, one row
+      each below (BUG-3235, 3237 to 3241, 3243 to 3245, 3247, 3248,
+      3250), with five rulings made beside them (BUG-3236, 3242, 3246,
+      3249, 3251) and one review fix (BUG-3252). Correction to item
+      (l): 0.9.3 has no bone devil arm at all; it was removed, not
+      renamed.
+- [x] LOW: golems leave vanilla's fixed piles (minted and closed
+      2026-11-20, session 349, object rules item (a); master
+      03e87e1bd, a015700da). 0.9.3 has an iron, glass, wood, leather
+      or paper golem leave random objects forced to its material, with
+      a stock item for anything that cannot be made of it.
+      CLOSED 2026-11-20, session 349 (BUG-3235, commit pending). RULED
+      restore; 5.0's rope golem remains stay (rejected: none, as
+      0.9.3). mon.c make_corpse(): master's five arms; the paper arm
+      can never keep a random roll and is ported for shape.
+      BATTERY (tester A): ten golems of each kind - 78 iron pieces (17
+      not chains), 44 glass (6), 44 wood (7, a wand of cancellation
+      among them), 56 leather (2); all 222 of the golem's material, no
+      container, no potion; PRE fixed piles; paper, gold, clay and
+      rope alike on both builds.
+- [x] LOW: any cancelled monster's corpse was marked "will not rise"
+      (minted and closed 2026-11-20, session 349, found while reading
+      what the racial corpses rule widens). 5.0 marks every cancelled
+      monster that reaches mkcorpstat() with its traits; EvilHack's
+      zombie arms read the same bit, so a cancelled pet, shopkeeper or
+      unique a zombie killed never rose. 0.9.3 marks trolls and zombie
+      species only.
+      CLOSED 2026-11-20, session 349 (BUG-3236, commit pending). RULED
+      "0.9.3: victims rise" (rejected: cancelled stays down). mkobj.c
+      mkcorpstat(): the mark needs a troll, a zombie species or a
+      zombie race, read from the dead monster. Beyond 0.9.3: a
+      cancelled monster of a zombie race (a beheaded Draugr) is
+      marked, which 0.9.3's own "no head? no reviving" comment wants
+      and its test misses. Undead turning was never blocked; a prayer
+      or the cursed Book of the Dead can raise a cancelled pet's
+      corpse again.
+      BATTERY (tester A): three cancelled tame hill orcs killed with
+      the zombie flag set - PRE marked, nothing rose; POST unmarked,
+      "The orc zombie rises from the dead!" three times; a cancelled
+      troll and a cancelled human zombie keep the mark on both.
+- [x] LOW: racial monsters' corpses forget their race (minted and
+      closed 2026-11-20, session 349, object rules item (b); master
+      cc3c61cf4). KEEPTRAITS() lacked `has_erac(mon)`, so the branch's
+      own race readers saw nothing for an ordinary racial monster's
+      corpse.
+      CLOSED 2026-11-20, session 349 (BUG-3237, commit pending). RULED
+      restore. mon.c KEEPTRAITS(). Live with it, as 0.9.3:
+      cannibalism, the race's intrinsic, offering and tinning by race;
+      named and weighed by race; such corpses never merge; undead
+      turning returns the same monster; a zombie's victim rises as its
+      race's zombie (a centaur not at all); a Draugr rises as itself.
+      BATTERY (tester A): an elven soldier's corpse - PRE no saved
+      monster, "soldier corpse", 1450; POST the soldier with its race,
+      "elven soldier corpse", 800; undead turning returns a newly
+      rolled race on PRE (a drow), the same elf on POST; an elven hero
+      is a cannibal on POST only; the victim rises as a human zombie
+      on PRE, an elf zombie on POST; centaurian soldiers do not rise
+      on POST. The no-merge rule was not isolated (the POST pair
+      differed in sex).
+- [x] LOW: no mistletoe from trees, and eating it does nothing (minted
+      and closed 2026-11-20, session 349, object rules item (c);
+      master 1383daa7c, 8f0283929).
+      CLOSED 2026-11-20, session 349 (BUG-3238, commit pending). RULED
+      restore. mkobj.c treefruits[] (dig.c's two callers get it too),
+      dokick.c kick_nondoor() one at a time, eat.c fpostfx() cures
+      hallucination unless cursed.
+      BATTERY (tester B): POST 5 of 40 fruit drops were mistletoe,
+      each one object, "A mistletoe falls from the tree!"; PRE 0 of
+      20; eating one ends hallucination on POST ("Everything looks SO
+      boring now."), a cursed one does not, PRE never.
+- [x] LOW: only the apple is a herbivore's treat (minted and closed
+      2026-11-20, session 349, object rules item (d); master
+      49c218480, 1383daa7c).
+      CLOSED 2026-11-20, session 349 (BUG-3239, commit pending). RULED
+      restore. dog.c dogfood(): orange, pear, melon, mistletoe, kelp
+      frond and slime mold share the apple's case. Premise correction:
+      a thrown orange already tamed a hostile pony before (tamedog()
+      refuses only at MANFOOD or worse), so that is no change.
+      BATTERY (tester B): dogfood(pony, obj) reads ACCFOOD for the six
+      on PRE and DOGFOOD on POST; apple and food ration unchanged.
+- [x] LOW: engraving identifies only digging, fire and lightning
+      (minted and closed 2026-11-20, session 349, object rules item
+      (e); master 054b52671, c7599559a).
+      CLOSED 2026-11-20, session 349 (BUG-3240, commit pending). RULED
+      restore. engrave.c: a second flag learns striking, slow monster,
+      speed monster, magic missile and cold when their line prints
+      (striking even blind) and polymorph at once when it changes an
+      engraving. The headstone demotion arm clears the feedback text,
+      lightning's flash and the new flag: 0.9.3's BUG-1043
+      (b41d23c6d), which had never reached the branch.
+      BATTERY (tester B): the five lines print on both builds and the
+      wand becomes known on POST only; polymorph known at once; sleep
+      and death unknown on both; a wand never seen is not learned; on
+      a disturbed grave with no epitaph PRE prints the bullet holes
+      and lightning blinds, POST neither.
+- [x] LOW: a wished barding loses its enchantment (minted and closed
+      2026-11-20, session 349, object rules item (f); master
+      3b3da8b1f).
+      CLOSED 2026-11-20, session 349 (BUG-3241, commit pending). RULED
+      restore. objnam.c readobjnam(): is_barding() in the armor arm.
+      BATTERY (tester B, the wizard flag cleared for the wish): twenty
+      "+3 barding" - PRE none at +3 (sixteen +0), POST ten +3 and ten
+      +0; "-3 barding" PRE +0, POST -3.
+- [x] LOW: barding gets no armor for its material (minted and closed
+      2026-11-20, session 349, found beside item (f); a branch
+      regression from BUG-2428's ARMOR_CLASS gate, which also made
+      3b3da8b1f's +1 for mithril, steel, adamantine and dragonhide
+      barding unreachable).
+      CLOSED 2026-11-20, session 349 (BUG-3242, commit pending). RULED
+      fix; this amends the 2026-10-20 "ARMOR_CLASS only" ruling for
+      barding (rings and amulets still get none). worn.c
+      armor_bonus().
+      BATTERY (tester B): mithril barding armor_bonus 3 on PRE, 5 on
+      POST; leather 3 / 1; a barded pony's AC 3 / 1.
+- [x] LOW: a dark elven dagger is no tin opener (minted and closed
+      2026-11-20, session 349, object rules item (g); master
+      6974ca914).
+      CLOSED 2026-11-20, session 349 (BUG-3243, commit pending). RULED
+      restore. eat.c start_tin().
+      BATTERY (tester B): PRE "It is not so easy to open this tin."
+      and 28 turns, POST "Using your etched dagger you try to open the
+      tin." and 3.
+- [x] LOW: Giantslayer stays neutral for a Caveperson (minted and
+      closed 2026-11-20, session 349, object rules item (h); master
+      3fb1328a9; the forging row's "Dirge / Priest / Caveman"
+      deferral, never discharged for this line).
+      CLOSED 2026-11-20, session 349 (BUG-3244, commit pending). RULED
+      restore. artifact.c hack_artifacts(); Keolewa's line is not
+      re-added (the gift loop covers it, as for Demonbane).
+      BATTERY (tester B): a lawful Caveperson's Giantslayer - PRE
+      alignment 0 and 6 blasts in forty wields, POST alignment 1 and
+      none; a neutral Caveperson unchanged.
+- [x] LOW: bare hands do not feel what they hold (minted and closed
+      2026-11-20, session 349, object rules item (i); master ed9c4645b
+      / 9168f7856, 10dc01e57, 3edf7ad73). Five lost retouch_object()
+      calls: gloves off, autodig, the force-fight dig, the `>` dig, a
+      caught boomerang.
+      CLOSED 2026-11-20, session 349 (BUG-3245, commit pending). RULED
+      restore. do_wear.c Gloves_off() / bare_hand_touch(), hack.c
+      test_move() and domove_fight_empty(), do.c dodown(), zap.c
+      boomhit(). Session calls, plan-approved: skipped while
+      poly_obj() swaps the gloves; the force-fight touch follows the
+      glyph tests; the gloves are marked in_use over water or lava
+      across the touch.
+      BATTERY (tester C): an elf's iron long sword sears when the
+      gloves come off (5 of 5 on POST, never on PRE); an iron pick-axe
+      sears once per dig start for all three digs on POST only, never
+      gloved; a silver pick in a demon form's hand is let go and
+      nothing is dug; an iron boomerang sears again at the catch on
+      POST.
+- [x] LOW: taking gloves off ignores the off-hand weapon (minted and
+      closed 2026-11-20, session 349; 0.9.3 the same, master
+      frozen-unfixed).
+      CLOSED 2026-11-20, session 349 (BUG-3246, commit pending). RULED
+      both hands, beyond 0.9.3 (rejected: record only). do_wear.c
+      Gloves_off(); uhitm.c hitum() skips the second swing when the
+      off hand let go between the blows (reviewer).
+      BATTERY (tester C): two-weapon mode - POST a sear line for each
+      weapon, three of three; PRE nothing. The second-swing guard was
+      read, not staged.
+- [x] LOW: a cursed wand of light lights the room (minted and closed
+      2026-11-20, session 349, object rules item (j); master
+      9094ce27a, 6e843d712, d00ab0c54).
+      CLOSED 2026-11-20, session 349 (BUG-3247, commit pending). RULED
+      restore, and "cursed means cursed" beyond 0.9.3: the test is the
+      wand's own curse, where 0.9.3's cursed() helper let a wielded
+      cursed wand and an Infidel's light up (master frozen-unfixed).
+      zap.c zapnodir() and zapyourself(), apply.c do_break_wand(); an
+      uncursed wand's flash also blinds onlookers, an engulfer from
+      inside. Session call: 5.0's "known when seen" stays, plus a
+      light-hating hero the light hurts (0.9.3's line is always true).
+      BATTERY (tester C): zapped, wielded and zapped, engraved with
+      and broken - PRE lit, POST "You are surrounded by darkness!"; a
+      purple worm is blinded from inside on POST only; a gremlin-form
+      hero is hurt by the cursed zap on PRE only.
+- [x] LOW: darkness puts out one light per square (minted and closed
+      2026-11-20, session 349, object rules item (k); master
+      7e68ba7f2, 052cf57fe; vanilla 5.0 too - upstream row
+      2026-11-20).
+      CLOSED 2026-11-20, session 349 (BUG-3248, commit pending). RULED
+      restore. light.c snuff_light_source() snuffs every burning
+      object on the square; steal.c mpickobj() ends the burn of the
+      object the engulfer took in. The commit's litroom() hunk was
+      undone on master the same day.
+      BATTERY (tester C): three lit lamps on one square under a cursed
+      scroll of light - PRE one out, POST all three; a lamp thrown
+      into an engulfer - PRE it burns on inside and the hero's own
+      goes out, POST the thrown one is out.
+- [x] LOW: lamps on the rim of a monster's darkness go out silently
+      (minted and closed 2026-11-20, session 349, the plan's stress
+      test; 0.9.3 the same, master frozen-unfixed). The aura covers a
+      radius-5 circle whose rim squares are farther than the distance
+      the hero test allowed.
+      CLOSED 2026-11-20, session 349 (BUG-3249, commit pending). RULED
+      fix, beyond 0.9.3 (rejected: record only). read.c
+      u_in_litroom_area() tests the circle; monmove.c's aura of light
+      uses it for a light-hating hero's hurt (reviewer, the same
+      gate).
+      BATTERY (tester C): centred at (+5,+1) and (+2,+5) the lamp goes
+      out silently on PRE and with "Your oil lamp goes out!" on POST
+      (three lamps: one silent, three lines); (+4,+3) a line on both;
+      (+5,+3) lit on both.
+- [x] LOW: bone piles make the level 4 skeleton (minted and closed
+      2026-11-20, session 349, object rules item (l); master
+      2f365eaab).
+      CLOSED 2026-11-20, session 349 (BUG-3250, commit pending). RULED
+      restore. zap.c create_polymon().
+      BATTERY (tester A): three piles each - PRE a skeleton (a
+      shrieker with skeletons genocided), POST a skeleton warrior.
+- [x] LOW: a bone devil summons one skeleton (minted and closed
+      2026-11-20, session 349, found beside item (l); 5.0 f0698e1dc,
+      and on the branch its line named the weak skeleton; 0.9.3 has no
+      such arm).
+      CLOSED 2026-11-20, session 349 (BUG-3251, commit pending). RULED
+      "0.9.3: demons" (rejected: a skeleton warrior; leave the weak
+      skeleton). minion.c msummon().
+      BATTERY (tester A): forty summons each - PRE forty skeletons;
+      POST 35 bone devils, 2 amorous demons, a weredemon, Juiblex and
+      Geryon.
+- [x] LOW: the pack soak follows and soaks items it should not (minted
+      and closed 2026-11-20, session 349, reviewer MED and LOW; 5.0's
+      own hole, widened by the bare-hands rule). A piece that rusts
+      away is taken off, which can kill the hero or end a polymorph;
+      the walk went on from an item no longer in the pack, and it
+      could rust away gauntlets a thief was still taking
+      ("extract_nobj: object lost").
+      CLOSED 2026-11-20, session 349 (BUG-3252, commit pending).
+      Review fix, no ruling. trap.c water_damage_chain(): for the
+      hero's pack an in_use item is skipped and the walk stops when
+      the next item is gone, as lava_effects() does.
+      BATTERY (tester C): ordinary soaks alike on both builds; a demon
+      form at 1 HP over a pool taking off rusted-through gauntlets
+      with silver in hand returns to its own form, falls in and crawls
+      out with the gauntlets still in the pack, no panic. The thief
+      route was read, not staged.
+- [ ] LOW, record: session 349 residue (minted 2026-11-20, plan stress
+      test, reviewer and batteries; record unless a ruling wants a
+      change). (a) dogfood() has 5.0's polyfood() test where 0.9.3
+      tests a shapeshifter's or a green slime's corpse; an abused pet
+      will eat a chameleon corpse. (b) Gloves_off() lost 0.9.3's
+      makeknown() and status update for the Hand of Vecna, which
+      cannot come off. (c) mcast_destroy_armor() always says "the
+      destructive magic"; 0.9.3 says "your" for the hero's own. (d)
+      Breaking a cursed wand of light still flash-burns and
+      light-hurts the hero while the room goes dark; as 0.9.3. (e) A
+      refused autodig step or `>` costs no move, so an elf with an
+      iron pick bumping an undiggable wall is seared per keypress; a
+      refused force-fight dig costs one; as 0.9.3. (f) Taking gloves
+      off blasts again for a cross-aligned artifact or the Wand of
+      Orcus in hand and counts an artifact touch; retouch_equipment()
+      can touch the weapon twice through the nested call; a theft that
+      interrupts putting gloves on touches too; as 0.9.3. (g) The
+      catch line reads "The iron of the iron boomerang hurts to
+      touch!" - "the" because it is not in the pack yet; as 0.9.3. (h)
+      Giantslayer follows the starting alignment: a converted
+      Caveperson is blasted, and neutral monsters no longer pick it up
+      in a lawful Caveperson's game; as 0.9.3. (i) The battery did not
+      isolate the no-merge rule for racial corpses. (j) Darkness now
+      puts out every burning object on each square it covers, floor
+      piles and monsters' lamps included, with no line for those; as
+      0.9.3. (k) A sampled soak that picks an in_use item wets one
+      item fewer; no ordinary caller has one. (l) Tester anomalies,
+      both builds: a wish that merges into a carried stack names only
+      the wished count ("e - 3 uncursed mistletoe" with 4 held); both
+      of tester C's heroes were at Luck -1 by turn 280, cause not
+      traced.
 - [ ] LOW: site census, text and small ones (minted 2026-11-19,
       session 348, the same census). RULED 2026-11-19 (decisions log):
       take all of them. Plannable.
@@ -38132,7 +38417,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       helmet_protects is TRUE at all four callers (kept for master
       parity). (i) msummon()'s brimstone and stench key on the
       arriving monster by ruling, so the Wizard's summoned demons
-      get them and a bone devil's skeleton does not. (j) An adjacent
+      get them (a bone devil's skeleton did not; that 5.0 arm went
+      2026-11-20, BUG-3251). (j) An adjacent
       hill giant holding a wand of striking never zapped it in about
       40 turns and did at once from three squares (battery
       observation, unread). (k) Observed joust rates 54% at Skilled
@@ -41587,6 +41873,20 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       The sfctool build warns that files.c's whereis_file is unused.
       (h) restore_waterlevel()'s "no bubbles" arm sets
       something_worth_saving to 1 instead of putting it back.
+- [ ] LOW verify: master b41d23c6d's engrave.c review fixes (minted
+      2026-11-20, session 349; the commit, 0.9.3's BUG-1038..1045, had
+      no mention in this tracker). BUG-1043 is carried by BUG-3240.
+      Still to read against 5.0's engraving structure: BUG-1040 -
+      rloc_engr() is void, "The engraving ... vanishes!" prints before
+      the relocation is tried, and on a failed one the pointer is
+      cleared while the engraving stays put and is later overwritten
+      silently; BUG-1041 - surface() and ceiling() index levl[][]
+      before any isok(); BUG-1042 - make_engr_at()'s pointer after
+      del_engr(); BUG-1039 - wipe_engr_at() advances past leading
+      spaces, to be checked against save and restore of 5.0's three
+      text copies; BUG-1044 - make_grave() and the stale disturbed
+      bit, now through set_levltyp(); BUG-1038 - the branch has its
+      own size cap.
 - [ ] LOW: NON_PM lookup hardening, own slice (minted 2026-11-19,
       session 348, the site census; third concrete instance of the
       archive-pass row above). 0.9.3 guards every lookup of a corpse's
@@ -42767,6 +43067,7 @@ see its row), cut against 74ebd09ed.
 | 2026-11-16 | bones.c resetobjs() sanitizes ONAME() of the objects in loaded bones and getbones() the names of its monsters, but not the given name inside the monster stored with a corpse or statue (OMONST): a named pet's corpse brings the previous player's text through unsanitized, and it is printed when the corpse is revived or the statue animated. Same code in fd4d169b6. Fix on the branch: `if (has_omonst(otmp) && has_mgivenname(OMONST(otmp))) sanitize_name(MGIVENNAME(OMONST(otmp)));` in the restore arm; BUG-3182, branch commit ae0dc8397 | fixed on the branch; not sent; triage pending |
 | 2026-11-18 | steal.c steal() calls every thief that charms a worn armor piece off the hero "She" ("She charms you", "let her take", "She stole ..."). With SEDUCE=0 in sysconf mhitm_ad_ssex() sends an incubus to mhitm_ad_sedu() and so to steal(), and a male demon gets the nymph's pronouns. Same code in fd4d169b6 and in 3.6. Fix on the branch: the pronouns come from pronoun_gender(mtmp, PRONOUN_NO_IT); BUG-3203, branch f58f8b1eb | fixed on the branch; not sent; triage pending |
 | 2026-11-19 | Paying an angry shopkeeper who is away from his shop while a bill or debit is still open reaches `impossible("dopay: not to shopkeeper?")` and the pay command does nothing: dopay()'s "after blood" arm handles only `robbed`, and the bill is folded into it only by make_angry_shk() and rob_shop(), not when the shopkeeper is angered by an attack or the hero leaves while he is already outside. Same code in fd4d169b6 (src/shk.c). 0.9.3 fixed it as its BUG-1310 (d63c0dbaa): fold the open bill into `robbed` at that point. Found again by the session 348 site census; not yet fixed on the branch (text-and-small row, item g) | on neither tree's 5.0 code; not fixed on the branch yet; not sent |
+| 2026-11-20 | Darkness snuffs only one light per square, and an engulfer snuffs the wrong one. light.c snuff_light_source() returns after the first burning object light it finds at (x,y) ("Return assuming that there is only one light source attached to each object" - but several objects can share a square), so a cursed scroll of light leaves the other lamps of a floor pile burning. steal.c mpickobj() calls it for the square of an engulfer that has just taken in a lit object; with the hero inside, that square is the hero's own, and the first source in the list can be the lamp the hero is holding, which goes out with no message while the thrown lamp burns on inside the engulfer and is dropped lit when it dies. Same code in fd4d169b6 (src/light.c, src/steal.c). 0.9.3 fixed both (7e68ba7f2, 052cf57fe): save the next pointer and keep walking; `if (snuff_otmp && !freed_otmp) end_burn(otmp, TRUE);`. BUG-3248, branch commit pending | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -43482,6 +43783,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-18 | The Blacksmith's Cookbook, sling bullets and a Sokoban penalty (Phase 2 session 346, AskUserQuestion x6 with 12 questions - one a battery launch ask - eleven as recommended). (1) SLICE: the Blacksmith's Cookbook, the Icequeen riders row's item (e) (the wording and parity rulings, the doorway thread and the residue rulings not taken). (2) FOLD-INS: all four 0.9.3 sling bullet rules the Cookbook check found - stacks of 8-14, autoquiver for bullets and a giant's boulders, the 3-in-4 save from breaking, none inside rock (anything not picked would have been a row). (3) CHAPTER 12: CORRECT THE BOOK, over my recommended "charge every attempt" (0.9.3's commit message and book say every attempt, its code success only): the code stays and the sentence reads "with each gemstone it affixes", picked from three renderings (rejected also: leave both). (4) AFFIX ODDS stay 30%, the code and its comment (rejected: the commit message's 35%). (5) "Uruk-hai shield" gets its capital (rejected: 0.9.3's text). (6) SOKOBAN: fold in the boulder penalty, COUNTS AS CHEATING (rejected: Luck only; a row); then, re-asked after the reviewer showed sokoban_guilt() takes 1 from a hero who cannot throw rocks and that 0.9.3 charges the Druid wildshape drop: FLAT 2, WILDSHAPE TOO (rejected: 2 or 1; no wildshape charge). (7) COUNT-LESS WISHES keep 5.0's rule - "arrow" gives 1, "arrows" 2 (rejected: 0.9.3's natural stack). (8) DISCWORLD: EvilHack's two books do not earn "read a Discworld novel" (rejected: leave it), and Death remarks on Discworld novels only (rejected: leave as 0.9.3). (9) Battery: three testers in parallel. Session calls, plan-approved: a monster's bullets get the hero's save through 5.0's shared roll (0.9.3's never broke); master's autoquiver quirks come along; the rock test lands before the stack rule and the book last. Premise corrections made in-session: the Sokoban amount (re-asked, above), and that the achievement line reaches #chronicle and the dumplog, not the livelog file under the shipped LIVELOG mask (stated; the ruling's effect is unchanged). BUG-3208..3214. | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-19 | Wording and parity rows: the slow line, the suffocating engulfers, the disintegration draw, the sight gates (Phase 2 session 347, AskUserQuestion x6 with 10 questions - one with the battery launch - all as recommended but one, which went beyond the recommendation). (1) SLICE: the four wording and parity rows (the doorway thread, the EvilHack-only object census and the parked residue rulings not taken). (2) SLOW LINE: ONE LINE EVERYWHERE - "slows down." goes at the hero's hit, a monster's hit and a monster's wand or spell of slow monster, the last beyond 0.9.3, whose own 2025 code re-added the double there (rejected: 0.9.3 exactly; the second line only where the first cannot print; keep both). (3) ENGULF WORDING: ORDINARY LINES, FITTED TAILS, over my recommended plain ordinary lines - the four AD_WRAP engulfers speak as any non-digesting engulfer and the expel tail is fitted (rejected: keep 5.0's trapper lines). (4) TAILS: "in a rush of water" for the water elemental and sea dragon, "in a tangle of vines" for the creeping mound, the gelatinous cube keeps "with a squelch" (rejected: brine and rot; torrent and leaves). (5) SIBLINGS: the fire elemental "in a blast of fire" and the earth elemental "in a shower of debris", both beyond 0.9.3 (rejected: neither). (6) TIMED-OUT EXPEL: fold in 0.9.3's full line, own commit (rejected: a row; keep 5.0's short line). (7) HAZE WORD: fitted - water, vegetation, ooze (rejected: "ooze" for all four). (8) DRAGON'S MAW: fold in, own commit (rejected: a row). (9) REVIEW FOLD: the thrown cockatrice corpse inside a dragon, and launch the battery (rejected: fold and hold the battery; a row). Session calls, plan-approved: "fire" and "debris" as haze words for the two sibling elementals; one draw for a black dragon's hide or an antimatter vortex and a draw per piece for worn scales, as 0.9.3; the three sight gates in 0.9.3's own form; 5.0's "becomes weaker!" and "head" kept; enfolds() narrowed rather than removed. Premise corrections made in-session: the hero's "didn't like its taste" line was never different (told at question 9, the edit taken back out); a kick never reaches the disintegration helper against a hero in dragon form, so the draw matters between monsters and for a vortex-form hero; the row's "husk" site was unreachable. BUG-3215..3220. | maintainer (1-9); session, plan-approved (rest) |
 | 2026-11-19 | Site census: fourteen monster rules restored, the rest ruled into rows (Phase 2 session 348, AskUserQuestion x8 with 20 questions; all as recommended but one, a free-text answer). (1) SLICE: the per-symbol site census (not taken: the doorway thread; the parked residue rulings). (2) MONSTER RULES, all twelve offered: Medusa's bite stones, a dragon killed from inside leaves its corpse, shapeshifters revert on death, Famine against monsters, Cleaver spares peacefuls, stoneskin stops stoning, wolf form for every vampire but the baron, Charon stays put, four kinds of web spider, Kas and the Abominable Snowman leave bones, SporkHack's altar-conversion minions, Draugr and Vampires start at the role's record less 20. (3) SPIDERS, free text: "Option 1, but have all but driders/Lolth spin as they move" - all seven MH_SPIDER monsters at home in webs and 5.0's wandering web-spin for every spider but driders and Lolth, over the recommended "all at home, two spin" (rejected: all spin; none spin; leave vanilla's two). (4) HISSING: 1 in 6 and 5.0's new moon, no lizard help (rejected: 0.9.3 exactly; leave 1 in 10). (5) OBJECT RULES: all twelve, as a row. (6) TEXT AND SMALL: all, BUG-1310 and the confused scroll of light going back to 0.9.3's included, as a row. (7) HARDENING (the NON_PM wrappers): its own slice later (rejected: now; leave vanilla's form). (8) SCOPE: the monster rules this session (rejected: monsters and objects; everything). (9) PET SPIDERS, after the stress test: WILD SPIDERS ONLY - no tame spider spins, which also stops the tame cave and giant spiders that spun on the branch (rejected: pets spin too; only the three new kinds stay quiet). (10) CLEAVER AND PETS: pets count as bystanders, as 0.9.3 (rejected: peacefuls only). (11) STONED SHAPESHIFTER, after the review: REVERTS, NO STATUE, beyond 0.9.3, whose own code leaves a statue and a live monster (rejected: a statue and it stays dead; 0.9.3 exactly). (12) STONESKIN'S END: a monster touches what it wields when the spell runs out or is cancelled, beyond 0.9.3 (rejected: record only). (13) BATTERY: three testers. (14) STATUE LINE, after the battery: no "is a statue." for any shapeshifter that reverts, vampires included (rejected: the two new kinds only; a fitted line; keep). (15) DRIDER TIP: a web-maker that spits is not told it can spin (rejected: leave as 0.9.3). Session calls, plan-approved: Medusa's arm does not return early; a shapeshifter on a closed-door square reverts through 5.0's door smash; 5.0's exemption of a non-eater from Famine goes; the vampire tier is read from youmonst.cham when shifted; the gargantuan spider spins at the giant spider's rate; "in a temple" is any temple room. Review fixes made without a question: the vamprises() guards, the cancellation twin of the stoneskin end, the hero let out before a petrified engulfer reverts, a genocide test. Premise corrections made in-session: "never shifts again" was too strong (a pet is re-armed at the next level change, and polymorph or restore ability re-arm any); Medusa's bite is her last attack, so ending her round shows nothing; a drider-form hero spits; the 2026-08-08 web ruling's note that 0.9.3 adds no spider to a level file's web was wrong. BUG-3221..3234. | maintainer (1-15); session, plan-approved (rest) |
+| 2026-11-20 | Site census object rules: twelve 0.9.3 rules restored, five rulings beside them (Phase 2 session 349, AskUserQuestion x4 with seven questions, all as recommended). (1) SLICE: the object rules row (not taken: text and small ones; the NON_PM hardening; the older candidates). (2) BONE DEVIL: 0.9.3 - 5.0's "summons one skeleton" arm is removed and a bone devil gates like any lesser devil, 1 in 20 a demon lord, else 1 in 6 a lesser demon, else another bone devil (rejected: a skeleton warrior; leave the weak skeleton). (3) FOLD-INS, all three: barding gets its material armor back, which amends the 2026-10-20 "armor_bonus() applies the material bonus to ARMOR_CLASS only" ruling for barding; the off-hand weapon is re-touched too when gloves come off, beyond 0.9.3; CURSED MEANS CURSED for the wand of light, beyond 0.9.3, whose helper let a wielded cursed wand and an Infidel's light up (rejected: none). (4) ROPE GOLEM: 5.0's remains stay (rejected: nothing, as 0.9.3). (5) CANCELLED, after the stress test: 0.9.3 - only trolls, zombies and zombie-race monsters keep 5.0's "will not rise" mark, so a cancelled monster a zombie kills rises, cancelled pets, shopkeepers and uniques included, which stayed down on the branch (rejected: cancelled stays down). (6) RIM LAMPS: fix, beyond 0.9.3 - the lamp message loop covers exactly the squares a monster-centred darkness covers (rejected: record only). (7) BATTERY: three testers (rejected: four; none). Session calls, plan-approved: the glove touch is skipped while poly_obj() swaps gloves and marks the gloves in_use over water or lava; the force-fight touch follows the glyph tests; Keolewa's line is not re-added; the paper golem arm is ported for shape; 0.9.3's BUG-1043 headstone hunk rides with the engraving rule; 5.0's "known when seen" stays for the wand of light, plus a light-hating hero it hurts. Review fixes made without a question: the pack soak (BUG-3252), the second swing after the off hand lets go, the aura of light on the rim squares. Premise corrections made in-session: undead turning was never blocked by the mark; 0.9.3 has no bone devil arm to rename; a thrown orange already tamed a hostile pony. BUG-3235..3252. | maintainer (1-7); session, plan-approved (rest) |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 

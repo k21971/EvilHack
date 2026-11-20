@@ -346,6 +346,10 @@ tracker; sNNN = port session.
   for the five true spiders when wild, never a pet, a drider or Lolth
   (ruled s348 twice, BUG-3230, 36aa55afe; master fdea9fa18,
   d390d4d62). A tame cave or giant spider no longer spins.
+- [x] 5.0's bone devil summon (always one skeleton, upstream
+  f0698e1dc; on the branch the weak level 4 one) -> none, as 0.9.3: a
+  bone devil gates in demons like any lesser devil (ruled s349,
+  BUG-3251, commit pending).
 
 ### 2.3 Combat and magic rules -> master's
 
@@ -594,6 +598,19 @@ tracker; sNNN = port session.
 - [x] Vanilla's altar-conversion minion roll (rnl(level) > 6 and
   rnd(record) > 3/4 of ALIGNLIM) -> SporkHack's, as 0.9.3 (ruled s348,
   BUG-3233, 166c92cc6; master 69aa782d9).
+- [x] 5.0's fixed golem remains (iron chains; worthless glass; a
+  quarterstaff, small shield, club, elven spear or boomerang; armor,
+  cloak or saddle; blank scrolls) -> 0.9.3's random objects forced to
+  the golem's material, with stock items as the fallback; the rope
+  golem's remains stay (ruled s349, BUG-3235, commit pending; master
+  03e87e1bd, a015700da).
+- [x] 5.0's "no revive" mark on the corpse of every cancelled monster
+  that keeps its traits -> trolls, zombies and zombie-race monsters
+  only, so a cancelled monster a zombie kills still rises (ruled
+  s349, BUG-3236, commit pending).
+- [x] A cursed wand of light lighting the room like any other ->
+  darkness for every cursed wand, zapped, engraved with or broken
+  (ruled s349, BUG-3247, commit pending; master 9094ce27a).
 
 ### 2.4 Text and logs
 
@@ -807,6 +824,9 @@ tracker; sNNN = port session.
   (ruled s339, BUG-3164, a6d54bbaf; beyond master, whose
   2025-12 refactor carried a monster-vs-monster list onto the
   hero).
+- [r] Rope golem remains: 5.0's 0 to 2 of leash, bullwhip or
+  grappling hook kept when the other golems' remains went back to
+  0.9.3's, which leaves nothing for a rope golem (ruled s349).
 
 ## 4. Open
 
