@@ -52,6 +52,7 @@ staticfn char *dragon_scaled_prefix(struct obj *, char *);
 staticfn char *minimal_xname(struct obj *);
 staticfn void add_erosion_words(struct obj *, char *);
 staticfn char *globwt(struct obj *, char *, boolean *) NONNULL NONNULLPTRS;
+staticfn char *doname_glow(struct obj *, char *) NONNULL NONNULLPTRS;
 staticfn char *doname_base(struct obj *obj, unsigned);
 staticfn void objnam_add_verb(char *, struct obj *, const char *)
                                                             NONNULLPTRS;
@@ -1522,6 +1523,33 @@ globwt(struct obj *otmp, char *buf, boolean *weightformatted_p)
     return buf;
 }
 
+/* the glow or light an in-use object gives off, worded to go over the
+   closing paren of its worn or wielded phrase; "" when it gives none.
+   The caller appends all of it or nothing */
+staticfn char *
+doname_glow(struct obj *obj, char *buf)
+{
+    *buf = '\0';
+    if (Blind)
+        return buf;
+    if (obj->lastwarncnt
+        && strcmp(glow_color(obj->oartifact), "no color")) {
+        /* warning glow of an in-use artifact */
+        Sprintf(buf, ", %s %s)", glow_verb((int) obj->lastwarncnt, TRUE),
+                glow_color(obj->oartifact));
+    } else if (obj->lamplit && artifact_light(obj)) {
+        /* light or darkness of an object that is always lit */
+        if ((is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
+             && !Upolyd && Race_if(PM_DROW))
+            || (Is_dragon_armor(obj)
+                && Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES))
+            Strcpy(buf, ", aura of darkness)");
+        else
+            Sprintf(buf, ", %s lit)", arti_light_description(obj));
+    }
+    return buf;
+}
+
 /* core of doname() */
 staticfn char *
 doname_base(
@@ -1543,7 +1571,7 @@ doname_base(
     const char *aname = 0;
     int omndx = obj->corpsenm;
     long orig_opknwn = obj->oprops_known;
-    char scalebuf[30];
+    char scalebuf[30], glowbuf[QBUFSZ];
     char *bp;
     char *bp_eos, *bp_end;
     size_t bpspaceleft;
@@ -1753,22 +1781,12 @@ doname_base(
                                            * cannot overwrite the paren */
                     ConcatF1(bp, 1, "%s", "; slippery)");
             }
-            if (bp_eos[-1] == ')') {
-                /* there could be light-emitting artifact gloves someday,
-                   so add 'lit' separately from 'slippery' rather than via
-                   'else if' after uarmg+Glib */
-                if (!Blind && obj->lamplit && artifact_light(obj)) {
-                    if ((is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
-                         && !Upolyd && Race_if(PM_DROW))
-                        || (Is_dragon_armor(obj)
-                            && (Dragon_armor_to_scales(obj)
-                                == SHADOW_DRAGON_SCALES)))
-                        ConcatF1(bp, 1, "%s", ", aura of darkness)");
-                    else
-                        ConcatF1(bp, 1, ", %s lit)",
-                                 arti_light_description(obj));
-                }
-            }
+            /* there could be light-emitting artifact gloves someday,
+               so add 'lit' separately from 'slippery' rather than via
+               'else if' after uarmg+Glib */
+            if (bp_eos[-1] == ')' && *doname_glow(obj, glowbuf)
+                && strlen(glowbuf) <= bpspaceleft)
+                ConcatF1(bp, 1, "%s", glowbuf);
         }
         if (*scalebuf)
             Strcat(prefix, scalebuf);
@@ -1886,10 +1904,14 @@ doname_base(
             Concat(bp, 0, " (on right ");
         if (obj->owornmask & W_RINGL)
             Concat(bp, 0, " (on left ");
-        if (obj->owornmask & W_RING) /* either left or right */
+        if (obj->owornmask & W_RING) { /* either left or right */
             ConcatF1(bp, 0, "%s)",
                      mcarried(obj) ? mbodypart(obj->ocarry, HAND)
                                    : body_part(HAND));
+            if (bp_eos[-1] == ')' && *doname_glow(obj, glowbuf)
+                && strlen(glowbuf) <= bpspaceleft)
+                ConcatF1(bp, 1, "%s", glowbuf);
+        }
         if (known && objects[obj->otyp].oc_charged) {
             Sprintf(eos(prefix), "%+d ", obj->spe); /* sitoa(obj->spe)+" " */
         }
@@ -2030,40 +2052,34 @@ doname_base(
                      : twoweap_primary ? "wielded in"
                        : "weapon in",
                      hand_s);
-
-            /* we just added a parenthesized phrase, but the right paren
-               might be absent if the appended string got truncated */
-            if (!Blind && bpspaceleft && bp_eos[-1] == ')') {
-                if (obj->lastwarncnt
-                    && strcmp(glow_color(obj->oartifact), "no color"))
-                    /* we know bp[] ends with ')'; overwrite that */
-                    ConcatF2(bp, 1, ", %s %s)",
-                             glow_verb((int) obj->lastwarncnt, TRUE),
-                             glow_color(obj->oartifact));
-                else if (obj->lamplit && artifact_light(obj)) {
-                    /* as above, overwrite known closing paren */
-                    if (is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
-                        && !Upolyd && Race_if(PM_DROW))
-                        ConcatF1(bp, 1, "%s", ", aura of darkness)");
-                    else
-                        ConcatF1(bp, 1, ", %s lit)",
-                                 arti_light_description(obj));
-                }
-            }
         }
+        /* we just added a parenthesized phrase, but the right paren
+           might be absent if the appended string got truncated; when
+           it is there, a glow or light is written over it */
+        if (bp_eos[-1] == ')' && *doname_glow(obj, glowbuf)
+            && strlen(glowbuf) <= bpspaceleft)
+            ConcatF1(bp, 1, "%s", glowbuf);
     }
     if (obj->owornmask & W_SWAPWEP) {
-        if (mcarried(obj) && MON_WEP2(obj->ocarry) == obj)
+        boolean in_use = TRUE;
+
+        if (mcarried(obj) && MON_WEP2(obj->ocarry) == obj) {
             /* dual-wielding monster's secondary weapon */
             ConcatF1(bp, 0, " (wielded in other %s)",
                      mbodypart(obj->ocarry, HAND));
-        else if (u.twoweap)
+        } else if (u.twoweap) {
             ConcatF2(bp, 0, " (wielded in %s %s)",
                      URIGHTY ? "left" : "right", body_part(HAND));
-        else
+        } else {
             /* TODO: rephrase this when obj isn't a weapon or weptool */
             ConcatF1(bp, 0, " (alternate weapon%s; not wielded)",
                      plur(obj->quan));
+            in_use = FALSE;
+        }
+        /* an off-hand weapon glows or shines like the primary */
+        if (in_use && bp_eos[-1] == ')' && *doname_glow(obj, glowbuf)
+            && strlen(glowbuf) <= bpspaceleft)
+            ConcatF1(bp, 1, "%s", glowbuf);
     }
     /* the shield the #shield command will reach for next */
     if (obj->altshield && is_shield(obj) && !obj->owornmask
