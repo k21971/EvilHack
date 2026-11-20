@@ -2904,6 +2904,10 @@ spell_would_be_useless(
 int
 buzzmu(struct monst *mtmp, struct attack *mattk)
 {
+    /* a caster the hero only senses is named as well */
+    boolean seecaster = (canseemon(mtmp) || tp_sensemon(mtmp)
+                         || Detect_monsters);
+
     /* don't print constant stream of curse messages for 'normal'
        spellcasting monsters at range */
     if (!BZ_VALID_ADTYP(mattk->adtyp))
@@ -2916,7 +2920,7 @@ buzzmu(struct monst *mtmp, struct attack *mattk)
     }
     if (lined_up(mtmp) && rn2(3)) {
         nomul(0);
-        if (canseemon(mtmp))
+        if (seecaster)
             pline_mon(mtmp, "%s zaps you with a %s!", Monnam(mtmp),
                   flash_str(BZ_OFS_AD(mattk->adtyp), FALSE));
         gb.buzzer = mtmp;
@@ -2932,6 +2936,9 @@ buzzmu(struct monst *mtmp, struct attack *mattk)
 int
 buzzmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
 {
+    boolean seecaster = (canseemon(mtmp) || tp_sensemon(mtmp)
+                         || Detect_monsters);
+
     /* don't print constant stream of curse messages for 'normal'
        spellcasting monsters at range */
     if (!BZ_VALID_ADTYP(mattk->adtyp))
@@ -2943,7 +2950,7 @@ buzzmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
     }
     if (m_lined_up(mdef, mtmp, FALSE) && rn2(3)) {
         nomul(0);
-        if (canseemon(mtmp))
+        if (seecaster)
             pline_mon(mtmp, "%s zaps %s with a %s!", Monnam(mtmp),
                   mon_nam(mdef), flash_str(BZ_OFS_AD(mattk->adtyp), FALSE));
         /* crossfire can hit the hero, so set the attribution bracket
