@@ -4851,7 +4851,9 @@ mergable(
         || obj->material != otmp->material || obj->greased != otmp->greased)
         return FALSE;
 
-    if ((erosion_matters(obj))
+    /* a supermaterial is never fixed, so what the hero knows of that
+       keeps no stack apart */
+    if ((erosion_matters(obj)) && !is_supermaterial(obj)
         && (obj->oerodeproof != otmp->oerodeproof
             || (obj->rknown != otmp->rknown && (Blind || Hallucination))))
         return FALSE;
