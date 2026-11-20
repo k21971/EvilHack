@@ -2826,6 +2826,7 @@ eataccessory(struct obj *otmp)
                 }
                 break;
             case RIN_INVISIBILITY:
+            case RIN_LUSTROUS:
                 if (!oldprop && !EInvis && !BInvis && !See_invisible
                     && !Blind) {
                     newsym(u.ux, u.uy);
