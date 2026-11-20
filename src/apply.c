@@ -5363,8 +5363,8 @@ do_break_wand(struct obj *obj)
         pay_for_damage("dig into", FALSE);
 
     if (obj && obj->otyp == WAN_LIGHT)
-        /* only needs to be done once */
-        litroom(TRUE, FALSE, obj, u.ux, u.uy);
+        /* only needs to be done once; a cursed wand spreads darkness */
+        litroom(!obj->cursed, FALSE, obj, u.ux, u.uy);
 
     discard_broken_wand();
     return ECMD_TIME;

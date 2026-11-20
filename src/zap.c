@@ -3421,7 +3421,7 @@ do_enlightenment_effect(void)
 void
 zapnodir(struct obj *obj)
 {
-    boolean known = FALSE;
+    boolean known = FALSE, dark, hurt_known;
 
     switch (obj->otyp) {
     case WAN_LIGHT:
@@ -3429,8 +3429,25 @@ zapnodir(struct obj *obj)
         /* FIXME? wand of light becoming discovered should be contingent upon
            seeing at least one previously unlit spot become lit */
         known = (obj->dknown && !Blind);
-        litroom(TRUE, FALSE, obj, u.ux, u.uy);
-        (void) lightdamage(obj, (struct monst *) 0, TRUE, 5);
+        /* a cursed wand of light spreads darkness */
+        dark = (obj->otyp == WAN_LIGHT && obj->cursed);
+        litroom(!dark, FALSE, obj, u.ux, u.uy);
+        if (!dark) {
+            /* a hero the light hurts knows it for light even unseen;
+               decided first, since the hurt can end a polymorph */
+            hurt_known = (obj->dknown
+                          && (hates_light(gy.youmonst.data)
+                              || maybe_polyd(is_drow(gy.youmonst.data),
+                                             Race_if(PM_DROW))));
+            /* the wand's flash blinds onlookers as well, and reaches
+               them where litroom() does nothing: an engulfer is
+               blinded from inside */
+            if (obj->otyp == WAN_LIGHT)
+                blindingflash(FALSE);
+            (void) lightdamage(obj, (struct monst *) 0, TRUE, 5);
+            if (hurt_known)
+                known = TRUE;
+        }
         break;
     case WAN_SECRET_DOOR_DETECTION:
     case SPE_DETECT_UNSEEN:
@@ -3597,7 +3614,7 @@ zapyourself(struct obj *obj, boolean ordinary)
        obj, so only take and release ownership when it isn't already
        pointing at obj */
     boolean track_wand = (gc.current_wand != obj);
-    boolean learn_it = FALSE;
+    boolean learn_it = FALSE, flash;
     int damage = 0;
     int orig_dmg = 0; /* for passing to destroy_items() */
 
@@ -4015,10 +4032,16 @@ zapyourself(struct obj *obj, boolean ordinary)
     case EXPENSIVE_CAMERA:
         if (!damage)
             damage = 5;
+        /* a breaking wand's flash blinds onlookers too, unless it is
+           cursed and spreads darkness; decided before the light can
+           hurt the hero */
+        flash = (obj->otyp == WAN_LIGHT && !obj->cursed);
         damage = lightdamage(obj, (struct monst *) 0, ordinary, damage);
         damage += rnd(25);
         if (flashburn((long) damage, FALSE))
             learn_it = TRUE;
+        if (flash)
+            blindingflash(FALSE);
         damage = 0; /* reset */
         break;
     case WAN_OPENING:
