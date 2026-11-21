@@ -882,9 +882,11 @@ flung_obj_lands(
     }
     inside = (costly_spot(x, y) && *in_rooms(x, y, SHOPBASE) == *u.ushops);
     if (is_unpaid(obj)) {
-        if (inside || !inhishop(shkp))
+        if (inside)
             subfrombill(obj, shkp);
-        else
+        /* with the shopkeeper out of his shop, what comes down on his
+           shop floor again stays on his bill, as a dropped item does */
+        else if (inhishop(shkp) || !shk_owns_spot(shkp, x, y))
             (void) stolen_value(obj, u.ux, u.uy, (boolean) shkp->mpeaceful,
                                 FALSE);
     }

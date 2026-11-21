@@ -2317,6 +2317,7 @@ update_bill(
     struct obj *paiditem)
 {
     int j, newebillct;
+    struct obj *otop;
 
     /* remove from eshkp->bill_p[] unless this was the used up portion
        of partly used item (since removal would take out both; note:
@@ -2336,6 +2337,14 @@ update_bill(
            list and delete it; update shop's bill by moving last bill_p[]
            entry into vacated slot; also update ibill[] indices for that */
         paiditem->unpaid = 0; /* clear before maybe deallocating */
+        /* one that was left on his shop floor, loose or in a box, while
+           he was out of his shop is the hero's now and not stock to be
+           sold a second time */
+        for (otop = paiditem; otop->where == OBJ_CONTAINED; )
+            otop = otop->ocontainer;
+        if (otop->where == OBJ_FLOOR && on_level(&eshkp->shoplevel, &u.uz)
+            && inside_shop(otop->ox, otop->oy) == eshkp->shoproom)
+            paiditem->no_charge = 1;
         if (paiditem->where == OBJ_ONBILL) {
             obj_extract_self(paiditem);
             dealloc_obj(paiditem);
@@ -4111,7 +4120,9 @@ splitbill(struct obj *obj, struct obj *otmp)
     long tmp;
     struct monst *shkp = shop_keeper(*u.ushops);
 
-    if (!shkp || !inhishop(shkp)) {
+    /* his bill is his wherever he stands, so one who has stepped out
+       of his shop still gets the new piece */
+    if (!shkp) {
         impossible("splitbill: no resident shopkeeper??");
         return;
     }
@@ -4252,12 +4263,12 @@ stolen_value(
     long value = 0L, gvalue = 0L, billamt = 0L;
     char roomno;
     struct bill_x *bp;
-    struct monst *shkp;
+    struct monst *shkp, *owner;
     boolean was_unpaid;
     long c_count = 0L, u_count = 0L;
 
-    if ((shkp = find_objowner(obj, x, y)) != (struct monst *) 0) {
-        roomno = ESHK(shkp)->shoproom;
+    if ((owner = find_objowner(obj, x, y)) != (struct monst *) 0) {
+        roomno = ESHK(owner)->shoproom;
     } else {
         roomno = *in_rooms(x, y, SHOPBASE);
     }
@@ -4271,6 +4282,10 @@ stolen_value(
 
     shkp = (struct monst *) 0;
     if (!billable(&shkp, obj, roomno, TRUE)) {
+        /* a shopkeeper who is out of his shop bills nothing new, but
+           what is on his bill already is still his */
+        if (!shkp)
+            shkp = owner;
         /* things already on the bill yield a not-billable result, so
            we need to check bill before deciding that shk doesn't care */
         if ((bp = onbill(obj, shkp, FALSE)) != 0) {
@@ -4279,7 +4294,8 @@ stolen_value(
             billamt = bp->bquan * bp->price;
             sub_one_frombill(obj, shkp);
         }
-        if (!bp && !u_count)
+        /* with no shopkeeper there is nobody to owe */
+        if (!shkp || (!bp && !u_count))
             return 0L;
     }
 
@@ -5994,6 +6010,19 @@ costly_spot(coordxy x, coordxy y)
     eshkp = ESHK(shkp);
     return  (boolean) (inside_shop(x, y)
                        && !(x == eshkp->shk.x && y == eshkp->shk.y));
+}
+
+/* is <x,y> a square of shkp's shop floor that he charges for, whether
+   or not he is standing in his shop just now; only for a shopkeeper
+   who is on his shop's level, as the room number means nothing
+   elsewhere */
+boolean
+shk_owns_spot(struct monst *shkp, coordxy x, coordxy y)
+{
+    struct eshk *eshkp = ESHK(shkp);
+
+    return (boolean) (inside_shop(x, y) == eshkp->shoproom
+                      && !(x == eshkp->shk.x && y == eshkp->shk.y));
 }
 
 /* called by sanity checking when an unpaid or no_charge item is not at a

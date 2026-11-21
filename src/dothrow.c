@@ -1419,6 +1419,10 @@ check_shop_obj(struct obj *obj, coordxy x, coordxy y, boolean broken)
 
     if (!shkp)
         return;
+    /* with the shopkeeper out of his shop, what comes down on his shop
+       floor again stays on his bill, as a dropped item does */
+    if (!broken && !inhishop(shkp) && shk_owns_spot(shkp, x, y))
+        return;
 
     costly_xy = costly_spot(x, y);
     if (broken || !costly_xy || *in_rooms(x, y, SHOPBASE) != *u.ushops) {
