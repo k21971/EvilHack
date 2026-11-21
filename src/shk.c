@@ -4121,9 +4121,11 @@ splitbill(struct obj *obj, struct obj *otmp)
     }
     if (bp->bquan < otmp->quan) {
         impossible("Negative quantity on bill??");
+        return;
     }
     if (bp->bquan == otmp->quan) {
         impossible("Zero quantity on bill??");
+        return;
     }
     bp->bquan -= otmp->quan;
 
