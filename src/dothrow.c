@@ -1895,7 +1895,11 @@ calc_othrow_ranges(struct obj *obj, enum toss_types toss_type,
             }
         }
     } else if (toss_type == hand_tossed_ammo && obj->oclass != GEM_CLASS) {
+        /* thrown by hand it gets half the power as well as half the
+           range, or a levitating thrower would be pushed back as far as
+           by something heavy */
         *range /= 2;
+        *urange /= 2;
     }
 
     if (Is_airlevel(&u.uz) || Levitation) {

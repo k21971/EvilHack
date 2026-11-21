@@ -289,6 +289,8 @@ wiz_throwranges(void)
             urange = (crossbowing ? 18 : (int) ACURRSTR) / 2;
             if (urange > 9)
                 urange = 9;
+            if (toss_type == hand_tossed_ammo && obj->oclass != GEM_CLASS)
+                urange /= 2;
             throw_units = (obj->otyp == BOULDER) ? 20 : urange;
 
             calc_othrow_ranges(obj, toss_type, arw, tethered_weapon,
