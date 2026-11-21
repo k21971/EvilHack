@@ -4204,6 +4204,10 @@ stolen_container(
     struct bill_x *bp;
     long billamt;
 
+    /* no shopkeeper means no bill to charge against */
+    if (!shkp)
+        return price;
+
     /* the price of contained objects; caller handles top container */
     for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
         if (otmp->oclass == COIN_CLASS)
