@@ -3714,6 +3714,13 @@ shop_obj_sanity(struct obj *obj, const char *mesg)
         x = shkp->mx, y = shkp->my;
     costly = costly_spot(x, y);
     costlytoo = costly_adjacent(shkp, x, y);
+    /* a shopkeeper who is out of his shop but still on the level has
+       not given it up: what is on his bill or marked on his floor
+       stays so until he is back or the hero leaves */
+    if (shkp && !inhishop(shkp)
+        && (obj->where == OBJ_ONBILL
+            || strchr(in_rooms(x, y, SHOPBASE), ESHK(shkp)->shoproom)))
+        costlytoo = TRUE;
 
     why = (const char *) 0;
     if (obj->no_charge && obj->unpaid) {
