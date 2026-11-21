@@ -3696,10 +3696,9 @@ gem_learned(int oindx)
         bp = ESHK(shkp)->bill_p;
         while (--ct >= 0) {
             obj = find_oid(bp->bo_id);
-            if (!obj) /* shouldn't happen */
-                continue;
-            if ((oindx != STRANGE_OBJECT) ? (obj->otyp == oindx)
-                                          : (obj->oclass == GEM_CLASS))
+            if (obj /* Null for an item that has been used up */
+                && ((oindx != STRANGE_OBJECT) ? (obj->otyp == oindx)
+                                              : (obj->oclass == GEM_CLASS)))
                 bp->price = get_cost(obj, shkp);
             ++bp;
         }
