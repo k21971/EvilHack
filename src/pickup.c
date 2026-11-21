@@ -260,8 +260,11 @@ query_classes(
                     }
                 } else {
                     if (!where)
+                        /* the take-out action may go on to name the
+                           container */
                         where = !strcmp(action, "pick up") ? "here"
-                                : !strcmp(action, "take out") ? "inside" : "";
+                                : !strncmp(action, "take out", 8) ? "inside"
+                                  : "";
                     if (*where)
                         There("are no %c's %s.", sym, where);
                     else
@@ -3855,9 +3858,23 @@ traditional_loot(boolean put_in)
         gp.pickup_encumbrance = 0; /* used to limit verbosity */
     }
 
-    /* prompt names the container; per-item prompts keep the short verb */
-    (void) safe_qbuf(actbuf, put_in ? "put into " : "take out of ", "",
-                     gc.current_container, doname, ansimpleoname, "it");
+    /* prompt names the container; per-item prompts keep the short verb.
+       query_classes() puts this into "What kinds of thing do you want to
+       %s? [%s]" with up to 35 class letters, in a QBUFSZ buffer, so a
+       long name gives way to a shorter one */
+    {
+        const char *verb = put_in ? "put into " : "take out of ",
+                   *cname = doname(gc.current_container);
+        size_t room = QBUFSZ - 1 - 35 /* query_classes()'s ilets[] */
+                      - (sizeof "What kinds of thing do you want to ? []" - 1)
+                      - strlen(verb);
+
+        if (strlen(cname) > room)
+            cname = ansimpleoname(gc.current_container);
+        if (strlen(cname) > room)
+            cname = "it";
+        Snprintf(actbuf, sizeof actbuf, "%s%s", verb, cname);
+    }
     if (query_classes(selection, &one_by_one, &allflag, actbuf, *objlist,
                       FALSE, &menu_on_request)) {
         if (askchain(objlist, (one_by_one ? (char *) 0 : selection), allflag,

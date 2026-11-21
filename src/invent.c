@@ -2204,10 +2204,24 @@ getobj(
             msggiven = TRUE;
             oneloop = TRUE;
         } else {
-            if (!buf[0])
+            if (*contbuf) {
+                /* the question was fitted to QBUFSZ on its own; fit it
+                   again together with the letters that follow it, so
+                   that a long container name gives way to a short one */
+                char qsfx[QBUFSZ];
+
+                if (!buf[0])
+                    Strcpy(qsfx, "? [*]");
+                else
+                    Snprintf(qsfx, sizeof qsfx, "? [%s or ?*]", buf);
+                (void) safe_qbuf(qbuf, "What do you want to stash in ", qsfx,
+                                 gc.current_container, doname, ansimpleoname,
+                                 "it");
+            } else if (!buf[0]) {
                 Strcat(qbuf, " [*]");
-            else
+            } else {
                 Sprintf(eos(qbuf), " [%s or ?*]", buf);
+            }
             ilet = yn_function(qbuf, (char *) 0, '\0', FALSE);
         }
         if (digit(ilet)) {
