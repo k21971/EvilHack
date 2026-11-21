@@ -3306,6 +3306,8 @@ extern void pick_pick(struct obj *) NONNULLARG1;
 extern boolean same_price(struct obj *, struct obj *) NONNULLARG12;
 extern void shopper_financial_report(void);
 extern int inhishop(struct monst *) NONNULLARG1;
+extern boolean shk_would_leave_shop(struct monst *,
+                                    coordxy, coordxy) NONNULLARG1;
 extern struct monst *shop_keeper(char);
 extern struct monst *find_objowner(struct obj *,
                                    coordxy x, coordxy y) NONNULLARG1;

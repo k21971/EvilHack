@@ -1107,6 +1107,9 @@ will_hurtle(struct monst *mon, coordxy x, coordxy y)
        mhurtle_step() is the one to say so */
     if (mon == u.usteed && shk_bars_way(u.ux, u.uy, x, y, TRUE))
         return FALSE;
+    /* a peaceful shopkeeper is not carried out of his own shop */
+    if (shk_would_leave_shop(mon, x, y))
+        return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
      * rather than just stopping before.

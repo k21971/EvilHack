@@ -1111,6 +1111,18 @@ inhishop(struct monst *shkp)
     return (strchr(shkrooms, eshkp->shoproom) != 0);
 }
 
+/* would a move to <x,y> take a peaceful shopkeeper out of the shop he
+   is standing in; with him outside it the shop is untended and an
+   open bill has nobody to take the payment, so a blow or a swap that
+   is not his own doing stops at his door */
+boolean
+shk_would_leave_shop(struct monst *mon, coordxy x, coordxy y)
+{
+    return (boolean) (mon->isshk && mon->mpeaceful && inhishop(mon)
+                      && !strchr(in_rooms(x, y, SHOPBASE),
+                                 ESHK(mon)->shoproom));
+}
+
 /* return the shopkeeper for rooms[rmno-2]; returns Null if there isn't one */
 struct monst *
 shop_keeper(char rmno)
