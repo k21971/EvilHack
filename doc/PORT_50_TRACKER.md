@@ -38311,8 +38311,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       shop" every turn under sanity_check; the fuzzer's impossible
       escalation would make that a panic. Vanilla 5.0 shares all three.
       CLOSED 2026-11-21, session 351 (BUG-3281, BUG-3282, BUG-3283;
-      commit pending). All three RULED 2026-11-20 and fixed: (a) pay
-      him at his side; (b) traced and real - the bill becomes a debt
+      e59b1c218, d2dcd9c12, 89aa7226b). All three RULED 2026-11-20
+      and fixed: (a) pay him at his side; (b) traced and real - the
+      bill becomes a debt
       when he leaves the level; (c) the check accepts the shop of a
       shopkeeper who is out. The trace found a free-pickup window
       (BUG-3279, BUG-3280), the stress test six lost 0.9.3 shop fixes
@@ -38331,7 +38332,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       missing on the branch and this tracker never listed it: this row
       and the five marked 0.9.3 below. RULED 2026-11-21 PORT ALL SIX
       NOW (rejected: only the hang and the debt wipe; own slice).
-      CLOSED 2026-11-21, session 351 (BUG-3269, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3269, f121700ac).
       Master's step, next_shkp(shkp->nmon, TRUE). Upstream row
       2026-11-21.
       BATTERY: leg E, keeper out and frozen, an unpaid apple and one
@@ -38342,7 +38343,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: stolen_container() read a null shopkeeper (minted and
       closed 2026-11-21, session 351; 0.9.3's BUG-713, 7c525e07c;
       vanilla 5.0 too).
-      CLOSED 2026-11-21, session 351 (BUG-3270, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3270, b2ef85384).
       Master's `if (!shkp) return price;`. stolen_value() no longer
       hands it one (BUG-3278); the crash it guards is that row's leg
       C5.
@@ -38350,7 +38351,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       closed 2026-11-21, session 351; 0.9.3's BUG-714, 7c525e07c;
       vanilla 5.0 too). sellobj()'s `if ((eshkp->robbed -= offer <
       0L))` subtracts nothing and then clears the debt.
-      CLOSED 2026-11-21, session 351 (BUG-3271, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3271, 31c59be0e).
       Master's subtract, then floor at 0. It would have erased the
       debt BUG-3282 leaves. REMOVALS 2.3; upstream row 2026-11-21.
       BATTERY: leg B5, robbed set to 500, 10 gold dropped in the shop
@@ -38360,7 +38361,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (minted and closed 2026-11-21, session 351, reviewer; vanilla
       5.0 and 0.9.3 the same). sellobj()'s robbed arm adds the flag
       `cgold`, not the gold; hidden while any gift wiped the debt.
-      CLOSED 2026-11-21, session 351 (BUG-3272, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3272, 0f1e30c23).
       `offer += gltmp`. Beyond 0.9.3. REMOVALS 2.3; upstream row
       2026-11-21 (with BUG-3271).
       BATTERY: leg I, robbed 500, a sack holding exactly 50 gold
@@ -38369,20 +38370,20 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: splitbill() went on after its two impossibles (minted and
       closed 2026-11-21, session 351; 0.9.3's BUG-715, 7c525e07c;
       vanilla 5.0 too).
-      CLOSED 2026-11-21, session 351 (BUG-3273, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3273, 26ddeeae5).
       Master's `return` after "Negative quantity on bill??" and "Zero
       quantity on bill??". By review (needs a corrupt bill).
 - [x] LOW: globby_bill_fixup() went on after its impossible (minted
       and closed 2026-11-21, session 351; 0.9.3's BUG-716, 7c525e07c;
       vanilla 5.0 too).
-      CLOSED 2026-11-21, session 351 (BUG-3274, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3274, 297d6ed8b).
       Braces and `return`. By review.
 - [x] LOW: gem_learned() stopped re-pricing a bill at a used-up item
       (minted and closed 2026-11-21, session 351; 0.9.3's BUG-718,
       7c525e07c; vanilla 5.0 too). `if (!obj) continue;` skipped the
       `++bp`; find_oid() does not search the used-up list, so every
       used-up billed item is such an entry (reviewer).
-      CLOSED 2026-11-21, session 351 (BUG-3275, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3275, db5a16f3a).
       Master's `if (obj && ...)` with the unconditional step; the
       comment says what the NULL is. By review.
 - [x] LOW: things in boxes lost their no-charge mark in every shop
@@ -38392,7 +38393,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       which reads as BURIED_TOO alone: a contained object is not found
       and its mark is cleared whatever shop its box stands in. RULED
       2026-11-21 (extras): fix.
-      CLOSED 2026-11-21, session 351 (BUG-3276, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3276, f6e0fb792).
       `CONTAINED_TOO | BURIED_TOO`. Upstream row 2026-11-21.
       BATTERY: leg B6, own sack with a dagger inside, dropped in the
       tool shop and not sold (both marked), then clear_no_charge() for
@@ -38404,7 +38405,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       added bill + debit + loan where rob_shop(), paybill() and
       inherits() total bill + debit. RULED 2026-11-21 (extras): count
       it once.
-      CLOSED 2026-11-21, session 351 (BUG-3277, commit pending). `+
+      CLOSED 2026-11-21, session 351 (BUG-3277, d8f79def8). `+
       eshkp->loan` dropped; covers make_angry_shk()'s seven callers,
       dopay()'s angry fold and BUG-3282. Beyond 0.9.3. REMOVALS 2.3;
       upstream row 2026-11-21.
@@ -38423,7 +38424,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       shopkeeper (SIGSEGV); the hero's exploding bag of holding took
       unpaid goods off the bill free; and an item paid for while it
       lay on his floor stayed shop stock, to be sold a second time.
-      CLOSED 2026-11-21, session 351 (BUG-3278, commit pending). RULED
+      CLOSED 2026-11-21, session 351 (BUG-3278, 7a140b9d9). RULED
       2026-11-21, the bill works while he is out (extras), then after
       the review ON HIS FLOOR STAYS BILLED (rejected: charged at once;
       leave the throw charged and the blast free). shk.c: splitbill()
@@ -38475,7 +38476,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       knocked out by anyone as on 0.9.3 (rejected: "monsters never",
       which would also have stopped Ashmar and the Armor of
       Retribution).
-      CLOSED 2026-11-21, session 351 (BUG-3279, commit pending). New
+      CLOSED 2026-11-21, session 351 (BUG-3279, 3a53e7ff6). New
       shk_would_leave_shop(); will_hurtle() refuses the step, which
       also sets mhitm_knockback()'s wording. The hero's blows anger
       him first (mhurtle()'s wakeup()) and still send him out; a
@@ -38491,7 +38492,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       test; vanilla 5.0 too). A displacer beast, Cerberus, Croesus or
       a Rider beyond his door trades places with him on his door
       square; the hero cannot. RULED 2026-11-21 (extras): refuse it.
-      CLOSED 2026-11-21, session 351 (BUG-3280, commit pending).
+      CLOSED 2026-11-21, session 351 (BUG-3280, dcfcf7b99).
       mm_displacement() tests shk_would_leave_shop() for the square
       the mover leaves; mfndpos() is its only caller. REMOVALS 2.3
       (with BUG-3279).
@@ -38501,7 +38502,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a peaceful shopkeeper outside his shop could not be paid
       (minted and closed 2026-11-21, session 351; the shop bill leaks
       row, item (a); vanilla 5.0 and 0.9.3 the same).
-      CLOSED 2026-11-21, session 351 (BUG-3281, commit pending). RULED
+      CLOSED 2026-11-21, session 351 (BUG-3281, e59b1c218). RULED
       2026-11-20 PAY HIM AT HIS SIDE (rejected: angry as when
       teleported; record). dopay()'s peaceful non-resident arm also
       needs `ltmp || (!billct && !debit)`, so an open bill falls
@@ -38524,7 +38525,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       prints on every turn. Routes: mlevel_tele_trap() (trap door,
       hole, level teleporter), the stairs a wounded hostile shopkeeper
       takes, dispel_evil_banish(), limbo.
-      CLOSED 2026-11-21, session 351 (BUG-3282, commit pending). RULED
+      CLOSED 2026-11-21, session 351 (BUG-3282, d2dcd9c12). RULED
       2026-11-20 THE BILL BECOMES A DEBT, his mood whatever the cause
       made it (rejected: always angry; record). New shk_leaves_level()
       from mon_leave(): past_due_charges() when a bill or debit is
@@ -38550,7 +38551,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: the sanity check called a shop untended while its
       shopkeeper stood outside (minted and closed 2026-11-21, session
       351; the shop bill leaks row, item (c); vanilla 5.0).
-      CLOSED 2026-11-21, session 351 (BUG-3283, commit pending). RULED
+      CLOSED 2026-11-21, session 351 (BUG-3283, 89aa7226b). RULED
       2026-11-20: fix the check (rejected: record). shop_obj_sanity()
       also accepts an object that is on the bill list or on a square
       of the shop of a shopkeeper who is on the level but outside it;

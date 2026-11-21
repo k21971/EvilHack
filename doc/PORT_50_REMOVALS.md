@@ -623,28 +623,28 @@ tracker; sNNN = port session.
   s350, BUG-3268, c3d5f192a; beyond 0.9.3).
 - [x] A peaceful shopkeeper outside his shop refusing payment for an
   open bill ("You do not owe ... anything.") -> he takes normal
-  payment from a hero next to him (ruled s351, BUG-3281, commit
-  pending; beyond 0.9.3).
+  payment from a hero next to him (ruled s351, BUG-3281,
+  e59b1c218; beyond 0.9.3).
 - [x] A shop bill leaving the level open with its shopkeeper - unpaid
   goods with nobody to pay and a free exit -> settled as past due as
-  he leaves, into what the hero owes him (ruled s351, BUG-3282, commit
-  pending; beyond 0.9.3).
+  he leaves, into what the hero owes him (ruled s351, BUG-3282,
+  d2dcd9c12; beyond 0.9.3).
 - [x] A peaceful shopkeeper knocked or swapped out of his own shop by
   a blow, a pull or a displacer -> he stops at his door; an angry one
-  still goes (ruled s351, BUG-3279, BUG-3280, commit pending; beyond
-  0.9.3).
+  still goes (ruled s351, BUG-3279, BUG-3280, 3a53e7ff6, dcfcf7b99;
+  beyond 0.9.3).
 - [x] Unpaid goods thrown, or flung by the hero's blast, while the
   shopkeeper is out of his shop being an impossible, a crash or off
   the bill free -> on his floor they stay billed, elsewhere they are
   charged, and one paid for where it lies is the hero's (ruled s351,
-  BUG-3278, commit pending; beyond 0.9.3).
+  BUG-3278, 7a140b9d9; beyond 0.9.3).
 - [x] Gold picked up in a shop counted twice when a bill goes past due
-  (debit + loan) -> once (ruled s351, BUG-3277, commit pending; beyond
+  (debit + loan) -> once (ruled s351, BUG-3277, d8f79def8; beyond
   0.9.3).
 - [x] One gift to a robbed shop clearing the whole robbery debt, and a
   container's gold counting as 1 -> the gift's value comes off the
-  debt (s351, BUG-3271, BUG-3272, commit pending; the first is 0.9.3's
-  7c525e07c).
+  debt (s351, BUG-3271, BUG-3272, 31c59be0e, 0f1e30c23; the first is
+  0.9.3's 7c525e07c).
 
 ### 2.4 Text and logs
 
