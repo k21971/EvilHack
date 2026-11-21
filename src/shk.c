@@ -6672,8 +6672,10 @@ globby_bill_fixup(struct obj *obj_absorber, struct obj *obj_absorbed)
     long amount, per_unit_cost;
     boolean floor_absorber = (obj_absorber->where == OBJ_FLOOR);
 
-    if (!obj_absorber->globby)
+    if (!obj_absorber->globby) {
         impossible("globby_bill_fixup called for non-globby object");
+        return;
+    }
 
     if (floor_absorber) {
         x = obj_absorber->ox, y = obj_absorber->oy;
