@@ -4488,7 +4488,7 @@ sellobj(
         if (isgold)
             offer = obj->quan;
         else if (cgold)
-            offer += cgold;
+            offer += gltmp;
         eshkp->robbed -= offer;
         if (eshkp->robbed < 0L)
             eshkp->robbed = 0L;
