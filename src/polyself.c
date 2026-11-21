@@ -420,15 +420,18 @@ check_strangling(boolean on, boolean noisy)
     }
 }
 
-/* update the hero's light source to match the form set_uasmon() has just
-   installed; 'old_light' is emits_light() for the form being replaced.
-   Every place which changes gy.youmonst.data calls this immediately, so
-   that "the form emits light" and "a light source exists" can never
-   disagree -- not even for the duration of a re-entrant callback. */
+/* update the hero's light source to match the form u.umonnum names;
+   'old_light' is emits_light() for the form being replaced.
+   Every place which changes the hero's form calls this just ahead of
+   set_uasmon(), so that "the form emits light" and "a light source
+   exists" can never disagree -- not even for the duration of a
+   re-entrant callback: set_uasmon() drops what the new form can't hold,
+   which can end in a fall that reverts the form, and that revert has
+   to find the light source of the form it replaces. */
 staticfn void
 uasmon_light(int old_light)
 {
-    int new_light = emits_light(gy.youmonst.data);
+    int new_light = emits_light(&mons[u.umonnum]);
 
     if (old_light != new_light) {
         if (old_light)
@@ -473,8 +476,8 @@ polyman(const char *fmt, const char *arg)
     /* ahead of set_uasmon(), whose drop_weapon() may have more to say */
     urgent_pline(fmt, arg);
 
-    set_uasmon();
     uasmon_light(old_light);
+    set_uasmon();
 
     u.mh = u.mhmax = 0;
     u.mtimedone = 0;
@@ -1244,7 +1247,7 @@ polymon(int mntmp)
             /* a form change can start or stop underwater vision */
             old_uwvis = (Underwater && See_underwater);
     int mlvl, newMaxStr, old_light;
-    unsigned long my_generation;
+    unsigned long my_generation, gen0;
 
     if (svm.mvitals[mntmp].mvflags & G_GENOD) { /* allow G_EXTINCT */
         You_feel("rather %s-ish.",
@@ -1343,9 +1346,17 @@ polymon(int mntmp)
        resistances (including immunity to that breath element) */
     if (mntmp == PM_SKELETAL_DRAGON)
         gy.youmonst.mbreathtyp = (uchar) sd_random_breath();
-    set_uasmon();
+    gen0 = gu.uasmon_generation;
     uasmon_light(old_light);
+    set_uasmon();
     my_generation = gu.uasmon_generation;
+    /* set_uasmon() drops what the new form can't hold, and letting go of
+       an artifact whose invoked levitation was keeping the hero up, or
+       of a boulder in a pit, can end in a hurt that reverts the form
+       before the generation above was taken; a second installation
+       since gen0 says that happened */
+    if (my_generation != gen0 + 1)
+        goto form_superseded;
 
     /* New stats for monster, to last only as long as polymorphed.
      * Currently only strength gets changed.
@@ -1711,6 +1722,10 @@ polymon(int mntmp)
         vision_reset();
         docrt();
     }
+    /* likewise a monster the replaced form was holding, when the form
+       installed here could not have held it */
+    if (sticking && u.ustuck && !u.uswallow && !sticks(gy.youmonst.data))
+        uunstick(TRUE);
     return 1;
 }
 
