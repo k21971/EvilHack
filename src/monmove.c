@@ -662,7 +662,8 @@ gelcube_digests(struct monst *mtmp)
     mtmp->meating = eaten_stat(mtmp->meating, otmp);
     extract_from_minvent(mtmp, otmp, TRUE, TRUE);
     m_consume_obj(mtmp, otmp);
-    return 0; /* used a move */
+    /* used a move, or its last one: a pyrolisk egg blows up when eaten */
+    return DEADMONSTER(mtmp) ? 1 : 0;
 }
 
 /* FIXME: gremlins don't flee from monsters wielding Sunsword or wearing

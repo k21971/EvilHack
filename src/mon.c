@@ -2630,6 +2630,10 @@ meatobj(struct monst *mtmp) /* for gelatinous cubes */
                     You_hear("a slurping sound.");
             }
             m_consume_obj(mtmp, otmp);
+            /* its meal may have blown up and killed it; its form is
+               still the same then */
+            if (DEADMONSTER(mtmp))
+                return 2;
             /* in case it polymorphed or died */
             ptr = mtmp->data;
             if (ptr != original_ptr)
@@ -2718,6 +2722,9 @@ meatfood(struct monst *mtmp)
 
         /* lastly, edible items; yum! (tins and non-food stay put) */
         } else {
+            boolean pyroegg = (otmp->otyp == EGG
+                               && otmp->corpsenm == PM_PYROLISK);
+
             if (!all_food(otmp))
                 continue;
             /* devour */
@@ -2739,6 +2746,9 @@ meatfood(struct monst *mtmp)
                 return 2;
             if (mtmp->data != original_ptr)
                 return 1;
+            /* a pyrolisk egg's explosion can burn up otmp2, so stop */
+            if (pyroegg)
+                otmp2 = (struct obj *) 0;
         }
 
         /* Engulf & devour is instant, so don't set meating */
