@@ -4467,6 +4467,9 @@ mm_displacement(
         /* no displacing trapped monsters or multi-location longworms */
         && !mdef->mtrapped && !mdef->mentangled
         && (!mdef->wormno || !count_wsegs(mdef))
+        /* nor a peaceful shopkeeper out of his shop, onto the square
+           the attacker is leaving */
+        && !shk_would_leave_shop(mdef, magr->mx, magr->my)
         /* riders can move anything; others, same size or smaller only */
         && (is_rider(pa) || pa->msize >= pd->msize))
         return ALLOW_MDISP;
