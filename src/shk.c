@@ -4489,7 +4489,8 @@ sellobj(
             offer = obj->quan;
         else if (cgold)
             offer += cgold;
-        if ((eshkp->robbed -= offer < 0L))
+        eshkp->robbed -= offer;
+        if (eshkp->robbed < 0L)
             eshkp->robbed = 0L;
         if (offer && !Deaf && !muteshk(shkp)) {
             SetVoice(shkp, 0, 80, 0);
