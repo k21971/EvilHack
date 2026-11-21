@@ -3296,6 +3296,7 @@ extern long money2mon(struct monst *, long) NONNULLARG1;
 extern void money2u(struct monst *, long) NONNULLARG1;
 extern void shkgone(struct monst *) NONNULLARG1;
 extern void set_residency(struct monst *, boolean) NONNULLARG1;
+extern void shk_leaves_level(struct monst *) NONNULLARG1;
 extern void replshk(struct monst *, struct monst *) NONNULLARG12;
 extern void restshk(struct monst *, boolean) NONNULLARG1;
 extern char inside_shop(coordxy, coordxy);

@@ -1217,10 +1217,13 @@ mon_leave(struct monst *mtmp)
         obj->no_charge = 0;
     }
 
-    /* if this is a shopkeeper, clear the 'resident' field of her shop;
-       if/when she returns, it will be set back by mon_arrive()  */
-    if (mtmp->isshk)
+    /* if this is a shopkeeper, settle an open bill, then clear the
+       'resident' field of her shop; if/when she returns, it will be
+       set back by mon_arrive()  */
+    if (mtmp->isshk) {
+        shk_leaves_level(mtmp);
         set_residency(mtmp, TRUE);
+    }
 
     /* if this is a long worm, handle its tail segments before mtmp itself;
        we pass possibly truncated segment count to caller via return value  */

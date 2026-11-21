@@ -292,6 +292,28 @@ set_residency(struct monst *shkp, boolean zero_out)
             (zero_out) ? (struct monst *) 0 : shkp;
 }
 
+/* a shopkeeper is about to leave the level; a bill left open would
+   stay on the hero's goods with no one here to collect it, so it
+   becomes past due, as when he is teleported out of his shop, and the
+   free-item marks in his shop go with him; called while his shop
+   still has him as its resident */
+void
+shk_leaves_level(struct monst *shkp)
+{
+    struct eshk *eshkp = ESHK(shkp);
+
+    if (eshkp->billct || eshkp->debit) {
+        past_due_charges(shkp);
+        /* nothing the hero carries is unpaid any more */
+        update_inventory();
+    }
+    if (on_level(&eshkp->shoplevel, &u.uz)) {
+        clear_no_charge(shkp, fobj);
+        clear_no_charge(shkp, svl.level.buriedobjlist);
+        clear_no_charge_pets(shkp);
+    }
+}
+
 void
 replshk(struct monst *mtmp, struct monst *mtmp2)
 {
