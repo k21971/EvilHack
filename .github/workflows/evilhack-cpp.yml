@@ -23,6 +23,8 @@ jobs:
       run: cd sys/unix && sh setup.sh hints/$HINTS_FILE
     - name: make all
       run: make all
+    - name: check Lua syntax
+      run: make check-lua-syntax
     # make install and artifact upload need a runner-writable PREFIX;
     # the 5.0 hints install system-wide. Re-derive a linux-debug.gha
     # hints (Phase 6) before re-adding install/artifact steps, plus
