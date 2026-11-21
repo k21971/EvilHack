@@ -256,6 +256,10 @@ tracker; sNNN = port session.
   item menu with everything selected; 5.0's "No relevant items
   selected." stays with the option off (ruled s329, BUG-3108,
   c9b8b4087).
+- [x] **Upstream's GitHub workflow** (.github/workflows/build.yml,
+  arrived with catch-up 4): dropped - it builds vanilla's hints and
+  runs ./nethack; its Lua syntax check runs from evilhack-cpp.yml
+  (ruled s352, 680e87a08, e86232f95).
 
 ### 2.2 Monster AI
 
@@ -645,6 +649,14 @@ tracker; sNNN = port session.
   container's gold counting as 1 -> the gift's value comes off the
   debt (s351, BUG-3271, BUG-3272, 31c59be0e, 0f1e30c23; the first is
   0.9.3's 7c525e07c).
+- [x] Upstream's rewritten throw ranges (c0b100f7d, arrived with
+  catch-up 4: launcher shots ignore weight, a crossbow reaches
+  BOLT_LIM, and a levitating thrower is pushed back by the throwing
+  power less the range - a 100-weight object pushes back 4 instead of
+  2, a 200-weight one 8 instead of 5, a boulder flies 10 and pushes
+  back 10) -> EvilHack's ranges inside upstream's
+  calc_othrow_ranges(); only the fix for hand-thrown ammunition's
+  recoil is taken (ruled s352, BUG-3284, 680e87a08, e72228b2f).
 
 ### 2.4 Text and logs
 
