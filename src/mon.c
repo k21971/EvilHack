@@ -2333,27 +2333,25 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
     } else if (otmp == uchain) {
         unpunish(); /* frees uchain */
     } else {
-        boolean deadmimic, slimer, unsick, unstone, pyro_egg;
-        int poly, grow, heal, eyes, stoner, vis = canseemon(mtmp);
-        int corpsenm = (otmp->otyp == CORPSE ? otmp->corpsenm : NON_PM);
-
-        deadmimic = (otmp->otyp == CORPSE && (corpsenm == PM_SMALL_MIMIC
-                                              || corpsenm == PM_LARGE_MIMIC
-                                              || corpsenm == PM_GIANT_MIMIC));
-        /* computed before delobj() frees otmp; note that corpsenm is
-           NON_PM for anything that is not a corpse, so this condition
-           cannot currently be true - whether a pyrolisk egg is meant to
-           go off when eaten is a separate question */
-        pyro_egg = (otmp->otyp == EGG && corpsenm == PM_PYROLISK);
-        slimer = (otmp->otyp == GLOB_OF_GREEN_SLIME);
-        unsick = (otmp->otyp == EUCALYPTUS_LEAF
-                  && (mtmp->msick || mtmp->mdiseased));
+        short otyp = otmp->otyp;
+        int poly, grow, heal, eyes, stoner, vis = canseemon(mtmp),
+            corpsenm = ((otyp == CORPSE || otyp == EGG)
+                        ? otmp->corpsenm : NON_PM);
+        boolean deadmimic = (otyp == CORPSE
+                             && (corpsenm == PM_SMALL_MIMIC
+                                 || corpsenm == PM_LARGE_MIMIC
+                                 || corpsenm == PM_GIANT_MIMIC)),
+                slimer = (otyp == GLOB_OF_GREEN_SLIME),
+                pyroegg = (otyp == EGG && corpsenm == PM_PYROLISK);
         /* a lizard or an acidic meal stops a petrification under way */
-        unstone = (mtmp->mstone && cures_stoning(mtmp, otmp, TRUE));
+        boolean unsick = (otyp == EUCALYPTUS_LEAF
+                          && (mtmp->msick || mtmp->mdiseased)),
+                unstone = (mtmp->mstone && cures_stoning(mtmp, otmp, TRUE));
+
         poly = polyfood(otmp);
         grow = mlevelgain(otmp);
         heal = mhealup(otmp);
-        eyes = (otmp->otyp == CARROT);
+        eyes = (otyp == CARROT);
         stoner = mstoning(otmp);
         delobj(otmp); /* munch */
         if (poly || slimer) {
@@ -2397,10 +2395,10 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
             if (DEADMONSTER(mtmp))
                 return;
         }
-        if (pyro_egg)
+        if (pyroegg)
             explode(mtmp->mx, mtmp->my, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0,
                     EXPL_FIERY);
-        if (corpsenm != NON_PM)
+        if (otyp == CORPSE && corpsenm != NON_PM)
             mon_givit(mtmp, &mons[corpsenm]);
     }
 }
@@ -2612,6 +2610,9 @@ meatobj(struct monst *mtmp) /* for gelatinous cubes */
         /* lastly, edible items; yum! */
         } else {
             /* devour */
+            boolean pyroegg = (otmp->otyp == EGG
+                               && otmp->corpsenm == PM_PYROLISK);
+
             ++count;
             if (cansee(mtmp->mx, mtmp->my)) {
                 /* (see above; distant_name() sometimes has side-effects */
@@ -2633,6 +2634,9 @@ meatobj(struct monst *mtmp) /* for gelatinous cubes */
             ptr = mtmp->data;
             if (ptr != original_ptr)
                 return !ptr ? 2 : 1;
+            /* a pyrolisk egg's explosion can burn up otmp2, so stop */
+            if (pyroegg)
+                otmp2 = (struct obj *) 0;
         }
 
         /* Engulf & devour is instant, so don't set meating */

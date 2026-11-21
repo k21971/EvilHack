@@ -5617,6 +5617,12 @@ optfn_boolean(
             give_opt_msg = FALSE;
             break;
 #endif
+#ifdef WIN32CON
+        case opt_windowsterminal:
+            iflags.wt_how =
+                (negated) ? wt_in_config_negated : wt_in_config_not_negated;
+            break;
+#endif
         default:
             break;
         }
@@ -5731,6 +5737,11 @@ optfn_boolean(
             break;
         case opt_accessiblemsg:
             a11y.msg_loc.x = a11y.msg_loc.y = 0;
+            break;
+        case opt_wraptext:
+#if defined(CURSES_GRAPHICS)
+            go.opt_need_redraw = TRUE;
+#endif
             break;
         default:
             break;

@@ -1400,9 +1400,10 @@ ghod_hitsu(struct monst *priest)
         break;
     }
 
-    /* bolt of lightning cast by unspecified monster; current_wand is left
-       alone, since a spell bolt never reads it and restoring it would
-       bring back a wand the bolt destroyed */
+    /* bolt of lightning cast by unspecified monster; leave current_wand
+       alone: the bolt might destroy the wand the hero is zapping, and
+       maybe_destroy_item() clears current_wand when that happens so the
+       zap code knows the wand is gone */
     oldbuzzer = gb.buzzer;
     gb.buzzer = 0;
     buzz(BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)), 6, x, y, sgn(gt.tbx), sgn(gt.tby));

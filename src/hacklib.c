@@ -884,8 +884,8 @@ TODO: add set_impossible(), impossible -> func pointer,
                    (n < 0) ? "format error" : "overflow",
                    func, line);
 #endif
-        /* make sure it is nul terminated; a zero size wrote nothing,
-           so there is nothing to terminate (str[-1] would be outside) */
+        /* make sure it is nul terminated; with a size of 0 nothing was
+           written, and str[-1] would be outside the buffer */
         if (size > 0)
             str[size - 1] = '\0';
     }

@@ -345,6 +345,7 @@ struct _create_particular_data {
     int fem;        /* -1, MALE, FEMALE, NEUTRAL */
     int genderconf;    /* conflicting gender */
     int race;       /* NON_PM, or the race to give the monster */
+    int worm_segs;
     char monclass;
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
@@ -959,6 +960,13 @@ enum stoning_checks {
     st_petrifies = 0x4,  /* does the corpse petrify on touch? */
     st_resists   = 0x8,  /* do you have stoning resistance? */
     st_all = (st_gloves | st_corpse | st_petrifies | st_resists)
+};
+
+enum toss_types {
+    no_toss,
+    hand_tossed_obj,
+    hand_tossed_ammo,
+    launcher_fired_ammo,
 };
 
 struct throw_and_return_weapon {

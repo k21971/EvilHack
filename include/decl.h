@@ -729,6 +729,9 @@ struct instance_globals_n {
     short nocreate3;
     short nocreate4;
 
+    /* new */
+    boolean no_terms; /* runtime differentiation of NO_TERMS */
+
     boolean havestate;
 };
 
@@ -1068,7 +1071,11 @@ struct instance_globals_u {
     /* end.c */
     struct monst *ukiller; /* monster that killed the hero, for bones */
 
-        /* revision.c */
+    /* polyself.c */
+    unsigned long uasmon_generation;
+    unsigned long uasmon_top_of_moveloop;
+
+    /* revision.c */
     int uplift_needed_rev0_to_rev1;
 
     /* role.c */

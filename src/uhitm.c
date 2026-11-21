@@ -2756,8 +2756,8 @@ hmon_hitmon(
     hmd.saved_oname[0] = '\0';
 
     hmon_hitmon_do_hit(&hmd, mon, obj);
-    /* the hit may have used the object up; the helpers below it take obj
-       by value, so our own pointer is the one left dangling */
+    /* the helpers get obj by value; if one of them used it up, our own
+       copy of the pointer is left pointing at freed memory */
     if (hmd.obj_gone)
         obj = (struct obj *) 0;
     if (hmd.doreturn) {
@@ -2869,9 +2869,7 @@ hmon_hitmon(
 
     if (hmd.jousting) {
         hmon_hitmon_jousting(&hmd, mon, obj);
-        /* a shattered lance was used up inside a by-value parameter, so
-           our own pointer is stale from here on */
-        if (hmd.obj_gone)
+        if (hmd.obj_gone) /* lance shattered */
             obj = (struct obj *) 0;
     } else if (hmd.unarmed && hmd.dmg > 1 && !thrown && !obj && !Upolyd) {
         hmon_hitmon_stagger(&hmd, mon, obj);

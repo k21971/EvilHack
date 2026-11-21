@@ -30,6 +30,34 @@ staticfn void drop_weapon(int);
 staticfn void newman(void);
 staticfn void polysense(void);
 staticfn unsigned long form_seenres(void);
+staticfn void uasmon_light(int);
+staticfn void note_uasmon_install(void);
+
+/* uasmon_generation moved to decl.h, decl.c
+ * as gu.uasmon_generation for potential play_again initialization
+ * support.
+ */
+//static unsigned long gu.uasmon_generation;
+#ifdef UASMON_COUNTING_PER_MOVELOOP
+static unsigned long uasmon_generation_delta,
+    largest_uasmon_generation_delta = 0UL;
+#endif
+
+/* Every completed semantic hero-form installation gets a distinct serial.
+   Overflow must not make a new generation look like an old one. */
+staticfn void
+note_uasmon_install(void)
+{
+#ifdef UASMON_COUNTING_PER_MOVELOOP
+    uasmon_generation_delta =
+        gu.uasmon_generation - gu.uasmon_top_of_moveloop;
+    if (uasmon_generation_delta > largest_uasmon_generation_delta)
+        largest_uasmon_generation_delta = uasmon_generation_delta;
+#endif
+
+    if (++gu.uasmon_generation == 0UL)
+        panic("hero form generation overflow");
+}
 
 static const char no_longer_petrify_resistant[] =
     "No longer petrify-resistant, you";
@@ -218,6 +246,7 @@ set_uasmon(void)
     if (VIA_WINDOWPORT())
         status_initialize(REASSESS_ONLY);
 #endif
+    note_uasmon_install();
     /* we can reset this now, having just done what it is meant to trigger */
     gw.were_changes = 0L;
 }
@@ -391,6 +420,27 @@ check_strangling(boolean on, boolean noisy)
     }
 }
 
+/* update the hero's light source to match the form set_uasmon() has just
+   installed; 'old_light' is emits_light() for the form being replaced.
+   Every place which changes gy.youmonst.data calls this immediately, so
+   that "the form emits light" and "a light source exists" can never
+   disagree -- not even for the duration of a re-entrant callback. */
+staticfn void
+uasmon_light(int old_light)
+{
+    int new_light = emits_light(gy.youmonst.data);
+
+    if (old_light != new_light) {
+        if (old_light)
+            del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
+        if (new_light == 1)
+            ++new_light; /* otherwise it's undetectable */
+        if (new_light)
+            new_light_source(u.ux, u.uy, new_light, LS_MONSTER,
+                             monst_to_any(&gy.youmonst));
+    }
+}
+
 DISABLE_WARNING_FORMAT_NONLITERAL
 
 /* make a (new) human out of the player */
@@ -405,6 +455,7 @@ polyman(const char *fmt, const char *arg)
             old_uwvis = (Underwater && See_underwater);
     /* the form's wings while polymorphed, else the normal body's */
     boolean had_wings = u_big_wings(), wings_news;
+    int old_light = emits_light(gy.youmonst.data);
 
     /* the normal form may neither fly nor float, and a revert can come
        deep inside an attack (rehumanize() from losehp()); ask moveloop
@@ -423,6 +474,7 @@ polyman(const char *fmt, const char *arg)
     urgent_pline(fmt, arg);
 
     set_uasmon();
+    uasmon_light(old_light);
 
     u.mh = u.mhmax = 0;
     u.mtimedone = 0;
@@ -867,7 +919,7 @@ void
 polyself(int psflags)
 {
     char buf[BUFSZ];
-    int old_light, new_light, mntmp, class, tryct, gvariant = NEUTRAL;
+    int mntmp, class, tryct, gvariant = NEUTRAL;
     int old_wither, new_wither;
     boolean forcecontrol = ((psflags & POLY_CONTROLLED) != 0),
             low_control = ((psflags & POLY_LOW_CTRL) != 0),
@@ -895,7 +947,6 @@ polyself(int psflags)
             return;
         }
     }
-    old_light = emits_light(gy.youmonst.data);
     old_wither = Withering;
     mntmp = NON_PM;
 
@@ -987,7 +1038,6 @@ polyself(int psflags)
                 /* in wizard mode, picking own role while poly'd reverts to
                    normal without newman()'s chance of level or sex change */
                 rehumanize();
-                old_light = 0; /* rehumanize() extinguishes u-as-mon light */
                 goto made_change;
             } else if (iswere && (were_beastie(mntmp) == u.ulycn
                                   || mntmp == counter_were(u.ulycn)
@@ -1153,16 +1203,7 @@ polyself(int psflags)
     gs.sex_change_ok--; /* reset */
 
  made_change:
-    new_light = emits_light(gy.youmonst.data);
-    if (old_light != new_light) {
-        if (old_light)
-            del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
-        if (new_light == 1)
-            ++new_light; /* otherwise it's undetectable */
-        if (new_light)
-            new_light_source(u.ux, u.uy, new_light, LS_MONSTER,
-                             monst_to_any(&gy.youmonst));
-    }
+    /* the light source follows the form in polyman() and polymon() */
     new_wither = Withering;
     if (old_wither && !new_wither) {
         You("are no longer withering away.");
@@ -1202,7 +1243,8 @@ polymon(int mntmp)
             was_hiding_under = u.uundetected && hides_under(gy.youmonst.data),
             /* a form change can start or stop underwater vision */
             old_uwvis = (Underwater && See_underwater);
-    int mlvl, newMaxStr;
+    int mlvl, newMaxStr, old_light;
+    unsigned long my_generation;
 
     if (svm.mvitals[mntmp].mvflags & G_GENOD) { /* allow G_EXTINCT */
         You_feel("rather %s-ish.",
@@ -1294,6 +1336,7 @@ polymon(int mntmp)
        changes, since that alone puts an aasimar's wings to sleep */
     if (Levitation || Flying)
         defer_landing(Levitation ? LANDING_FLOAT : LANDING_FLY);
+    old_light = emits_light(gy.youmonst.data);
     u.umonnum = mntmp;
     /* a skeletal dragon's breath is fixed per individual; reroll it
        for every new change, before set_uasmon() derives the form's
@@ -1301,6 +1344,8 @@ polymon(int mntmp)
     if (mntmp == PM_SKELETAL_DRAGON)
         gy.youmonst.mbreathtyp = (uchar) sd_random_breath();
     set_uasmon();
+    uasmon_light(old_light);
+    my_generation = gu.uasmon_generation;
 
     /* New stats for monster, to last only as long as polymorphed.
      * Currently only strength gets changed.
@@ -1410,6 +1455,20 @@ polymon(int mntmp)
             dropx(bigrock);
         }
     }
+    /* Several of the calls between set_uasmon() above and the end of this
+       function can re-enter code which changes the hero's form again --
+       rehumanize() through losehp(), or another polymon() through
+       petrification.  Once that has happened, everything below is
+       configuring a form the hero no longer has, and worse, it redoes
+       cleanup (encumber_msg(), retouch_equipment()) which the nested
+       change has already performed.  Stop at each such boundary.
+       break_armor() -> Boots_off() -> spoteffects() and drop_weapon()
+       losing an invoked levitation artifact are both documented in the
+       comments of those functions.  (The boulder drop above asks about
+       the form the hero has now, and dropping one into a pit the hero
+       is in hurts, so this first stop comes after it.) */
+    if (gu.uasmon_generation != my_generation)
+        goto form_superseded;
     find_ac(); /* (repeated below) */
     /* if hiding under something and can't hide anymore, unhide now;
        but don't auto-hide when not already hiding-under */
@@ -1459,8 +1518,9 @@ polymon(int mntmp)
             }
             expels(u.ustuck, u.ustuck->data, expels_mesg);
             was_expelled = TRUE;
-            /* FIXME? if expels() triggered rehumanize then we should
-               return early */
+            /* expels() ends in spoteffects(), which can revert the hero */
+            if (gu.uasmon_generation != my_generation)
+                goto form_superseded;
         }
 
     /* [note:  this 'sticking' handling is only sufficient for changing from
@@ -1494,6 +1554,10 @@ polymon(int mntmp)
         if (!can_ride(u.usteed))
             dismount_steed(DISMOUNT_POLY);
     }
+    /* dismount_steed() -> teleds() -> spoteffects(), and instapetrify()
+       above can call polymon() directly */
+    if (gu.uasmon_generation != my_generation)
+        goto form_superseded;
 
     find_ac();
     if (((!Levitation && !u.ustuck && !Flying && is_pool_or_lava(u.ux, u.uy))
@@ -1501,8 +1565,8 @@ polymon(int mntmp)
         /* if expelled above, expels() already called spoteffects() */
         && !was_expelled) {
         spoteffects(TRUE);
-        /* FIXME? if spoteffects() triggered rehumanize then we should
-           return early */
+        if (gu.uasmon_generation != my_generation)
+            goto form_superseded;
     }
     /* a buried ball's chain waiting behind another hold goes first, so
        that the floor letting go below can't hand the hero to it */
@@ -1583,7 +1647,10 @@ polymon(int mntmp)
     /* this might trigger a recursive call to polymon() [stone golem
        wielding cockatrice corpse and hit by stone-to-flesh, becomes
        flesh golem above, now gets transformed back into stone golem;
-       fortunately neither form uses #monster] */
+       fortunately neither form uses #monster] -- and a cross-aligned
+       artifact blast here can take u.mh below 1 and rehumanize() */
+    if (gu.uasmon_generation != my_generation)
+        return 1;
     if (!uarmg)
         selftouch(no_longer_petrify_resistant);
 
@@ -1632,6 +1699,17 @@ polymon(int mntmp)
                  || uptr == &mons[PM_ELECTRIC_EEL]))
             pline(use_thec, "sit",
                   eggs_in_water(uptr) ? "spawn in the water" : "lay an egg");
+    }
+    return 1;
+
+ form_superseded:
+    /* a nested change of form has set up the form the hero has now; all
+       that is left of this one is the switch between the submerged view
+       and the ordinary one, which the nested change judged against the
+       form installed here rather than the one this call replaced */
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
     }
     return 1;
 }
@@ -1751,11 +1829,12 @@ break_armor(void)
 {
     struct obj *otmp;
     struct permonst *uptr = gy.youmonst.data;
+    unsigned long my_generation = gu.uasmon_generation;
 
     /* taking something off below can drown, burn or drop the hero
        (scaled armor losing flight or water walking, levitation boots)
        and rehumanize() them; that runs its own pass of this for the new
-       form, so each "form changed" check below stops this one */
+       form, so each generation check below stops this one */
 
     if (breakarm(&gy.youmonst)) {
         if ((otmp = uarm) != 0) {
@@ -1790,7 +1869,7 @@ break_armor(void)
                 }
             }
         }
-        if (gy.youmonst.data != uptr)
+        if (gu.uasmon_generation != my_generation)
             return;
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
@@ -1822,7 +1901,7 @@ break_armor(void)
                 useupp(otmp, oid);
             }
         }
-        if (gy.youmonst.data != uptr)
+        if (gu.uasmon_generation != my_generation)
             return;
         if ((otmp = uarmu) != 0) {
             if (otmp->oartifact) {
@@ -1847,7 +1926,7 @@ break_armor(void)
             (void) Armor_gone();
             dropp(otmp);
         }
-        if (gy.youmonst.data != uptr)
+        if (gu.uasmon_generation != my_generation)
             return;
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
@@ -1861,7 +1940,7 @@ break_armor(void)
             (void) Cloak_off();
             dropp(otmp);
         }
-        if (gy.youmonst.data != uptr)
+        if (gu.uasmon_generation != my_generation)
             return;
         if ((otmp = uarmu) != 0) {
             if (is_whirly(uptr))
@@ -1881,7 +1960,7 @@ break_armor(void)
             dropp(otmp);
         }
     }
-    if (gy.youmonst.data != uptr)
+    if (gu.uasmon_generation != my_generation)
         return;
     if (has_horns(uptr) && !druid_form) {
         if ((otmp = uarmh) != 0) {
@@ -1922,6 +2001,16 @@ break_armor(void)
                 dropp(otmp);
             }
         }
+        /* drop_weapon() above can release an artifact whose #invoked
+           levitation is keeping the hero up; freeinv() then ends it and
+           float_down() can land the hero in water or lava, whose damage
+           reverts the form through losehp() -> rehumanize().  Every test
+           below asks about 'uptr' -- the form the hero no longer has --
+           so stop here rather than strip a human's gear by a monster's
+           rules.  (Checked at sub-block boundaries so that no item is
+           left half-removed.) */
+        if (gu.uasmon_generation != my_generation)
+            return;
         if ((otmp = uarms) != 0) {
             if ((druid_form || vampire_form) && !is_bracer(uarms))
                 You("can no longer hold your shield!");
@@ -1948,8 +2037,8 @@ break_armor(void)
             dropp(otmp);
         }
     }
-    if (gy.youmonst.data != uptr)
-        return;
+    if (gu.uasmon_generation != my_generation)
+        return; /* as above */
     if ((nohands(uptr) || verysmall(uptr)
          || slithy(uptr) || racial_centaur(&gy.youmonst)
          || racial_tortle(&gy.youmonst) || is_ent(uptr) || is_satyr(uptr))
@@ -1970,8 +2059,9 @@ break_armor(void)
        it/them on (should also come off if head is too tiny or too huge,
        but putting accessories on doesn't reject those cases [yet?]);
        amulet stays worn */
-    if (gy.youmonst.data != uptr)
-        return;
+    if (gu.uasmon_generation != my_generation)
+        return; /* as above; Boots_off() -> spoteffects() is another
+                   re-entrant boundary */
     if ((otmp = ublindf) != 0 && !has_head(uptr)) {
         int l;
         const char *eyewear =
@@ -2121,8 +2211,6 @@ rehumanize(void)
     if (u.uvampireshape && u.mh < 1)
         u.uvampireshape += 1000;
 
-    if (emits_light(gy.youmonst.data))
-        del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
     polyman("You return to %s form!", gu.urace.adj);
     /* reset FROMHUNGER conditions in case player was polyd
        as a vampire, starving, and reverted back to normal

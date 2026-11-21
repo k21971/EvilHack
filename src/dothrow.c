@@ -1823,6 +1823,110 @@ slip_hits_leg(struct obj *obj)
     losehp(dmg, killbuf, KILLED_BY);
 }
 
+/* how far a thrown or fired object goes ('range') and, for a thrower who
+   is levitating or on the Plane of Air, how far the throw pushes the hero
+   back ('urange'); underwater it is 1 here, and throwit() rolls for the
+   turbulence that stops most throws there */
+void
+calc_othrow_ranges(struct obj *obj, enum toss_types toss_type,
+                  const struct throw_and_return_weapon *arw,
+                  boolean tethered_weapon,
+                  int *range, int *urange)
+{
+    boolean crossbowing =
+        (toss_type == launcher_fired_ammo && weapon_type(uwep) == P_CROSSBOW);
+
+    /* crossbow range is independent of strength */
+    *urange = (crossbowing ? 18 : (int) ACURRSTR) / 2;
+
+    /* hard limit this so crossbows will fire further
+     * than anything except a superstrong elf wielding a
+     * racial bow, or a samurai with his yumi */
+    if (*urange > 9)
+        *urange = 9;
+
+    /* balls are easy to throw or at least roll;
+     * also, this insures the maximum range of a ball is greater
+     * than 1, so the effects from throwing attached balls are
+     * actually possible
+     */
+    if (obj->otyp == HEAVY_IRON_BALL)
+        *range = *urange - (int) (obj->owt / 100);
+    else
+        *range = *urange - (int) (obj->owt / 40);
+    if (obj == uball) {
+        if (u.ustuck)
+            *range = 1;
+        else if (*range >= 5)
+            *range = 5;
+    }
+    if (*range < 1)
+        *range = 1;
+
+    if (toss_type == launcher_fired_ammo) {
+        if (crossbowing) {
+            if (is_art(uwep, ART_CROSSBOW_OF_CARL))
+                *range += 12; /* divine workmanship */
+            else if (uwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
+                *range += 8; /* not strength dependent; smaller */
+            else
+                *range += 10; /* not strength dependent */
+        } else {
+            switch (uwep->otyp) {
+            case ELVEN_BOW:
+            case DARK_ELVEN_BOW:
+            case YUMI:
+                *range += *urange + 2; /* better workmanship */
+                break;
+            case ORCISH_BOW:
+                *range += *urange - 2; /* orcish gear sucks */
+                break;
+            case BOW:
+                if (is_art(uwep, ART_LONGBOW_OF_DIANA))
+                    *range += *urange + 3; /* divine workmanship */
+                else
+                    *range += *urange;
+                break;
+            case SLING:
+                *range += (int) *urange / 2;
+                break;
+            default:
+                break;
+            }
+        }
+    } else if (toss_type == hand_tossed_ammo && obj->oclass != GEM_CLASS) {
+        *range /= 2;
+    }
+
+    if (Is_airlevel(&u.uz) || Levitation) {
+        /* action, reaction... */
+        *urange -= *range;
+        if (*urange < 1)
+            *urange = 1;
+        *range -= *urange;
+        if (*range < 1)
+            *range = 1;
+    }
+
+    if (obj->otyp == BOULDER)
+        *range = 20; /* you must be giant */
+    else if (is_art(obj, ART_MJOLLNIR))
+        *range = (*range + 1) / 2; /* it's heavy */
+    else if (is_art(obj, ART_XIUHCOATL))
+        *range = (*range + 2); /* not heavy at all */
+    else if (tethered_weapon) /* primary weapon is aklys or Hammer */
+        /* range of a tethered_weapon is limited by the
+           length of the attached cord [implicit aspect of item];
+           the Hammer of the Gods has no arwep[] entry and takes
+           the aklys's cord (weapon.c's AKLYS_LIM) */
+        *range = min(*range, arw ? isqrt(arw->range) : BOLT_LIM / 2);
+    else if (obj == uball && u.utrap && u.utraptype == TT_INFLOOR)
+        *range = 1;
+
+    if (Underwater)
+        *range = 1;
+}
+
 /* throw an object, NB: obj may be consumed in the process */
 void
 throwit(
@@ -1833,15 +1937,18 @@ throwit(
     struct obj *oldslot) /* for thrown-and-return used with !fixinv */
 {
     struct monst *mon;
-    int range, urange;
+    int range = 0, urange = 0;
     const struct throw_and_return_weapon *arw = autoreturn_weapon(obj);
-    boolean crossbowing,
-            impaired = (Confusion || Stunned || Blind
+    boolean impaired = (Confusion || Stunned || Blind
                         || Hallucination || Fumbling),
             tethered_weapon = ((wep_mask & W_WEP) != 0
                                && ((arw && arw->tethered)
                                    || hammer_tethers(obj))),
             tether_released_msg = FALSE;
+    enum toss_types toss_type =
+        (!is_ammo(obj)                    ? hand_tossed_obj
+         : (ammo_and_launcher(obj, uwep)) ? launcher_fired_ammo
+                                          : hand_tossed_ammo);
 
     gn.notonhead = FALSE; /* reset potentially stale value */
     if (((obj->cursed && u.ualign.type != A_NONE)
@@ -1850,7 +1957,7 @@ throwit(
         && (u.dx || u.dy) && !rn2(7)) {
         boolean slipok = TRUE;
 
-        if (ammo_and_launcher(obj, uwep)) {
+        if (toss_type == launcher_fired_ammo) {
             pline("%s!", Tobjnam(obj, "misfire"));
         } else {
             /* only slip if it's greased or meant to be thrown */
@@ -1961,114 +2068,25 @@ throwit(
             return;
         }
     } else {
-        /* crossbow range is independent of strength */
-        crossbowing = (ammo_and_launcher(obj, uwep)
-                       && weapon_type(uwep) == P_CROSSBOW);
-        urange = (crossbowing ? 18 : (int) ACURRSTR) / 2;
-
-        /* hard limit this so crossbows will fire further
-         * than anything except a superstrong elf wielding a
-         * racial bow, or a samurai with his yumi */
-        if (urange > 9)
-            urange = 9;
-
-        /* balls are easy to throw or at least roll;
-         * also, this insures the maximum range of a ball is greater
-         * than 1, so the effects from throwing attached balls are
-         * actually possible
-         */
-        if (obj->otyp == HEAVY_IRON_BALL)
-            range = urange - (int) (obj->owt / 100);
-        else
-            range = urange - (int) (obj->owt / 40);
-        if (obj == uball) {
-            if (u.ustuck)
-                range = 1;
-            else if (range >= 5)
-                range = 5;
-        }
-        if (range < 1)
-            range = 1;
-
-        if (is_ammo(obj)) {
-            if (ammo_and_launcher(obj, uwep)) {
-                if (crossbowing) {
-                    if (is_art(uwep, ART_CROSSBOW_OF_CARL))
-                        range += 12; /* divine workmanship */
-                    else if (uwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
-                        range += 8; /* not strength dependent; smaller */
-                    else
-                        range += 10; /* not strength dependent */
-                } else {
-                    switch (uwep->otyp) {
-                    case ELVEN_BOW:
-                    case DARK_ELVEN_BOW:
-                    case YUMI:
-                        range += urange + 2; /* better workmanship */
-                        break;
-                    case ORCISH_BOW:
-                        range += urange - 2; /* orcish gear sucks */
-                        break;
-                    case BOW:
-                        if (is_art(uwep, ART_LONGBOW_OF_DIANA))
-                            range += urange + 3; /* divine workmanship */
-                        else
-                            range += urange;
-                        break;
-                    case SLING:
-                        range += (int) urange / 2;
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            } else if (obj->oclass != GEM_CLASS) {
-                range /= 2;
+        if (toss_type == hand_tossed_ammo) {
+            if (obj->oclass != GEM_CLASS) {
                 pline("You aren't wielding %s, so you throw your %s by %s.",
-                      an(skill_name(weapon_type(obj))),
-                      weapon_descr(obj),
+                      an(skill_name(weapon_type(obj))), weapon_descr(obj),
                       body_part(HAND));
             }
         }
-
-        if (Is_airlevel(&u.uz) || Levitation) {
-            /* action, reaction... */
-            urange -= range;
-            if (urange < 1)
-                urange = 1;
-            range -= urange;
-            if (range < 1)
-                range = 1;
-        }
-
-        if (obj->otyp == BOULDER)
-            range = 20; /* you must be giant */
-        else if (is_art(obj, ART_MJOLLNIR))
-            range = (range + 1) / 2; /* it's heavy */
-        else if (is_art(obj, ART_XIUHCOATL))
-            range = (range + 2); /* not heavy at all */
-        else if (tethered_weapon) /* primary weapon is aklys or Hammer */
-            /* range of a tethered_weapon is limited by the
-               length of the attached cord [implicit aspect of item];
-               the Hammer of the Gods has no arwep[] entry and takes
-               the aklys's cord (weapon.c's AKLYS_LIM) */
-            range = min(range, arw ? isqrt(arw->range) : BOLT_LIM / 2);
-        else if (obj == uball && u.utrap && u.utraptype == TT_INFLOOR)
-            range = 1;
-
-        if (Underwater) {
-            if (rn2(5)) {
-                pline("Water turbulence prevents the %s from %s.",
-                      simpleonames(obj),
-                      ammo_and_launcher(obj, uwep) ? "firing"
-                                                   : "being thrown");
-                if (!iflags.returning_missile)
-                    pline("It drifts down to your %s.",
-                          makeplural(body_part(FOOT)));
-                range = 0;
-            } else {
-                range = 1;
-            }
+        calc_othrow_ranges(obj, toss_type,
+                          arw, tethered_weapon,
+                          &range, &urange);
+        if (Underwater && rn2(5)) {
+            pline("Water turbulence prevents the %s from %s.",
+                  simpleonames(obj),
+                  (toss_type == launcher_fired_ammo) ? "firing"
+                                                     : "being thrown");
+            if (!iflags.returning_missile)
+                pline("It drifts down to your %s.",
+                      makeplural(body_part(FOOT)));
+            range = 0;
         }
 
         mon = bhit(u.dx, u.dy, range,

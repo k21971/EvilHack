@@ -330,6 +330,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     boolean dbldam = Role_if(PM_KNIGHT) && u.uhave.questart;
     boolean skilled_spell, helpful_gesture = FALSE;
     boolean already_woke = FALSE; /* an arm ran its own wakeup() */
+    /* dozap() tracks the wand being zapped through gc.current_wand */
+    boolean tracked = (otmp == gc.current_wand);
     int dmg, otyp = otmp->otyp; /* otmp is not NULL */
     const char *zap_type_text = "spell";
     struct obj *obj;
@@ -1057,6 +1059,10 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         if (mtmp->isshk && !*u.ushops && !helpful_gesture)
             hot_pursuit(mtmp);
     }
+    /* angering a temple priest brings down his god's lightning, which
+       might have destroyed the wand */
+    if (tracked && !gc.current_wand)
+        learn_it = FALSE;
     /* note: gb.bhitpos won't be set if swallowed, but that's okay since
      * reveal_invis will be false.  We can't use mtmp->mx, my since it
      * might be an invisible worm hit on the tail.
@@ -5369,7 +5375,9 @@ zap_map(
  *  is the monster hit (weapon != ZAPPED_WAND), or a null monster pointer.
  *
  *  Thrown and kicked objects (THROWN_WEAPON or KICKED_WEAPON) may be
- *  destroyed and *pobj set to NULL to indicate this.
+ *  destroyed and *pobj set to NULL to indicate this.  So may a zapped
+ *  wand (ZAPPED_WAND), if hitting a temple priest brings down his god's
+ *  lightning.
  *
  *  Check !u.uswallow before calling bhit().
  *  This function reveals the absence of a remembered invisible monster in
@@ -5394,6 +5402,8 @@ bhit(
     boolean shopdoor = FALSE, shopbars = FALSE, point_blank = TRUE;
     boolean in_skip = FALSE, allow_skip = FALSE;
     boolean tethered_weapon = FALSE;
+    /* dozap() tracks the wand being zapped through gc.current_wand */
+    boolean tracked = (weapon == ZAPPED_WAND && obj == gc.current_wand);
     int skiprange_start = 0, skiprange_end = 0, skipcount = 0;
     struct obj *was_returning = (iflags.returning_missile == obj) ? obj
                                 : (struct obj *) 0;
@@ -5632,6 +5642,12 @@ bhit(
                 if ((*fhitm)(mtmp, obj)) {
                     result = mtmp;
                     goto bhit_done;
+                }
+                /* angering a temple priest brings down his god's
+                   lightning, which might have destroyed the wand */
+                if (tracked && !gc.current_wand) {
+                    *pobj = (struct obj *) 0;
+                    break;
                 }
                 range -= 3;
                 if (obj_carried && !o_on(obj_id, gi.invent)) {

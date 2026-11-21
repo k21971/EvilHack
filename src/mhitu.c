@@ -2150,6 +2150,8 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     boolean physical_damage = FALSE, total_digestion = FALSE;
     /* for tracking if this is the first engulf */
     boolean old_uswallow = u.uswallow;
+    enum gulpsituations { gulp_neither, gulp_engulfed, gulp_being_digested };
+    enum gulpsituations gulpsituation = gulp_engulfed;
 
     if (!u.uswallow) { /* swallows you */
         int omx = mtmp->mx, omy = mtmp->my;
@@ -2297,6 +2299,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     switch (mattk->adtyp) {
     case AD_DGST:
         physical_damage = TRUE;
+        gulpsituation = gulp_being_digested;
         if (Slow_digestion) {
             /* Messages are handled below */
             u.uswldtim = 0;
@@ -2550,14 +2553,15 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     }
 
     if (physical_damage) {
-        /* same damage reduction for AC as in hitmu; total digestion
-           is the whole of the current pool by design and armor does
-           not spare any of it */
-        if (u.uac < 0 && !total_digestion)
-            tmp -= rnd(-u.uac);
-        if (tmp < 0)
-            tmp = 1;
-
+        /* don't undo the settings above related to
+         * slow digestion and total digestion */
+        if (gulpsituation != gulp_being_digested) {
+            /* same damage reduction for AC as in hitmu */
+            if (u.uac < 0)
+                tmp -= rnd(-u.uac);
+            if (tmp < 0)
+                tmp = 1;
+        }
         tmp = Maybe_Half_Phys(tmp);
     }
 

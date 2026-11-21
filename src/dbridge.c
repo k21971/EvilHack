@@ -899,8 +899,7 @@ do_entity(struct entity *etmp)
                 unstuck_if_apart(u.ustuck);
         }
         /* update entity position unless worm segment stayed put */
-        if (is_u(etmp) || !etmp->emon->wormno
-            || etmp->edata != &mons[PM_LONG_WORM_TAIL]) {
+        if (etmp->edata != &mons[PM_LONG_WORM_TAIL]) {
             etmp->ex = newx;
             etmp->ey = newy;
         }
