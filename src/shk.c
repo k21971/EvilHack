@@ -1566,9 +1566,11 @@ past_due_charges(struct monst *shkp)
 {
     struct eshk *eshkp = ESHK(shkp);
 
-    /* all pending shop transactions are now "past due" */
+    /* all pending shop transactions are now "past due"; gold the hero
+       picked up in the shop is part of debit already, so loan is not
+       added on top of it */
     if (eshkp->billct || eshkp->debit || eshkp->loan || eshkp->credit) {
-        eshkp->robbed += (addupbill(shkp) + eshkp->debit + eshkp->loan);
+        eshkp->robbed += (addupbill(shkp) + eshkp->debit);
         eshkp->robbed -= eshkp->credit;
         if (eshkp->robbed < 0L)
             eshkp->robbed = 0L;
