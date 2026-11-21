@@ -1992,7 +1992,10 @@ dopay(void)
         return ECMD_OK;
     }
 
-    if (shkp != resident && NOTANGRY(shkp)) {
+    /* a peaceful shopkeeper who is out of his shop takes payment for an
+       open bill where he stands, further down */
+    if (shkp != resident && NOTANGRY(shkp)
+        && (ltmp || (!eshkp->billct && !eshkp->debit))) {
         umoney = money_cnt(gi.invent);
         if (!ltmp) {
             You("do not owe %s anything.", shkname(shkp));
@@ -2079,7 +2082,8 @@ dopay(void)
         }
         return ECMD_TIME;
     }
-    if (shkp != resident) {
+    /* an angry one's bill went past due just above */
+    if (shkp != resident && ANGRY(shkp)) {
         impossible("dopay: not to shopkeeper?");
         if (resident)
             setpaid(resident);
