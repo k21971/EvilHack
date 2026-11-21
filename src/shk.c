@@ -377,7 +377,7 @@ clear_no_charge_obj(
             || (otmp->where != OBJ_FLOOR
                 && otmp->where != OBJ_CONTAINED
                 && otmp->where != OBJ_BURIED)
-            || !get_obj_location(otmp, &x, &y, OBJ_CONTAINED | OBJ_BURIED)
+            || !get_obj_location(otmp, &x, &y, CONTAINED_TOO | BURIED_TOO)
             || !isok(x, y)
             || (rno = levl[x][y].roomno) < ROOMOFFSET
             || !IS_SHOP(rno - ROOMOFFSET)
