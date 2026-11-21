@@ -3719,7 +3719,8 @@ alter_cost(
     struct monst *shkp;
     long new_price;
 
-    for (shkp = next_shkp(fmon, TRUE); shkp; shkp = next_shkp(shkp, TRUE))
+    for (shkp = next_shkp(fmon, TRUE); shkp;
+         shkp = next_shkp(shkp->nmon, TRUE)) {
         if ((bp = onbill(obj, shkp, TRUE)) != 0) {
             new_price = !amt ? get_cost(obj, shkp) : (amt < 0L) ? -amt : amt;
             if (new_price > bp->price || amt < 0L) {
@@ -3728,6 +3729,7 @@ alter_cost(
             }
             break; /* done */
         }
+    }
     return;
 }
 
