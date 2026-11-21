@@ -17,8 +17,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-20, session 350: the site
-  census's text and small ones are back - priests are named by race;
+- Phase 2 status (refreshed 2026-11-21, session 351: the shop bill
+  leaks left by session 350 are closed, with six shop fixes 0.9.3 made
+  in April that never reached the branch - a peaceful shopkeeper
+  outside his shop takes payment from a hero beside him; a shopkeeper
+  who leaves the level with a bill open has it settled as a debt the
+  hero pays when they meet; a peaceful shopkeeper is not knocked or
+  swapped out of his own shop (ruled: an angry one still is); while he
+  is out, unpaid goods split, thrown or flung stay on his bill on his
+  floor and are charged anywhere else (ruled), where they gave
+  impossibles, a crash and a free route; gold picked up in a shop is
+  counted once on a past-due bill; a gift to a robbed shop lowers the
+  debt by its value; and of 0.9.3's fixes the endless alter_cost()
+  loop was a game hang; the leaks row closed, fifteen rows minted and
+  closed (two HIGH), a residue row and a Phase 5 sweep row for 0.9.3's
+  2026 review fixes minted - after session 350, on 2026-11-20, brought
+  back the site census's text and small ones - priests are named by
+  race;
   probing shows entangled and vulnerable monsters and a reflecting
   hero; farlook says what a monster wields; an off-hand weapon shows
   its glow or light and a monster's weapon is described by its own
@@ -271,7 +286,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
   prefix; 61 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 59 LOW):
-  833 rows closed, 61 open
+  849 rows closed, 61 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -38277,7 +38292,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the keeper nine squares from his post - POST 20 Kops around the
       post, 17 by the down stairs, none by the keeper. Save and
       restore in an untended shop - fine on both.
-- [ ] LOW: shop bill leaks left after session 350 (minted 2026-11-20,
+- [x] LOW: shop bill leaks left after session 350 (minted 2026-11-20,
       reviewer and battery of BUG-3268; needs rulings). (a) A peaceful
       shopkeeper outside his shop cannot be paid: dopay()'s
       `shkp != resident && NOTANGRY(shkp)` arm ignores billct and
@@ -38295,6 +38310,256 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pays), shop_obj_sanity() says "unpaid obj not inside tended
       shop" every turn under sanity_check; the fuzzer's impossible
       escalation would make that a panic. Vanilla 5.0 shares all three.
+      CLOSED 2026-11-21, session 351 (BUG-3281, BUG-3282, BUG-3283;
+      commit pending). All three RULED 2026-11-20 and fixed: (a) pay
+      him at his side; (b) traced and real - the bill becomes a debt
+      when he leaves the level; (c) the check accepts the shop of a
+      shopkeeper who is out. The trace found a free-pickup window
+      (BUG-3279, BUG-3280), the stress test six lost 0.9.3 shop fixes
+      and three more defects, the reviewer two: fifteen rows below.
+      Plan
+      /root/.claude/plans/bugfix-shop-bill-leaks-and-lost-shk-fixes.md.
+- [x] HIGH: alter_cost() looped forever on a shop bill (minted and
+      closed 2026-11-21, session 351, stress test of the shop bill
+      leaks plan; vanilla 5.0 too; 0.9.3 fixed it as its BUG-710 in
+      7c525e07c and the tree adoption lost it). The loop steps with
+      next_shkp(shkp, TRUE), which hands back the same shopkeeper, so
+      an object that is not on the first billing shopkeeper's bill
+      never ends it: bazaar vaults (0.9.3's report), a full bill, any
+      costly alteration of a carried unpaid item while the shopkeeper
+      is out of his shop. Six of that commit's eleven shk.c fixes were
+      missing on the branch and this tracker never listed it: this row
+      and the five marked 0.9.3 below. RULED 2026-11-21 PORT ALL SIX
+      NOW (rejected: only the hang and the debt wipe; own slice).
+      CLOSED 2026-11-21, session 351 (BUG-3269, commit pending).
+      Master's step, next_shkp(shkp->nmon, TRUE). Upstream row
+      2026-11-21.
+      BATTERY: leg E, keeper out and frozen, an unpaid apple and one
+      more unpaid item, eat the apple - PRE the game stops answering
+      before the bite line is shown (bt onbill < alter_cost <
+      bill_dummy_object < costly_alteration < touchfood < doeat), POST
+      "You bite that apple, you pay for it!" and the meal goes on.
+- [x] LOW: stolen_container() read a null shopkeeper (minted and
+      closed 2026-11-21, session 351; 0.9.3's BUG-713, 7c525e07c;
+      vanilla 5.0 too).
+      CLOSED 2026-11-21, session 351 (BUG-3270, commit pending).
+      Master's `if (!shkp) return price;`. stolen_value() no longer
+      hands it one (BUG-3278); the crash it guards is that row's leg
+      C5.
+- [x] LOW: one gift to a robbed shop wiped the whole debt (minted and
+      closed 2026-11-21, session 351; 0.9.3's BUG-714, 7c525e07c;
+      vanilla 5.0 too). sellobj()'s `if ((eshkp->robbed -= offer <
+      0L))` subtracts nothing and then clears the debt.
+      CLOSED 2026-11-21, session 351 (BUG-3271, commit pending).
+      Master's subtract, then floor at 0. It would have erased the
+      debt BUG-3282 leaves. REMOVALS 2.3; upstream row 2026-11-21.
+      BATTERY: leg B5, robbed set to 500, 10 gold dropped in the shop
+      - "Thank you for your contribution to restock this recently
+      plundered shop." on both; PRE robbed 0, POST 490.
+- [x] LOW: a container's gold counted as 1 against a robbery debt
+      (minted and closed 2026-11-21, session 351, reviewer; vanilla
+      5.0 and 0.9.3 the same). sellobj()'s robbed arm adds the flag
+      `cgold`, not the gold; hidden while any gift wiped the debt.
+      CLOSED 2026-11-21, session 351 (BUG-3272, commit pending).
+      `offer += gltmp`. Beyond 0.9.3. REMOVALS 2.3; upstream row
+      2026-11-21 (with BUG-3271).
+      BATTERY: leg I, robbed 500, a sack holding exactly 50 gold
+      dropped in a delicatessen - first cut 499, final 450; the
+      shopkeeper keeps sack and gold on both (vanilla).
+- [x] LOW: splitbill() went on after its two impossibles (minted and
+      closed 2026-11-21, session 351; 0.9.3's BUG-715, 7c525e07c;
+      vanilla 5.0 too).
+      CLOSED 2026-11-21, session 351 (BUG-3273, commit pending).
+      Master's `return` after "Negative quantity on bill??" and "Zero
+      quantity on bill??". By review (needs a corrupt bill).
+- [x] LOW: globby_bill_fixup() went on after its impossible (minted
+      and closed 2026-11-21, session 351; 0.9.3's BUG-716, 7c525e07c;
+      vanilla 5.0 too).
+      CLOSED 2026-11-21, session 351 (BUG-3274, commit pending).
+      Braces and `return`. By review.
+- [x] LOW: gem_learned() stopped re-pricing a bill at a used-up item
+      (minted and closed 2026-11-21, session 351; 0.9.3's BUG-718,
+      7c525e07c; vanilla 5.0 too). `if (!obj) continue;` skipped the
+      `++bp`; find_oid() does not search the used-up list, so every
+      used-up billed item is such an entry (reviewer).
+      CLOSED 2026-11-21, session 351 (BUG-3275, commit pending).
+      Master's `if (obj && ...)` with the unconditional step; the
+      comment says what the NULL is. By review.
+- [x] LOW: things in boxes lost their no-charge mark in every shop
+      (minted and closed 2026-11-21, session 351, stress test; vanilla
+      5.0). clear_no_charge_obj() hands get_obj_location() the
+      location codes OBJ_CONTAINED | OBJ_BURIED where flags belong,
+      which reads as BURIED_TOO alone: a contained object is not found
+      and its mark is cleared whatever shop its box stands in. RULED
+      2026-11-21 (extras): fix.
+      CLOSED 2026-11-21, session 351 (BUG-3276, commit pending).
+      `CONTAINED_TOO | BURIED_TOO`. Upstream row 2026-11-21.
+      BATTERY: leg B6, own sack with a dagger inside, dropped in the
+      tool shop and not sold (both marked), then clear_no_charge() for
+      the lighting store's keeper - PRE sack 1 / dagger 0, POST 1 / 1.
+- [x] LOW: shop gold the hero picked up was counted twice on a
+      past-due bill (minted and closed 2026-11-21, session 351, stress
+      test; vanilla 5.0 and 0.9.3 the same). costly_gold() adds it to
+      debit and to loan ("part of debit"), and past_due_charges()
+      added bill + debit + loan where rob_shop(), paybill() and
+      inherits() total bill + debit. RULED 2026-11-21 (extras): count
+      it once.
+      CLOSED 2026-11-21, session 351 (BUG-3277, commit pending). `+
+      eshkp->loan` dropped; covers make_angry_shk()'s seven callers,
+      dopay()'s angry fold and BUG-3282. Beyond 0.9.3. REMOVALS 2.3;
+      upstream row 2026-11-21.
+      BATTERY: leg B4, an item of price P plus 100 shop gold, then
+      make_angry_shk() - PRE robbed P + 200 (378 for a 178 ring mail),
+      POST P + 100 (136 for a 36 lock pick).
+- [x] HIGH: unpaid goods while the shopkeeper is out of his shop:
+      impossibles, an orphan piece and a crash (minted and closed
+      2026-11-21, session 351, stress test and reviewer; vanilla 5.0
+      and 0.9.3 the same). With a living shopkeeper on the level but
+      outside his shop and the hero inside with a bill: splitbill()
+      refused ("splitbill: no resident shopkeeper??") and the split
+      piece stayed unpaid on no bill; a thrown unpaid item gave
+      "onbill: unpaid obj without shopkeeper?"; a thrown container
+      holding unpaid goods reached stolen_container() with a null
+      shopkeeper (SIGSEGV); the hero's exploding bag of holding took
+      unpaid goods off the bill free; and an item paid for while it
+      lay on his floor stayed shop stock, to be sold a second time.
+      CLOSED 2026-11-21, session 351 (BUG-3278, commit pending). RULED
+      2026-11-21, the bill works while he is out (extras), then after
+      the review ON HIS FLOOR STAYS BILLED (rejected: charged at once;
+      leave the throw charged and the blast free). shk.c: splitbill()
+      tests `!shkp` only; stolen_value() falls back to
+      find_objowner()'s shopkeeper and returns 0 with none; new
+      shk_owns_spot(); update_bill() marks an item bought where it
+      lies on his floor no_charge. dothrow.c check_shop_obj() and
+      explode.c flung_obj_lands(): an unbroken unpaid object that
+      comes down on his shop floor stays on his bill like a dropped
+      one; anywhere else (door, post, street) it is charged as stolen.
+      Stock not on his bill stays free while he is out. Beyond 0.9.3.
+      REMOVALS 2.3; upstream row 2026-11-21. REVIEW: PASS, LOW - a
+      throw that landed inside was charged at once (asked, ruled as
+      above); delta PASS, LOW - paying for an item on his floor bought
+      nothing (fixed).
+      BATTERY: leg C, dropping 2 of 5 unpaid darts - PRE the
+      impossible and no entry for the pair, POST billct 3 -> 4 with
+      bquan 2 and 3; a sack holding three unpaid darts thrown - PRE
+      SIGSEGV stolen_container(shkp=0x0) < stolen_value <
+      check_shop_obj < throwit, first cut "You owe Djasinga 64
+      zorkmids for its contents!". Leg F on the final rule: an unpaid
+      apple thrown onto his floor - first cut "You owe Siboga 12
+      zorkmids for it!", final no line, still unpaid with its entry,
+      no sanity line, a second pickup changes nothing; thrown out
+      through the door - "You owe Pameunpeuk 9 zorkmids for it!" on
+      both; the sack onto his floor - final no line, the cookie inside
+      still billed. Leg G, four unpaid items in an exploding bag of
+      holding - first cut all four off the bill free (one on his
+      door); final the two on his floor still billed, the one on his
+      post charged ("You owe Izchak 9 zorkmids for it!"), the
+      destroyed one charged ("You owe 3 zorkmids for lost
+      merchandise."). Final build, an item paid for where it lies: an
+      unpaid apple thrown onto his floor, the shopkeeper walks home,
+      `p` - "You bought an apple for 9 gold pieces.", and the apple on
+      the floor reads "(no charge)" and is picked up with no quote,
+      where the build before left it plain stock; a cookie paid for
+      inside the hero's thrown sack is marked too, and the sack - the
+      shop's by vanilla's rule - is then quoted alone at 3 zorkmids
+      where it read 12 with the cookie.
+- [x] LOW: a peaceful shopkeeper could be knocked out of his own shop
+      (minted and closed 2026-11-21, session 351, found while tracing
+      the leaks; vanilla 5.0 and 0.9.3 the same). mhurtle_step() asks
+      nothing about shops, so a monster's knockback, wand of striking
+      or pull could leave him outside: the shop is then untended
+      (pickups are free) and an open bill cannot be paid. RULED
+      2026-11-20 MONSTERS CAN'T PUSH HIM OUT (rejected: record; bill
+      for an absent keeper as its own slice), refined 2026-11-21 to
+      PEACEFUL KEEPERS STAY IN, whoever hits him, with an angry one
+      knocked out by anyone as on 0.9.3 (rejected: "monsters never",
+      which would also have stopped Ashmar and the Armor of
+      Retribution).
+      CLOSED 2026-11-21, session 351 (BUG-3279, commit pending). New
+      shk_would_leave_shop(); will_hurtle() refuses the step, which
+      also sets mhitm_knockback()'s wording. The hero's blows anger
+      him first (mhurtle()'s wakeup()) and still send him out; a
+      bare-handed Rogue's forced fight, which angers nobody, does not.
+      Beyond 0.9.3. REMOVALS 2.3.
+      BATTERY: leg D, mhurtle() toward his door as a monster's doing -
+      PRE he ends three squares on, outside and still peaceful, POST
+      on his door square; angry and frozen - outside on both;
+      #wiztelekinesis - "You feel guilty.  Izchak the human shopkeeper
+      gets angry!" and outside on both.
+- [x] LOW: a displacing monster could swap a peaceful shopkeeper out
+      of his shop (minted and closed 2026-11-21, session 351, stress
+      test; vanilla 5.0 too). A displacer beast, Cerberus, Croesus or
+      a Rider beyond his door trades places with him on his door
+      square; the hero cannot. RULED 2026-11-21 (extras): refuse it.
+      CLOSED 2026-11-21, session 351 (BUG-3280, commit pending).
+      mm_displacement() tests shk_would_leave_shop() for the square
+      the mover leaves; mfndpos() is its only caller. REMOVALS 2.3
+      (with BUG-3279).
+      BATTERY: leg D4, mm_displacement(beast, shopkeeper) with him on
+      his door and the beast just outside - PRE 4096, POST 0; him
+      angry, or the beast inside the shop - 4096 on both.
+- [x] LOW: a peaceful shopkeeper outside his shop could not be paid
+      (minted and closed 2026-11-21, session 351; the shop bill leaks
+      row, item (a); vanilla 5.0 and 0.9.3 the same).
+      CLOSED 2026-11-21, session 351 (BUG-3281, commit pending). RULED
+      2026-11-20 PAY HIM AT HIS SIDE (rejected: angry as when
+      teleported; record). dopay()'s peaceful non-resident arm also
+      needs `ltmp || (!billct && !debit)`, so an open bill falls
+      through to the debit and itemized code; the guard after it is
+      angry-only. Also newly payable at his side: a debit run up from
+      outside the shop. Beyond 0.9.3. REMOVALS 2.3; upstream row
+      2026-11-21.
+      BATTERY: leg A, Izchak on the square beyond his door, the hero
+      on the door - PRE "You do not owe Izchak anything.", POST the
+      pay menu, "You bought a steel lantern for 15 gold pieces.",
+      "Thank you for shopping in Izchak's lighting store!", gold 5000
+      -> 4985; two squares off "Izchak is not near enough to receive
+      your payment." on both. Again on the final builds.
+- [x] LOW: a shopkeeper who left the level took the open bill with him
+      (minted and closed 2026-11-21, session 351; the shop bill leaks
+      row, item (b), traced: real; vanilla 5.0 and 0.9.3 the same).
+      mon_leave() clears the shop's resident and leaves billct and
+      debit on him: the goods stay unpaid with nobody to pay, the hero
+      walks out free, and "unpaid_cost: object wasn't on any bill."
+      prints on every turn. Routes: mlevel_tele_trap() (trap door,
+      hole, level teleporter), the stairs a wounded hostile shopkeeper
+      takes, dispel_evil_banish(), limbo.
+      CLOSED 2026-11-21, session 351 (BUG-3282, commit pending). RULED
+      2026-11-20 THE BILL BECOMES A DEBT, his mood whatever the cause
+      made it (rejected: always angry; record). New shk_leaves_level()
+      from mon_leave(): past_due_charges() when a bill or debit is
+      open, and on his shop level the no-charge marks of his floor,
+      the buried list and (reviewer) pets' boxes are cleared. No line,
+      no Kops; credit pays first and the rest of it is cleared. Beyond
+      0.9.3. REMOVALS 2.3; upstream row 2026-11-21.
+      BATTERY: leg B, an item of price P plus 100 shop gold, then a
+      trap door under him - PRE billct 1 and debit 100 on the departed
+      shopkeeper, the item "(unpaid, 0 zorkmids)", the impossibles
+      each turn, a free walk out; POST billct 0, robbed 160 (60 +
+      100), the item plain, no line, no Kops; on his new level `p`
+      beside him - "You give Tipor the 160 gold pieces she asked for.
+      Satisfied, Tipor suddenly disappears!", and upstairs he is at
+      his door and sells again. With 500 credit: PRE billct 1 / credit
+      500, POST 0 / 0 / robbed 0. Leg H, m_into_limbo() and back -
+      robbed 9, "Annootok mutters imprecations against shoplifters.",
+      then `p`: "Annootok is after blood, not gold!  But since his
+      shop has been robbed recently,  you compensate Annootok for his
+      losses.". Leg J, a kitten holding a marked sack when he falls -
+      first cut the marks stay and "no_charge obj not inside tended
+      shop!" prints, final both cleared and quiet.
+- [x] LOW: the sanity check called a shop untended while its
+      shopkeeper stood outside (minted and closed 2026-11-21, session
+      351; the shop bill leaks row, item (c); vanilla 5.0).
+      CLOSED 2026-11-21, session 351 (BUG-3283, commit pending). RULED
+      2026-11-20: fix the check (rejected: record). shop_obj_sanity()
+      also accepts an object that is on the bill list or on a square
+      of the shop of a shopkeeper who is on the level but outside it;
+      its other tests are untouched.
+      BATTERY: leg C, keeper two squares beyond his door and frozen -
+      PRE three lines a turn (the hero's ration on the floor, the
+      unpaid cookie, the unpaid darts), POST none; controls on POST:
+      an own sack given `unpaid` reports "unpaid obj not on shop
+      bill!", a dagger in the street "unpaid obj not carried!".
 - [ ] LOW, record: session 350 residue (minted 2026-11-20, stress
       test, reviewer and batteries; record unless a ruling wants a
       change). (a) A priest's race word shows while the hero
@@ -38332,6 +38597,60 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       monster returns "it" (set DETECT_MONSTERS first); on a build
       without BUG-3268, re-entering a shop whose keeper is out with an
       open bill segfaults under sanity_check.
+- [ ] LOW, record: session 351 residue (minted 2026-11-21, plan stress
+      test, reviewer and batteries; record unless a ruling wants a
+      change). (a) While a shopkeeper is out of his shop it is
+      untended for everything not on his bill, as vanilla and 0.9.3
+      have it: pickups are free and look-here shows no price
+      (costly_spot() is 0), using unpaid goods costs nothing
+      (check_unpaid_usage()), an altered unpaid item is altered free
+      and its billing dummy leaks (bill_dummy_object()). (b) Things
+      the hero puts down in a shop while its keeper is out are the
+      shop's when he is back - vanilla's stated rule: the hero's own
+      sack read "for sale" after a throw. (c) A dropped, thrown or
+      flung unpaid item left on his floor counts in the robbery total
+      if the hero walks out; kicked or teleported off his floor while
+      he is out it leaves still billed ("unpaid obj not carried!"
+      under sanity_check). (d) Other ways out of his shop without
+      make_angry_shk(): mnearto()'s shove, his own unslime jump, the
+      hero's kick shove; a monster's wand of teleportation, AD_TLPT
+      touch or teleport trap still angers him at the hero (vanilla).
+      (e) setmangry()'s bare-handed Rogue forced-fight exemption
+      angers nobody and looks stale since #steal; read, not run. (f)
+      make_itemized_bill() -> unpaid_cost() walks u.ushops only, so a
+      container entry paid from outside the payee's shop shows 0 and
+      an impossible (the gold charged is right); pay_billed_items()
+      trusts bp_to_obj(); setpaid() frees all of gb.billobjs whoever
+      owns them. (g) Text: "Thank you for shopping in ..." can be said
+      outside the shop; a peaceful shopkeeper owed a departure debt
+      says "<Shk> is after blood, not gold!" before the compensation
+      line (vanilla's wording, written for bones); the knock lines of
+      a wand of striking, an artifact smash and a pull print before a
+      peaceful shopkeeper stays put, as at a wall; bumping into a
+      peaceful shopkeeper runs #pay. (h) A peaceful shopkeeper who
+      lands on another level walks toward his home post's coordinates
+      there until he is paid. (i) Temple priests have no keep-in rule;
+      mlevel_tele_trap()'s NO_TRAP arm has no caller;
+      past_due_charges()'s entry test still names loan. (j)
+      stolen_value() prices the hero's own container when it holds
+      unpaid goods (4 for the sack in the battery; tended shops too)
+      and charges a partly used stack in full; shkgone() sweeps only
+      top-level floor objects and settles only when the hero is in the
+      shop. (k) sellobj()'s robbed arm keeps a gift's excess over the
+      debt without credit, and the shopkeeper keeps a given container
+      and its gold. (l) Battery notes: with a bill open the shopkeeper
+      blocks his post, the only way to the door - move him aside
+      first; gold dropped on his post square is not credited; a trap
+      door on his post blocks the way out; opening a shop door by its
+      flags needs unblock_point() too; mksobj_at() objects come out
+      random (set quan and curse state); wished bags can arrive with
+      contents; an exploding bag of holding at the shop's centre lands
+      everything on his floor (stand on his post); leaving a shop by
+      ^T with a debit is a robbery; maketrap()'s `dst` says where a
+      trap door leads, which can be more than one level down; the hang
+      of BUG-3269 starts before its message is flushed; a sanity line
+      prints per command, not per turn; a used-up billed item has
+      unpaid 0 and no sanity line.
 - [ ] LOW, record: session 348 residue (minted 2026-11-19, plan
       stress test, reviewer and batteries; record unless a ruling
       wants a change). (a) A Draugr Convict chatting to a hostile
@@ -42215,6 +42534,17 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       text copies; BUG-1044 - make_grave() and the stale disturbed
       bit, now through set_levltyp(); BUG-1038 - the branch has its
       own size cap.
+- [ ] SWEEP: 0.9.3's 2026 code-review fix commits to shared code
+      (minted 2026-11-21, session 351; the second one found by
+      accident). Master's review passes fixed bugs in files the branch
+      then took from vanilla 5.0 in the tree adoption, and no
+      mechanical pass pairs them: b41d23c6d (engrave.c, the row above,
+      found in session 349) and 7c525e07c (shk.c, six of eleven fixes
+      missing, a game hang among them - BUG-3269 to BUG-3275, session
+      351). Sweep `git log master` for the 2026 "Fix:" commits, take
+      each hunk in a file the branch has from vanilla, and read it
+      against the branch (BUGFIXES_ARCHIVE has the BUG ids per
+      commit). Plannable; proposed as the next slice.
 - [ ] LOW: NON_PM lookup hardening, own slice (minted 2026-11-19,
       session 348, the site census; third concrete instance of the
       archive-pass row above). 0.9.3 guards every lookup of a corpse's
@@ -43397,6 +43727,13 @@ see its row), cut against 74ebd09ed.
 | 2026-11-19 | Paying an angry shopkeeper who is away from his shop while a bill or debit is still open reaches `impossible("dopay: not to shopkeeper?")` and the pay command does nothing: dopay()'s "after blood" arm handles only `robbed`, and the bill is folded into it only by make_angry_shk() and rob_shop(), not when the shopkeeper is angered by an attack or the hero leaves while he is already outside. Same code in fd4d169b6 (src/shk.c). 0.9.3 fixed it as its BUG-1310 (d63c0dbaa): fold the open bill into `robbed` at that point. Found again by the session 348 site census; fixed on the branch in session 350 (BUG-3253, text-and-small row, item g), with an update_inventory() after the fold that 0.9.3 lacks | fixed on the branch; not sent; triage pending |
 | 2026-11-20 | Darkness snuffs only one light per square, and an engulfer snuffs the wrong one. light.c snuff_light_source() returns after the first burning object light it finds at (x,y) ("Return assuming that there is only one light source attached to each object" - but several objects can share a square), so a cursed scroll of light leaves the other lamps of a floor pile burning. steal.c mpickobj() calls it for the square of an engulfer that has just taken in a lit object; with the hero inside, that square is the hero's own, and the first source in the list can be the lamp the hero is holding, which goes out with no message while the thrown lamp burns on inside the engulfer and is dropped lit when it dies. Same code in fd4d169b6 (src/light.c, src/steal.c). 0.9.3 fixed both (7e68ba7f2, 052cf57fe): save the next pointer and keep walking; `if (snuff_otmp && !freed_otmp) end_burn(otmp, TRUE);`. BUG-3248, branch 6617256ad | fixed on the branch; not sent; triage pending |
 | 2026-11-20 | A shop bill can stay open after the hero has left the shop, and re-entering then crashes. u_left_shop() returns early when the shopkeeper is on the level but outside his shop (`!inhishop(shkp)`), so a hero who walks out with unpaid goods while an angry shopkeeper is already outside keeps `billct` > 0: every inventory display then reaches `impossible("unpaid_cost: object wasn't on any bill.")`, and if the hero walks back in while the shopkeeper is still out, u_entered_shop() sets `bill_p = (struct bill_x *) -1000` ("dump core when referenced") and the next reader of the bill with billct > 0 dereferences it - onbill() from obfree() when an unpaid item is used up, rile_shk()'s surcharge loop, or shop_obj_sanity() under sanity_check (SIGSEGV seen in a battery: onbill < onshopbill < find_objowner < shop_obj_sanity). Same code in fd4d169b6 (src/shk.c) and in 0.9.3. The same open-bill state is what makes the 2026-11-19 dopay() row reachable. Branch fix (BUG-3268, session 350): leaving with an open bill is robbery wherever the shopkeeper stands; bill_p always points at the shopkeeper's own bill, and after_shk_move() tests the real state (shopkeeper home, hero in the room, shop missing from u.ushops) where it tested the -1000 value as a flag | fixed on the branch; not sent; triage pending |
+| 2026-11-21 | alter_cost() never ends when the object is not on the first billing shopkeeper's bill: `for (shkp = next_shkp(fmon, TRUE); shkp; shkp = next_shkp(shkp, TRUE))` hands back the same shopkeeper each time. A hang with two open bills on a level, a full bill (the dummy from bill_dummy_object() is not billed), or an altered unpaid item while the shopkeeper is out of his shop. Same code in fd4d169b6 (src/shk.c). 0.9.3 fixed it (7c525e07c): step with `shkp->nmon`. BUG-3269 | fixed on the branch; not sent; triage pending |
+| 2026-11-21 | sellobj()'s robbed arm: `if ((eshkp->robbed -= offer < 0L)) eshkp->robbed = 0L;` parses as `robbed -= (offer < 0L)`, so any gift to a robbed shop clears the whole debt; and `offer += cgold` adds the boolean, so a container's gold counts as 1. Same code in fd4d169b6 (src/shk.c). 0.9.3 fixed the first (7c525e07c). BUG-3271, BUG-3272 | fixed on the branch; not sent; triage pending |
+| 2026-11-21 | Three small shk.c slips, same code in fd4d169b6: splitbill() goes on to `bp->bquan -= otmp->quan` after its "Negative quantity" and "Zero quantity" impossibles; globby_bill_fixup() goes on after its non-glob impossible; gem_learned()'s `if (!obj) continue;` skips the `++bp`, and since find_oid() does not search gb.billobjs every used-up billed item stops the re-pricing of the rest of that bill. 0.9.3 fixed all three (7c525e07c). BUG-3273, BUG-3274, BUG-3275 | fixed on the branch; not sent; triage pending |
+| 2026-11-21 | clear_no_charge_obj() calls `get_obj_location(otmp, &x, &y, OBJ_CONTAINED | OBJ_BURIED)`: location codes (2 | 6) where the CONTAINED_TOO | BURIED_TOO flags belong, which reads as BURIED_TOO alone, so a contained object's lookup fails and its no_charge is cleared whatever shop its container stands in, on every setpaid(). Same code in fd4d169b6 (src/shk.c). BUG-3276 | fixed on the branch; not sent; triage pending |
+| 2026-11-21 | make_angry_shk() adds `addupbill(shkp) + eshkp->debit + eshkp->loan` to `robbed`, but costly_gold() puts picked-up shop gold into debit AND loan (mextra.h: loan is "part of debit"), so that gold is charged twice when a shopkeeper is teleported or dug out of his shop; rob_shop(), paybill() and inherits() total bill + debit. Same code in fd4d169b6 (src/shk.c). BUG-3277 | fixed on the branch; not sent; triage pending |
+| 2026-11-21 | A living shopkeeper on the level but outside his shop, with the hero inside holding unpaid goods (vanilla reaches it when a monster's knockback or a displacer moves him: mhurtle_step() and mm_displacement() ask nothing about shops; the 2026-11-20 open-bill row is the same family). dopay() says "You do not owe %s anything." to a peaceful one (it reads only `robbed`); splitbill() refuses with "no resident shopkeeper??" and leaves the piece unpaid on no bill; stolen_value()'s billable() fails before naming a shopkeeper, giving "onbill: unpaid obj without shopkeeper?" for a thrown unpaid item and a null shopkeeper in stolen_container() for a thrown container that holds unpaid goods (SIGSEGV in a battery); shop_obj_sanity() reports every unpaid and no_charge object of that shop each turn. Same code in fd4d169b6 (src/shk.c, src/mkobj.c). 0.9.3 has a null guard in stolen_container() only (7c525e07c). BUG-3270, BUG-3278 to BUG-3281, BUG-3283 | fixed on the branch; not sent; triage pending |
+| 2026-11-21 | A shopkeeper who leaves the level with a bill open keeps it: mon_leave() clears the shop's resident and nothing settles billct / debit, so the hero's goods stay unpaid with no shopkeeper ("unpaid_cost: object wasn't on any bill.", "onbill: unpaid obj without shopkeeper") and u_left_shop() returns at `!shkp` - a free exit. mlevel_tele_trap() has no shopkeeper arm where dighole() and the lost-support fall call make_angry_shk() first. Same code in fd4d169b6 (src/dog.c, src/teleport.c). Branch fix: fold the bill as past due in mon_leave(). BUG-3282 | fixed on the branch; not sent; triage pending |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -44114,6 +44451,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-19 | Site census: fourteen monster rules restored, the rest ruled into rows (Phase 2 session 348, AskUserQuestion x8 with 20 questions; all as recommended but one, a free-text answer). (1) SLICE: the per-symbol site census (not taken: the doorway thread; the parked residue rulings). (2) MONSTER RULES, all twelve offered: Medusa's bite stones, a dragon killed from inside leaves its corpse, shapeshifters revert on death, Famine against monsters, Cleaver spares peacefuls, stoneskin stops stoning, wolf form for every vampire but the baron, Charon stays put, four kinds of web spider, Kas and the Abominable Snowman leave bones, SporkHack's altar-conversion minions, Draugr and Vampires start at the role's record less 20. (3) SPIDERS, free text: "Option 1, but have all but driders/Lolth spin as they move" - all seven MH_SPIDER monsters at home in webs and 5.0's wandering web-spin for every spider but driders and Lolth, over the recommended "all at home, two spin" (rejected: all spin; none spin; leave vanilla's two). (4) HISSING: 1 in 6 and 5.0's new moon, no lizard help (rejected: 0.9.3 exactly; leave 1 in 10). (5) OBJECT RULES: all twelve, as a row. (6) TEXT AND SMALL: all, BUG-1310 and the confused scroll of light going back to 0.9.3's included, as a row. (7) HARDENING (the NON_PM wrappers): its own slice later (rejected: now; leave vanilla's form). (8) SCOPE: the monster rules this session (rejected: monsters and objects; everything). (9) PET SPIDERS, after the stress test: WILD SPIDERS ONLY - no tame spider spins, which also stops the tame cave and giant spiders that spun on the branch (rejected: pets spin too; only the three new kinds stay quiet). (10) CLEAVER AND PETS: pets count as bystanders, as 0.9.3 (rejected: peacefuls only). (11) STONED SHAPESHIFTER, after the review: REVERTS, NO STATUE, beyond 0.9.3, whose own code leaves a statue and a live monster (rejected: a statue and it stays dead; 0.9.3 exactly). (12) STONESKIN'S END: a monster touches what it wields when the spell runs out or is cancelled, beyond 0.9.3 (rejected: record only). (13) BATTERY: three testers. (14) STATUE LINE, after the battery: no "is a statue." for any shapeshifter that reverts, vampires included (rejected: the two new kinds only; a fitted line; keep). (15) DRIDER TIP: a web-maker that spits is not told it can spin (rejected: leave as 0.9.3). Session calls, plan-approved: Medusa's arm does not return early; a shapeshifter on a closed-door square reverts through 5.0's door smash; 5.0's exemption of a non-eater from Famine goes; the vampire tier is read from youmonst.cham when shifted; the gargantuan spider spins at the giant spider's rate; "in a temple" is any temple room. Review fixes made without a question: the vamprises() guards, the cancellation twin of the stoneskin end, the hero let out before a petrified engulfer reverts, a genocide test. Premise corrections made in-session: "never shifts again" was too strong (a pet is re-armed at the next level change, and polymorph or restore ability re-arm any); Medusa's bite is her last attack, so ending her round shows nothing; a drider-form hero spits; the 2026-08-08 web ruling's note that 0.9.3 adds no spider to a level file's web was wrong. BUG-3221..3234. | maintainer (1-15); session, plan-approved (rest) |
 | 2026-11-20 | Site census object rules: twelve 0.9.3 rules restored, five rulings beside them (Phase 2 session 349, AskUserQuestion x4 with seven questions, all as recommended). (1) SLICE: the object rules row (not taken: text and small ones; the NON_PM hardening; the older candidates). (2) BONE DEVIL: 0.9.3 - 5.0's "summons one skeleton" arm is removed and a bone devil gates like any lesser devil, 1 in 20 a demon lord, else 1 in 6 a lesser demon, else another bone devil (rejected: a skeleton warrior; leave the weak skeleton). (3) FOLD-INS, all three: barding gets its material armor back, which amends the 2026-10-20 "armor_bonus() applies the material bonus to ARMOR_CLASS only" ruling for barding; the off-hand weapon is re-touched too when gloves come off, beyond 0.9.3; CURSED MEANS CURSED for the wand of light, beyond 0.9.3, whose helper let a wielded cursed wand and an Infidel's light up (rejected: none). (4) ROPE GOLEM: 5.0's remains stay (rejected: nothing, as 0.9.3). (5) CANCELLED, after the stress test: 0.9.3 - only trolls, zombies and zombie-race monsters keep 5.0's "will not rise" mark, so a cancelled monster a zombie kills rises, cancelled pets, shopkeepers and uniques included, which stayed down on the branch (rejected: cancelled stays down). (6) RIM LAMPS: fix, beyond 0.9.3 - the lamp message loop covers exactly the squares a monster-centred darkness covers (rejected: record only). (7) BATTERY: three testers (rejected: four; none). Session calls, plan-approved: the glove touch is skipped while poly_obj() swaps gloves and marks the gloves in_use over water or lava; the force-fight touch follows the glyph tests; Keolewa's line is not re-added; the paper golem arm is ported for shape; 0.9.3's BUG-1043 headstone hunk rides with the engraving rule; 5.0's "known when seen" stays for the wand of light, plus a light-hating hero it hurts. Review fixes made without a question: the pack soak (BUG-3252), the second swing after the off hand lets go, the aura of light on the rim squares. Premise corrections made in-session: undead turning was never blocked by the mark; 0.9.3 has no bone devil arm to rename; a thrown orange already tamed a hostile pony. BUG-3235..3252. | maintainer (1-7); session, plan-approved (rest) |
 | 2026-11-20 | Site census text and small ones: fifteen fixes, and a shop crash the battery found (Phase 2 session 350, AskUserQuestion x4 with seven questions, all as recommended). (1) SLICE: the text and small ones row (not taken: the NON_PM hardening; the engrave.c review fixes; the older candidates). (2) DRUID TREES: a monster Druid passes a tight diagonal when EITHER corner is a tree, the hero's rule and the stated reason of master f8104cddd (rejected: both corners, as 0.9.3's mfndpos() line is written). (3) PRIEST RACE: shown while hallucinating, as 0.9.3 (rejected: hide it like other racial monsters). (4) PROBE TEXT: a monster's wielded weapon reads "(weapon in hand)" / "hands" by its own build, 0.9.3's text; the hero's keeps 5.0's left / right (rejected: keep left / right for monsters). (5) SIBLINGS, both: the web tearing list (vorpal jabberwock, woolly mammoth, Annam) and the self-probe ", reflecting" (rejected: rows instead). (6) BATTERY: full, three testers (rejected: reduced; none). (7) SHOP CRASH, found by the battery in code shared with vanilla 5.0 and 0.9.3: ROOT CAUSE NOW, beyond 0.9.3 - leaving a shop on an open bill is robbery wherever the shopkeeper stands, and the bill pointer stays valid (rejected: the pointer guard alone; a row only). Session calls, plan-approved: the confused scroll of light loses 5.0's "Tiny lights sparkle" line with its tame lights; is_reviver() stays vanilla's and only the lookup word takes zombies; the hero's ", reflecting" tests bare HReflecting as 0.9.3 does (the spell and a silver dragon form); a monster's object reads "(wielded)" only as a stack and its aklys "(tethered to hand)"; the glow suffix goes on worn rings too and is written whole or not at all; dopay() refreshes the inventory after its fold (reviewer). Session calls after the ruling on the crash: the at-the-door warning stays skipped for an absent shopkeeper; after_shk_move() tests the real state instead of the old pointer value, and not for a swallowed hero; the second Kop swarm goes to the shopkeeper's post when he is away. Not fixed, one open LOW row: a peaceful shopkeeper outside his shop cannot be paid; a shopkeeper changing levels from outside his shop with an open bill; sanity-check noise in an untended shop |
+| 2026-11-21 | Shop bill leaks: fifteen fixes, six of them 0.9.3's lost April shop fixes (Phase 2 session 351, AskUserQuestion x6 with ten questions, asked 2026-11-20 and 2026-11-21, all as recommended). (1) SLICE: the shop bill leaks row (not taken: the NON_PM hardening; the engrave.c review fixes; the doorway rule or residue). (2) UNPAYABLE: PAY HIM AT HIS SIDE - a peaceful shopkeeper outside his shop takes normal payment for an open bill from a hero next to him (rejected: angry as when teleported; record only). (3) BILL LEAVES: THE BILL BECOMES A DEBT when a shopkeeper leaves the level, his mood whatever the cause made it (rejected: debt and always angry; record only). (4) SANITY CHECK: fix it (rejected: record). (5) FREE PICKUPS, found while tracing: MONSTERS CAN'T PUSH HIM OUT (rejected: record; bill for an absent keeper as its own slice), refined by (9). (6) BATTERY: one tester (rejected: two; none). (7) 0.9.3's LOST FIXES, found by the stress test: PORT ALL SIX NOW - master 7c525e07c's alter_cost() hang, stolen_container(), sellobj(), splitbill(), globby_bill_fixup() and gem_learned() (rejected: only the hang and the debt wipe; own slice). (8) EXTRAS, all four: bills work while he is out; gold charged once on a past-due bill; no swapping him out; box contents keep their marks. (9) KNOCKBACK RULE: PEACEFUL KEEPERS STAY IN whoever hits them; an angry one can be knocked out by anyone, as on 0.9.3 (rejected: "monsters never, peaceful never", which would also have stopped Ashmar and the Armor of Retribution). (10) WHILE HE IS OUT, after the review: ON HIS FLOOR STAYS BILLED - a thrown or blast-flung unpaid item that lands on his shop floor stays on his bill like a dropped one, one that lands elsewhere is charged as stolen (rejected: charged at once; leave the throw charged and the blast free). Session calls, plan-approved: the fold prints no line; credit pays the bill and the rest of it is cleared as in every settlement; the no-charge marks of his shop go when he leaves the level; a swap is refused for a peaceful shopkeeper only. Review fixes taken without a question: a container's gold counts at its value against a robbery debt; pets' boxes lose their marks with the floor's; an item paid for where it lies on his floor is the hero's |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
