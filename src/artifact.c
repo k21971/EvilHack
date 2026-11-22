@@ -4201,8 +4201,6 @@ invoke_healing(struct obj *obj)
 
     if (Upolyd)
         healamt = (u.mhmax + 1 - u.mh) / 2;
-    if (healamt || Sick || Slimed || Blinded > creamed)
-        You_feel("better.");
     if (healamt || Sick || Slimed || Withering || BlindedTimeout > creamed)
         You_feel("%sbetter.",
                  (!healamt && !Sick && !Slimed
