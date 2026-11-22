@@ -50,6 +50,7 @@ staticfn void discard_flashes(void);
 staticfn void write_ls(NHFILE *, light_source *);
 staticfn int maybe_write_ls(NHFILE *, int, boolean);
 staticfn unsigned whereis_mon(struct monst *, unsigned);
+staticfn boolean ls_orphaned(light_source *);
 
 /* imported from vision.c, for small circles */
 extern const coordxy circle_data[];
@@ -113,7 +114,7 @@ del_light_source(int type, anything *id)
         tmp_id.a_uint = id->a_obj ? id->a_obj->o_id : 0;
         break;
     case LS_MONSTER:
-        tmp_id.a_uint = id->a_monst->m_id;
+        tmp_id.a_uint = id->a_monst ? id->a_monst->m_id : 0;
         break;
     default:
         tmp_id.a_uint = 0;
@@ -448,6 +449,29 @@ whereis_mon(struct monst *mon, unsigned fmflags)
     return 0;
 }
 
+/* is this a light whose object or monster can no longer be found?
+   the save code leaves such a light alone; an object is looked up
+   by the id read through its pointer, as write_ls() does */
+staticfn boolean
+ls_orphaned(light_source *ls)
+{
+    if (!ls->id.a_monst)
+        return FALSE; /* no id at all; the callers report that themselves */
+
+    if (ls->type == LS_OBJECT) {
+        struct obj *otmp = ls->id.a_obj;
+
+        return (boolean) (find_oid(otmp->o_id) != otmp);
+    } else if (ls->type == LS_MONSTER) {
+        struct monst *mtmp = ls->id.a_monst;
+        /* look for the pointer itself before reading through it */
+        unsigned monloc = whereis_mon(mtmp, FM_EVERYWHERE);
+
+        return (boolean) (!monloc || find_mid(mtmp->m_id, monloc) != mtmp);
+    }
+    return FALSE;
+}
+
 /* Save all light sources of the given range. */
 void
 save_light_sources(NHFILE *nhfp, int range)
@@ -476,6 +500,11 @@ save_light_sources(NHFILE *nhfp, int range)
             if (!curr->id.a_monst) {
                 impossible("save_light_sources: no id! [range=%d]", range);
                 is_global = 0;
+            } else if (ls_orphaned(curr)) {
+                /* there is nothing left to ask whether it is local;
+                   it was not written and goes with whichever range
+                   is released first */
+                is_global = (range != RANGE_LEVEL);
             } else
                 switch (curr->type) {
                 case LS_OBJECT:
@@ -632,6 +661,16 @@ maybe_write_ls(NHFILE *nhfp, int range, boolean write_it)
     for (ls = gl.light_base; ls; ls = ls->next) {
         if (!ls->id.a_monst) {
             impossible("maybe_write_ls: no id! [range=%d]", range);
+            continue;
+        }
+        /* a light with nothing left to shine from is neither counted
+           nor written, so the two passes still agree; the count pass
+           reports it */
+        if (ls_orphaned(ls)) {
+            if (!write_it)
+                impossible(
+                     "maybe_write_ls: orphaned light source (%d) [range=%d]",
+                           ls->type, range);
             continue;
         }
         switch (ls->type) {
@@ -844,6 +883,9 @@ obj_split_light_source(struct obj *src, struct obj *dest)
              */
             new_ls = (light_source *) alloc(sizeof(light_source));
             *new_ls = *ls;
+            /* the copy holds a live object, never an id waiting to
+               be looked up */
+            new_ls->flags &= ~LSF_NEEDS_FIXUP;
             if (Is_candle(src)) {
                 /* split candles may emit less light than original group */
                 ls->range = candle_light_range(src);
