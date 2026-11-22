@@ -1155,7 +1155,7 @@ extern void save_engravings(NHFILE *) NONNULLARG1;
 extern void rest_engravings(NHFILE *) NONNULLARG1;
 extern void engr_stats(const char *, char *, long *, long *) NONNULLPTRS;
 extern void del_engr(struct engr *) NONNULLARG1;
-extern void rloc_engr(struct engr *) NONNULLARG1;
+extern boolean rloc_engr(struct engr *) NONNULLARG1;
 extern void make_grave(coordxy, coordxy, const char *);
 extern void disturb_grave(coordxy, coordxy);
 extern void see_engraving(struct engr *) NONNULLARG1;

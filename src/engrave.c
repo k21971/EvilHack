@@ -768,14 +768,10 @@ doengrave_sfx_item_WAN(struct _doengrave_ctx *de)
         }
         break;
     case WAN_TELEPORTATION:
-        if (de->oep && de->oep->engr_type != HEADSTONE) {
-            if (!Blind) {
-                pline_The("engraving on the %s vanishes!",
-                          surface(u.ux, u.uy));
-                de->hero_told_it_vanished = TRUE;
-            }
+        /* "vanishes!" waits until the engraving has really gone:
+           rloc_engr() can find nowhere to put it */
+        if (de->oep && de->oep->engr_type != HEADSTONE)
             de->teleengr = TRUE;
-        }
         break;
         /* type = ENGRAVE wands */
     case WAN_DIGGING:
@@ -1163,8 +1159,11 @@ doengrave(void)
     /* Identify stylus */
     if (de->doknown)
         engraving_learn_wand(de->otmp);
-    if (de->teleengr) {
-        rloc_engr(de->oep);
+    if (de->teleengr && rloc_engr(de->oep)) {
+        if (!Blind) {
+            pline_The("engraving on the %s vanishes!", surface(u.ux, u.uy));
+            de->hero_told_it_vanished = TRUE;
+        }
         de->oep->eread = 0;
         de->oep->erevealed = 0;
         /* The old engraving indicator is probably still showing
@@ -1178,6 +1177,8 @@ doengrave(void)
         de->disprefresh = TRUE;
         de->oep = (struct engr *) 0;
     }
+    /* an engraving that found nowhere to go stays, and what is written
+       now is added to it or replaces it as for any other */
     if (de->dengr) {
         del_engr(de->oep);
         de->oep = (struct engr *) 0;
@@ -1710,16 +1711,20 @@ save_engravings(NHFILE *nhfp)
         ep2 = ep->nxt_engr;
         if (ep->engr_alloc
             && ep->engr_txt[actual_text][0] && update_file(nhfp)) {
+            char *txt = engr_text_space(ep);
+
             engr_alloc = (unsigned) ep->engr_alloc;
             szeach = ep->engr_szeach;
             Sfo_unsigned(nhfp, &engr_alloc, "engraving-engr_alloc");
             Sfo_engr(nhfp, ep, "engraving");
-            ep->engr_txt[actual_text] = engr_text_space(ep);
-            ep->engr_txt[remembered_text] = ep->engr_txt[actual_text] + szeach;
-            ep->engr_txt[pristine_text] = ep->engr_txt[remembered_text] + szeach;
-            Sfo_char(nhfp, ep->engr_txt[actual_text], "engraving-actual_text", szeach);
-            Sfo_char(nhfp, ep->engr_txt[remembered_text], "engraving-remembered_text", szeach);
-            Sfo_char(nhfp, ep->engr_txt[pristine_text], "engraving-pristine_text", szeach);
+            /* each text is written whole, from the start of its space,
+               but the engraving's own pointers are left where they are:
+               they may be past leading spaces that have been wiped out,
+               and a checkpoint keeps the engraving in use afterwards */
+            Sfo_char(nhfp, txt, "engraving-actual_text", szeach);
+            Sfo_char(nhfp, txt + szeach, "engraving-remembered_text", szeach);
+            Sfo_char(nhfp, txt + 2 * szeach, "engraving-pristine_text",
+                     szeach);
         }
         if (release_data(nhfp))
             dealloc_engr(ep);
@@ -1829,15 +1834,16 @@ del_engr(struct engr *ep)
     dealloc_engr(ep);
 }
 
-/* randomly relocate an engraving */
-void
+/* randomly relocate an engraving; FALSE when no place was found for it
+   and it stays where it is */
+boolean
 rloc_engr(struct engr *ep)
 {
     int tx, ty, tryct = 200;
 
     do {
         if (--tryct < 0)
-            return;
+            return FALSE;
         tx = rn1(COLNO - 3, 2);
         ty = rn2(ROWNO);
     } while (engr_at(tx, ty) || !goodpos(tx, ty, (struct monst *) 0, 0));
@@ -1845,6 +1851,7 @@ rloc_engr(struct engr *ep)
     ep->engr_x = tx;
     ep->engr_y = ty;
     newsym(tx, ty);  /* caller took care of the old location */
+    return TRUE;
 }
 
 /* Create a headstone at the given location.
@@ -1856,13 +1863,18 @@ make_grave(coordxy x, coordxy y, const char *str)
     char buf[BUFSZ];
 
     /* Can we put a grave here? */
-    if ((levl[x][y].typ != ROOM && levl[x][y].typ != GRASS
-         && levl[x][y].typ != SAND && levl[x][y].typ != GRAVE)
+    if ((levl[x][y].typ != ROOM && levl[x][y].typ != CORR
+         && levl[x][y].typ != GRASS && levl[x][y].typ != SAND
+         && levl[x][y].typ != GRAVE)
         || t_at(x, y))
         return;
     /* Make the grave */
     if (!set_levltyp(x, y, GRAVE))
         return;
+    /* a new grave has not been disturbed, whatever the square held
+       before in the bit that 'disturbed' shares (an older grave that
+       was, a wall that ran across and has been dug away) */
+    levl[x][y].disturbed = 0;
     /* Engrave the headstone */
     del_engr_at(x, y);
     if (!str)

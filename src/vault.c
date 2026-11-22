@@ -1324,7 +1324,10 @@ paygd(boolean silently)
         Sprintf(buf, "To Croesus: here's the gold recovered from %s the %s.",
                 svp.plname,
                 pmname(&mons[u.umonster], flags.female ? FEMALE : MALE));
-        make_grave(gdx, gdy, buf);
+        /* no grave in the guard's own temporary corridor, which goes
+           away again (a grave can stand on a corridor square) */
+        if (!in_fcorridor(grd, gdx, gdy))
+            make_grave(gdx, gdy, buf);
     }
     for (coins = gi.invent; coins; coins = nextcoins) {
         nextcoins = coins->nobj;
