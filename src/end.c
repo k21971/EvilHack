@@ -2001,7 +2001,17 @@ really_done(int how)
         Strcpy(pbuf, "You");
         if (mtmp || Schroedingers_cat) {
             while (mtmp) {
-                Sprintf(eos(pbuf), " and %s", mon_nam(mtmp));
+                const char *nm = mon_nam(mtmp);
+
+                /* long pet names add up: when the next one will not
+                   fit, show the line so far and start another;
+                   5 == strlen(" and ") */
+                if (strlen(pbuf) + 5 + strlen(nm) + 1 >= sizeof pbuf) {
+                    dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
+                    pbuf[0] = '\0';
+                }
+                Snprintf(eos(pbuf), sizeof pbuf - strlen(pbuf),
+                         " and %s", nm);
                 if (mtmp->mtame)
                     u.urexp = nowrap_add(u.urexp, mtmp->mhp);
                 mtmp = mtmp->nmon;
@@ -2009,11 +2019,16 @@ really_done(int how)
             /* [it might be more robust to create a housecat and add it to
                gm.mydogs; it doesn't have to be placed on the map for that] */
             if (Schroedingers_cat) {
+                static const char scat[] = " and Schroedinger's cat";
                 int mhp, m_lev = adj_lev(&mons[PM_HOUSECAT]);
 
                 mhp = d(m_lev, 8);
                 u.urexp = nowrap_add(u.urexp, mhp);
-                Strcat(eos(pbuf), " and Schroedinger's cat");
+                if (strlen(pbuf) + sizeof scat >= sizeof pbuf) {
+                    dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
+                    pbuf[0] = '\0';
+                }
+                Strcat(pbuf, scat);
             }
             dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
             pbuf[0] = '\0';
