@@ -1405,12 +1405,12 @@ makelevel(void)
         Strcat(fillname,
                 (u.uz.dlevel < loc_lev->dlevel.dlevel) ? "a" : "b");
         makemaz(fillname);
-    } else if (In_hell(&u.uz)
-                || (rn2(5) && u.uz.dnum == medusa_level.dnum
-                    && depth(&u.uz) > depth(&medusa_level))) {
+    } else if (In_hell(&u.uz)) {
         makemaz("");
     } else {
         /* otherwise, fall through - it's a "regular" level. */
+        /* that includes the levels between Medusa's island and the
+           castle, which are never made as mazes */
         int u_depth = depth(&u.uz);
 
         if (Is_rogue_level(&u.uz)) {
