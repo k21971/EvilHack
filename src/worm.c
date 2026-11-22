@@ -323,6 +323,27 @@ wormgone(struct monst *worm)
     wheads[wnum] = wtails[wnum] = (struct wseg *) 0;
     wgrowtime[wnum] = 0L;
 
+    /* a segment whose coordinates were lost is still on the map, and
+       left there it would be followed after this worm is freed; take
+       any such pointer off and say so, since something produced it */
+    if (wnum) {
+        coordxy x, y, sx = 0, sy = 0;
+        int strays = 0;
+
+        for (x = 0; x < COLNO; x++)
+            for (y = 0; y < ROWNO; y++)
+                if (svl.level.monsters[x][y] == worm) {
+                    svl.level.monsters[x][y] = (struct monst *) 0;
+                    if (x > 0)
+                        newsym(x, y);
+                    if (!strays++)
+                        sx = x, sy = y;
+                }
+        if (strays)
+            impossible("wormgone: %d stray segment%s, first at <%d,%d>",
+                       strays, plur(strays), sx, sy);
+    }
+
     /* we don't expect to encounter this here but check for it anyway;
        when a long worm gets created by a polymorph zap, it gets flagged
        with MCORPSENM()==PM_LONG_WORM so that the same zap won't trigger
@@ -474,6 +495,9 @@ cutworm(struct monst *worm, coordxy x, coordxy y,
 
     /* Place the new monster at all the segment locations. */
     place_wsegs(new_worm, worm);
+
+    /* the clone starts with its parent's idea of where the hero is */
+    set_apparxy(new_worm);
 
     if (svc.context.mon_moving)
         pline("%s is cut in half.", Monnam(worm));
@@ -628,20 +652,35 @@ rest_worm(NHFILE *nhfp)
 void
 place_wsegs(struct monst *worm, struct monst *oldworm)
 {
-    struct wseg *curr = wtails[worm->wormno];
+    struct wseg *curr = wtails[worm->wormno], *prev = (struct wseg *) 0;
 
     while (curr != wheads[worm->wormno]) {
         coordxy x = curr->wx, y = curr->wy;
         struct monst *mtmp = m_at(x, y);
 
-        if (oldworm && mtmp == oldworm)
+        if (oldworm && mtmp == oldworm) {
             remove_monster(x, y);
-        else if (mtmp)
+        } else if (mtmp) {
+            /* some other monster is where this segment belongs; the
+               worm loses the segment instead of being placed over it
+               (a segment kept with no position would be put at <0,0>
+               by the next placement) */
+            struct wseg *nxt = curr->nseg;
+
             impossible("placing worm seg <%d,%d> over another mon", x, y);
-        else if (oldworm)
+            if (prev)
+                prev->nseg = nxt;
+            else
+                wtails[worm->wormno] = nxt;
+            dealloc_seg(curr);
+            curr = nxt;
+            continue;
+        } else if (oldworm) {
             impossible("replacing worm seg <%d,%d> on empty spot", x, y);
+        }
 
         place_worm_seg(worm, x, y);
+        prev = curr;
         curr = curr->nseg;
     }
     /* head segment is co-located with worm itself so not placed on the map */
@@ -852,7 +891,7 @@ count_wsegs(struct monst *mtmp)
     int i = 0;
     struct wseg *curr;
 
-    if (mtmp->wormno) {
+    if (mtmp->wormno && wtails[mtmp->wormno]) {
         for (curr = wtails[mtmp->wormno]->nseg; curr; curr = curr->nseg)
             i++;
     }
