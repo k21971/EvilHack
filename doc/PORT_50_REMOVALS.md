@@ -684,6 +684,27 @@ tracker; sNNN = port session.
   as-is).
 - [x] "eat" in a vampire hero's feeding prompt -> "drain" (s354,
   BUG-3316, 710a2dd06).
+- [x] curses switching use_inverse on at startup (5.0's own FIXME)
+  -> the player's setting stands; with it off, detected monsters and
+  the no-colour marks for lava, ice, sinks and engravings are not
+  inverse (s355, BUG-3375, 78d17977c).
+- [x] 5.0's blocking wait on the message window at the end of a game
+  (one more keypress under curses) -> none, as on 0.9.3 (ruled s355,
+  BUG-3371, 3bec2be69).
+- [x] curses switching the splash_screen option off on a terminal
+  too small for the splash -> the option is left alone (s355,
+  BUG-3379, 78d17977c).
+- [x] max_passive_dmg() weighing only a monster's first passive
+  attack -> the worst of them, 0.9.3's rule (s355, BUG-3328,
+  17ea25f47; no monster differs today).
+- [x] An energy-boost invoke with energy above its maximum lowering
+  it and saying "re-energized" -> nothing happens (s355, BUG-3333,
+  c55da7207).
+- [x] A click one square past the map's edge searching -> it rests a
+  turn, 0.9.3's choice (s355, BUG-3343, c55da7207).
+- [x] place_wsegs() placing a worm segment over another monster
+  after warning about it -> the segment is dropped (s355, BUG-3318,
+  71981b848).
 
 ### 2.4 Text and logs
 
@@ -793,6 +814,10 @@ tracker; sNNN = port session.
   "(weapon in hand)" or "hands" by the monster's own, "(wielded)" for
   a stack only; the hero's own text keeps 5.0's left / right (ruled
   s350, BUG-3259, a00b2d57b).
+- [x] #tip keeping its "a, b, c." list after the floor took an item
+  without a word (lava or open air under a blind hero) -> full
+  sentences from the next item on, 0.9.3's text (s355, BUG-3338,
+  c55da7207).
 
 ### 2.5 Levels and content
 
