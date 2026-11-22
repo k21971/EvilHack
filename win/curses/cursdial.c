@@ -1610,18 +1610,26 @@ menu_get_selections(WINDOW *win, nhmenu *menu, int how)
                     break;
                 case MENU_SELECT_ALL:
                     curpage = menu_operation(win, menu, SELECT, 0);
+                    /* the operation walks every page and stops on
+                       the last; selectors[] has to follow it there */
+                    menu_display_page(win, menu, curpage, selectors,
+                                      (char *) 0);
                     break;
                 case MENU_UNSELECT_PAGE:
                     (void) menu_operation(win, menu, DESELECT, curpage);
                     break;
                 case MENU_UNSELECT_ALL:
                     curpage = menu_operation(win, menu, DESELECT, 0);
+                    menu_display_page(win, menu, curpage, selectors,
+                                      (char *) 0);
                     break;
                 case MENU_INVERT_PAGE:
                     (void) menu_operation(win, menu, INVERT, curpage);
                     break;
                 case MENU_INVERT_ALL:
                     curpage = menu_operation(win, menu, INVERT, 0);
+                    menu_display_page(win, menu, curpage, selectors,
+                                      (char *) 0);
                     break;
                 }
             }

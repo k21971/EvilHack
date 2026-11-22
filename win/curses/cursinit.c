@@ -258,6 +258,14 @@ curses_create_main_windows(void)
             map_width = COLNO;
         if (map_height > ROWNO)
             map_height = ROWNO;
+        /* a narrow terminal with perm_invent or a vertical status
+           window can leave nothing for the map; a size below 1 would
+           make the window fail, so it is held at 1 (a small terminal
+           is the player's doing, not a fault to report) */
+        if (map_width < 1)
+            map_width = 1;
+        if (map_height < 1)
+            map_height = 1;
 
         if (curses_get_nhwin(STATUS_WIN)) {
             curses_del_nhwin(STATUS_WIN);
@@ -798,9 +806,6 @@ curses_init_options(void)
 */
 #endif /* PDCURSES */
 
-    /* FIXME: this overrides explicit OPTIONS=!use_inverse */
-    iflags.wc_inverse = TRUE; /* aka iflags.use_inverse; default is False */
-
     /* curses doesn't support 's' (single message at a time; successive
        ^P's go back to earlier messages) and 'c' (combination; single
        on first and second of consecutive ^P's, full on third) */
@@ -821,14 +826,14 @@ void
 curses_display_splash_window(void)
 {
      int i, x_start, y_start;
+    /* decided here without touching the player's option, so the
+       setting survives a terminal that is too small this time */
+    boolean splash_ok = (iflags.wc_splash_screen
+                         && term_cols >= 70 && term_rows >= 20);
 
     curses_get_window_xy(MAP_WIN, &x_start, &y_start);
 
-    if ((term_cols < 70) || (term_rows < 20)) {
-        iflags.wc_splash_screen = FALSE;        /* No room for s.s. */
-    }
-
-    if (iflags.wc_splash_screen) {
+    if (splash_ok) {
          if (iflags.wc2_guicolor)
               curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, ON);
         mvaddstr(y_start, x_start, NETHACK_SPLASH_A);
@@ -838,9 +843,10 @@ curses_display_splash_window(void)
         mvaddstr(y_start + 4, x_start, NETHACK_SPLASH_E);
         mvaddstr(y_start + 5, x_start, NETHACK_SPLASH_F);
         y_start += 7;
+        /* turned off only where it was turned on */
+        if (iflags.wc2_guicolor)
+            curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, OFF);
     }
-    if (iflags.wc2_guicolor)
-         curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, OFF);
 
     for (i = 1; i <= 4; ++i) {
          mvaddstr(y_start, x_start, copyright_banner_line(i));

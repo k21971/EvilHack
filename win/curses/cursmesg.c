@@ -544,6 +544,8 @@ curses_prev_mesg(void)
 
     for (count = 0; count < num_messages; ++count) {
         mesg = get_msg_line(do_lifo, count);
+        if (!mesg) /* fewer lines than the count says */
+            break;
         if (mesg->turn != turn) {
             if (count > 0) { /* skip separator for first line */
                 char sepbuf[50];

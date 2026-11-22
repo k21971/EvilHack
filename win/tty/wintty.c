@@ -4232,8 +4232,10 @@ tty_nhgetch(void)
     if (ttyDisplay && ttyDisplay->toplin == TOPLINE_NEED_MORE)
         ttyDisplay->toplin = TOPLINE_NON_EMPTY;
 #ifdef TTY_TILES_ESCCODES
-    {
-        /* hack to force output of the window select code */
+    /* hack to force output of the window select code; it means
+       something only with vt_tiledata on, and without the test the
+       counter climbs on every key read */
+    if (iflags.vt_tiledata) {
         int tmp = vt_tile_current_window;
 
         vt_tile_current_window++;

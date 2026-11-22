@@ -379,6 +379,12 @@ curses_add_nhwin(
         return;
     }
 
+    /* a window still in this slot is deleted, not just forgotten */
+    if (nhwins[wid].curwin != NULL) {
+        delwin(nhwins[wid].curwin);
+        nhwins[wid].curwin = NULL;
+    }
+
     nhwins[wid].nhwin = wid;
     nhwins[wid].border = border;
     nhwins[wid].width = width;
