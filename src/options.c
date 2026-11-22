@@ -5229,9 +5229,13 @@ optfn_windowcolors(
                 fg = 0;
             if (bg && (!*bg || !strcmp(bg, defbrief)))
                 bg = 0;
-            Sprintf(eos(opts), "%s%s %s/%s", !wccount ? "" : " ",
-                    (fg || bg) ? wcnames[wccount] : wcshortnames[wccount],
-                    fg ? fg : defbrief, bg ? bg : defbrief);
+            /* a color is kept as typed when it is not a known name, so
+               the four windows can hold more than the caller's BUFSZ
+               buffer; cut the value short rather than write past it */
+            Snprintf(eos(opts), BUFSZ - strlen(opts), "%s%s %s/%s",
+                     !wccount ? "" : " ",
+                     (fg || bg) ? wcnames[wccount] : wcshortnames[wccount],
+                     fg ? fg : defbrief, bg ? bg : defbrief);
         }
         return optn_ok;
     }
@@ -9032,9 +9036,10 @@ doset_simple_menu(void)
                     if (allopt[k].optfn)
                         reslt = (*allopt[k].optfn)(allopt[k].idx, get_val,
                                                    FALSE, buf2, empty_optstr);
-                    Sprintf(buf, fmtstr, name,
-                            ((reslt == optn_ok && buf2[0])
-                             ? (const char *) buf2 : "unknown"));
+                    /* the value alone can fill a BUFSZ buffer */
+                    Snprintf(buf, sizeof buf, fmtstr, name,
+                             ((reslt == optn_ok && buf2[0])
+                              ? (const char *) buf2 : "unknown"));
                 break;
             default:
                 Sprintf(buf, "ERROR");
@@ -9477,7 +9482,8 @@ doset_add_menu(
 
     /* "    " replaces "a - " -- assumes menus follow that style */
     indent = !any.a_int ? "    " : "";
-    Sprintf(buf, fmtstr, indent, option, value);
+    /* the value alone can fill a BUFSZ buffer */
+    Snprintf(buf, sizeof buf, fmtstr, indent, option, value);
     add_menu(win, &nul_glyphinfo, &any, 0, 0,
              ATR_NONE, clr, buf, MENU_ITEMFLAGS_SKIPINVERT);
 }
