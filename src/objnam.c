@@ -4370,7 +4370,6 @@ wizterrainwish(struct _readobjnam_data *d)
         if (oldtyp != FORGE)
             svl.level.flags.nforges++;
         lev->flags = 0;
-        lev->lit = 1; /* forges hold molten lava */
         pline("A forge.");
         madeterrain = TRUE;
     } else if (!BSTRCMPI(bp, p - 11, "magic chest")) {

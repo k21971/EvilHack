@@ -97,8 +97,9 @@ set_levltyp(coordxy x, coordxy y, schar newtyp)
              *  the way newtyp will use them, clear them.
              */
 
-            if (IS_LAVA(newtyp) /* [what about IS_LAVA(oldtyp)=>.lit = 0?] */
-                || IS_FORGE(newtyp)) /* forges hold molten lava */
+            /* a forge is not lit here: it takes the light of the room it
+               stands in, or drow-made objects could never be forged */
+            if (IS_LAVA(newtyp)) /* [what about IS_LAVA(oldtyp)=>.lit = 0?] */
                 levl[x][y].lit = 1;
             if (was_ice && newtyp != ICE) {
                 /* frozen corpses resume rotting, no more ice to melt away */
@@ -138,6 +139,8 @@ set_levltyp_lit(coordxy x, coordxy y, schar typ, schar lit)
                 impossible("set_levltyp_lit(%d,%d,%d,%d)",
                            (int) x, (int) y, (int) typ, (int) lit);
 #endif /*EXTRA_SANITY_CHECKS*/
+            /* a forge set by a level's terrain command is lit, unlike
+               one set_levltyp() places; no level sets one that way */
             if (IS_LAVA(typ) || IS_FORGE(typ))
                 lit = 1;
             else if (lit == SET_LIT_RANDOM)

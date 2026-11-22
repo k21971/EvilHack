@@ -4904,8 +4904,6 @@ sel_set_feature(coordxy x, coordxy y, genericptr_t arg)
     if (IS_FURNITURE(levl[x][y].typ))
         return;
     levl[x][y].typ = (*(int *) arg);
-    if (IS_FORGE(levl[x][y].typ))
-        levl[x][y].lit = 1; /* forges hold molten lava */
 }
 
 staticfn void
