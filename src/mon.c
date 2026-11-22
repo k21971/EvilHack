@@ -9268,9 +9268,12 @@ accept_newcham_form(struct monst *mon, int mndx)
     if (is_placeholder(mdat))
         return 0;
     /* select_newcham_form() might deliberately pick a player
-       character type (random selection never does) which
-       polyok() rejects, so we need a special case here */
-    if (is_mplayer(mdat))
+       character type for a doppelganger, which polyok() rejects,
+       so we need a special case here; the random pick can land on
+       one too (the player monsters sit below SPECIAL_PM so that
+       they can be generated at random), and for everything else
+       polyok() gets to refuse it */
+    if (is_mplayer(mdat) && mon->cham == PM_DOPPELGANGER)
         return mdat;
     /* shapeshifters are rejected by polyok() but allow a shapeshifter
        to take on its 'natural' form */
