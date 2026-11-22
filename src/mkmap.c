@@ -39,11 +39,14 @@ staticfn void
 init_fill(schar bg_typ, schar fg_typ)
 {
     coordxy x, y;
-    long limit, count;
+    long limit, count, tryct;
 
     limit = (WIDTH * HEIGHT * 2) / 5;
     count = 0;
-    while (count < limit) {
+    tryct = 0;
+    /* a map that was not flooded with bg_typ first has too few
+       squares to convert; give up instead of looping forever */
+    while (count < limit && tryct++ < limit * 50L) {
         x = (coordxy) rn1(WIDTH - 1, 2);
         y = (coordxy) rnd(HEIGHT - 1);
         if (levl[x][y].typ == bg_typ) {
@@ -51,6 +54,8 @@ init_fill(schar bg_typ, schar fg_typ)
             count++;
         }
     }
+    if (count < limit)
+        impossible("init_fill: too few squares to fill");
 }
 
 staticfn schar
@@ -160,7 +165,11 @@ flood_fill_rm(
     boolean anyroom)
 {
     coordxy i, nx;
-    schar fg_typ = levl[sx][sy].typ;
+    schar fg_typ;
+
+    if (!isok(sx, sy))
+        return;
+    fg_typ = levl[sx][sy].typ;
 
     /* back up to find leftmost uninitialized location */
     while (sx > 0 && (anyroom ? IS_ROOM(levl[sx][sy].typ)

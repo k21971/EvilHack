@@ -3493,7 +3493,9 @@ room_discovered(int roomno)
 {
     mapseen *mptr = find_mapseen(&u.uz);
 
-    if (mptr && !mptr->msrooms[roomno].seen) {
+    if (roomno < 0 || !mptr || roomno >= (int) SIZE(mptr->msrooms))
+        return;
+    if (!mptr->msrooms[roomno].seen) {
         mptr->msrooms[roomno].seen = 1;
         recalc_mapseen();
     }

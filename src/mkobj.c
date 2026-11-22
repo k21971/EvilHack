@@ -1493,8 +1493,11 @@ set_corpsenm(struct obj *obj, int id)
        is of interest when a <foo> corpse revives as a <foo> zombie
        in case they are defined with different mons[].cnutrit values */
     if (obj->otyp == CORPSE && obj->oeaten != 0
-        /* when oeaten is non-zero, index old_id can't be NON_PM
-           and divisor mons[old_id].cnutrit can't be zero */
+        /* when oeaten is non-zero, index old_id shouldn't be NON_PM
+           and divisor mons[old_id].cnutrit shouldn't be zero; that
+           is tested here instead of trusted */
+        && old_id != NON_PM && id != NON_PM
+        && mons[old_id].cnutrit != 0
         && mons[old_id].cnutrit != mons[id].cnutrit) {
         /* oeaten and cnutrit are unsigned; theoretically that could
            be 16 bits and the calculation might overflow, so force long */
@@ -2745,6 +2748,10 @@ recreate_pile_at(coordxy x, coordxy y)
 {
     struct obj *otmp, *next_obj, *reversed = 0;
 
+    if (!isok(x, y)) {
+        impossible("recreate_pile_at: bad coords <%d,%d>", x, y);
+        return;
+    }
     /* remove all objects at <x,y>, saving a reversed temporary list */
     for (otmp = svl.level.objects[x][y]; otmp; otmp = next_obj) {
         next_obj = otmp->nexthere;
@@ -2772,6 +2779,10 @@ obj_ice_effects(coordxy x, coordxy y, boolean do_buried)
 {
     struct obj *otmp;
 
+    if (!isok(x, y)) {
+        impossible("obj_ice_effects: bad coords <%d,%d>", x, y);
+        return;
+    }
     for (otmp = svl.level.objects[x][y]; otmp; otmp = otmp->nexthere) {
         if (otmp->timed)
             obj_timer_checks(otmp, x, y, 0);

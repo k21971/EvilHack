@@ -1461,7 +1461,7 @@ get_level_extends(
     coordxy xmin, xmax, ymin, ymax;
 
     found = nonwall = FALSE;
-    for (xmin = 0; !found && xmin <= COLNO; xmin++) {
+    for (xmin = 0; !found && xmin < COLNO; xmin++) {
         lev = &levl[xmin][0];
         for (y = 0; y <= ROWNO - 1; y++, lev++) {
             typ = lev->typ;
@@ -1493,7 +1493,7 @@ get_level_extends(
         xmax = COLNO - 1;
 
     found = nonwall = FALSE;
-    for (ymin = 0; !found && ymin <= ROWNO; ymin++) {
+    for (ymin = 0; !found && ymin < ROWNO; ymin++) {
         lev = &levl[xmin][ymin];
         for (x = xmin; x <= xmax; x++, lev += ROWNO) {
             typ = lev->typ;
@@ -2209,10 +2209,16 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
             }
 
             case CONS_TRAP: {
-                struct trap *btrap = (struct trap *) cons->list;
+                struct trap *btrap = (struct trap *) cons->list, *t;
 
-                btrap->tx = cons->x;
-                btrap->ty = cons->y;
+                /* a monster another bubble set down may have used
+                   this trap up; only a trap still on the level moves */
+                for (t = gf.ftrap; t; t = t->ntrap)
+                    if (t == btrap) {
+                        btrap->tx = cons->x;
+                        btrap->ty = cons->y;
+                        break;
+                    }
                 break;
             }
 

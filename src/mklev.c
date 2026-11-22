@@ -491,7 +491,9 @@ join(int a, int b, boolean nxcor)
     yy = cc.y;
     tx = tt.x - dx;
     ty = tt.y - dy;
-    if (nxcor && levl[xx + dx][yy + dy].typ != STONE)
+    /* the door spot can be on the map's edge, with nothing beyond it */
+    if (nxcor && (!isok(xx + dx, yy + dy)
+                  || levl[xx + dx][yy + dy].typ != STONE))
         return;
 
     org.x = xx + dx;

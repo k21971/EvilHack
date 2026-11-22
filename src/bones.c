@@ -436,7 +436,9 @@ fixuporacle(struct monst *oracle)
         return FALSE;
 
     oracle->mpeaceful = 1; /* for behavior toward next character */
-    o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
+    o_ridx = isok(oracle->mx, oracle->my)
+                 ? levl[oracle->mx][oracle->my].roomno - ROOMOFFSET
+                 : -1;
     if (o_ridx >= 0 && svr.rooms[o_ridx].rtype == DELPHI)
         return TRUE; /* no fixup needed */
 
@@ -459,7 +461,9 @@ fixuporacle(struct monst *oracle)
         if (goodpos(cc.x, cc.y, oracle, NO_MM_FLAGS)
             || enexto_core_mon(&cc, cc.x, cc.y, oracle, NO_MM_FLAGS)) {
             rloc_to(oracle, cc.x, cc.y);
-            o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
+            o_ridx = isok(oracle->mx, oracle->my)
+                     ? levl[oracle->mx][oracle->my].roomno - ROOMOFFSET
+                     : -1;
         }
         /* [if her room is already full, she might end up outside;
            that's ok, next hero just won't get any welcome message,

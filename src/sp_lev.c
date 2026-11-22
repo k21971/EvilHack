@@ -1303,17 +1303,22 @@ set_ok_location_func(boolean (*func)(coordxy, coordxy))
 staticfn boolean
 is_ok_location(coordxy x, coordxy y, getloc_flags_t humidity)
 {
-    int typ = levl[x][y].typ;
+    int typ;
 
     if (Is_waterlevel(&u.uz))
         return TRUE; /* accept any spot */
 
     if (is_ok_location_func)
-        return is_ok_location_func(x, y);
+        return (boolean) (isok(x, y) && is_ok_location_func(x, y));
 
     /* TODO: Should perhaps check if wall is diggable/passwall? */
     if (humidity & ANY_LOC)
         return TRUE;
+
+    /* every test below reads the map square */
+    if (!isok(x, y))
+        return FALSE;
+    typ = levl[x][y].typ;
 
     if ((humidity & SOLID) && IS_OBSTRUCTED(typ))
         return TRUE;
@@ -2834,10 +2839,21 @@ create_corridor(corridor *c)
         impossible("create_corridor to/from a random wall");
         return;
     }
+    /* the room numbers come straight from the level file */
+    if (c->src.room < 0 || c->src.room >= svn.nroom) {
+        impossible("create_corridor: bogus src.room %d (nroom=%d)",
+                   c->src.room, svn.nroom);
+        return;
+    }
     if (!search_door(&svr.rooms[c->src.room], &org.x, &org.y, c->src.wall,
                      c->src.door))
         return;
     if (c->dest.room != -1) {
+        if (c->dest.room < 0 || c->dest.room >= svn.nroom) {
+            impossible("create_corridor: bogus dest.room %d (nroom=%d)",
+                       c->dest.room, svn.nroom);
+            return;
+        }
         if (!search_door(&svr.rooms[c->dest.room],
                          &dest.x, &dest.y, c->dest.wall, c->dest.door))
             return;
@@ -3014,11 +3030,16 @@ light_region(region *tmpregion)
 
     if (litstate) {
         /* adjust region size for walls, but only if lighted */
-        lowx = max(lowx - 1, 1);
-        hix = min(hix + 1, COLNO - 1);
-        lowy = max(lowy - 1, 0);
-        hiy = min(hiy + 1, ROWNO - 1);
+        lowx -= 1;
+        hix += 1;
+        lowy -= 1;
+        hiy += 1;
     }
+    /* keep the walk below on the map, lighted or not */
+    lowx = max(lowx, 1);
+    hix = min(hix, COLNO - 1);
+    lowy = max(lowy, 0);
+    hiy = min(hiy, ROWNO - 1);
     for (x = lowx; x <= hix; x++) {
         lev = &levl[x][lowy];
         for (y = lowy; y <= hiy; y++) {
@@ -6110,7 +6131,10 @@ lspo_mazewalk(lua_State *L)
         impossible("mazewalk: Bad direction");
     }
 
-    if (!IS_DOOR(levl[x][y].typ)) {
+    /* the step above and the parity step below can each leave the
+       map (a walk north from row 1 ends on row -1); nothing is
+       written or walked out there */
+    if (isok(x, y) && !IS_DOOR(levl[x][y].typ)) {
         levl[x][y].typ = ftyp;
         levl[x][y].flags = 0;
     }
@@ -6127,8 +6151,10 @@ lspo_mazewalk(lua_State *L)
             x--;
 
         /* no need for IS_DOOR check; out of map bounds */
-        levl[x][y].typ = ftyp;
-        levl[x][y].flags = 0;
+        if (isok(x, y)) {
+            levl[x][y].typ = ftyp;
+            levl[x][y].flags = 0;
+        }
     }
 
     if (!(y % 2)) {
@@ -6138,7 +6164,8 @@ lspo_mazewalk(lua_State *L)
             y--;
     }
 
-    walkfrom(x, y, ftyp);
+    if (isok(x, y))
+        walkfrom(x, y, ftyp);
     if (fstocked)
         fill_empty_maze();
 
