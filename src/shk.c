@@ -2994,6 +2994,12 @@ find_oid(unsigned int id)
             if ((obj = o_on(id, mon->minvent)) != 0)
                 return obj;
 
+    /* an object in flight is on none of those lists */
+    if (gt.thrownobj && gt.thrownobj->o_id == id)
+        return gt.thrownobj;
+    if (gk.kickedobj && gk.kickedobj->o_id == id)
+        return gk.kickedobj;
+
     /* not found at all */
     return (struct obj *) 0;
 }

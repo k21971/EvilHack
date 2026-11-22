@@ -2626,8 +2626,13 @@ schedule_goto(
     /* destination level */
     assign_level(&u.utolev, tolev);
 
+    /* a trip scheduled over an earlier one replaces its messages */
+    if (gd.dfr_pre_msg)
+        free((genericptr_t) gd.dfr_pre_msg), gd.dfr_pre_msg = 0;
     if (pre_msg)
         gd.dfr_pre_msg = dupstr(pre_msg);
+    if (gd.dfr_post_msg)
+        free((genericptr_t) gd.dfr_post_msg), gd.dfr_post_msg = 0;
     if (post_msg)
         gd.dfr_post_msg = dupstr(post_msg);
 }

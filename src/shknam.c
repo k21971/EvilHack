@@ -1038,8 +1038,10 @@ get_shop_item(int type)
     const struct shclass *shp = shtypes + type;
     int i, j;
 
-    /* select an appropriate object type at random */
-    for (j = rnd(100), i = 0; (j -= shp->iprobs[i].iprob) > 0; i++)
+    /* select an appropriate object type at random; the bound keeps a
+       table that does not add up to 100 from running off its end */
+    for (j = rnd(100), i = 0;
+         i < SIZE(shp->iprobs) - 1 && (j -= shp->iprobs[i].iprob) > 0; i++)
         continue;
 
     return shp->iprobs[i].itype;

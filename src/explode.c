@@ -219,6 +219,9 @@ explode(
         do_hallu = 0;
     const char *str = (const char *) 0, *unmorphed_str = (const char *) 0;
     struct monst *mtmp, *mdef = 0;
+    /* the two monsters the loop below singles out, by id: a pointer
+       kept across it could outlive its monster */
+    unsigned mdef_id = 0, ustuck_id = 0;
     uchar adtyp;
     int explmask[3][3]; /* 0=normal explosion, 1=do shieldeff, 2=do nothing */
     coordxy xx, yy, hero_x, hero_y;
@@ -283,6 +286,7 @@ explode(
     if (expltype < 0) {
         /* hero gets credit/blame for killing this monster, not others */
         mdef = m_at(x, y);
+        mdef_id = mdef ? mdef->m_id : 0;
         expltype = -expltype;
     }
     /* if hero is engulfed and caused the explosion, only hero and
@@ -298,6 +302,7 @@ explode(
             grabbed = TRUE;
         grabxy.x = u.ustuck->mx;
         grabxy.y = u.ustuck->my;
+        ustuck_id = u.ustuck->m_id;
     } else
         grabxy.x = grabxy.y = 0; /* lint suppression */
     /* FIXME:
@@ -599,7 +604,8 @@ explode(
                     /* if grabber is reaching into hero's spot and
                        hero's spot is within explosion radius, grabber
                        gets hit by double damage */
-                    if (grabbed && mtmp == u.ustuck && next2u(x, y))
+                    if (grabbed && ustuck_id && mtmp->m_id == ustuck_id
+                        && next2u(x, y))
                         mdam *= 2;
                     if (submerged)
                         mdam = rnd(3); /* physical damage only */
@@ -620,7 +626,7 @@ explode(
                            through it (life saving) takes that anger now */
                         if (hero_kill_survivor(mtmp, was_tame))
                             setmangry(mtmp, TRUE);
-                    } else if (mdef && mtmp == mdef) {
+                    } else if (mdef_id && mtmp->m_id == mdef_id) {
                         /* 'mdef' killed self trying to cure being turned
                          * into slime due to some action by the player.
                          * Hero gets the credit (experience) and most of
@@ -1084,6 +1090,8 @@ scatter(
                     if (!costly_spot(sx, sy))
                         no_charge_gone(item);
                 }
+                /* otmp is off the floor and the trap here is gone, so
+                   this cannot find a statue to bring to life */
                 (void) break_statue(otmp);
                 if (!costly_spot(sx, sy))
                     no_charge_gone(otmp);

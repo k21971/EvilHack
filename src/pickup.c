@@ -1588,13 +1588,15 @@ query_category(
 staticfn int
 count_categories(struct obj *olist, int qflags)
 {
-    char *pack;
+    char *pack, packbuf[MAXOCLASSES + 1];
     boolean counted_category;
     int ccount = 0;
     struct obj *curr;
     boolean do_worn = (qflags & WORN_TYPES) != 0;
 
-    pack = flags.inv_order;
+    pack = strcpy(packbuf, flags.inv_order);
+    if ((qflags & INCLUDE_VENOM) != 0)
+        (void) strkitten(pack, VENOM_CLASS); /* venom is not in inv_order */
     do {
         counted_category = FALSE;
         for (curr = olist; curr; curr = FOLLOW(curr, qflags)) {
@@ -4656,8 +4658,11 @@ tipcontainer(struct obj *box) /* or bag */
                         iflags.last_msg = PLNMSG_OBJNAM_ONLY;
                     }
                     otmp->how_lost = LOST_DROPPED;
-                    dropy(otmp);
-                    if (iflags.last_msg != PLNMSG_OBJNAM_ONLY)
+                    /* an item the floor took without a word (lava or
+                       open air under a blind hero) ends the list form
+                       too; an engulfer taking it does not */
+                    if ((dropy(otmp) && !u.uswallow)
+                        || iflags.last_msg != PLNMSG_OBJNAM_ONLY)
                         terse = FALSE; /* terse formatting interrupted */
                 }
             }

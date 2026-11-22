@@ -2148,6 +2148,8 @@ disp_artifact_discoveries(
         if (i == 0)
             putstr(tmpwin, iflags.menu_headings.attr, "Artifacts");
         m = artidisco[i];
+        if (m < 1 || m > NROFARTIFACTS)
+            continue; /* not an artifact index; the list came from a save */
         otyp = artilist[m].otyp;
         algnstr = align_str(artilist[m].alignment);
         if (!strcmp(algnstr, "unaligned"))
@@ -4234,8 +4236,15 @@ invoke_healing(struct obj *obj)
 staticfn int
 invoke_energy_boost(struct obj *obj)
 {
-    int epboost = (u.uenmax + 1 - u.uen) / 2;
+    int epboost;
 
+    /* nothing to add; without this, energy above the maximum would be
+       lowered to it and called a boost */
+    if (u.uen >= u.uenmax) {
+        nothing_special(obj);
+        return ECMD_TIME;
+    }
+    epboost = (u.uenmax + 1 - u.uen) / 2;
     if (epboost > 120)
         epboost = 120; /* arbitrary */
     else if (epboost < 12)

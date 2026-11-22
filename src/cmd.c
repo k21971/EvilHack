@@ -5215,6 +5215,11 @@ domouseaction(void)
 
         /* directional commands */
 
+        /* a click on the square past the map's edge */
+        if (!isok(u.ux + x, u.uy + y)) {
+            cmdq_add_ec(CQ_CANNED, donull);
+            return ECMD_OK;
+        }
         dir = xytodir(x, y);
         if (!m_at(u.ux + x, u.uy + y)
             && !test_move(u.ux, u.uy, x, y, TEST_MOVE)) {

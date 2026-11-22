@@ -1053,7 +1053,11 @@ ball_frees_steed(void)
 void
 drop_ball(coordxy x, coordxy y)
 {
-    if (Blind) {
+    /* while the two are being put back down the chain is not on the
+       floor yet (the ball's floor effects come first, and over open
+       air they lead here); there is no order to ask about then, and
+       the placing code sets both of these itself */
+    if (Blind && uchain->where == OBJ_FLOOR) {
         /* get the order */
         u.bc_order = bc_order();
         /* pick up glyph */

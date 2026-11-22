@@ -1908,6 +1908,11 @@ Amulet_off(void)
 
     svc.context.takeoff.mask &= ~W_AMUL;
 
+    if (!uamul) {
+        impossible("Amulet_off without uamul");
+        return;
+    }
+
     switch (uamul->otyp) {
     case AMULET_OF_ESP:
         /* need to update ability before calling see_monsters() */
@@ -2203,9 +2208,14 @@ Ring_on(struct obj *obj)
 staticfn void
 Ring_off_or_gone(struct obj *obj, boolean gone)
 {
-    long mask = (obj->owornmask & W_RING);
+    long mask;
     boolean observable, was_levitating = !!Levitation;
 
+    if (!obj) {
+        impossible("Ring_off_or_gone without obj");
+        return;
+    }
+    mask = (obj->owornmask & W_RING);
     svc.context.takeoff.mask &= ~mask;
     if (!(u.uprops[objects[obj->otyp].oc_oprop].extrinsic & mask))
         impossible("Strange... I didn't know you had that ring.");

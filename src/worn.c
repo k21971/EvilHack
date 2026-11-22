@@ -127,10 +127,12 @@ setworn(struct obj *obj, long mask)
                          * compilers */
                         u.uprops[p].extrinsic =
                             u.uprops[p].extrinsic & ~wp->w_mask;
-                        if ((p = w_blocks(oobj, mask)) != 0)
+                        /* this slot's own bit; the caller's mask can
+                           name more than one slot */
+                        if ((p = w_blocks(oobj, wp->w_mask)) != 0)
                             u.uprops[p].blocked &= ~wp->w_mask;
                         if (oobj->oartifact || oobj->oprops)
-                            set_artifact_intrinsic(oobj, 0, mask);
+                            set_artifact_intrinsic(oobj, 0, wp->w_mask);
                     }
                     /* in case wearing or removal is in progress or removal
                        is pending (via 'A' command for multiple items) */
