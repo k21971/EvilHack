@@ -16,6 +16,8 @@ staticfn boolean dog_hunger(struct monst *, struct edog *);
 staticfn boolean dog_quaff_blood(struct monst *, struct edog *);
 staticfn boolean dog_too_full(struct monst *, struct edog *,
                               struct obj *) NONNULLPTRS;
+staticfn void dog_treat_apport(struct monst *, struct edog *,
+                               struct obj *) NONNULLPTRS;
 staticfn int dog_invent(struct monst *, struct edog *, int);
 staticfn int dog_goal(struct monst *, struct edog *, int, int, int);
 staticfn int find_friends(struct monst *, struct monst *, int);
@@ -545,6 +547,33 @@ m_eat_grass(struct monst *mtmp)
     return FALSE;
 }
 
+/* a pet grows keener to fetch when what it is fed is a treat to it and
+   came from the hero; used for a meal that is eaten and for a corpse
+   that a vampire only drains */
+staticfn void
+dog_treat_apport(struct monst *mtmp, struct edog *edog, struct obj *obj)
+{
+    /* It's a reward if it's DOGFOOD and the player dropped/threw it.
+       We know the player had it if invlet is set. -dlc */
+    if (dogfood(mtmp, obj) == DOGFOOD && obj->invlet) {
+        int prior_apport = edog->apport;
+
+        edog->apport += (int) (200L / ((long) edog->dropdist + svm.moves
+                                       - edog->droptime));
+        if (edog->apport <= 0) {
+            impossible("dog_eat: pet apport <= 0 (%d, %d, %ld, %ld, %d, %u, %u)",
+                        edog->apport, edog->dropdist, edog->droptime,
+                        svm.moves,
+                        prior_apport,
+                       /* check whether edog struct got clobbered;
+                          these two values should always match if
+                          edog content is still intact */
+                       mtmp->m_id, edog->parentmid);
+            edog->apport = 1;
+        }
+    }
+}
+
 /* returns 2 if pet dies, otherwise 1 */
 int
 dog_eat(struct monst *mtmp,
@@ -662,7 +691,15 @@ dog_eat(struct monst *mtmp,
         }
     } else if (vamp && obj->otyp == CORPSE) {
         int corpsenm = obj->corpsenm;
+        /* what the blood does besides feed, as for a corpse that is
+           eaten; read now, the corpse can be lost below */
+        boolean poly = polyfood(obj), heal = mhealup(obj),
+                deadmimic = (corpsenm == PM_SMALL_MIMIC
+                             || corpsenm == PM_LARGE_MIMIC
+                             || corpsenm == PM_GIANT_MIMIC),
+                vis = canseemon(mtmp);
 
+        dog_treat_apport(mtmp, edog, obj);
         /* vampire pet drains the blood; the corpse itself remains */
         if (obj->quan > 1L) {
             if (!carried(obj)) {
@@ -689,34 +726,38 @@ dog_eat(struct monst *mtmp,
                 obj->oeaten = drain_level(obj);
             obj->odrained = 1;
         }
-        /* the blood gives what eating the corpse would have */
-        if (ismnum(corpsenm))
-            mon_givit(mtmp, &mons[corpsenm]);
-        /* m_consume_obj() sees to this for a pet that eats */
+        /* the blood gives what eating the corpse would have, in the
+           order m_consume_obj() uses for a pet that eats: a
+           shapechanger's blood changes the pet's shape (for a vampire,
+           into one of its own) */
+        if (poly) {
+            (void) newcham(mtmp, (struct permonst *) 0,
+                           vis ? NC_SHOW_MSG : NO_NC_FLAGS);
+            /* the new shape can die at once (a cockatrice corpse in
+               hands that no longer resist) */
+            if (DEADMONSTER(mtmp))
+                return 2;
+        }
         if (unstone) {
             stop_mon_stoning(mtmp);
             mon_unstone_msg(mtmp);
         }
-    } else {
-        /* It's a reward if it's DOGFOOD and the player dropped/threw it.
-           We know the player had it if invlet is set. -dlc */
-        if (dogfood(mtmp, obj) == DOGFOOD && obj->invlet) {
-            int prior_apport = edog->apport;
-
-            edog->apport += (int) (200L / ((long) edog->dropdist + svm.moves
-                                           - edog->droptime));
-            if (edog->apport <= 0) {
-                impossible("dog_eat: pet apport <= 0 (%d, %d, %ld, %ld, %d, %u, %u)",
-                            edog->apport, edog->dropdist, edog->droptime,
-                            svm.moves,
-                            prior_apport,
-                           /* check whether edog struct got clobbered;
-                              these two values should always match if
-                              edog content is still intact */
-                           mtmp->m_id, edog->parentmid);
-                edog->apport = 1;
-            }
+        if (heal) {
+            healmon(mtmp, mtmp->mhpmax, 0);
+            if (!mtmp->mcansee)
+                mcureblindness(mtmp, canseemon(mtmp));
         }
+        if (deadmimic) {
+            quickmimic(mtmp);
+            /* a pet steed taking on the mimic shape is dismounted
+               first, and that dismount can kill it */
+            if (DEADMONSTER(mtmp))
+                return 2;
+        }
+        if (ismnum(corpsenm))
+            mon_givit(mtmp, &mons[corpsenm]);
+    } else {
+        dog_treat_apport(mtmp, edog, obj);
         if (obj->unpaid) {
             /* edible item owned by shop has been thrown or kicked
                by hero and caught by tame or food-tameable monst */
