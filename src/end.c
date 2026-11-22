@@ -1616,6 +1616,15 @@ really_done(int how)
     long umoney;
     long tmp;
 
+    /* bounded append to the killer name; a suffix that does not fit
+       is left off whole instead of being cut short */
+#define KILLER_APPEND(s) \
+    do {                                                            \
+        if (strlen(svk.killer.name) + sizeof (s)                    \
+            <= sizeof svk.killer.name)                              \
+            Strcat(svk.killer.name, (s));                           \
+    } while (0)
+
     /*
      *  The game is now over...
      */
@@ -1868,7 +1877,7 @@ really_done(int how)
                 u.urexp = nowrap_add(u.urexp, tmp);
             } else {
                 /* ascending under any other alignment goes on record */
-                Strcat(svk.killer.name, " (in dishonor)");
+                KILLER_APPEND(" (in dishonor)");
             }
         }
     }
@@ -1906,7 +1915,9 @@ really_done(int how)
             /* precaution in case any late update_inventory() calls occur */
             iflags.perm_invent = FALSE;
         }
-        display_nhwindow(WIN_MESSAGE, TRUE);
+        /* don't block for one more keypress here; everything that
+           matters was acknowledged at the disclosure prompts */
+        display_nhwindow(WIN_MESSAGE, FALSE);
         destroy_nhwindow(WIN_MAP),  WIN_MAP = WIN_ERR;
         if (WIN_STATUS != WIN_ERR)
             destroy_nhwindow(WIN_STATUS),  WIN_STATUS = WIN_ERR;
@@ -1933,16 +1944,16 @@ really_done(int how)
     if (u.uhave.amulet) {
         if (Role_if(PM_INFIDEL)
             && u.uevent.uimbued_idol) /* ascends with the Idol of Moloch */
-            Strcat(svk.killer.name, " (with the Idol)");
+            KILLER_APPEND(" (with the Idol)");
         /* lets not spam the xlogfile with a bunch of 'with the
            amulet' deaths */
         else if (!Role_if(PM_INFIDEL))
-            Strcat(svk.killer.name, " (with the Amulet)");
+            KILLER_APPEND(" (with the Amulet)");
     } else if (how == ESCAPED) {
         if (Is_astralevel(&u.uz)) /* offered Amulet to wrong deity */
-            Strcat(svk.killer.name, " (in celestial disgrace)");
+            KILLER_APPEND(" (in celestial disgrace)");
         else if (carrying(FAKE_AMULET_OF_YENDOR))
-            Strcat(svk.killer.name, " (with a fake Amulet)");
+            KILLER_APPEND(" (with a fake Amulet)");
         /* don't bother counting to see whether it should be plural */
     }
 
@@ -2158,6 +2169,7 @@ really_done(int how)
     if (!startscummed)
         livelog_dump_url(LL_DUMP_ALL | (how == ASCENDED ? LL_DUMP_ASC : 0));
     nh_terminate(EXIT_SUCCESS);
+#undef KILLER_APPEND
 }
 
 /* used for disclosure and for the ':' choice when looting a container */

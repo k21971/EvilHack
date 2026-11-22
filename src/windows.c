@@ -1421,6 +1421,8 @@ html_dump_str(
     const char *p;
     if (!fp)
         return;
+    if (!str)
+        str = "";
     for (p = str; *p; p++)
         html_dump_char(fp, *p);
 }
@@ -1431,6 +1433,8 @@ html_dump_line(
     int attr,
     const char *str)
 {
+    if (!str)
+        str = "";
     if (strlen(str) == 0) {
        /* if it's a blank line, just print a blank line */
        fprintf(fp, "%s\n", LINEBREAK);
@@ -2165,6 +2169,8 @@ dump_forward_putstr(winid win, int attr, const char *str, int no_forward)
 staticfn void
 dump_putstr(winid win, int attr, const char *str)
 {
+    if (!str)
+        str = "";
     /* Suppress newline for NHW_STATUS
        Send NHW_STATUS to HTML only */
     if (dumplog_file && win != NHW_STATUS && win != NHW_DUMPHTML)
@@ -2402,7 +2408,11 @@ livelog_dump_url(unsigned int llflags)
         return;
     dumpurl = dump_fmtstr(sysopt.dumplogurl, buf, TRUE);
 #else
+#ifdef DUMPLOG_URL
     dumpurl = dump_fmtstr(DUMPLOG_URL, buf, TRUE);
+#else
+    return; /* no URL configured */
+#endif
 #endif
     livelog_printf(llflags, "%s", dumpurl);
 #else
