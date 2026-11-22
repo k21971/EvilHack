@@ -2163,13 +2163,15 @@ do_storms(void)
         } while (++count < 100 && levl[x][y].typ != CLOUD);
 
         if (count < 100) {
-            dirx = rn2(3) - 1;
-            diry = rn2(3) - 1;
-            if (dirx != 0 || diry != 0) {
-                /* BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)): monster LIGHTNING spell */
-                gb.buzzer = 0; /* unspecified attacker */
-                buzz(BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)), 8, x, y, dirx, diry);
-            }
+            /* a bolt needs a direction: roll again on <0,0> so
+               that every strike the storm picked is thrown */
+            do {
+                dirx = rn2(3) - 1;
+                diry = rn2(3) - 1;
+            } while (dirx == 0 && diry == 0);
+            /* BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)): monster LIGHTNING spell */
+            gb.buzzer = 0; /* unspecified attacker */
+            buzz(BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)), 8, x, y, dirx, diry);
         }
     }
 
