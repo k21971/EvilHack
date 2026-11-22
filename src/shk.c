@@ -3667,7 +3667,10 @@ set_cost(struct obj *obj, struct monst *shkp)
                 || is_worthless_glass(obj)) {
                 tmp = ((obj->otyp - FIRST_REAL_GEM) % (6 - shkp->m_id % 3));
                 tmp = (tmp + 3) * obj->quan;
-                divisor = 1L;
+                /* this lowball takes the ordinary sell divisors
+                   below like any other price; clearing the
+                   divisor here would leave the material
+                   multiplier with nothing to cancel it */
             }
         } else if (tmp > 1L && !(shkp->m_id % 4))
             multiplier *= 3L, divisor *= 4L;
