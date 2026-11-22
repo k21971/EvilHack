@@ -660,15 +660,30 @@ tracker; sNNN = port session.
 - [x] A monster coughing in the hero's own gas cloud counting as an
   attack made from Elbereth (hypocrite, alignment loss, the engraving
   erased) -> not an attack; a peaceful still turns hostile with the
-  ordinary guilt (s353, BUG-3301; 0.9.3's a6c911649, a design call
-  there).
+  ordinary guilt (s353, BUG-3301, 63390eb45; 0.9.3's a6c911649, a
+  design call there).
 - [x] Unidentified gems and glass sold at a flat 3-8 zm with no sell
   divisor (which on the branch left EvilHack's material multiplier
   in the price: 60-160 for glass, 2500 for a ruby) -> 0.9.3's rule,
   the lowball goes through the ordinary divisors: about 2-4 zm
-  (ruled s353, BUG-3306).
+  (ruled s353, BUG-3306, 440a5a696).
 - [x] A storm bolt whose random direction comes up <0,0> being
-  dropped, 1 in 9 -> re-rolled (s353, BUG-3305; 0.9.3's 7ddc880c3).
+  dropped, 1 in 9 -> re-rolled (s353, BUG-3305, 5d4ab3881; 0.9.3's
+  7ddc880c3).
+- [x] Capital letters for the races and alignments in the role
+  filter's reset menu (with EvilHack's races C was Convict, centaur
+  and chaotic, L illithid and lawful, R Ranger and drow) -> 0.9.3's
+  keys there: races u e U g o G H 4 I T D Z V A, alignments + = -;
+  the race picker is untouched (ruled s354, BUG-3308, 961131ddc).
+- [x] make_grave() refusing a corridor square (des.grave() could
+  already put a grave on one) -> allowed, with 0.9.3's rule that the
+  vault guard makes no grave in its own temporary corridor (ruled
+  s354, BUG-3312, 053b9dc49; 0.9.3's 40524f9ad).
+- [x] invoke_healing() printing "You feel better." twice -> once
+  (ruled s354, BUG-3315, 45192fb4c; recorded 2026-07-23 as left
+  as-is).
+- [x] "eat" in a vampire hero's feeding prompt -> "drain" (s354,
+  BUG-3316, 710a2dd06).
 
 ### 2.4 Text and logs
 

@@ -17,8 +17,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-22, session 353: the Phase 5 sweep
-  of 0.9.3's 2026 fix commits is under way (the SWEEP row has the method
+- Phase 2 status (refreshed 2026-11-22, session 354: the Phase 5
+  sweep's second read is done - tiers P4 and P5, 331 units, 23 gaps,
+  none of them a crash - and its fix slice is in: a wished "zombifying
+  corpse" goes by the corpse that was made, the role filter's reset
+  menu has 0.9.3's keys (ruled; C, L and R had each meant two or three
+  entries), a vampire pet's drain gives back the nurse heal, the mimic
+  disguise, the apport reward and the shapeshifter corpse's shape
+  change (ruled), a Monk gets the health food store in Minetown variant
+  8, a grave can stand in a corridor again (ruled), a new grave is
+  never already disturbed, worn-away letters at the start of an
+  engraving no longer come back as spaces at each arrival, an
+  engraving teleported nowhere is not reported gone, the Staff of
+  Aesculapius says "You feel better." once (ruled) and a vampire is
+  asked what to "drain" - BUG-3307..3316, e6b9e9316 to 710a2dd06; no
+  Phase 2 row closed, one LOW residue row minted, the Phase 5 engrave.c
+  verify row closed, 20 more minor gaps on the LOW minor row; upstream
+  held at ce63d5726 (ruled; four commits ahead) - after session 353,
+  earlier the same day: the sweep
+  of 0.9.3's 2026 fix commits was started (the SWEEP row has the method
   and the counts) and its first fix slice is in - a thrown iron ball no
   longer panics the game when the hero is blinded before it lands, a
   curses count prompt no longer panics on a digit and ESC or reuses an
@@ -313,8 +330,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 64 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 62 LOW):
-  849 rows closed, 64 open
+  prefix; 65 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 63 LOW):
+  849 rows closed, 65 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -17466,6 +17483,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       material_color() producer also drives master's menu-glyph
       material colors (archive Menu Glyph Material Colors, Jan 5
       2026) - port that consumer with this row.
+      SWEEP ADD (2026-11-22, session 354, review-fix sweep): and
+      master's map colours for OBJECTS - mapglyph.c draws an object
+      in material_color(otmp->material) when its material is not the
+      type's own, with a fallback to thrownobj / kickedobj for an
+      object in flight (the 2026 fix the sweep paired). Until now
+      only a deferral note named it.
       DEPENDENCY: belongs with the Phase 4 color rows - carry it
       onto their list when that phase opens.
 - [x] SUPPRESS_RIDER farlook hedge unported (NEW, minted 2026-07-30
@@ -38693,6 +38716,47 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       READ, NOT RUN on the branch: see it in play first, then ask
       whether master's shape stands (0.9.3 has the same lines) or
       the rider falls as in vanilla.
+- [ ] LOW, record: session 354 residue (minted 2026-11-22, the review-
+      fix sweep's second read: stress test, reviewer and battery; record
+      unless a ruling wants a change). (a) The filter reset menu's keys
+      count only on the page shown (ruled with the keys, 0.9.3's own):
+      at 24 rows the menu is two pages under tty and three under curses,
+      and from another page `4` is a count and `-` unselects all (curses
+      then marks chaotic as well); `D`, `+`, `=` do nothing off-page
+      under tty and flip to their page under curses. At 24 rows tty's
+      role menu itself is two pages and its "~" filter entry cannot be
+      picked from page 1 (5.0's own). The Win32 GUI cannot type `4`
+      (the digit-count branch runs first; the Windows menu row). (b) A
+      vampire pet's apport reward is judged after the drain's nutrition
+      has been added, 0.9.3's order: a human-size corpse satiates the
+      pet and earns nothing unless it also gives a new intrinsic
+      (reviewer). (c) A hero who dies with no gold inside a vault
+      guard's temporary corridor now leaves a grave there; clear_fcorr()
+      restores the square and deletes the headstone when the corridor
+      goes, and 0.9.3's really_done() has the same unguarded call
+      (reviewer). (d) A guard's temporary corridor dug across a corridor
+      grave turns it into a doorway, and the square comes back as a
+      grave with no epitaph and no emptygrave mark (gd_move()'s IS_ROOM
+      arm; 0.9.3 the same; reviewer). (e) des.grave() could already put
+      a grave on a corridor square on both trees - lspo_grave() sets the
+      type before it calls make_grave() (stress test). (f) ^G "tame
+      vampire lord" arrives as a vampire bat three times in four
+      (battery V): makemon() lets newcham() pick a new vampire's first
+      shape, and BUG-2624's rule only stops later shifts; it turns back
+      at a sixth of its hit points. In bat form it EATS a drained corpse
+      and gets the intrinsic from it ("Your vampire bat eats a drained
+      red dragon corpse.  The vampire bat shivers slightly."). (g) A
+      corpse thrown to a vampire pet is caught into its pack and was
+      not drained for three or more turns (battery V; dothrow.c's
+      pet-catches branch). (h) A vampire hero's `e` does not offer
+      potions of blood - is_edible() takes corpses with blood only -
+      the brief's error, not the game's. (i) invoke_healing(): a hero
+      with only permanent blindness and nothing to cure no longer gets
+      "You feel better." ahead of the nothing-happens line (stress
+      test). (j) Shown only by a gdb lever: BUG-1040's failure leg
+      (rloc_engr() forced to answer FALSE) and BUG-1044 (make_grave()
+      called on a square with the bit set); the non-wizard unique wish
+      through flags.debug.
 - [ ] LOW, record: session 353 residue (minted 2026-11-22, the review-
       fix sweep's stress tests, reviewer and battery; record unless a
       ruling wants a change). (a) BUG-3291's leftover, 0.9.3's too: when
@@ -42509,13 +42573,19 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       DUMPHTML fixes in src/windows.c are absent on the branch -
       BUG-1094 (dump_add_menu()'s closing tag reads the attr that
       get_menu_coloring() rewrote; snapshot it), BUG-1096 (NULL str
-      guards: html_dump_str() / html_dump_line() have them,
-      dump_putstr() check), BUG-1101 (dump_open_log()'s mid-function
+      guards: CORRECTED 2026-11-22, session 354 - html_dump_str() and
+      html_dump_line() do NOT have them, they test only `fp`; listed
+      as P4-6.7 of the review-fix sweep's minor row; dump_putstr()
+      check), BUG-1101 (dump_open_log()'s mid-function
       #undef / #define DUMPLOG_FILE / DUMPHTML_FILE, still at the
       top of the #if block). The status-code ones (BUG-1093, 1099,
       1103) landed with session 248 as BUG-2478 / 2480 / 2483.
       These are NetHack50 (Hardfought fork) code, absent from
-      Official_nh50.
+      Official_nh50. BUG-1094's reach (a sweep reader, session 354,
+      not re-read): a MENUCOLOR pattern that matches an inventory
+      class heading - the heading's closing tag is then written as a
+      line break. BUG-1092 (livelog_dump_url() names an undefined
+      DUMPLOG_URL when SYSCF is off) is P4-6.8 of the same minor row.
       OBSERVED 2026-10-21 (session 250 battery A8): master's HTML
       dump wraps the inventory section in `<ul><li>` items with
       `<h3>` class headings; the branch writes plain lines ending in
@@ -42742,7 +42812,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       The sfctool build warns that files.c's whereis_file is unused.
       (h) restore_waterlevel()'s "no bubbles" arm sets
       something_worth_saving to 1 instead of putting it back.
-- [ ] LOW verify: master b41d23c6d's engrave.c review fixes (minted
+- [x] LOW verify: master b41d23c6d's engrave.c review fixes (minted
       2026-11-20, session 349; the commit, 0.9.3's BUG-1038..1045, had
       no mention in this tracker). BUG-1043 is carried by BUG-3240. READ
       2026-11-22 by the review-fix sweep's readers (session 353), each
@@ -42759,6 +42829,20 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       BUG-1044 (make_grave() and the stale disturbed bit, now through
       set_levltyp()) and BUG-1038 (the branch has its own size cap). Fix
       BUG-1040 and BUG-1039 with the sweep's next slice.
+      CLOSED 2026-11-22 (session 354, 053b9dc49). BUG-1038 is carried by
+      the branch's own cap and size checks (BUG-3143). BUG-1039 was
+      narrower than read: restore re-skips the leading spaces, and they
+      came back only when save_engravings() reset the text pointers on a
+      write that keeps the engraving - the checkpoint write on every
+      arrival; fixed by writing from local pointers (BUG-3311; master's
+      memmove would break read_engr_at()'s offset into the pristine
+      text). BUG-1040 fixed in master's shape - rloc_engr() answers
+      whether it moved the engraving and doengrave() says "vanishes!"
+      only then (BUG-3314). BUG-1044 was live, by two routes (a grave
+      over a disturbed grave; a maze square whose horizontal wall was
+      dug out): make_grave() clears `disturbed` (BUG-3313). The sweep's
+      two calibration units rested on BUG-1040 being live - pick new
+      ones for the next read.
 - [ ] SWEEP: 0.9.3's 2026 code-review fix commits to shared code (minted
       2026-11-21, session 351; the second one found by accident).
       Master's review passes fixed bugs in files the branch then took
@@ -42791,31 +42875,56 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       style, 80 fixed by 5.0, 61 moot, 20 not at master's head, 15
       tracked, 5 not a bug on this base, 3 unsure, 62 gaps (63 claimed;
       one withdrawn: savelev() already zeroes the room table). FIXED:
-      the crash and gameplay tiers, BUG-3291..3306 (commits pending),
-      with the gem sell price found beside the census. The 49 minor or
-      hardening gaps are the row below. LEFT TO READ: P4 and P5 (333),
-      then the weak classes; the fix commits that touch dat/ (.des on
-      0.9.3, lua here) and the Windows-only paths are not paired at all.
-      LEADS for the next read, none of them confirmed: 537e481dd's self-
-      polymorph returns in muse.c use_misc() (`DEADMONSTER(mtmp) ? 1 :
-      2` on 0.9.3, 2 here) against BUG-2119 / 1752 / 1753 and session
-      177's rulings; mon_arrive() places a portal arrival at the Castle
-      in the arrival region on 0.9.3 (26dd9b0a6, 2022) and at random
-      here, and the archive's BUG-1575 says 0.9.3 never did; find_oid()
-      lost 0.9.3's in-flight arms (its BUG-283); u_entered_shop() reads
-      the shop type from the room where 0.9.3 reads the shopkeeper's own
-      copy (32c38b560); precheck()'s cursed-wand backfire returns 0 here
-      and 2 on 0.9.3; mleashed_next2u() does not fill the pit a trapped
-      leashed pet is pulled from. SIZED, NOT READ: 0.9.3's own fix
+      the crash and gameplay tiers, BUG-3291..3306 (thirteen commits,
+      b7a59f4ba to 440a5a696, landed and pushed 2026-11-22), with the
+      gem sell price found beside the census. The 49 minor or
+      hardening gaps are the row below. SECOND READ 2026-11-22 (session
+      354; decisions log): P4 and P5, 331 units. The counts moved a
+      little first - `destroy_arm -> disintegrate_arm` joined the rename
+      map, and `--since` is pinned to midnight (a bare date cut at the
+      hour of the run and had left out 603cfccf9, one cleared unit):
+      422 commits, 1,599 units, P1 141, P2 98, P3 104, P4 270, P5 61,
+      weak 484, cleared 398. Six readers, the same brief and calibration
+      units, every batch clean in the checker; 435 verdicts - 241
+      ported, 47 fixed by 5.0, 38 not at master's head, 36 style, 34
+      moot, 14 tracked, 1 not a bug on this base, 23 gaps: no crash
+      tier, 2 gameplay, 21 minor or hardening. FIXED (seven commits,
+      e6b9e9316 to 710a2dd06, 2026-11-22): the wished "zombifying
+      corpse" (BUG-3307), the filter reset menu's keys (BUG-3308), a new
+      grave born disturbed (BUG-3313), and beside the census a vampire
+      pet's drain (BUG-3309), a Monk's food shop in Minetown variant 8
+      (BUG-3310), corridor graves (BUG-3312), the engrave.c pair of the
+      row above (BUG-3311, BUG-3314), "You feel better." twice
+      (BUG-3315) and a vampire's "drain" prompt (BUG-3316). The other 20
+      minor gaps are batch 7 of the row below; the two leads this row
+      carried - use_misc()'s self-polymorph returns and find_oid()'s
+      in-flight arms - are among them, live as text and contained in
+      effect. LEFT TO READ: the weak classes (484: partial match 250,
+      file scope and tables 138, other absent functions 72, cleared on
+      one short line 24; key table rows by MON( / OBJECT( / A( first);
+      the fix commits that touch dat/ (.des on 0.9.3, lua here) and the
+      Windows-only paths are not paired at all. LEADS still open, none
+      of them confirmed: mon_arrive() places a portal arrival at the
+      Castle in the arrival region on 0.9.3 (26dd9b0a6, 2022) and at
+      random here, and the archive's BUG-1575 says 0.9.3 never did;
+      u_entered_shop() reads the shop type from the room where 0.9.3
+      reads the shopkeeper's own copy (32c38b560); precheck()'s
+      cursed-wand backfire returns 0 here and 2 on 0.9.3;
+      mleashed_next2u() does not fill the pit a trapped leashed pet is
+      pulled from; tactics() answers 0 where 0.9.3 answers 2 after a
+      relocation kills the covetous monster (b297c2db7; harmless as
+      read); mhitm_knockback() stuns and re-aims after a hurtle that
+      killed the attacker. SIZED, NOT READ: 0.9.3's own fix
       commits before 2026 - 1,781 commits, 3,808 units, P1 205, P2 283,
       P3 154, P4 1,146; in 562 of the 1,369 no-fix-line units 0.9.3
       itself reshaped the fix later, so those tiers are noisier. Whether
       the row reaches back before 2026 wants a ruling when 2026 is done.
 - [ ] LOW: review-fix sweep, the minor and hardening gaps (minted
-      2026-11-22, session 353; 49 lost 0.9.3 fixes with no reach in play
-      today, or wording only; the register doc/claude/
-      REVIEW_FIX_SWEEP.md has each with its master commit and branch
-      site, by these numbers). One mechanical slice with its own review
+      2026-11-22, session 353; 69 lost 0.9.3 fixes with no reach in play
+      today, or wording only - 49 from the P1 to P3 read, 20 more from
+      the P4 and P5 read of session 354, batch 7 below; the register
+      doc/claude/REVIEW_FIX_SWEEP.md has each with its master commit and
+      branch site, by these numbers). One mechanical slice with its own review
       and a post-edit grep, no battery for most. Batch 1: 1.2 the
       discoveries list's artidisco[] index (BUG-906), 1.3 mon_arrive()'s
       arrival span, 1.4 explmu()'s position after mondead() (BUG-412),
@@ -42852,7 +42961,31 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       vt_tile counter (BUG-1296), 6.13 inven_inuse() (5b9b0289b), 6.14
       dosave0()'s u.uz (BUG-595), 6.15 savestateinlock()'s open file
       (BUG-596), 6.16 create_corridor()'s room numbers (BUG-1080), 6.17
-      light_region()'s clamp (BUG-1079).
+      light_region()'s clamp (BUG-1079). Batch 7 (session 354, the P4
+      and P5 read; the register's P4- numbers): P4-1.1
+      invoke_energy_boost() with Pw above its maximum (BUG-908), P4-1.2
+      m_cure_self() on a dead caster (BUG-227), P4-1.3 no newsym() after
+      disint_mon_invent()'s spill (BUG-423), P4-2.1 set_mimic_sym()'s
+      isok() (fa9b555e9), P4-2.2 muse_unslime()'s writes to a monster
+      the fire trap killed (BUG-637), P4-2.3 use_misc()'s three self-
+      polymorph arms answering 2 for a monster that died in newcham()
+      (BUG-1314; contained here - dochug() stops on mon_offmap() - and
+      the end of the session 353 lead), P4-3.1 Amulet_off() with no
+      amulet (eb7c46415), P4-3.2 mhurtle_step()'s DEADMONSTER() term
+      (BUG-279), P4-3.3 mhurtle() and will_hurtle() without `||
+      mon->wormno` (BUG-364), P4-3.4 cutworm()'s stale mux / muy on the
+      new worm (BUG-1071), P4-5.2 domouseaction() one square off the map
+      (BUG-344; vanilla too), P4-5.3 find_oid()'s thrownobj / kickedobj
+      arms (BUG-283; the end of that lead), P4-5.4 max_passive_dmg()
+      stopping at the first passive attack (BUG-1118; no difference
+      today), P4-6.2 mv_bubble()'s unchecked trap pointer (BUG-857;
+      vanilla too), P4-6.3 is_ok_location()'s levl read before isok()
+      (BUG-531; vanilla too), P4-6.4 recreate_pile_at()'s isok()
+      (BUG-687), P4-6.5 set_corpsenm()'s NON_PM and zero-divisor tests
+      (BUG-690; the NON_PM row's grep would miss it), P4-6.6 mkshop()'s
+      isok() (BUG-657), P4-6.7 html_dump_str() and html_dump_line() with
+      a NULL string (BUG-1096), P4-6.8 livelog_dump_url()'s undefined
+      DUMPLOG_URL without SYSCF (BUG-1092).
 - [ ] LOW: NON_PM lookup hardening, own slice (minted 2026-11-19,
       session 348, the site census; third concrete instance of the
       archive-pass row above). 0.9.3 guards every lookup of a corpse's
@@ -43926,7 +44059,7 @@ log). #1726 and #1729 had their commit messages amended that day
 | 2026-07-22 | pray.c can_pray() demon gate `(gp.p_aligntyp == A_LAWFUL \|\| gp.p_aligntyp != A_NEUTRAL)` contradicts its own "ok if chaotic or none" comment - as written, demons find CHAOTIC prayer repugnant and NEUTRAL prayer fine. Master's `> A_CHAOTIC` form (matches the comment's intent) ported with the roles slice; reviewer-verified | fixed on branch; not yet sent; triage 2026-10-26 @60a39eb52: G, live |
 | 2026-07-17 | explode.c monster-kill loop mutates its adtyp local (`adtyp = AD_RBRE; /* no corpse */` at explode.c:579, identical in NetHack50 and Official_nh50): after the first no-corpse victim, every later victim of the same blast and the post-loop hero-damage block see AD_RBRE instead of the real damage type. Master's non-mutating `xkflg ? -AD_RBRE : adtyp` inline form ported to the branch (kill-attribution slice) | fixed on branch; not yet sent; triage 2026-10-26 @60a39eb52: G, live |
 | 2026-07-23 | pray.c pleased() gift switch rolls `rn2((Luck + 6) >> 1)` with no lower clamp: Luck <= -6 passes rn2() a non-positive argument (reachable - the pleased path gates on god anger/trouble, not on Luck). Master's clamp form (`gift_slot` local, floor at 1) ported with the roles slice; branch verified at pray.c pleased() | fixed on branch; not yet sent; triage 2026-10-26 @60a39eb52: C (impossible, normal play), live |
-| 2026-07-23 | artifact.c invoke_healing (5.0's split of arti_invoke HEALING) can print "You feel better." twice per invoke: the body has BOTH an unconditional `Blinded > creamed -> You_feel("better.")` arm and the gated `You_feel("%sbetter.", ...)` tail. Identical at 74d1133c2; looks like an upstream merge artifact. Left as-is on branch (only the Withering cure term was added by the artifacts slice) | traced; not yet sent; triage 2026-10-26 @60a39eb52: M, live, not fixed on the branch |
+| 2026-07-23 | artifact.c invoke_healing (5.0's split of arti_invoke HEALING) can print "You feel better." twice per invoke: the body has BOTH an unconditional `Blinded > creamed -> You_feel("better.")` arm and the gated `You_feel("%sbetter.", ...)` tail. Identical at 74d1133c2; looks like an upstream merge artifact. Left as-is on branch (only the Withering cure term was added by the artifacts slice) | traced; not yet sent; triage 2026-10-26 @60a39eb52: M, live; FIXED ON THE BRANCH 2026-11-22 (session 354, BUG-3315, 45192fb4c: the stale first test deleted; still in vanilla at 32f5ca0c8) |
 | 2026-07-24 | muse.c hero scroll-of-fire arm: `if (Fire_resistance) You("are not harmed.");` followed by `if (Half_spell_damage) num = (num + 1) / 2; else losehp(num, ...)` - the losehp rides the halving else, so a fire-resistant hero takes FULL damage whenever Half_spell_damage is absent, and ANY hero with Half_spell_damage takes zero. Identical in NetHack50 and Official_nh50. Branch restored master's gate form (==100 no-harm + monstseesu, else halve-then-losehp) with the partial-resistance slice | fixed on branch; not yet sent; triage 2026-10-26 @60a39eb52: G, live |
 | 2026-07-25 | sp_lev.c lspo_monster() leaks two heap strings on its table-form error paths, because `nhl_error` -> `lua_error` longjmps out past the `Free`s: the `nhl_error(L, "Unknown appear_as type")` arm abandons `mappear` (from get_table_str_opt) plus `tmpmons.name.str`, and an `nhl_error` raised inside `get_table_montype()` abandons `tmpmons.name.str` and the `dupstr`ed `tmpmons.appear_as.str`. Verified identical in NetHack50 and Official_nh50. Matters a little more than a normal error-path leak because a Lua error during level generation is NOT fatal - `nhl_pcall_handle` uses NHLpa_impossible, so load_special returns FALSE, mkmaze falls back to a random maze and play continues, so the leak can recur. NOT the same as `get_table_montype()` itself, whose `Free(s)` correctly precedes its `nhl_error`. The branch's three new positional-form `nhl_error`s are leak-free by construction (nothing is allocated yet at that point and paramstr is Lua-owned) | traced, not fixed on branch; not yet sent; triage 2026-10-26 @60a39eb52: C (leak, latent), live, not fixed on the branch |
 | 2026-07-25 | sp_lev.c lspo_monster(): a `des.monster{ inventory = <non-function> }` (a table, say) still sets `has_invent = CUSTOM_INVENT` at the `lua_getfield`/`!lua_isnil` test, so create_monster() points the file static `invent_carrying_monster` at the monster, but the closure gate additionally requires LUA_TFUNCTION - the else arm only does `lua_pop` and never calls spo_end_moninvent(). The static therefore outlives the call and create_object() diverts every later `des.object()` in the file into that monster instead of onto the map. Identical in NetHack50 and Official_nh50 (both `} else lua_pop(L, 1);`, and their create_monster is `staticfn void`). Harmless-but-wrong upstream; on the branch the `dead` binding turns it into a silent object leak (objects handed to a detached monster, freed by dealloc_monst which has no minvent handling), so the branch clears the static in the else arm whenever CUSTOM_INVENT was requested | fixed on branch; not yet sent; triage 2026-10-26 @60a39eb52: G (latent), live |
@@ -44071,6 +44204,11 @@ log). #1726 and #1729 had their commit messages amended that day
 | 2026-11-22 | really_done() builds "You and <pet> and <pet> ..." in pbuf[BUFSZ] with one unbounded Sprintf(eos(pbuf), ...) per accompanying pet and a Strcat for Schroedinger's cat; four pets with 60-character names make 264 characters. Read in vanilla; on the branch build before the fix the overrun was silent and the text came out cut at 254 (battery c4). Branch fix: show the line so far and start another when the next name will not fit. BUG-3295 | fixed on the branch; not sent; low value (needs four or more very long pet names); triage pending |
 | 2026-11-22 | breamm() answers M_ATTK_HIT when the breather is not lined up and nothing was breathed (it falls out of `if (m_lined_up(...))`): mattacku() gives a sleeping hero the 1-in-10 "The combat suddenly awakens you." roll on every move of a distant breather, and mattackm() counts a strike. Read in vanilla (src/mthrowu.c, the function's tail); not run. Branch fix: an else arm returning M_ATTK_MISS. BUG-3304 | fixed on the branch; not sent; needs a vanilla repro; triage pending |
 | 2026-11-22 | Lesser candidates from the same sweep, each read in vanilla and not run: bhito()'s drain-life arm passes drain_item(obj, TRUE) and its undead-turning arm revive(obj, TRUE) although mbhit() sends a monster's beam through bhito() too (shop goods billed to the hero; BUG-3302, BUG-3303); paygd() moves a dead hero's coins to the vault without clearing a worn mask, so quivered gold stays W_QUIVER on the floor (BUG-3297); do_storms() drops a bolt whose random direction comes up <0,0> (BUG-3305) | fixed on the branch; not sent; triage pending (which of these upstream would call a bug) |
+| 2026-11-22 | A wished "zombifying corpse" judges the monster typed, not the corpse made: readobjnam() starts the ZOMBIFY_MON timer inside `case CORPSE` of the named-monster switch on `zombie_form(&mons[d.mntmp])` (src/objnam.c). "zombifying corpse" with no monster named loses the modifier, and when the species cannot be set (a unique for a non-wizard, a no-corpse monster) the timer goes on mksobj()'s random-species corpse - zombify_mon() then rots away one whose species has no zombie form. Read in vanilla at ce63d5726; seen on the branch build before the fix (battery Z: a non-wizard's "zombifying Croesus corpse" gave a cockatrice corpse with the timer that vanished at turn 11). Branch fix: start the timer after the switch by `d.otmp->corpsenm`. BUG-3307 | fixed on the branch (e6b9e9316); not sent; vanilla has the same test in the same place (`d.zombify && zombie_form(&mons[d.mntmp])` inside `case CORPSE`; the missing `!= NON_PM` there is the BUG-3054 row's), so this is a clean candidate that wants cutting together with that one |
+| 2026-11-22 | save_engravings() moves every engraving's text pointers back to the start of their space before writing (`ep->engr_txt[actual_text] = engr_text_space(ep);` and the two after it, src/engrave.c). wipe_engr_at() skips worn-away leading characters by advancing that pointer and rest_engravings() re-skips them, but save_currentstate() writes the current level WITHOUT freeing it on every arrival and straight after a restore when `checkpoint` is on (the default), so each partly worn engraving reads with its leading spaces again until the next wipe or restore, and sengr_at()'s strict match fails on a text that matches only after the skip. Read in vanilla at ce63d5726; seen on the branch build before the fix (battery E: `" bc def"` after one trip down and up, `"bc def"` after the fix). Branch fix: write the three texts from local pointers. BUG-3311 | fixed on the branch (053b9dc49); not sent; a clean vanilla candidate (default options, two-line repro with a wand of fire and gdb, or a dust engraving scuffed until its first letter goes) |
+| 2026-11-22 | Lesser engrave.c candidates from the same commit, read in vanilla at ce63d5726: make_grave() leaves the square's `disturbed` bit (it is `horizontal`) as it was - set_levltyp() has the "TODO? ... clear them" comment - so a bones grave made over a disturbed grave, or on a maze square whose horizontal wall was dug out (dig.c clears flags, not horizontal), never raises its ghoul (BUG-3313; shown on the branch by calling make_grave() on a square with the bit set); rloc_engr() gives up silently after 200 tries while doengrave_sfx_item_WAN() has already said "vanishes!" and the old text is then written over (BUG-3314; not reachable on any level you can engrave on) | fixed on the branch (053b9dc49); not sent; triage pending |
+| 2026-11-22 | Lesser candidates from the review-fix sweep's P4 / P5 read (session 354), each read in vanilla at ce63d5726 and not run: dosit() in water still passes `uarm` for the boots - `if (!rn2(10) && uarmf && uarmf->otyp != WATER_WALKING_BOOTS) (void) water_damage(uarm, "armor", TRUE);` (src/sit.c), so body armor is wetted twice and the boots never (the branch has had `uarmf, "boots"` since f4d3a8ddc, master BUG-329); domouseaction() calls m_at() and reads levl[][] one square off the map when a button bound to "mouseaction" is clicked just past the edge beside a hero on the edge row or column (src/cmd.c; test_move() refuses the square but m_at() runs first and the door tests after); mv_bubble()'s CONS_TRAP arm writes tx / ty through a trap pointer two overlapping bubbles can both hold, without checking it is still on the trap chain (src/mkmaze.c; no reach found); is_ok_location() reads levl[x][y].typ before any isok() (src/sp_lev.c; callers stay in bounds) | the sit.c one is fixed on the branch, the other three are in the sweep's LOW minor row (P4-5.2, P4-6.2, P4-6.3); not sent; triage pending |
+| 2026-11-22 | NOTE, not a bug yet: upstream 5d0bc1bf1 (2026-11-21, past the branch base) renames Maybe_Half_Phys(dmg) to Maybe_Adjust_Phys(dmg, otyp) as groundwork for material-aware physical damage ("things like objects[(otyp)].oc_material"). The macro ignores otyp today, but hurtle_step() already hands it MATERIAL constants (`otyp = IRON;` for iron bars, `otyp = MINERAL;` for a boulder) in a variable meant for an object type, which will index objects[] with a material number once the macro uses it. On the branch the rename meets 83 uses in 26 files (trial merge 2026-11-22: 12 conflicted files, 23 blocks, and EvilHack-only callers that merge clean and then do not compile), and objects[otyp].oc_material is the wrong source for EvilHack, where an object carries its own material | watch; raise with the devteam if the follow-on lands in that shape; decide the branch's form at the next catch-up merge |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -44803,6 +44941,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-21 | Deferred-delete re-check of five upstream PRs (a question session, no code; three plain questions, each answered "yes please"). (0) TRIGGER: a devteam member asked on PR #1728 "but objects don't actually get deleted until dobjsfree() is called?" - right: 5.0's dealloc_obj() only marks an object OBJ_DELETED, and dobjsfree() frees it at the top of the next moveloop_core(). (1) RE-CHECK the four siblings whose messages also said "freed" (#1724, #1725, #1726, #1729): yes. (2) VANILLA CONFIRMATION by wizard-mode test games on a scratch ASan build of upstream 74ebd09ed: yes - 12 games, three game-tester agents, every leg as predicted, ASan silent throughout: #1728 no bug (the rider is still thrown); #1729 panic 'place_object: obj "saddle" [9] not free', clean with the fix; #1726 panic "extract_nobj: object lost", clean with the fix; #1724 and #1725 the same extract_nobj panic from dozap()'s dust check, with a wrested last charge only. (3) OUTCOMES: the maintainer closed #1728; the #1726 and #1729 commit messages were reworded and amended (8d426997e, 25cb9eec9); a slimmed recut of #1724 and #1725 was being planned when the devteam landed both as sent (de3875dcd, 700cfb027), so it was dropped. (4) WORKING RULE: before a 5.0 patch or a tracker row says "freed" about an object, name the free() that runs between the delete and the read; a crash-class row carried from 3.6-based master gets a vanilla run before it is sent. (5) One LOW row minted, read not run: the branch's mdrop_obj() leaves a rider mounted when the saddle burns, where vanilla throws them. Also recorded: #1720..#1723 landed 2026-11-16/17 |
 | 2026-11-21 | Upstream catch-up 4 (Phase 4 / session 352, AskUserQuestion x3 with six questions, all as recommended). (0) MERGE NOW: the trigger had fired (eight of our PRs landed since fd4d169b6; upstream 60 commits ahead with polyself re-entrancy fixes, a status-menu hang fix and a throw-range rework; Official_nh50 already pulled to the head) - catch-up 4 this session, on its own; rejected: hold and run the 0.9.3 review-fix sweep, the NON_PM hardening or another slice first. (1) THROW RECOIL: fix the levitation bug (ammunition thrown by hand pushed a levitating thrower back like a heavy object: Str 18, lands 1 and back 5 -> lands 3 and back 1), keep EvilHack's ranges inside upstream's calc_othrow_ranges() and keep #wizthrowranges; rejected: the fix without the table, 0.9.3's recoil, and upstream's wider recoil rule (a 100-weight object back 4 instead of 2, a 200-weight one 8 instead of 5, a boulder 10 and 10 instead of 20 and 8). (2) PYROLISK EGGS EXPLODE when a monster eats one (upstream's form, our own PR #1722; closes BUG-1391's open question); rejected: stay inert. (3) CI: drop upstream's .github/workflows/build.yml (it builds vanilla's hints and runs ./nethack) and add its `make check-lua-syntax` to evilhack-cpp.yml; rejected: drop it only, keep it as shipped. (4) FOUR UPSTREAM EXTRAS AS SHIPPED: a blind ':' look at a pile or a container touches what is there (a cockatrice corpse petrifies a gloveless hero); "<Monster> makes no sound." on #chat with a silent monster (also after a Druid's or Draugr's taming chat); loot and stash prompts name the container; no "Is this ok?" when the picks force the rest; rejected: one by one, none. (5) PIN: moved from 1185ba3ba to ce63d5726 for one commit - armor class no longer softens digestion and slow digestion takes 0 again, as on 0.9.3, while other engulfers keep 5.0's AC reduction; rejected: stay at 1185ba3ba, move but keep AC against digestion. Decided in the plan and approved with it: the branch's forms of our landed PRs stay where they cover more; the set_uasmon() fix (BUG-3288) and the stale hold (BUG-3289) ride as follow-ups; the two prompt overflows and the dead eater are fixed, not recorded. Taken after the review without a question: the hero's light source swapped ahead of set_uasmon() (the reviewer's MEDIUM), and the git-hash guard in linux.501 and macOS.501 as well. The battery ran from scratch-built -d copies before the install, on sources byte-identical to the committed ones. |
 | 2026-11-22 | Review-fix sweep, Phase 5 (session 353, AskUserQuestion x4, all as recommended). (1) NEXT SLICE: the sweep of 0.9.3's 2026 fix commits; rejected: the NON_PM hardening, the engrave.c row alone, the rulings backlog. (2) READING PACE: the strongest tier this session with six reader agents at about 55 units each, the rest in later sessions; rejected: every unit at once with about fourteen readers, no agents at all. (3) FIX SCOPE: the crash and gameplay tiers now (BUG-3291..3305), the 49 minor or hardening gaps as one LOW row for a later mechanical slice; rejected: the crash tier alone, all of them at once. (4) UNIDENTIFIED GEMS: 0.9.3's sell rule - the 3-8 zm lowball goes through the ordinary sell divisors and the Charisma bonus, about 2-4 zm each (BUG-3306; the branch had been paying the material multiplier, 60-160 for glass and 2500 for an unidentified ruby); rejected: 5.0's flat 3-8, leaving it for a row. Decided in the plans and approved with them: the pairing script clears a unit on discriminating lines only; 0.9.3's shape for the ball in flight, with its remembered-glyph leftover recorded; the vault check accepts subroom indices; the gas cloud keeps the ordinary guilt for a peaceful and drops only the Elbereth penalty. | maintainer |
+| 2026-11-22 | Review-fix sweep, second read and fix slice (Phase 5 / session 354, AskUserQuestion x3 with eight questions, all as recommended). (0) UPSTREAM: hold - NetHack-5.0 is four commits past the base (ce63d5726 -> 32f5ca0c8: our land mine / saddle PR #1729, a wraith-corpse taste line, and the rename of Maybe_Half_Phys(dmg) to Maybe_Adjust_Phys(dmg, otyp), no behavior change); rejected: catch-up 5 now (trial merge: 12 conflicted files, 23 blocks). (1) SLICE: the sweep's P4 + P5 read with six readers, then a fix plan for its gameplay finds with the engrave.c pair riding; rejected: the 49 minor gaps as a mechanical slice, the engrave pair alone, the NON_PM hardening. (2) FILTER MENU KEYS: 0.9.3's keys in the role filter's reset menu - races u e U g o G H 4 I T D Z V A, alignments + = - (the branch had C = Convict + centaur + chaotic, L = illithid + lawful, R = Ranger + drow); re-asked once the page wrinkle was known (a key wins only while its entry is on the page shown: on a 24-row terminal `4` is a count and `-` unselects all from page 1, as on 0.9.3) and kept; rejected: the branch's capitals with only the clashes moved (centaur 4, drow W), and 0.9.3's keys with centaur N and chaotic *. (3) VAMPIRE PET'S DRAIN: all four of 0.9.3's effects back - the shapeshifter corpse's polymorph, the nurse heal, the mimic disguise, the apport reward (BUG-2812 had ruled the intrinsic only); the polymorph re-asked once known to be a vampire's own shape-shift (fog cloud, bat, wolf or warg; armor off; it stays until about a sixth of its hit points) and kept; rejected: dropping the polymorph alone. (4) RIDERS: all three in - corridor graves with 0.9.3's vault-guard rule, a single "You feel better." from the Staff of Aesculapius (recorded 2026-07-23 as left as-is), "drain" in a vampire's feeding prompt. (5) BATTERY: yes, one tester after the review. Standing from session 353: the minor gaps (20 more) join the LOW row | maintainer |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
