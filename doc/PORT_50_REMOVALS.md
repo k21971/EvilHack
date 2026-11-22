@@ -705,6 +705,14 @@ tracker; sNNN = port session.
 - [x] place_wsegs() placing a worm segment over another monster
   after warning about it -> the segment is dropped (s355, BUG-3318,
   71981b848).
+- [x] A phasing hero (xorn form, the Iron Ball of Liberation, a
+  prayer) squeezing diagonally between two Sokoban boulders -> refused,
+  "You cannot pass that way."; phasing still excuses the size and load
+  checks (ruled s356, BUG-3391, 7ddbc1343; 5.0 1c9096555).
+- [x] Worn gauntlets of dexterity or a helm of brilliance staying
+  unidentified when cancelled or drained -> they become known when
+  the bonus changes, through adj_abon() as on 0.9.3 (s356, BUG-3385 /
+  3386, bf6882cde).
 
 ### 2.4 Text and logs
 
@@ -818,6 +826,14 @@ tracker; sNNN = port session.
   without a word (lava or open air under a blind hero) -> full
   sentences from the next item on, 0.9.3's text (s355, BUG-3338,
   c55da7207).
+- [x] "You plummet a few thousand feet to your death." on a level
+  teleport out of the dungeon's top -> "several thousand feet", like
+  every other fall (s356, BUG-3396, 7c328e00a).
+- [x] "Strange... I didn't know you had that ring." reported for any
+  ring whose property bit is missing -> not for a ring of stealth,
+  whose bit EvilHack takes away from a giant on purpose; the check
+  stays for the other rings (s356, BUG-3393, 7c328e00a; 0.9.3 deleted
+  the check).
 
 ### 2.5 Levels and content
 
@@ -857,6 +873,9 @@ tracker; sNNN = port session.
   spider, 1 in 4 each, level-file webs included; this replaces the
   2026-08-08 note that 0.9.3 adds none there (ruled s348, BUG-3231,
   c7055c897; master 47640bd3b).
+- [x] The ordinary levels between Medusa's island and the Castle
+  built as a maze four times in five -> rooms and corridors always,
+  0.9.3's choice since 2022 (ruled s356, BUG-3390, 3c48af528).
 
 ## 3. Reversed (5.0 kept after a removal was ruled or proposed)
 
@@ -930,6 +949,15 @@ tracker; sNNN = port session.
 - [r] Rope golem remains: 5.0's 0 to 2 of leash, bullwhip or
   grappling hook kept when the other golems' remains went back to
   0.9.3's, which leaves nothing for a rope golem (ruled s349).
+- [r] A blocked monster-against-monster gaze: 5.0's lower-case "but
+  nothing happens." after the "gazes at..." frame kept; 0.9.3 prints
+  "But nothing happens." (ruled s356, against the recommendation).
+- [r] A pet picking up the hero's own item off a shop floor: 5.0's
+  rule kept - mpickobj() clears the no-charge mark for pets as for
+  any monster (vanilla 3ffbfc724), so the shopkeeper owns the item
+  once the pet drops it and taking it back from the pet inside the
+  shop puts it on the bill; 0.9.3 keeps the mark while a pet carries
+  it (ruled s356).
 
 ## 4. Open
 
