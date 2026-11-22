@@ -230,6 +230,10 @@ curses_character_input_dialog(const char *prompt, const char *choices,
     int x, y;
 #endif
 
+    /* as tty does: a count left by an earlier prompt must not answer
+       this one (a leading 0, or any reply that sets no count) */
+    yn_number = 0L;
+
     /* if messages were being suppressed for the remainder of the turn,
        re-activate them now that input is being requested */
     curses_got_input();
@@ -361,6 +365,13 @@ curses_character_input_dialog(const char *prompt, const char *choices,
                     curses_count_window(NULL);
                     touchwin(askwin);
                     wrefresh(askwin);
+                }
+                /* ESC ended the count: drop it and read on, never hand
+                   a negative count to the core; the ESC was pushed back
+                   and cancels the prompt on the next read */
+                if (yn_number < 0L) {
+                    yn_number = 0L;
+                    continue;
                 }
             }
             answer = '#';
