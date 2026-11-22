@@ -906,12 +906,14 @@ fall_through(
         } else {
             dtmp.dnum = u.uz.dnum;
             dtmp.dlevel = newlevel;
-            /* prevent falling past mine town if the Goblin King has
-               not been defeated yet; eliminates the awkward case of
-               being stuck between mine town and mines' end */
-            if (In_mines(&u.uz) && !u.uevent.ugking)
-                dtmp.dlevel = dunlev(&u.uz) + 1;
         }
+        /* prevent falling past mine town if the Goblin King has
+           not been defeated yet; eliminates the awkward case of
+           being stuck between mine town and mines' end; a trap
+           door or hole carries its own destination, which can be
+           several levels down, so this is for both arms */
+        if (In_mines(&u.uz) && !u.uevent.ugking)
+            dtmp.dlevel = dunlev(&u.uz) + 1;
         dist = depth(&dtmp) - depth(&u.uz);
         if (dist > 1)
             You("%s down a %s%sshaft!",
