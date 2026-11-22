@@ -1893,24 +1893,15 @@ cancel_item(struct obj *obj, boolean by_you)
             if ((obj->owornmask & W_RING) != 0L)
                 disp.botl = TRUE;
             break;
-        case GAUNTLETS_OF_DEXTERITY:
-            if ((obj->owornmask & W_ARMG) != 0L) {
-                ABON(A_DEX) -= obj->spe;
-                disp.botl = TRUE;
-            }
-            break;
-        case HELM_OF_BRILLIANCE:
-            if ((obj->owornmask & W_ARMH) != 0L) {
-                ABON(A_INT) -= obj->spe;
-                ABON(A_WIS) -= obj->spe;
-                disp.botl = TRUE;
-            }
-            break;
         default:
             if ((obj->owornmask & W_ARMOR) != 0L) /* AC */
                 disp.botl = TRUE;
             break;
         }
+        /* gauntlets of dexterity, a helm of brilliance and any armor
+           of excellence give back what their enchantment added */
+        if ((obj->owornmask & W_ARMOR) != 0L)
+            adj_abon(obj, -obj->spe);
     }
     /* cancelled item might not be in hero's possession, and the
        cancellation might not be the hero's doing */
@@ -2067,22 +2058,13 @@ drain_item(struct obj *obj, boolean by_you)
         if (u_ring)
             disp.botl = TRUE; /* bot() will recalc u.uac */
         break;
-    case HELM_OF_BRILLIANCE:
-        if ((obj->owornmask & W_ARMH) && (obj == uarmh)) {
-            ABON(A_INT)--;
-            ABON(A_WIS)--;
-            disp.botl = TRUE;
-        }
-        break;
-    case GAUNTLETS_OF_DEXTERITY:
-        if ((obj->owornmask & W_ARMG) && (obj == uarmg)) {
-            ABON(A_DEX)--;
-            disp.botl = TRUE;
-        }
-        break;
     default:
         break;
     }
+    /* gauntlets of dexterity, a helm of brilliance and any armor of
+       excellence lose the point their enchantment just lost */
+    if ((obj->owornmask & W_ARMOR) != 0L)
+        adj_abon(obj, -1);
     if (disp.botl)
         bot();
     if (carried(obj))
