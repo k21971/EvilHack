@@ -118,13 +118,20 @@ inven_inuse(boolean quietly)
 {
     struct obj *otmp, *otmp2;
 
-    for (otmp = gi.invent; otmp; otmp = otmp2) {
+    otmp = gi.invent;
+    while (otmp) {
         otmp2 = otmp->nobj;
         if (otmp->in_use) {
             if (!quietly)
                 pline("Finishing off %s...", xname(otmp));
             useup(otmp);
+            /* using it up can take more than that one object off
+               the list; start over from the head (useup() clears
+               in_use on what it leaves, so this ends) */
+            otmp = gi.invent;
+            continue;
         }
+        otmp = otmp2;
     }
 }
 

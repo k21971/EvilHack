@@ -675,6 +675,8 @@ read_simplemail(const char *mbox, boolean adminmsg)
     return;
  bail:
     /* bail out _professionally_ */
+    if (mb)
+        fclose(mb);
     if (!adminmsg)
         pline("It appears to be all gibberish.");
 }

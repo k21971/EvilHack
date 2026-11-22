@@ -10500,7 +10500,8 @@ wc_set_window_colors(char *op)
     char buf[BUFSZ];
     char *wn, *tfg, *tbg, *newop;
 
-    Strcpy(buf, op);
+    (void) strncpy(buf, op, sizeof buf - 1);
+    buf[sizeof buf - 1] = '\0';
     newop = mungspaces(buf);
     while (*newop) {
         wn = tfg = tbg = (char *) 0;

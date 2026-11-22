@@ -221,6 +221,10 @@ dosave0(void)
             close_nhfile(nhfp);
             (void) delete_savefile();
             HUP Strcpy(svk.killer.name, whynot);
+            /* done() comes back in wizard mode; the hero has to be
+               back on a level by then */
+            u.uz = gu.uz_save;
+            gu.uz_save.dnum = gu.uz_save.dlevel = 0;
             HUP done(TRICKED);
             goto done;
         }
@@ -452,6 +456,7 @@ savestateinlock(void)
         if (svh.hackpid != hpid) {
             Sprintf(whynot, "Level #0 pid (%d) doesn't match ours (%d)!",
                     hpid, svh.hackpid);
+            close_nhfile(nhfp);
             goto giveup;
         }
         close_nhfile(nhfp);

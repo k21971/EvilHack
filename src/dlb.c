@@ -39,6 +39,7 @@ extern FILE *fopen_datafile(const char *, const char *, int);
 #define FITSuint(x) FITSuint_((x), __func__, __LINE__)
 /* implementation will be in either dlb_main.c or the core */
 extern unsigned FITSuint_(unsigned long long, const char *, int);
+ATTRNORETURN extern void panic(const char *, ...) NORETURN;
 
 
 #ifdef DLBLIB
@@ -159,6 +160,12 @@ readlibdir(library *lp) /* library pointer to fill in */
             lp->dir[i].fsize = totalsize - lp->dir[i].foffset;
         else
             lp->dir[i].fsize = lp->dir[i + 1].foffset - lp->dir[i].foffset;
+        /* a damaged directory (an offset below zero, or offsets out
+           of order) would hand the read code a negative start or
+           size */
+        if (lp->dir[i].foffset < 0 || lp->dir[i].fsize < 0)
+            panic("readlibdir: corrupt DLB entry %d (offset %ld, size %ld)",
+                  i, lp->dir[i].foffset, lp->dir[i].fsize);
     }
 
     (void) fseek(lp->fdata, 0L, SEEK_SET); /* reset back to zero */

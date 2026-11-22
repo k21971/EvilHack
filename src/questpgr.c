@@ -21,6 +21,7 @@ staticfn const char *guardname(void);
 staticfn const char *homebase(void);
 staticfn void qtext_pronoun(char, char);
 staticfn void convert_arg(char);
+staticfn char *qt_append(char *, char *, const char *);
 staticfn void convert_line(char *,char *);
 staticfn void deliver_by_pline(const char *);
 staticfn void deliver_by_window(const char *, int);
@@ -353,6 +354,17 @@ convert_arg(char c)
     Strcpy(gc.cvt_buf, str);
 }
 
+/* append s at cc, the end of the text in out[BUFSZ]; the room is
+   tested before anything is written */
+staticfn char *
+qt_append(char *cc, char *out, const char *s)
+{
+    if (strlen(s) >= (size_t) (&out[BUFSZ] - cc))
+        panic("convert_line: overflow");
+    Strcat(cc, s);
+    return cc + strlen(s);
+}
+
 staticfn void
 convert_line(char *in_line, char *out_line)
 {
@@ -364,6 +376,8 @@ convert_line(char *in_line, char *out_line)
         switch (*c) {
         case '\r':
         case '\n':
+            if (cc + 1 >= &out_line[BUFSZ])
+                panic("convert_line: overflow");
             *(++cc) = 0;
             return;
 
@@ -373,12 +387,10 @@ convert_line(char *in_line, char *out_line)
                 switch (*(++c)) {
                 /* insert "a"/"an" prefix */
                 case 'A':
-                    Strcat(cc, An(gc.cvt_buf));
-                    cc += strlen(cc);
+                    cc = qt_append(cc, out_line, An(gc.cvt_buf));
                     continue; /* for */
                 case 'a':
-                    Strcat(cc, an(gc.cvt_buf));
-                    cc += strlen(cc);
+                    cc = qt_append(cc, out_line, an(gc.cvt_buf));
                     continue; /* for */
 
                 /* capitalize */
@@ -421,8 +433,7 @@ convert_line(char *in_line, char *out_line)
                 /* strip any "the" prefix */
                 case 't':
                     if (!strncmpi(gc.cvt_buf, "the ", 4)) {
-                        Strcat(cc, &gc.cvt_buf[4]);
-                        cc += strlen(cc);
+                        cc = qt_append(cc, out_line, &gc.cvt_buf[4]);
                         continue; /* for */
                     }
                     break;
@@ -431,13 +442,14 @@ convert_line(char *in_line, char *out_line)
                     --c; /* undo switch increment */
                     break;
                 }
-                Strcat(cc, gc.cvt_buf);
-                cc += strlen(gc.cvt_buf);
+                cc = qt_append(cc, out_line, gc.cvt_buf);
                 break;
             }
             FALLTHROUGH;
             /* FALLTHRU */
         default:
+            if (cc + 1 >= &out_line[BUFSZ])
+                panic("convert_line: overflow");
             *cc++ = *c;
             break;
         }

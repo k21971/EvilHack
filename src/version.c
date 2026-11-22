@@ -436,7 +436,9 @@ get_feature_notice_ver(char *str)
 
     if (!str)
         return 0L;
-    str = strcpy(buf, str);
+    (void) strncpy(buf, str, sizeof buf - 1);
+    buf[sizeof buf - 1] = '\0';
+    str = buf;
     istr[j] = str;
     while (*str) {
         if (*str == '.') {
