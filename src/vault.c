@@ -12,6 +12,7 @@ staticfn void parkguard(struct monst *) NONNULLARG1;
 staticfn boolean in_fcorridor(struct monst *, coordxy, coordxy) NONNULLARG1;
 staticfn boolean find_guard_dest(struct monst *, coordxy *, coordxy *)
                                  NONNULLARG23;
+staticfn boolean vault_room_ok(int);
 staticfn void move_gold(struct obj *, int) NONNULLARG1;
 staticfn void wallify_vault(struct monst *) NONNULLARG1;
 staticfn void gd_mv_monaway(struct monst *, int, int) NONNULLARG1;
@@ -621,8 +622,16 @@ invault(void)
                dug into an empty doorway (which could subsequently have
                been plugged with an intact door by use of locking magic) */
             int vlt = EGD(guard)->vroom;
-            coordxy lowx = svr.rooms[vlt].lx, hix = svr.rooms[vlt].hx;
-            coordxy lowy = svr.rooms[vlt].ly, hiy = svr.rooms[vlt].hy;
+            coordxy lowx, hix, lowy, hiy;
+
+            /* cannot happen for a guard just made, but do not read
+               a room that is not there */
+            if (!vault_room_ok(vlt)) {
+                mongone(guard);
+                return;
+            }
+            lowx = svr.rooms[vlt].lx, hix = svr.rooms[vlt].hx;
+            lowy = svr.rooms[vlt].ly, hiy = svr.rooms[vlt].hy;
 
             if (x == lowx - 1 && y == lowy - 1)
                 typ = TLCORNER;
@@ -655,11 +664,27 @@ invault(void)
     }
 }
 
+/* can a guard's vault room index be used: the room table is
+   zeroed when a level is released, so a guard acting after
+   that would read an empty slot; rooms and subrooms share the
+   table */
+staticfn boolean
+vault_room_ok(int vlt)
+{
+    return (boolean) (vlt >= 0 && vlt < SIZE(svr.rooms)
+                      && svr.rooms[vlt].hx > 0);
+}
+
 staticfn void
 move_gold(struct obj *gold, int vroom)
 {
     coordxy nx, ny;
 
+    /* no vault to put it in: the gold is lost */
+    if (!vault_room_ok(vroom)) {
+        delobj(gold);
+        return;
+    }
     remove_object(gold);
     newsym(gold->ox, gold->oy);
     nx = svr.rooms[vroom].lx + rn2(2);
@@ -676,13 +701,18 @@ wallify_vault(struct monst *grd)
     coordxy x, y;
     int vlt = EGD(grd)->vroom;
     char tmp_viz;
-    coordxy lox = svr.rooms[vlt].lx - 1, hix = svr.rooms[vlt].hx + 1,
-          loy = svr.rooms[vlt].ly - 1, hiy = svr.rooms[vlt].hy + 1;
+    coordxy lox, hix, loy, hiy;
     struct monst *mon;
     struct obj *gold, *rocks;
     struct trap *trap;
     boolean fixed = FALSE;
     boolean movedgold = FALSE;
+
+    /* no vault to repair */
+    if (!vault_room_ok(vlt))
+        return;
+    lox = svr.rooms[vlt].lx - 1, hix = svr.rooms[vlt].hx + 1;
+    loy = svr.rooms[vlt].ly - 1, hiy = svr.rooms[vlt].hy + 1;
 
     for (x = lox; x <= hix; x++)
         for (y = loy; y <= hiy; y++) {
@@ -1283,8 +1313,14 @@ paygd(boolean silently)
             return;
         if (!silently)
             pline("%s remits your gold to the vault.", Monnam(grd));
-        gdx = svr.rooms[EGD(grd)->vroom].lx + rn2(2);
-        gdy = svr.rooms[EGD(grd)->vroom].ly + rn2(2);
+        if (vault_room_ok(EGD(grd)->vroom)) {
+            gdx = svr.rooms[EGD(grd)->vroom].lx + rn2(2);
+            gdy = svr.rooms[EGD(grd)->vroom].ly + rn2(2);
+        } else {
+            /* no vault: leave it where the guard stands */
+            gdx = grd->mx;
+            gdy = grd->my;
+        }
         Sprintf(buf, "To Croesus: here's the gold recovered from %s the %s.",
                 svp.plname,
                 pmname(&mons[u.umonster], flags.female ? FEMALE : MALE));
@@ -1293,6 +1329,10 @@ paygd(boolean silently)
     for (coins = gi.invent; coins; coins = nextcoins) {
         nextcoins = coins->nobj;
         if (objects[coins->otyp].oc_class == COIN_CLASS) {
+            /* gold can be quivered; it must not reach the floor
+               still marked as worn */
+            if (coins->owornmask)
+                remove_worn_item(coins, FALSE);
             freeinv(coins);
             place_object(coins, gdx, gdy);
             stackobj(coins);
