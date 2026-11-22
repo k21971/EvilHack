@@ -1198,8 +1198,10 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
                     pline("%s coughs!", Monnam(mtmp));
                 wake_nearto(mtmp->mx, mtmp->my, 2);
             }
+            /* a peaceful turns hostile, but a cough in the hero's
+               cloud is not an attack made from an Elbereth square */
             if (heros_fault(reg))
-                setmangry(mtmp, TRUE);
+                setmangry(mtmp, FALSE);
             if (haseyes(mtmp->data) && mtmp->mcansee) {
                 mtmp->mblinded = 1;
                 mtmp->mcansee = 0;
