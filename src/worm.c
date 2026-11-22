@@ -375,10 +375,23 @@ wormhitu(struct monst *worm)
      *  Head has already had a chance to attack, so the dummy tail segment
      *  sharing its location should be skipped.
      */
-    for (seg = wtails[wnum]; seg != wheads[wnum]; seg = seg->nseg)
-        if (distu(seg->wx, seg->wy) < 3)
+    for (seg = wtails[wnum]; seg != wheads[wnum]; seg = seg->nseg) {
+        if (distu(seg->wx, seg->wy) < 3) {
+            struct wseg *oldtail = wtails[wnum], *oldhead = wheads[wnum];
+
             if (mattacku(worm))
                 return 1; /* your passive ability killed the worm */
+            /* the attack can cost the worm its tail (the hero's passive
+               turned it into some other monster) or move the worm (it
+               took the spot of a hero hiding on the ceiling, who may
+               have killed it by dropping on it); either way segments
+               have been freed and this is no longer the list the loop
+               started on */
+            if (!worm->wormno || wtails[wnum] != oldtail
+                || wheads[wnum] != oldhead)
+                return DEADMONSTER(worm) ? 1 : 0;
+        }
+    }
     return 0;
 }
 
