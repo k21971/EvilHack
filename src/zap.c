@@ -3179,7 +3179,8 @@ bhito(struct obj *obj, struct obj *otmp)
             newsym(obj->ox, obj->oy); /* might change color */
             break;
         case SPE_DRAIN_LIFE:
-            (void) drain_item(obj, TRUE);
+            /* a monster's beam comes through here too */
+            (void) drain_item(obj, !svc.context.mon_moving);
             break;
         case WAN_TELEPORTATION:
         case SPE_TELEPORT_AWAY:
@@ -3219,7 +3220,7 @@ bhito(struct obj *obj, struct obj *otmp)
                 save_norevive = obj->norevive;
                 obj->norevive = 0;
 
-                mtmp = revive(obj, TRUE);
+                mtmp = revive(obj, by_u);
                 if (!mtmp) {
                     obj->norevive = save_norevive;
                     res = 0; /* no monster implies corpse was left intact */
