@@ -2217,7 +2217,10 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
     }
     mask = (obj->owornmask & W_RING);
     svc.context.takeoff.mask &= ~mask;
-    if (!(u.uprops[objects[obj->otyp].oc_oprop].extrinsic & mask))
+    /* a ring of stealth is left out: Ring_on() takes its bit away
+       again for a hero as large as a giant */
+    if (obj->otyp != RIN_STEALTH
+        && !(u.uprops[objects[obj->otyp].oc_oprop].extrinsic & mask))
         impossible("Strange... I didn't know you had that ring.");
     if (gone)
         setnotworn(obj);

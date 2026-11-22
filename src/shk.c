@@ -3026,11 +3026,13 @@ get_cost_of_shop_item(
         && (shkp = shop_keeper(inside_shop(x, y))) != 0 && inhishop(shkp)) {
         for (top = obj; top->where == OBJ_CONTAINED; top = top->ocontainer)
             continue;
-        freespot = (top->where == OBJ_FLOOR
+        freespot = ((top->where == OBJ_FLOOR || top->where == OBJ_MINVENT)
                     && x == ESHK(shkp)->shk.x && y == ESHK(shkp)->shk.y);
         /* no_charge is only set for floor items inside shop proper;
-           items on freespot are implicitly 'no charge' */
-        *nochrg = (top->where == OBJ_FLOOR && (obj->no_charge || freespot));
+           items on freespot, lying there or carried by a monster
+           standing there, are implicitly 'no charge' */
+        *nochrg = ((top->where == OBJ_FLOOR || top->where == OBJ_MINVENT)
+                   && (obj->no_charge || freespot));
 
         if (carried(top) ? (int) obj->unpaid : !*nochrg) {
             long per_unit_cost = get_cost(obj, shkp);

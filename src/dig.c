@@ -2544,6 +2544,10 @@ rot_corpse(anything *arg, long timeout)
         if (obj->owornmask) {
             remove_worn_item(obj, TRUE);
             stop_occupation();
+            /* stop_occupation() finishes a meal that was all but over,
+               and if this corpse was the meal it has been used up */
+            if (obj->where == OBJ_DELETED)
+                return;
         }
     } else if (obj->where == OBJ_MINVENT) {
         if (obj->owornmask && obj == MON_WEP(obj->ocarry))

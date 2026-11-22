@@ -1561,7 +1561,7 @@ level_tele(void)
                folded under a hard suit) */
             if (!(HFlying_usable || EFlying || HLevitation || ELevitation))
                 pline("Unfortunately, you don't know how to fly.");
-            You("plummet a few thousand feet to your death.");
+            You("plummet several thousand feet to your death.");
             Sprintf(svk.killer.name,
                     "teleported out of the dungeon and fell to %s death",
                     uhis());

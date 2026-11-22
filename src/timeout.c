@@ -2059,8 +2059,12 @@ begin_burn(struct obj *obj, boolean already_lit)
                 && couldsee(objx, objy))
                 hurts_hater = TRUE;
         } else {
-            impossible("begin burn: unexpected %s", xname(obj));
-            turns = obj->age;
+            /* not something that burns: don't give it a timer and a
+               light source it has no way to get rid of */
+            impossible("begin burn: unexpected %s, otyp=%d, oclass=%d,"
+                       " lamplit=%d", xname(obj), obj->otyp,
+                       (int) obj->oclass, (int) obj->lamplit);
+            return;
         }
         break;
     }
@@ -2869,6 +2873,7 @@ obj_is_local(struct obj *obj)
         return FALSE;
     case OBJ_FLOOR:
     case OBJ_BURIED:
+    case OBJ_ONBILL: /* the bill's objects are saved with the level */
     case OBJ_INTRAP:
         return TRUE;
     case OBJ_CONTAINED:
@@ -2876,7 +2881,7 @@ obj_is_local(struct obj *obj)
     case OBJ_MINVENT:
         return mon_is_local(obj->ocarry);
     }
-    panic("obj_is_local");
+    panic("obj_is_local: unhandled object location %d", (int) obj->where);
     /*NOTREACHED*/
     return FALSE;
 }

@@ -3122,6 +3122,9 @@ trapeffect_anti_magic(
                 costly_alteration(shoes, COST_DECHNT);
             }
             shoes->spe -= 1;
+            /* boots of excellence give back that point of charisma */
+            if (mtmp == &gy.youmonst)
+                adj_abon(shoes, -1);
             update_inventory();
             return Trap_Effect_Finished;
         }
@@ -4009,9 +4012,11 @@ launch_obj(
     boolean used_up = FALSE, otherside = FALSE;
     int dist, tmp, delaycnt = 0;
 
-    otmp = sobj_at(otyp, x1, y1);
+    /* a launch point that was never set is off the map; treat it as
+       having no boulder rather than look for objects there */
+    otmp = isok(x1, y1) ? sobj_at(otyp, x1, y1) : (struct obj *) 0;
     /* Try the other side too, for rolling boulder traps */
-    if (!otmp && otyp == BOULDER) {
+    if (!otmp && otyp == BOULDER && isok(x2, y2)) {
         otherside = TRUE;
         otmp = sobj_at(otyp, x2, y2);
     }

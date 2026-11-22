@@ -3881,6 +3881,7 @@ doeat(void)
         start_eating(otmp, already_partly_eaten);
     else
         otmp->owt = weight(otmp);
+    update_inventory(); /* the food's weight has changed */
     return ECMD_TIME;
 }
 
