@@ -1793,6 +1793,9 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
             } else impossible("Breath weapon %d used", typ);
         } else
             return M_ATTK_MISS;
+    } else {
+        /* not lined up: no breath, so nothing was hit */
+        return M_ATTK_MISS;
     }
     return M_ATTK_HIT;
 }
