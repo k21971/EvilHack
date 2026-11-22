@@ -3747,6 +3747,23 @@ setup_rolemenu(
     }
 }
 
+/* keys for the filter-reset menu, where roles, races, genders and
+   alignments are listed together and so share one set of keys: capital
+   race letters would collide there (Convict and centaur, Ranger and
+   drow, and the alignments' own capitals), so each race has a fixed key
+   and the alignments take punctuation */
+static const struct reset_race_key {
+    const char *noun;
+    char key;
+} reset_race_keys[] = {
+    { "human", 'u' }, { "elf", 'e' }, { "dwarf", 'U' }, { "gnome", 'g' },
+    { "orc", 'o' }, { "giant", 'G' }, { "hobbit", 'H' },
+    { "centaur", '4' }, { "illithid", 'I' }, { "tortle", 'T' },
+    { "drow", 'D' }, { "draugr", 'Z' }, { "vampire", 'V' },
+    { "aasimar", 'A' },
+};
+static const char reset_algn_keys[] = "+=-"; /* lawful, neutral, chaotic */
+
 staticfn void
 setup_racemenu(
     winid win,
@@ -3756,7 +3773,7 @@ setup_racemenu(
     anything any;
     boolean race_ok;
     int i, j;
-    char this_ch, used[NUM_RACES + 1];
+    char this_ch, sel_ch, used[NUM_RACES + 1];
     int nused = 0;
     int clr = NO_COLOR;
 
@@ -3788,10 +3805,21 @@ setup_racemenu(
         }
         /* filtering: picking race, so choose by first letter, with
            capital letter as unseen accelerator;
-           !filtering: resetting filter rather than picking, choose by
-           capital letter since lowercase role letters will be present */
+           !filtering: resetting filter rather than picking, where the
+           roles, genders and alignments are in the same menu: the
+           race's fixed key, or its capital letter if it has none */
+        if (filtering) {
+            sel_ch = this_ch;
+        } else {
+            sel_ch = highc(this_ch);
+            for (j = 0; j < (int) SIZE(reset_race_keys); j++)
+                if (!strcmp(races[i].noun, reset_race_keys[j].noun)) {
+                    sel_ch = reset_race_keys[j].key;
+                    break;
+                }
+        }
         add_menu(win, &nul_glyphinfo, &any,
-                 filtering ? this_ch : highc(this_ch),
+                 sel_ch,
                  filtering ? highc(this_ch) : 0,
                  ATR_NONE, clr, races[i].noun,
                  (!filtering && !race_ok)
@@ -3861,9 +3889,12 @@ setup_algnmenu(
             any.a_string = aligns[i].adj;
         this_ch = *aligns[i].adj;
         /* (see setup_racemenu for explanation of selector letters
-           and setup_rolemenu for preselection) */
+           and setup_rolemenu for preselection); the filter-reset menu
+           uses punctuation, as chaotic's capital is Convict's key */
         add_menu(win, &nul_glyphinfo, &any,
-                 filtering ? this_ch : highc(this_ch),
+                 filtering ? this_ch
+                 : (i < (int) sizeof reset_algn_keys - 1)
+                   ? reset_algn_keys[i] : highc(this_ch),
                  filtering ? highc(this_ch) : 0,
                  ATR_NONE, clr, aligns[i].adj,
                  (!filtering && !algn_ok)
