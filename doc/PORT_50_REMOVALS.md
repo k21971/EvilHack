@@ -657,6 +657,18 @@ tracker; sNNN = port session.
   back 10) -> EvilHack's ranges inside upstream's
   calc_othrow_ranges(); only the fix for hand-thrown ammunition's
   recoil is taken (ruled s352, BUG-3284, 680e87a08, e72228b2f).
+- [x] A monster coughing in the hero's own gas cloud counting as an
+  attack made from Elbereth (hypocrite, alignment loss, the engraving
+  erased) -> not an attack; a peaceful still turns hostile with the
+  ordinary guilt (s353, BUG-3301; 0.9.3's a6c911649, a design call
+  there).
+- [x] Unidentified gems and glass sold at a flat 3-8 zm with no sell
+  divisor (which on the branch left EvilHack's material multiplier
+  in the price: 60-160 for glass, 2500 for a ruby) -> 0.9.3's rule,
+  the lowball goes through the ordinary divisors: about 2-4 zm
+  (ruled s353, BUG-3306).
+- [x] A storm bolt whose random direction comes up <0,0> being
+  dropped, 1 in 9 -> re-rolled (s353, BUG-3305; 0.9.3's 7ddc880c3).
 
 ### 2.4 Text and logs
 
