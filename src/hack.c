@@ -1030,8 +1030,10 @@ cant_squeeze_thru(struct monst *mon)
     int amt;
     struct permonst *ptr = mon->data;
 
+    /* phasing gets through a tight squeeze, except for the hero in
+       Sokoban */
     if ((mon == &gy.youmonst) ? Passes_walls : passes_walls(ptr))
-        return 0;
+        return (mon == &gy.youmonst && Sokoban) ? 3 : 0;
 
     /* too big? */
     if (r_bigmonst(mon)
