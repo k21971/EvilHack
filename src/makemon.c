@@ -4923,6 +4923,9 @@ set_mimic_sym(struct monst *mtmp)
         return;
     mx = mtmp->mx;
     my = mtmp->my;
+    /* the caller is expected to have placed the monster already */
+    if (!isok(mx, my))
+        return;
     typ = levl[mx][my].typ;
     /* only valid for INSIDE of room */
     roomno = levl[mx][my].roomno - ROOMOFFSET;

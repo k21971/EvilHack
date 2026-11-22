@@ -1101,7 +1101,7 @@ will_hurtle(struct monst *mon, coordxy x, coordxy y)
         return FALSE;
     /* redundant when called by mhurtle() but needed for mhitm_knockback() */
     if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped
-        || mon->mentangled || steed_held_in_place(mon))
+        || mon->mentangled || steed_held_in_place(mon) || mon->wormno)
         return FALSE;
     /* the hero's steed goes no further than a shopkeeper lets its rider;
        mhurtle_step() is the one to say so */
@@ -1181,9 +1181,12 @@ mhurtle_step(genericptr_t arg, coordxy x, coordxy y)
         if (is_waterwall(x, y))
             return FALSE;
         res = mintrap(mon, HURTLING);
+        /* a trap can kill without saying so (fire melting the ice
+           under it) */
         if (res == Trap_Killed_Mon
             || res == Trap_Caught_Mon
-            || res == Trap_Moved_Mon)
+            || res == Trap_Moved_Mon
+            || DEADMONSTER(mon))
             return FALSE;
         return TRUE;
     }
@@ -1349,7 +1352,7 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
      * (very large monsters have too much inertia, even floaters and flyers)
      */
     if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped
-        || mon->mentangled || steed_held_in_place(mon)) {
+        || mon->mentangled || steed_held_in_place(mon) || mon->wormno) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;

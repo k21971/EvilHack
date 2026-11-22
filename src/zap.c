@@ -6718,6 +6718,7 @@ disint_mon_invent(struct monst *mon, boolean spare_dragonbane)
                         if (!flooreffects(cobj, mon->mx, mon->my, "")) {
                             place_object(cobj, mon->mx, mon->my);
                             stackobj(cobj);
+                            newsym(mon->mx, mon->my);
                         }
                         if (!spilled && canseemon(mon)) {
                             pline("%s contents spill out onto the %s.",

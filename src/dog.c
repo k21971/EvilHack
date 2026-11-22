@@ -875,13 +875,17 @@ mon_arrive(struct monst *mtmp, int when)
         break;
     case MIGR_PORTAL:
         if (In_endgame(&u.uz)) {
+            /* a region left unset must not hand rn1() a zero span */
+            int xspan = max(1, svu.updest.hx - svu.updest.lx + 1),
+                yspan = max(1, svu.updest.hy - svu.updest.ly + 1);
+
             /* there is no arrival portal for endgame levels */
             /* BUG[?]: for simplicity, this code relies on the fact
                that we know that the current endgame levels always
                build upwards and never have any exclusion subregion
                inside their TELEPORT_REGION settings. */
-            xlocale = rn1(svu.updest.hx - svu.updest.lx + 1, svu.updest.lx);
-            ylocale = rn1(svu.updest.hy - svu.updest.ly + 1, svu.updest.ly);
+            xlocale = rn1(xspan, svu.updest.lx);
+            ylocale = rn1(yspan, svu.updest.ly);
             break;
         }
         /* find the arrival portal */

@@ -1312,9 +1312,11 @@ dochug(struct monst *mtmp)
     if (find_defensive(mtmp, FALSE)) {
         if (use_defensive(mtmp) != 0)
             return 1;
+        mdat = mtmp->data; /* the item used may have changed its form */
     } else if (find_misc(mtmp)) {
         if (use_misc(mtmp) != 0)
             return 1;
+        mdat = mtmp->data;
     }
 
     /* Demonic Blackmail! (prison guards share MS_BRIBE for their own

@@ -2710,9 +2710,14 @@ explmu(
         You("seem unaffected by it.");
         ugolemeffects((int) mattk->adtyp, tmp);
     }
-    if (kill_agr && !DEADMONSTER(mtmp))
-        mondead(mtmp);
-    wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
+    {
+        /* where it blew up; mondead() can move what is left of it */
+        coordxy mx = mtmp->mx, my = mtmp->my;
+
+        if (kill_agr && !DEADMONSTER(mtmp))
+            mondead(mtmp);
+        wake_nearto(mx, my, 7 * 7);
+    }
     return (!DEADMONSTER(mtmp)) ? M_ATTK_MISS : M_ATTK_AGR_DIED;
 }
 

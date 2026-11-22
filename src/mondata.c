@@ -1013,7 +1013,7 @@ dmgtype(struct permonst *ptr, int dtyp)
 int
 max_passive_dmg(struct monst *mdef, struct monst *magr)
 {
-    int i, dmg, multi2 = 0;
+    int i, dmg, max_dmg = 0, multi2 = 0;
     uchar adtyp;
 
     /* each attack by magr can result in passive damage */
@@ -1035,11 +1035,13 @@ max_passive_dmg(struct monst *mdef, struct monst *magr)
             break;
         }
 
-    dmg = 0;
+    /* a defender can have more than one passive attack; the worst of
+       them is the one that counts */
     for (i = 0; i < NATTK; i++)
         if (mdef->data->mattk[i].aatyp == AT_NONE
             || mdef->data->mattk[i].aatyp == AT_BOOM) {
             adtyp = mdef->data->mattk[i].adtyp;
+            dmg = 0;
             if ((adtyp == AD_FIRE && completelyburns(magr->data))
                 || (adtyp == AD_DCAY && completelyrots(magr->data))
                 || (adtyp == AD_RUST && completelyrusts(magr->data))) {
@@ -1061,10 +1063,10 @@ max_passive_dmg(struct monst *mdef, struct monst *magr)
                     dmg = mdef->data->mlevel + 1;
                 dmg *= mdef->data->mattk[i].damd;
             }
-            dmg *= multi2;
-            break;
+            if (dmg > max_dmg)
+                max_dmg = dmg;
         }
-    return dmg;
+    return max_dmg * multi2;
 }
 
 /* determine whether two monster types are from the same species */

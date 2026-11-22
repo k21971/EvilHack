@@ -632,6 +632,9 @@ m_cure_self(struct monst *mtmp, int dmg)
         }
         return dmg;
     }
+    /* nothing heals a caster that is dead or already off the map */
+    if (DEADMONSTER(mtmp) || (mtmp->mstate & MON_DETACH) != 0)
+        return 0;
     if (mtmp->mhp < mtmp->mhpmax) {
         if (canseemon(mtmp))
             pline_mon(mtmp, "%s looks better.", Monnam(mtmp));

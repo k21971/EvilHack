@@ -4331,7 +4331,8 @@ use_misc(struct monst *mtmp)
                        NC_VIA_WAND_OR_SPELL | NC_SHOW_MSG);
         if (oseen)
             makeknown(WAN_POLYMORPH);
-        return 2;
+        /* the new form can kill it at once (a cockatrice it holds) */
+        return DEADMONSTER(mtmp) ? 1 : 2;
     case MUSE_WAN_WISHING:
         if (!otmp)
             panic(MissingMiscellaneousItem, "wand of wishing");
@@ -4354,7 +4355,7 @@ use_misc(struct monst *mtmp)
         (void) newcham(mtmp, muse_newcham_mon(mtmp), NC_SHOW_MSG);
         if (oseen)
             makeknown(POT_POLYMORPH);
-        return 2;
+        return DEADMONSTER(mtmp) ? 1 : 2;
     case MUSE_POLY_TRAP:
         t = t_at(gt.trapx, gt.trapy);
         if (!t) {
@@ -4385,7 +4386,7 @@ use_misc(struct monst *mtmp)
         newsym(gt.trapx, gt.trapy);
 
         (void) newcham(mtmp, (struct permonst *) 0, NC_SHOW_MSG);
-        return 2;
+        return DEADMONSTER(mtmp) ? 1 : 2;
     case MUSE_SPELLBOOK: {
         int spell_level, read_time;
         struct emsp *esp;
@@ -5686,9 +5687,11 @@ muse_unslime(
         if (otyp != STRANGE_OBJECT)
             makeknown(otyp);
     }
-    /* use up monster's next move */
-    mon->movement -= NORMAL_SPEED;
-    mon->mlstmv = svm.moves;
+    /* use up monster's next move, unless the fire trap killed it */
+    if (!DEADMONSTER(mon)) {
+        mon->movement -= NORMAL_SPEED;
+        mon->mlstmv = svm.moves;
+    }
     return res;
 }
 
