@@ -2105,7 +2105,8 @@ rolefilterstring(char *outbuf, int which)
         break;
     case RS_RACE:
         for (i = 0; i < SIZE(races) - 1; ++i) {
-            if ((gr.rfilter.mask & races[i].selfmask) != 0)
+            /* race bits are kept apart from gender and alignment */
+            if ((gr.rfilter.race_mask & races[i].selfmask) != 0)
                 Sprintf(eos(outbuf), " !%s", races[i].noun);
         }
         break;
