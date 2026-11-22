@@ -6463,10 +6463,6 @@ readobjnam(char *bp, struct obj *no_wish)
                     d.mntmp = genus(d.mntmp, 1);
                 set_corpsenm(d.otmp, d.mntmp);
             }
-            if (d.zombify && zombie_form(&mons[d.mntmp]) != NON_PM) {
-                (void) start_timer(rn1(5, 10), TIMER_OBJECT,
-                                   ZOMBIFY_MON, obj_to_any(d.otmp));
-            }
             break;
         case EGG:
             d.mntmp = can_be_hatched(d.mntmp);
@@ -6488,6 +6484,17 @@ readobjnam(char *bp, struct obj *no_wish)
                 delete_contents(d.otmp); /* no spellbook */
             break;
         }
+    }
+
+    /* "zombifying" goes by the corpse that was made, which is not
+       always of the kind asked for (a unique monster, one that leaves
+       no corpse, no kind named at all); zombify_mon() looks that same
+       kind up when the timer runs out. This has to follow
+       set_corpsenm(), which stops a corpse's timers */
+    if (d.zombify && d.otmp->otyp == CORPSE && ismnum(d.otmp->corpsenm)
+        && zombie_form(&mons[d.otmp->corpsenm]) != NON_PM) {
+        (void) start_timer(rn1(5, 10), TIMER_OBJECT,
+                           ZOMBIFY_MON, obj_to_any(d.otmp));
     }
 
     /* set blessed/cursed -- setting the fields directly is safe
