@@ -2278,6 +2278,9 @@ ini_inv(const struct trobj *trop)
                 || (Role_if(PM_WIZARD) && obj->oclass == AMULET_CLASS))) {
             dealloc_obj(obj);
             trop++;
+            /* the next entry starts with its own count, not with what
+               was left of the skipped one's */
+            quan = trquan(trop);
             continue;
         }
 
