@@ -504,12 +504,16 @@ move_chain_to(coordxy chx, coordxy chy)
 void
 set_bc(int already_blind)
 {
-    int ball_on_floor = !carried(uball);
+    /* a ball in flight (thrown, and the hero blinded before it lands)
+       is neither carried nor on the floor */
+    int ball_on_floor = (uball->where == OBJ_FLOOR);
 
     u.bc_order = bc_order(); /* get the order */
     u.bc_felt = ball_on_floor ? BC_BALL | BC_CHAIN : BC_CHAIN; /* felt */
 
-    if (already_blind || u.uswallow) {
+    /* leave both alone while the ball is in flight: the chain must not
+       be lifted and put back without it */
+    if (already_blind || u.uswallow || uball->where == OBJ_FREE) {
         /* a blind hero just punished: placebc() picked up the glyph under
            the ball and chain before the hero felt them, and the map now
            shows the chain itself, so keep that one */
@@ -658,12 +662,16 @@ move_bc(int before, int control, coordxy ballx, coordxy bally,
             remove_object(uchain);
             maybe_unhide_at(uchain->ox, uchain->oy);
             newsym(uchain->ox, uchain->oy);
-            if (!carried(uball)) {
+            if (uball->where == OBJ_FLOOR) {
                 remove_object(uball);
                 maybe_unhide_at(uball->ox, uball->oy);
                 newsym(uball->ox, uball->oy);
             }
         } else {
+            /* not carried, rather than on the floor: the lift above
+               left the ball free and it still has to be put back; the
+               floor test is right only for the lift, where a ball
+               already in flight must stay as it is */
             int on_floor = !carried(uball);
 
             if ((control & BC_CHAIN)
