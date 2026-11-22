@@ -3077,8 +3077,16 @@ eatspecial(void)
     if (otmp == uswapwep && otmp->quan == 1L)
         uswapwepgone();
 
-    if (otmp == uball)
-        unpunish();
+    if (otmp == uball) {
+        /* end the punishment here, not through unpunish(): over
+           open air that lets the freed ball fall and deletes it,
+           and it is about to be used up below */
+        struct obj *savechain = uchain;
+
+        setworn((struct obj *) 0, W_CHAIN);
+        delobj(savechain);
+        setworn((struct obj *) 0, W_BALL);
+    }
     if (otmp == uchain)
         unpunish(); /* but no useup() */
     else if (carried(otmp))
