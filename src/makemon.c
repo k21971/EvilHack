@@ -3008,8 +3008,10 @@ monhp_per_lvl(struct monst *mon)
     } else if (ptr->mlevel > 49) {
         /* arbitrary; such monsters won't be involved in draining anyway */
         hp = 4 + rnd(4); /* 5..8 */
-    } else if (!mon->m_lev) {
-        /* level 0 monsters use 1d4 instead of a hit die per level */
+    } else if (mon == &gy.youmonst ? !ptr->mlevel : !mon->m_lev) {
+        /* level 0 monsters use 1d4 instead of a hit die per level; the
+           hero's m_lev is never kept up, so a polymorphed hero goes by
+           the form's own level */
         hp = rnd(4);
     }
     return hp;
