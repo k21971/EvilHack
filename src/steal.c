@@ -798,9 +798,17 @@ mpickobj(struct monst *mtmp, struct obj *otmp)
     else if (otmp == gk.kickedobj)
         gk.kickedobj = 0;
     /* an unpaid item can be on the floor; if a monster picks it up, take
-       it off the shop bill */
-    if (otmp->unpaid || (Has_contents(otmp) && count_unpaid(otmp->cobj))) {
-        subfrombill(otmp, find_objowner(otmp, otmp->ox, otmp->oy));
+       it off the shop bill - but not when the hero's pet does: he still
+       owes for what it carries, the same as for what he handed it; the
+       shopkeeper is looked up by his bill first, because a pet can have
+       put the item down away from its shop */
+    if (!mtmp->mtame && is_unpaid(otmp)) {
+        struct monst *shkp = obj_billed_by(otmp, TRUE);
+
+        if (!shkp)
+            shkp = find_objowner(otmp, otmp->ox, otmp->oy);
+        if (shkp)
+            subfrombill(otmp, shkp);
     }
     /* don't want hidden light source inside the monster; assumes that
        engulfers won't have external inventories; whirly monsters cause
@@ -1022,15 +1030,22 @@ mdrop_obj(
     char saved_oclass = obj->oclass;
     long saved_oprops = obj->oprops;
     int saved_dragonscales = obj->dragonscales;
+    boolean was_billed = is_unpaid(obj);
+    char *obj_name;
+
+    /* an unpaid thing a pet carried, put down inside its shop, is off
+       the hero's bill: first, so that the drop is not announced as
+       unpaid, and before flooreffects() can use the object up */
+    mon_returns_obj(obj, omx, omy);
     /* call distant_name() for its possible side-effects even if the result
        might not be printed, and do it before extracting obj from minvent */
-    char *obj_name = distant_name(obj, doname);
+    obj_name = distant_name(obj, doname);
 
     extract_from_minvent(mon, obj, FALSE, TRUE);
     /* don't charge for an owned saddle on dead steed (provided
         that the hero is within the same shop at the time) */
     if (unwornmask && mon->mtame && (unwornmask & W_SADDLE) != 0L
-        && !obj->unpaid && costly_spot(omx, omy)
+        && !was_billed && costly_spot(omx, omy)
         /* being at costly_spot guarantees lev->roomno is not 0 */
         && strchr(in_rooms(u.ux, u.uy, SHOPBASE), levl[omx][omy].roomno)) {
         obj->no_charge = 1;

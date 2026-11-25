@@ -3318,6 +3318,7 @@ extern struct monst *find_objowner(struct obj *,
 extern boolean tended_shop(struct mkroom *) NONNULLARG1;
 extern boolean onshopbill(struct obj *, struct monst *, boolean) NONNULLARG1;
 extern boolean is_unpaid(struct obj *) NONNULLARG1;
+extern struct monst *obj_billed_by(struct obj *, boolean) NONNULLARG1;
 extern void delete_contents(struct obj *) NONNULLARG1;
 extern void obfree(struct obj *, struct obj *) NONNULLARG1;
 extern void make_happy_shk(struct monst *, boolean) NONNULLARG1;
@@ -3340,6 +3341,7 @@ extern boolean billable(struct monst **, struct obj *, char,
 extern void addtobill(struct obj *, boolean, boolean, boolean) NONNULLARG1;
 extern void splitbill(struct obj *, struct obj *) NONNULLARG12;
 extern void subfrombill(struct obj *, struct monst *) NONNULLARG12;
+extern void mon_returns_obj(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern long stolen_value(struct obj *, coordxy, coordxy,
                          boolean, boolean) NONNULLARG1;
 extern void donate_gold(long, struct monst *, boolean) NONNULLARG2;

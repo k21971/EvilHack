@@ -1739,6 +1739,9 @@ m_dowear_type(
         /* a pet ordered not to drop items keeps its off-hand
            weapon in inventory */
         if (!creation && !pet_wont_drop(mon)) {
+            /* an unpaid weapon put down inside its shop is off the
+               hero's bill, before the drop is announced */
+            mon_returns_obj(mw2, mon->mx, mon->my);
             if (cansee(mon->mx, mon->my)) {
                 pline_mon(mon, "%s drops %s.", Monnam(mon),
                           distant_name(mw2, doname));
@@ -1875,6 +1878,8 @@ m_lose_armor(
     coordxy mx = mon->mx, my = mon->my;
 
     extract_from_minvent(mon, obj, TRUE, FALSE);
+    /* unpaid armor a pet carried, shed inside its shop */
+    mon_returns_obj(obj, mx, my);
     place_object(obj, mx, my);
     if (polyspot)
         bypass_obj(obj);

@@ -129,6 +129,7 @@ staticfn void litter_scatter(uint8 *, coordxy, coordxy, struct monst *);
 staticfn void litter_newsyms(uint8 *, coordxy, coordxy);
 staticfn int repair_damage(struct monst *, struct damage *, boolean);
 staticfn void sub_one_frombill(struct obj *, struct monst *) NONNULLPTRS;
+staticfn void unbill_for_shk(struct obj *, struct monst *) NONNULLPTRS;
 staticfn void add_one_tobill(struct obj *, boolean, struct monst *);
 staticfn void dropped_container(struct obj *, struct monst *, boolean);
 staticfn void add_to_billobjs(struct obj *);
@@ -1286,6 +1287,29 @@ is_unpaid(struct obj *obj)
 {
     return (boolean) (obj->unpaid
                       || (Has_contents(obj) && count_unpaid(obj->cobj)));
+}
+
+/* the living shopkeeper on this level whose bill holds obj - or, when
+   contents_too, something inside it - else Null; unlike find_objowner()
+   this goes by the bill alone, for an unpaid object that is no longer
+   in or beside its shop (handed to a pet, which then walked off with
+   it); a plain walk of fmon, because next_shkp() riles as it goes */
+struct monst *
+obj_billed_by(struct obj *obj, boolean contents_too)
+{
+    struct monst *shkp;
+    struct obj *otmp;
+
+    if (obj->unpaid)
+        for (shkp = fmon; shkp; shkp = shkp->nmon)
+            if (!DEADMONSTER(shkp) && shkp->isshk
+                && onbill(obj, shkp, TRUE))
+                return shkp;
+    if (contents_too && Has_contents(obj))
+        for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+            if ((shkp = obj_billed_by(otmp, TRUE)) != 0)
+                return shkp;
+    return (struct monst *) 0;
 }
 
 /* Delete the contents of the given object. */
@@ -4254,6 +4278,35 @@ subfrombill(struct obj *obj, struct monst *shkp)
             else
                 sub_one_frombill(otmp, shkp);
         }
+}
+
+/* take obj, and whatever unpaid it holds, off shkp's bill; an entry
+   that some other shopkeeper's bill holds is left alone */
+staticfn void
+unbill_for_shk(struct obj *obj, struct monst *shkp)
+{
+    struct obj *otmp;
+
+    if (obj->unpaid && onbill(obj, shkp, TRUE))
+        sub_one_frombill(obj, shkp);
+    if (Has_contents(obj))
+        for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+            unbill_for_shk(otmp, shkp);
+}
+
+/* a monster is putting obj down at <x,y>; inside the shop whose bill it
+   is on, that puts it back on the shelf: the hero no longer owes for
+   it; costly_spot() is false while the shopkeeper is away from his
+   shop, so what is billed then stays billed */
+void
+mon_returns_obj(struct obj *obj, coordxy x, coordxy y)
+{
+    struct monst *shkp;
+
+    if (!is_unpaid(obj) || !costly_spot(x, y))
+        return;
+    if ((shkp = shop_keeper(*in_rooms(x, y, SHOPBASE))) != 0)
+        unbill_for_shk(obj, shkp);
 }
 
 staticfn long

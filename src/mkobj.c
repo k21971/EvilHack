@@ -3735,6 +3735,13 @@ shop_obj_sanity(struct obj *obj, const char *mesg)
     why = (const char *) 0;
     if (obj->no_charge && obj->unpaid) {
         why = "%s obj both unpaid and no_charge! %s %s: %s";
+    } else if (obj->unpaid
+               && (otop->where == OBJ_MINVENT || otop->where == OBJ_FLOOR)
+               && obj_billed_by(obj, FALSE)) {
+        /* what the hero handed to his pet, or what the pet then put
+           down somewhere: he owes for it wherever it is, as long as a
+           shopkeeper's bill still holds it */
+        ;
     } else if (obj->unpaid) {
         /* unpaid is only applicable for directly carried objects, for
            objects inside carried containers, for used up items on the

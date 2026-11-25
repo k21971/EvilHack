@@ -296,10 +296,16 @@ drop_throw(
                     mtmp = &gy.youmonst;
                 if (mtmp && ohit
                     && passive_obj(mtmp, obj, (struct attack *) 0)
-                           == ER_DESTROYED)
+                           == ER_DESTROYED) {
                     broken = TRUE; /* the passive counterattack consumed it */
-                else
+                } else {
+                    /* an unpaid missile that has landed inside its shop
+                       is off the hero's bill, as one he threw would be;
+                       last, so that one the landing or the target's
+                       passive ruined is still billed */
+                    mon_returns_obj(obj, x, y);
                     stackobj(obj);
+                }
             }
         }
     }
@@ -1429,6 +1435,9 @@ return_from_mtoss(
         if (notcaught) {
             (void) snuff_candle(otmp);
             if (!ship_object(otmp, x, y, FALSE)) {
+                /* an unpaid returning weapon that falls inside its shop
+                   is off the hero's bill */
+                mon_returns_obj(otmp, x, y);
                 if (flooreffects(otmp, x, y, "drop")) {
                     if (cansee(x, y))
                         newsym(x, y);
