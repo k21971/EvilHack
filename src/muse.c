@@ -2973,21 +2973,33 @@ mbhit(
             gb.bhitpos.y -= ddy;
             break;
         }
-        if (u_at(gb.bhitpos.x, gb.bhitpos.y)) {
-            (*fhitm)(&gy.youmonst, obj);
-            range -= 3;
-        } else if ((mtmp = m_at(gb.bhitpos.x, gb.bhitpos.y)) != 0) {
-            if (cansee(gb.bhitpos.x, gb.bhitpos.y) && !canspotmon(mtmp))
-                map_invisible(gb.bhitpos.x, gb.bhitpos.y);
-            (*fhitm)(mtmp, obj);
-            range -= 3;
-        }
+        /* affect the objects on the floor before whoever stands there,
+           so that what the hero drops when this zap polymorphs him is
+           safe from the same zap; bypass_obj() cannot do that job,
+           because the hero's polymorph resets the bypass bits; take
+           the monster first, so that one the object pass brings to
+           this square (a corpse raised by undead turning) is not hit
+           by the same zap */
+        mtmp = m_at(x, y);
+        if (fhito_loc(obj, x, y, fhito))
+            range--;
+        /* an object struck here can explode (a lit potion of oil): the
+           zapper may be dead or its wand gone */
         if (mon_lost_in_rloc(mon)
             || (obj_in_minvent && !o_on(obj_id, mon->minvent)))
             break;
-        if (fhito_loc(obj, gb.bhitpos.x, gb.bhitpos.y, fhito))
-            range--;
-        /* the same check after the objects on the square */
+        /* and the hero or that monster may have died or left the
+           square, so look again */
+        if (u_at(x, y)) {
+            (*fhitm)(&gy.youmonst, obj);
+            range -= 3;
+        } else if (mtmp && !DEADMONSTER(mtmp) && m_at(x, y) == mtmp) {
+            if (cansee(x, y) && !canspotmon(mtmp))
+                map_invisible(x, y);
+            (*fhitm)(mtmp, obj);
+            range -= 3;
+        }
+        /* the same check after the hit */
         if (mon_lost_in_rloc(mon)
             || (obj_in_minvent && !o_on(obj_id, mon->minvent)))
             break;
