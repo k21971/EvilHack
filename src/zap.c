@@ -2542,9 +2542,9 @@ poly_obj(struct obj *obj, int id)
         break;
 
     case GEM_CLASS:
+        /* a stack that comes out as gems or glass, whatever went in */
         if (otmp->quan > (long) rnd(4)
-            && objects[obj->otyp].oc_material == MINERAL
-            && objects[otmp->otyp].oc_material != MINERAL) {
+            && otmp->otyp != ROCK && !is_graystone(otmp)) {
             otmp->otyp = ROCK; /* transmutation backfired */
             set_material(otmp, MINERAL); /* rocks must be MINERAL material */
             otmp->quan /= 2L;  /* some material has been lost */
