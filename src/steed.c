@@ -1161,8 +1161,9 @@ exercise_steed(void)
     if (!u.usteed)
         return;
 
-    /* It takes many turns of riding to exercise skill */
-    if (++u.urideturns >= 100) {
+    /* It takes many turns of riding to exercise skill, but about half
+       as many as it used to; taken from SporkHack */
+    if (u.urideturns++ >= 50) {
         u.urideturns = 0;
         use_skill(P_RIDING, 1);
     }
