@@ -1192,6 +1192,10 @@ nh_timeout(void)
 void
 fall_asleep(int how_long, boolean wakeup_msg)
 {
+    /* a sleep that resistance cut down to nothing is no sleep */
+    if (how_long == 0)
+        return;
+
     stop_occupation();
     nomul(how_long);
     gm.multi_reason = "sleeping";
