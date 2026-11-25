@@ -1002,8 +1002,8 @@ other_unique_carried(struct obj *obj, int kind)
         case UNIQ_AMULET:
             /* the Amulet itself, or an Infidel's imbued Idol of Moloch */
             if (otmp->otyp == AMULET_OF_YENDOR
-                || (Role_if(PM_INFIDEL) && otmp->oartifact
-                    && is_quest_artifact(otmp) && otmp->spe == 1))
+                || (Role_if(PM_INFIDEL) && u.uevent.uimbued_idol
+                    && otmp->oartifact && is_quest_artifact(otmp)))
                 return TRUE;
             break;
         case UNIQ_QUESTART:
@@ -1088,10 +1088,11 @@ addinv_core1(struct obj *obj)
             if (u.uhave.questart)
                 duplicate_unique(obj, TRUE, "already have quest artifact?");
             u.uhave.questart = 1;
-            /* an Idol of Moloch imbued with the Amulet's power (its
-               enchantment marks the imbue event) counts as the
-               Amulet itself */
-            if (Role_if(PM_INFIDEL) && obj->spe == 1) {
+            /* an Idol of Moloch imbued with the Amulet's power counts
+               as the Amulet itself; the imbue is an event of the hero's,
+               not a state of the object, which a figurine's spe (its
+               gender, and something cancellation clears) cannot hold */
+            if (Role_if(PM_INFIDEL) && u.uevent.uimbued_idol) {
                 u.uhave.amulet = 1;
                 u.uamulet_on_planes = 0;
             }
@@ -1507,7 +1508,7 @@ freeinv_core(struct obj *obj)
                                ? 1 : 0;
             /* losing the imbued Idol of Moloch means losing the
                Amulet's power it carries */
-            if (Role_if(PM_INFIDEL) && obj->spe == 1)
+            if (Role_if(PM_INFIDEL) && u.uevent.uimbued_idol)
                 u.uhave.amulet = other_unique_carried(obj, UNIQ_AMULET)
                                  ? 1 : 0;
         }

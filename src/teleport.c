@@ -1310,7 +1310,6 @@ wiz_endgame_prereq(d_level *newlevel)
                 break;
         if (amu) {
             /* imbue the carried Idol as prayer would */
-            amu->spe = 1;
             u.uevent.uimbued_idol = 1;
             u.uhave.amulet = 1;
             u.uamulet_on_planes = 0;
@@ -1318,7 +1317,7 @@ wiz_endgame_prereq(d_level *newlevel)
             amu = mksobj(FIGURINE, TRUE, FALSE);
             amu = oname(amu, artiname(ART_IDOL_OF_MOLOCH),
                         ONAME_KNOW_ARTI);
-            amu->spe = 1; /* imbued */
+            /* imbued; set before addinv() looks for it */
             u.uevent.uimbued_idol = 1;
             /* ordinarily we'd use hold_another_object() for something
                like this, but we don't want fumbling or already full

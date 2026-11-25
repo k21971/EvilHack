@@ -182,8 +182,8 @@ make_familiar(
         /* the Idol's channeled demons arrive with their gear */
         mmflags = MM_EDOG | MM_IGNOREWATER | MM_NOMSG
                   | (idol ? 0 : NO_MINVENT);
-        /* the imbued Idol's spe overloads CORPSTAT_FEMALE; its demons
-           roll their own gender */
+        /* the Idol channels a random demon, not its figurine's own
+           species, so its demons roll their own gender */
         cgend = (otmp && !idol) ? (otmp->spe & CORPSTAT_GENDER) : 0;
         mmflags |= ((cgend == CORPSTAT_FEMALE) ? MM_FEMALE
                     : (cgend == CORPSTAT_MALE) ? MM_MALE : 0L);

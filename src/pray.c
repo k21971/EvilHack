@@ -2223,7 +2223,8 @@ offer_real_amulet(struct obj *otmp, aligntyp altaralign)
                 if (otmp) {
                     You_feel("strange energies envelop %s.",
                              the(xname(otmp)));
-                    otmp->spe = 1;
+                    /* the imbue is recorded on the hero, not in the
+                       Idol's spe: that is a figurine's gender */
                     u.uevent.uimbued_idol = 1;
                     if (otmp->where == OBJ_INVENT) {
                         u.uhave.amulet = 1;
