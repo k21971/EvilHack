@@ -17,7 +17,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-22, session 356: the review-fix
+- Phase 2 status (refreshed 2026-11-25, session 357: the review-fix
+  sweep's P2 and P3 tiers of 0.9.3's 2018 to 2025 fix commits are
+  read - 433 units, eight readers, checker clean, calibration right
+  in all eight - and gave 11 lost fixes (5 gameplay, 6 minor, no
+  crash), four more from the readers' leads and two rule questions;
+  the fix slice is in (BUG-3401..3419, eleven commits adc0e9fc4
+  to 8b5a62d89): a boss above level 50 casts weaken, paralysis and
+  confusion as level 50 again, a monster grows from a breath or spit
+  kill, a monster's polymorph zap spares the gear the hero's new form
+  drops, a cancelled Idol of Moloch still counts as the Amulet (and
+  one never imbued no longer can), a fully resisted sleep leaves no
+  trace, hitting a green slime can slime you, riding trains every 51
+  mounted moves, a polypiled stack that comes out as gems turns to
+  rocks (ruled), only blue jellies and brown molds multiply from heat
+  - white dragons had (ruled), an unpaid item handed to a pet comes
+  off the bill when the pet puts it down in the shop and stays billed
+  when a pet picks one up (ruled), weapons are called by their own
+  names, and four small safeguards; kept as 5.0 has it by ruling: an
+  empty wish asks again; two upstream NetHack fixes hand-ported ahead
+  of the merge (the nested message buffer; a polymorphed hero's hit
+  die, ruled); upstream HELD at ce63d5726 (head 982aea4cd, 16 commits
+  ahead - the hold's trigger fired on those two fixes and the hold
+  was RULED again: merge when the Maybe_Adjust_Phys follow-on lands
+  or a fix the branch lacks); the P4 tier is SAMPLED next (ruled:
+  about 165 random units); no Phase 2 row closed, one LOW residue row
+  minted - after session 356 (2026-11-22): the review-fix
   sweep reached back before 2026 - the 205 strongest units of 0.9.3's
   2018 to 2025 fix commits were read (four readers, checker clean,
   calibration right in all four) and gave 15 lost fixes and four
@@ -17036,7 +17061,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Master's arm in passive()'s first switch: if (mhit && !rn2(6))
       cancel_monst(&youmonst, weapon, FALSE, TRUE, FALSE). (AD_SLIM
       is also absent from passive(), but it is absent upstream too -
-      upstream gap, not a port regression; not part of this row.)
+      upstream gap, not a port regression; not part of this row.
+      CORRECTED 2026-11-25, session 357: 0.9.3 HAS the arm
+      (bfd1d6181, 2022), so it was a port loss; restored as BUG-3405.)
       BATCH: one passive-arms slice with the AD_DISN row above.
 - [x] Quest artifact destroyable by bag of devouring (NEW, minted
       2026-07-30 from the 2026-07-29 review of the July 24-29
@@ -20203,7 +20230,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       int sums of capped weights still overflow - a container's cwt
       sum and its bag multipliers (a cursed Bag of the Hesperides at
       about 5.4e8 aum inside), inv_weight() / calc_capacity()'s
-      `wt * 2` near 1e9 aum carried, pickup.c's `iw + owt`,
+      `wt * 2` near 1e9 aum carried (CORRECTED 2026-11-25, session
+      357: not master parity - 0.9.3 has guarded that line since
+      adf31ea40, 2025; guarded here as BUG-3417), pickup.c's
+      `iw + owt`,
       curr_mon_load(); botl.c's threshold range check can no longer
       fire (atoi() past INT_MAX unchecked); sys/amiga's menu count
       `count * 10` overflows a 32-bit long past 214748364.
@@ -38758,6 +38788,58 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       READ, NOT RUN on the branch: see it in play first, then ask
       whether master's shape stands (0.9.3 has the same lines) or
       the rider falls as in vanilla.
+- [ ] LOW, record: session 357 residue (minted 2026-11-25, the review-
+      fix sweep's pre-2026 P2 / P3 read and its fix slice: what was
+      seen and NOT changed; record unless a ruling or a later read
+      wants it). Readers' leads, not re-read: (a) minliquid()'s iron
+      golem has 5.0's bare mondied() where 0.9.3 prints "falls to
+      pieces." and, for an unseen pet, "May <pet> rust in peace."
+      (d0bc44711). (b) mcast_insects()'s hero leg returns on a failed
+      enexto(), so the summary line for insects already made is lost,
+      and it tests the caster's type for the spot (0.9.3 breaks and
+      tests the insect's). (c) mhitm_ad_phys() runs rustm() ahead of
+      the poison and taint blocks, so a coated weapon eaten outright
+      by a rusting or corroding hero form delivers no poison. (d)
+      placebc_core() ignores flooreffects()' answer (no path gives
+      TRUE today). (e) zap_over_floor()'s dryup(x, y, type > 0) blames
+      the hero at a fountain for an exploding wand, a scroll of fire
+      and burning oil; 0.9.3's `yourzap` (21eb7ddd8) does not - joins
+      session 356's item (b). (f) Vanilla dealloc_obj() gates
+      light-source removal on obj_sheds_light(); 0.9.3's 34e9287d1
+      went to `lamplit` after a use-after-free with worn gold dragon
+      armor and the branch has that form - an upstream candidate,
+      unverified. The unpaid-item rule (BUG-3411 / 3412): (g) put-down
+      paths it does NOT cover - newcham()'s ex-giant boulders, a
+      destroyed container's spill (zap.c, invent.c), a petrified
+      pet's statue: a billed item stays billed there. (h) A monster
+      that steals from the pet (uhitm.c's add_to_minv()) keeps the
+      item on the hero's bill - 0.9.3's behaviour; the pickup ruling
+      does not reach it. (i) shop_obj_sanity()'s new arm no longer
+      reports three billed-but-misplaced states: a billed floor item
+      scattered or kicked off its shop's floor, a billed item in a
+      non-pet's pack, shop A's billed item on shop B's floor. (j)
+      mpickobj() leaves an unpaid bit that no bill and no shop
+      explains in place (the sanity check reports it; no way to make
+      one was found). (k) A monster that TELEPORTS out of the shop
+      with a billed item debits the hero at once (rloc_to_core()'s
+      stolen_value()), one that walks out leaves it billed. (l)
+      passive_obj() passes by_you TRUE for every caller, so any
+      monster's missile drained by a disenchanter on a shop floor is
+      charged to the hero (vanilla-shared). (m) splitbill() looks at
+      *u.ushops only. Sleep: (n) fall_asleep(0)'s callers still print
+      "A cloud of gas puts you to sleep!" and the like for a sleep
+      that does not happen, as on 0.9.3 (zap.c's caller shows the
+      guarded shape). Battery, BOTH builds: (o) an item PAID for
+      while the pet holds it is listed "(for sale)" in the pet's take
+      menu inside the shop, and taking it back bills it again - the
+      hero pays twice; a pet's own gear shed in a shop becomes stock.
+      Both follow from 5.0's rule that what a pet carries in a shop
+      is the shop's (kept 2026-11-22) - worth a ruling if it bites.
+      (p) Walking into the peaceful shopkeeper prints "You do not owe
+      <name> anything."; an unlit shop answers `p` from two squares
+      with "There appears to be no shopkeeper here". Not ported: (q)
+      0.9.3's silent refusal of an occupied square in rloc_to()
+      (6475557ed) - no caller found, place_monster() reports it.
 - [ ] LOW, record: session 356 residue (minted 2026-11-22, the review-
       fix sweep's pre-2026 P1 probe: readers' leads NOT re-read by the
       coordinator, the stress test, the reviewer and the battery;
@@ -43087,6 +43169,48 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       commits next (283 + 149 units, about eight reader batches), P4
       (1,148 units, 479 of them fixes 0.9.3 reshaped later) by that
       yield. The session 356 residue row has the leads nobody re-read.
+      PRE-2026 P2 AND P3 READ 2026-11-25 (session 357): 433 units
+      (NO-D 284, NONE 103, FUNC-ABSENT 46) by eight readers in a
+      rolling window of four (606 verdict lines, checker clean, both
+      calibration units right in all eight; reports in
+      doc/claude/fixcensus/pre2026-p2p3/). 11 lost fixes - no crash,
+      5 gameplay, 6 minor - every one re-read in both trees; four
+      more from the readers' leads (two of them P4 units, one a 2026
+      weak-tier unit, one a silent numeric revert) and two leads that
+      became rulings. About a third of P1's yield per unit. FIXED
+      the same day, BUG-3401 to BUG-3419, eleven commits (adc0e9fc4
+      pline.c, ebabc67b6 makemon.c, e71a90329 mcastu.c, fbf6ea5a4
+      uhitm.c and mhitm.c, b34a6c189 muse.c, 4a3bfb894 the Idol,
+      faca781f7 timeout.c, 997f5d504 the unpaid item, e1d1e4f5b
+      zap.c, 76b21c12c steed.c, 8b5a62d89 the small ones; master's
+      commit in brackets below): the level-50 cap at four spell
+      effects (76e95184c);
+      grow_up() after a breath or spit kill (dc0c578f8); mbhit()'s
+      objects-first order, so a monster's polymorph zap spares what
+      the hero's new form sheds (5a4298115); the Idol of Moloch's
+      imbue read from the hero's flag - a cancelled Idol left an
+      Infidel's game unwinnable, and a figurine's spe is its gender
+      on this base (bf98fb338); fall_asleep(0) (80f89db82); passive()'s
+      green slime arm (bfd1d6181); riding exercised every 51 moves
+      (91911d68e); an unpaid item a pet puts back in the shop comes
+      off the bill, at every put-down site, and 5.0's mpickobj() no
+      longer calls subfrombill() with no shopkeeper (6936f8579,
+      ruled); weapon_descr()'s names (2f62b514f, 7ceb1d5ab); the
+      "bad shade" report (d253fb95f); calc_capacity()'s overflow
+      (adf31ea40); the empty wish's impossible() (ea55ba827, ruled:
+      5.0's re-prompt kept); xkilled()'s parked guard corpse
+      (067c21ee3). RULED from leads: only blue jellies and brown
+      molds multiply (white dragons did, about 86% of them at the
+      first chill); 0.9.3's gem polypile rule (1a4a1a380). Two
+      upstream fixes hand-ported, the merge still HELD: vpline()'s
+      private copy (982aea4cd) and a polymorphed hero's hit die
+      (074ce9adf, ruled). NOT PORTED: rloc_to()'s silent refusal of
+      an occupied square (6475557ed; no caller, and a silent return
+      would hide one). RULED 2026-11-25 (session 357; decisions
+      log): P4 (1,149 units) is SAMPLED next, about 165 units drawn
+      at random, and read in full only if the sample yields at this
+      read's rate or better. The session 357 residue row has what
+      was recorded and not fixed.
 - [x] LOW: review-fix sweep, the minor and hardening gaps (minted
       2026-11-22, session 353; 69 lost 0.9.3 fixes with no reach in play
       today, or wording only - 49 from the P1 to P3 read, 20 more from
@@ -44427,6 +44551,9 @@ log). #1726 and #1729 had their commit messages amended that day
 | 2026-11-22 | Lesser candidates from the review-fix sweep's minor row (session 355), each old form found in vanilla at ce63d5726 by grep and none run there: get_level_extends() loops `xmin <= COLNO` / `ymin <= ROWNO`, one past the map on an all-stone level (src/mkmaze.c); lspo_mazewalk() writes and walks with no bounds test after its direction and parity steps (src/sp_lev.c; no vanilla level reaches it - EvilHack's Dis does); light_region() clamps only lit regions; savestateinlock() leaks the level-0 file on a pid mismatch (src/save.c); wc_set_window_colors() and get_feature_notice_ver() copy option text unbounded (it is capped at 128 before it reaches them); maybe_write_ls() and save_light_sources()'s release loop call obj_is_local() on a light whose object is on no chain - panic("obj_is_local") - ahead of write_ls()'s own "can't find obj" report, and write_ls() carries a TODO to skip such a light (src/light.c); count_wsegs() follows wtails[] untested and place_wsegs() warns "over another mon" and places anyway (src/worm.c); Ring_off_or_gone() and Amulet_off() dereference a null slot, which do_takeoff() can hand them after cursed() has complained (src/do_wear.c); schedule_goto() overwrites its saved strings without freeing them; max_passive_dmg() stops at the first passive attack; curses: curses_init_options() forces use_inverse on (its own FIXME), menu_get_selections() leaves selectors[] stale after the three all-pages operations, curses_create_main_windows() has no lower clamp on the map size, curses_add_nhwin() overwrites a slot without delwin(), curses_display_splash_window() clears the player's splash_screen option, curses_prev_mesg() does not test get_msg_line(); tty_nhgetch() bumps vt_tile_current_window with vt_tiledata off | fixed on the branch (BUG-3317..3381, 71981b848 to 78d17977c); not sent; triage pending - none is a crash a player can reach |
 | 2026-11-22 | wormhitu() walks wtails[] to wheads[] and calls mattacku() for every segment next to the hero (src/worm.c). mattacku()'s ceiling-hider arm moves the worm onto the hero's square (src/mhitu.c, `if (mtmp->wormno) worm_move(mtmp);`), and worm_move() -> shrink_worm() frees the tail segment the loop is standing on, so `seg = seg->nseg` reads freed memory; the dropping piercer can also kill the worm there while mattacku() still answers 0. dochug() calls wormhitu() even when the head's own attack was skipped (`inrange && !scared`), so a scared worm's first mattacku() of the turn can be a tail segment's: a hero in piercer form hiding on the ceiling over a scroll of scare monster, head and a tail segment adjacent. Read in vanilla at ce63d5726 (worm.c wormhitu(), the hider arm of mattacku(), dochug()'s attack phase); not run there. On the branch the old build crashed for EvilHack's own triggers of the same loop (a slime passive, gray dragon scales), and the ceiling path was shown on the fixed build with three forced steps. Branch fix: stop the loop when wormno is 0 or wtails[] / wheads[] changed, answering DEADMONSTER(worm). BUG-3383 | fixed on the branch (632f76fe0); not sent; crash class, needs a vanilla repro; triage pending |
 | 2026-11-22 | ini_inv()'s nudist arm skips an armor entry with `trop++; continue;` and leaves `quan` at the skipped entry's count of one, so the table entry after the armor is made once whatever its count (src/u_init.c): a nudist Archeologist starts with 1 food ration instead of 3 (FEDORA, then FOOD_RATION 3) and a Priest with 1 potion of holy water instead of 4 (SMALL_SHIELD, then POT_WATER 4). Read in vanilla at ce63d5726 (the loop and both tables); not run there. Shown on the branch (Knight, Priest, Archeologist, old build against new). Branch fix: `quan = trquan(trop);` after the skip. BUG-3389 | fixed on the branch (30003d884); not sent; gameplay tier; triage pending |
+| 2026-11-25 | xkilled() makes a dead vault guard's corpse from the guard's parked coordinates (src/mon.c). mondead() -> grddead() parks the dead guard at <0,0> when clear_fcorr() cannot finish (the corridor square holds the dying guard itself, or a Punished hero's ball), and mondead() returns before m_detach(); xkilled() goes on, tests accessible() with the square it saved on entry, and make_corpse() reads mtmp->mx / my. mkcorpstat()'s <0,0> special case then rloco()s the corpse to a random square and make_corpse()'s newsym(0, 0) raises impossible("newsym: attempting screen update for <0,0>"). Reach: the death square is still accessible afterwards - a real corridor square on the guard's path, or the ball case. Read in vanilla at ce63d5726 (the same lines); not run there. Shown on the branch (Punished hero's ball on the corridor, guard killed on a corridor square, corpse_chance() forced): old build the impossible and the corpse 9 columns away, new build the corpse on the death square. Branch fix (0.9.3's 067c21ee3): lend mtmp the death square around the corpse blocks. BUG-3419 | fixed on the branch (8b5a62d89); not sent; an impossible() and a misplaced corpse, needs a vanilla repro; triage pending |
+| 2026-11-25 | Lesser candidates from the review-fix sweep's P2 / P3 read (session 357), each read in vanilla at ce63d5726 and not run: calc_capacity() computes `wt * 2` with no overflow test (src/hack.c; past INT_MAX / 2 aum carried the level goes negative and the tty status code indexes its encumbrance table with it - a wizard-mode wish or a very long fuzz run; BUG-3417); mhitm_ad_phys()'s impossible("bad shade attack function flow?") is reachable in principle through the stun / heal / were / legs translations for a hero form with such a weapon attack (src/uhitm.c; no polyable form has one; BUG-3407); passive_obj() passes by_you TRUE to drain_item() for every caller, so a monster's missile drained by a disenchanter on a shop floor is charged to the hero (src/uhitm.c); dealloc_obj() gates light-source removal on obj_sheds_light() where the object's own lamplit bit is the fact (src/mkobj.c; 0.9.3 met a use-after-free there with worn gold dragon armor, 34e9287d1 - whether vanilla can reach it is unchecked) | fixed on the branch where it says so (8b5a62d89 calc_capacity(), fbf6ea5a4 the shade report); not sent; triage pending |
+| 2026-11-25 | NOTE, nothing to send: upstream 982aea4cd (vpline()'s private copy of the message; a nested You() from vision_recalc() with spot_monsters printed "You %s %s." or read a freed buffer) and 074ce9adf (a polymorphed hero's hit points per level went by gy.youmonst.m_lev, which nothing sets) are past the branch base and were HAND-PORTED on 2026-11-25 while the merge stays held (BUG-3401, BUG-3402). At the next catch-up pline.c should merge clean (the hunk's text is upstream's own) and makemon.c's monhp_per_lvl() conflict keeps the branch's comment with upstream's condition; 7388ee0d2 / f54edc2cc (#name offers an undiscovered artifact and identifies it when it resists) were NOT taken and arrive with the merge | on the branch (adc0e9fc4, ebabc67b6); audit at the next catch-up |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -45162,6 +45289,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-22 | Review-fix sweep, second read and fix slice (Phase 5 / session 354, AskUserQuestion x3 with eight questions, all as recommended). (0) UPSTREAM: hold - NetHack-5.0 is four commits past the base (ce63d5726 -> 32f5ca0c8: our land mine / saddle PR #1729, a wraith-corpse taste line, and the rename of Maybe_Half_Phys(dmg) to Maybe_Adjust_Phys(dmg, otyp), no behavior change); rejected: catch-up 5 now (trial merge: 12 conflicted files, 23 blocks). (1) SLICE: the sweep's P4 + P5 read with six readers, then a fix plan for its gameplay finds with the engrave.c pair riding; rejected: the 49 minor gaps as a mechanical slice, the engrave pair alone, the NON_PM hardening. (2) FILTER MENU KEYS: 0.9.3's keys in the role filter's reset menu - races u e U g o G H 4 I T D Z V A, alignments + = - (the branch had C = Convict + centaur + chaotic, L = illithid + lawful, R = Ranger + drow); re-asked once the page wrinkle was known (a key wins only while its entry is on the page shown: on a 24-row terminal `4` is a count and `-` unselects all from page 1, as on 0.9.3) and kept; rejected: the branch's capitals with only the clashes moved (centaur 4, drow W), and 0.9.3's keys with centaur N and chaotic *. (3) VAMPIRE PET'S DRAIN: all four of 0.9.3's effects back - the shapeshifter corpse's polymorph, the nurse heal, the mimic disguise, the apport reward (BUG-2812 had ruled the intrinsic only); the polymorph re-asked once known to be a vampire's own shape-shift (fog cloud, bat, wolf or warg; armor off; it stays until about a sixth of its hit points) and kept; rejected: dropping the polymorph alone. (4) RIDERS: all three in - corridor graves with 0.9.3's vault-guard rule, a single "You feel better." from the Staff of Aesculapius (recorded 2026-07-23 as left as-is), "drain" in a vampire's feeding prompt. (5) BATTERY: yes, one tester after the review. Standing from session 353: the minor gaps (20 more) join the LOW row | maintainer |
 | 2026-11-22 | Review-fix sweep, the minor row (Phase 5 / session 355, AskUserQuestion x4 with eight questions, all as recommended). (0) UPSTREAM: held with no question, by the cadence rule - NetHack-5.0 is six commits past the base (ce63d5726 -> d0292874a; two new: our farlook PR #1719, already carried, and a follow-up naming the Maybe_Adjust_Phys() rename's `0` argument); trial merge 13 conflicted files, 24 blocks. (1) SLICE: the LOW minor row's 69 lost 0.9.3 fixes as one mechanical slice; rejected: the weak-tier read, the NON_PM hardening, an older gameplay thread (the 2025 doorway-darkness commit, the saddle that burns under a rider). (2) REACH-BACK: the sweep reaches before 2026 as a P1 probe first (205 units, read-only, a later session), the rest decided by its yield; rejected: all strong tiers now, stopping at 2026, deciding after the weak tier. (3) DIS MAZEWALK: guard only - nothing is written or walked from off the map and Dis keeps the lava under both drawbridges; rejected: 0.9.3's reversal as written (by reading, it turns the lava square under each drawbridge into floor and the bridge is built over a moat - recorded as BUG-3382, frozen-unfixed), and the guard plus a 0.9.3 battery leg to confirm it. (4) END OF GAME: 0.9.3's - no blocking wait on the message window before the end-of-game windows (one keypress fewer under curses; tty never waited); rejected: keeping 5.0's. (5) WORM SWEEP: wormgone() scans the map for a leftover pointer to the worm, clears it AND reports it; rejected: 0.9.3's silent scan, no scan. (6) TTY BRIGHT BACKGROUNDS: left as 5.0 has them (the only bright background is 5.0's own target highlight, dim blue on a tty today); rejected: 0.9.3's SGR 100-107 fix. (7) BATTERY: one battery, ten legs; rejected: smoke legs only, no battery. (8) CURSES MAP CLAMP, asked after the reviewer's MEDIUM: clamp silently - a terminal shrunk to 3 rows, or to 25 columns with perm_invent, is the player's doing; rejected: 0.9.3's impossible() (on this base it also stops on "Report now?" where a crash report URL is set), and reporting once per game. Also settled without a question, from the stress test and the reviewer: four of the 69 are not ported (the pet swap, the tty backgrounds, check_room(), scatter()'s statue test) and four are ported in another shape than 0.9.3's (place_wsegs(), drop_ball(), the light release loop, the curses window code) - the minor row has each reason |
 | 2026-11-22 | Review-fix sweep, the pre-2026 P1 probe and its fix slice (Phase 5 / session 356, AskUserQuestion x4 with ten questions, nine as recommended). (0) UPSTREAM: NetHack-5.0 is ten commits past the base (ce63d5726 -> 7654cee4d): four more of our PRs landed 2026-11-22 (#1730 and #1731 the bag of holding blast, #1732 the shape changer placed before it reverts, #1733 the nested Lua call), six since the base, so the count trigger fired; trial merge 18 conflicted files, 33 blocks, and 83 uses of Maybe_Half_Phys in 26 files to rename by hand. HOLD (as recommended): the rename's new argument is unused upstream so far - merge when the follow-on that uses it lands, or when upstream lands a fix the branch lacks; rejected: merge now as the session, slice now and merge next session. (1) SLICE: the pre-2026 P1 probe (as recommended; rejected: the 2026 weak tier, the NON_PM hardening, an older gameplay thread). (2) REACH-BACK, with the probe's yield in hand (15 lost fixes in 205 units - 1 crash, 5 gameplay, 9 minor): P2 and P3 of the older commits next, 432 units, then P4 by that yield (as recommended; rejected: stop at P1, read P2 to P5 at once). (3) FIX SLICE: planned and done in the same session (as recommended; rejected: crash and gameplay only, record now and fix next session). (4) FORGE LIGHT: 0.9.3's - a forge has its room's light, so a Drow can forge drow-made items at a dark forge; the port's forced light was a misreading of a leftover macro (as recommended; rejected: always lit, lit with a new drowcraft test). (5) MEDUSA FILL: rooms and corridors always between Medusa and the Castle, 0.9.3's (as recommended; rejected: vanilla's maze four times in five). (6) SOKOBAN: a phasing hero is refused the diagonal squeeze between boulders, 0.9.3's (as recommended; rejected: 5.0's pass). (7) A PET'S PICKUP of the hero's own shop-floor item: 5.0's rule KEPT - the pet takes possession, the shopkeeper owns the item once it is dropped and the pet exchange bills for it (as recommended; rejected: 0.9.3's kept no_charge mark, which needs new code against 5.0's sanity check). (8) GAZE TEXT: "but nothing happens." KEPT, 5.0's lower-case continuation - NOT as recommended (0.9.3's capital "But" was). (9) BATTERY: one, nine legs (as recommended). Decided without a question and said in the plan: the ring of stealth report is skipped for that ring only where 0.9.3 deleted the check; obj_is_local() takes 0.9.3's bill case and not its free-object case; the Castle arrival lead needed no change |
+| 2026-11-25 | Review-fix sweep, the pre-2026 P2 / P3 read and its fix slice (Phase 5 / session 357, AskUserQuestion x4 with nine questions, eight as recommended). (0) UPSTREAM: NetHack-5.0 is 16 commits past the base (ce63d5726 -> 982aea4cd); two of the six new ones are fixes the branch lacked (982aea4cd the nested message buffer, 074ce9adf a polymorphed hero's hit die), so the hold's second trigger FIRED; trial merge 19 conflicted files, 34 blocks, 83 uses of Maybe_Half_Phys still to rename with an argument nothing reads. HOLD AGAIN and HAND-PORT BOTH (as recommended; rejected: merge now as the session; hold and port nothing). (1) POLYMORPHED HERO'S HIT POINTS: the form's hit die per level gained or lost, upstream's fix on EvilHack's size-based die (as recommended; rejected: 0.9.3's live 1d4 for every form). (2) COLD PASSIVE: every cold-passive monster still heals from its attacker's heat (the 2026-10-01 ruling stands), but only blue jellies and brown molds multiply - about 86% of white dragons split at the first chill; hero forms stay as ruled 2026-10-01 (as recommended; rejected: 0.9.3's rule in full with no healing; 5.0's in full). (3) GEM POLYPILE: 0.9.3's - a stack that comes out as gems or glass turns to rocks when bigger than 1d4, half of it lost (as recommended; rejected: vanilla's rocks-and-gray-stones-only rule). (4) AN UNPAID ITEM HANDED TO A PET: 0.9.3's - billed while the pet holds it, off the bill when it is put down inside the shop; the sanity check accepts the state (as recommended; rejected: refuse the gift; 5.0's unbill at once, a free and deterministic theft route). (5) A PET'S PICKUP of an unpaid item: it stays billed; any other monster's pickup takes it off the bill, 5.0's (as recommended; rejected: always billed as on 0.9.3; 5.0's rule for pets too). (6) EMPTY WISH ("2", "(lit)"): 5.0's re-prompt KEPT once the impossible() is gone - NOT as recommended (0.9.3's and vanilla 3.6's random object with the wish spent was). (7) P4 TIER: a random sample of about 165 units next, the rest only if it yields at this read's rate or better (as recommended; rejected: all 1,149 units; stop the reach-back). (8) DELTA LEGS on the final binary after the review edits: run (as recommended). Decided without a question and said in the plan or the hand-back: rloc_to()'s silent refusal of an occupied square is not ported; the put-down rule also covers armor shed on polymorph, a dropped wielded or off-hand weapon and a thrown missile that lands in its shop, on the ground that the hero's own throw already works that way; the Idol's spe is no longer written at the imbue | maintainer |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 

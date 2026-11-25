@@ -714,6 +714,29 @@ tracker; sNNN = port session.
   the bonus changes, through adj_abon() as on 0.9.3 (s356, BUG-3385 /
   3386, bf6882cde).
 
+- [x] A monster's wand beam hitting the hero or monster on a square
+  before the objects there, so that a polymorph zap also polymorphed
+  the armor and weapon the hero's new form had just shed -> objects
+  first, 0.9.3's order (s357, BUG-3408, b34a6c189).
+- [x] Every monster with a passive chill multiplying from its
+  attacker's heat once over the hit point cap - on EvilHack that was
+  the white dragon, about 86% of the time at the first chill -> only
+  blue jellies and brown molds multiply; the healing stays for all
+  (ruled s357, BUG-3406, fbf6ea5a4; 0.9.3 93f000a87).
+- [x] A green slime being safe to hit in melee -> 1 hit in 3 splashes
+  its slime on the hero, 0.9.3's passive (s357, BUG-3405,
+  fbf6ea5a4).
+- [x] A polypiled stack turning into gems or glass freely, with only
+  rocks and gray stones backfiring -> any stack that comes out as
+  gems or glass turns to rocks when bigger than 1d4 and loses half
+  of itself, 0.9.3's rule (ruled s357, BUG-3413, e1d1e4f5b).
+- [x] Riding exercised every 100 mounted moves -> every 51, 0.9.3's
+  number from SporkHack (s357, BUG-3414, 76b21c12c).
+- [x] An unpaid item coming off the hero's bill whenever a monster
+  picks it up -> not when the hero's pet does: what the pet carries
+  he still owes for, until it is put down inside its shop (ruled
+  s357, BUG-3411 / 3412, 997f5d504).
+
 ### 2.4 Text and logs
 
 - [x] Wish livelog `, got "<object>"` tail (s231, BUG-2385, 5e9136d4a;
@@ -834,6 +857,11 @@ tracker; sNNN = port session.
   whose bit EvilHack takes away from a giant on purpose; the check
   stays for the other rings (s356, BUG-3393, 7c328e00a; 0.9.3 deleted
   the check).
+
+- [x] impossible("bad shade attack function flow?") for a weapon
+  attack that reaches a ghost with no special damage -> removed, as
+  0.9.3 did; a stunning or healing weapon attack gets there honestly
+  (s357, BUG-3407, fbf6ea5a4).
 
 ### 2.5 Levels and content
 
@@ -958,6 +986,12 @@ tracker; sNNN = port session.
   once the pet drops it and taking it back from the pet inside the
   shop puts it on the bill; 0.9.3 keeps the mark while a pet carries
   it (ruled s356).
+
+- [r] A wish with nothing left after its prefixes ("2", "(lit)"):
+  5.0's "Nothing fitting that description exists in the game." and
+  a new prompt kept; 0.9.3 and vanilla 3.6 grant a random object and
+  the wish is spent (ruled s357, against the recommendation; the
+  impossible() it raised is gone, BUG-3418, 8b5a62d89).
 
 ## 4. Open
 
