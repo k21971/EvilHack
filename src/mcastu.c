@@ -1224,7 +1224,8 @@ mcast_weaken_you(struct monst *mtmp, struct monst *mdef, int dmg)
             char kbuf[BUFSZ];
 
             You("suddenly feel weaker!");
-            dmg = mtmp->m_lev - 6;
+            /* a caster above level 50 casts as one of level 50 */
+            dmg = min((int) mtmp->m_lev, 50) - 6;
             if (dmg < 1) /* paranoia since only chosen when m_lev is high */
                 dmg = 1;
             if (Half_spell_damage)
@@ -2147,7 +2148,8 @@ mcast_insects(struct monst *mtmp, struct monst *mdef)
     }
 
     oldseen = monster_census(TRUE);
-    quan = (mtmp->m_lev < 2) ? 1 : rnd((int) mtmp->m_lev / 2);
+    /* a caster above level 50 casts as one of level 50 */
+    quan = (mtmp->m_lev < 2) ? 1 : rnd(min((int) mtmp->m_lev, 50) / 2);
     if (quan < 3)
         quan = 3;
     for (i = 0; i <= quan; i++) {
@@ -2274,7 +2276,8 @@ mcast_paralyze(struct monst *mtmp, struct monst *mdef)
         } else {
             if (gm.multi >= 0)
                 You("are frozen in place!");
-            dmg = 4 + (int) mtmp->m_lev;
+            /* a caster above level 50 casts as one of level 50 */
+            dmg = 4 + min((int) mtmp->m_lev, 50);
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
             monstunseesu(M_SEEN_MAGR);
@@ -2319,7 +2322,8 @@ mcast_confuse_you(struct monst *mtmp, struct monst *mdef)
             You_feel("momentarily dizzy.");
         } else {
             boolean oldprop = !!Confusion;
-            int dmg = (int) mtmp->m_lev;
+            /* a caster above level 50 casts as one of level 50 */
+            int dmg = min((int) mtmp->m_lev, 50);
 
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
