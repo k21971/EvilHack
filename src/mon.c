@@ -6784,6 +6784,7 @@ xkilled(
     if (accessible(x, y) || is_damp_terrain(x, y)) {
         struct obj *cadaver;
         int otyp;
+        coordxy save_mx, save_my;
 
         /* illogical but traditional "treasure drop" */
         if (!rn2(6) && !(svm.mvitals[mndx].mvflags & G_NOCORPSE)
@@ -6822,6 +6823,14 @@ xkilled(
                 stackobj(otmp);
             }
         }
+        /* mondead() keeps a dead vault guard parked at <0,0> until its
+           corridor is gone, and make_corpse() goes by the monster's own
+           square: lend it the death square while the corpse is made */
+        save_mx = mtmp->mx, save_my = mtmp->my;
+        if (!isok(mtmp->mx, mtmp->my) && isok(x, y)) {
+            mtmp->mx = x;
+            mtmp->my = y;
+        }
         /* corpse--none if hero was inside the monster */
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
             /* for kills by monsters credited to the hero (mon->uexp),
@@ -6852,6 +6861,7 @@ xkilled(
                 pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
             }
         }
+        mtmp->mx = save_mx, mtmp->my = save_my;
     }
 
     if (wasinside) {

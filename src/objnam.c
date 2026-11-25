@@ -5418,8 +5418,10 @@ readobjnam_postparse1(struct _readobjnam_data *d)
     } else {
         /* the exclusion gate below must also catch plural wishes
            ("wands of fire", "spellbooks of fireball") whose class
-           word would not match with its trailing s */
-        char *sng = makesingular(d->bp);
+           word would not match with its trailing s; a wish that its
+           prefixes used up ("2", "(lit)") leaves nothing to make
+           singular */
+        char *sng = *d->bp ? makesingular(d->bp) : d->bp;
 
         /*
          * Find corpse type using "of" (figurine of an orc, tin of orc meat)

@@ -5516,6 +5516,9 @@ calc_capacity(int xtra_wt)
         return UNENCUMBERED;
     if (gw.wc <= 1)
         return OVERLOADED;
+    /* doubling a weight this large would overflow */
+    if (wt > INT_MAX / 2)
+        return OVERLOADED;
     cap = (wt * 2 / gw.wc) + 1;
     return min(cap, OVERLOADED);
 }

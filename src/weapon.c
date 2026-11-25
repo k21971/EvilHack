@@ -146,11 +146,31 @@ weapon_descr(struct obj *obj)
     case P_FLAIL:
         if (obj->otyp == GRAPPLING_HOOK)
             descr = "hook";
+        /* a Convict swings his iron ball with flail skill */
+        if (obj->oclass == BALL_CLASS)
+            descr = "iron ball";
         break;
     case P_PICK_AXE:
         /* even if "dwarvish mattock" hasn't been discovered yet */
         if (obj->otyp == DWARVISH_MATTOCK)
             descr = "mattock";
+        break;
+    /* weapons that share another weapon's skill keep their own names */
+    case P_DAGGER:
+        if (obj->otyp == KNIFE)
+            descr = "knife";
+        if (obj->otyp == SCALPEL)
+            descr = "scalpel";
+        break;
+    case P_MACE:
+        if (obj->otyp == MORNING_STAR || obj->otyp == ORCISH_MORNING_STAR)
+            descr = "morning star";
+        if (obj->otyp == ROD)
+            descr = "rod";
+        break;
+    case P_SABER:
+        if (obj->otyp == SCIMITAR || obj->otyp == ORCISH_SCIMITAR)
+            descr = "scimitar";
         break;
     default:
         break;
@@ -1879,6 +1899,9 @@ possibly_unwield(struct monst *mon, boolean polyspot)
         /* a pet ordered not to drop items keeps the weapon
            in inventory */
         if (!pet_wont_drop(mon)) {
+            /* an unpaid weapon put down inside its shop is off the
+               hero's bill, before the drop is announced */
+            mon_returns_obj(obj, mon->mx, mon->my);
             /* if we're going to call distant_name(), do so before
                extract_self */
             if (cansee(mon->mx, mon->my)) {
@@ -1929,6 +1952,9 @@ possibly_unwield(struct monst *mon, boolean polyspot)
             /* a pet ordered not to drop items keeps the weapon
                in inventory */
             if (!pet_wont_drop(mon)) {
+                /* an unpaid weapon put down inside its shop is off
+                   the hero's bill, before the drop is announced */
+                mon_returns_obj(obj, mon->mx, mon->my);
                 if (cansee(mon->mx, mon->my)) {
                     pline_mon(mon, "%s drops %s.", Monnam(mon),
                               distant_name(obj, doname));
