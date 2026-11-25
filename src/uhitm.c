@@ -6889,11 +6889,8 @@ mhitm_ad_phys(
 
     if (magr == &gy.youmonst) {
         /* uhitm */
-        if (noncorporeal(pd)) {
+        if (noncorporeal(pd))
             mhm->damage = 0;
-            if (!mhm->specialdmg)
-                impossible("bad shade attack function flow?");
-        }
         mhm->damage += mhm->specialdmg;
 
         if (mattk->aatyp == AT_WEAP) {
@@ -9909,6 +9906,26 @@ passive(
             (void) cancel_monst(&gy.youmonst, weapon, FALSE, TRUE, FALSE);
         }
         break;
+    case AD_SLIM: /* green slime */
+        if (mhitb && !mon->mcan && !rn2(3)) {
+            pline("Its slime splashes onto you!");
+            if (flaming(gy.youmonst.data)) {
+                pline_The("slime burns away!");
+            } else if (Unchanging || noncorporeal(gy.youmonst.data)
+                       || gy.youmonst.data == &mons[PM_GREEN_SLIME]) {
+                You("are unaffected.");
+            } else if (!Slimed) {
+                char kbuf[BUFSZ];
+
+                You("don't feel very well.");
+                make_slimed(10L, (char *) 0);
+                delayed_killer(SLIMED, KILLED_BY,
+                               mon_killer_name(kbuf, mon));
+            } else {
+                pline("Yuck!");
+            }
+        }
+        break;
     default:
         break;
     }
@@ -9984,8 +10001,12 @@ passive(
                 mdamageu(mon, tmp);
                 /* monster gets stronger with your heat! */
                 healmon(mon, (tmp + rn2(2)) / 2, (tmp + 1) / 2);
-                /* at a certain point, the monster will reproduce! */
-                if (mon->mhpmax > (((int) mon->m_lev) + 1) * 8)
+                /* at a certain point, the monster will reproduce! but
+                   only a blue jelly or a brown mold, not every monster
+                   with a passive chill */
+                if ((mon->data == &mons[PM_BLUE_JELLY]
+                     || mon->data == &mons[PM_BROWN_MOLD])
+                    && mon->mhpmax > (((int) mon->m_lev) + 1) * 8)
                     (void) split_mon(mon, &gy.youmonst);
             }
             break;

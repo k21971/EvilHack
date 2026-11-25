@@ -832,8 +832,13 @@ mattackm(
                 /* We don't really know if we hit or not; pretend we did. */
                 if (strike)
                     res[i] |= M_ATTK_HIT;
-                if (DEADMONSTER(mdef))
+                if (DEADMONSTER(mdef)) {
                     res[i] = M_ATTK_DEF_DIED;
+                    /* monster gains experience for a breath or spit
+                       kill */
+                    if (!grow_up(magr, mdef))
+                        res[i] |= M_ATTK_AGR_DIED;
+                }
                 if (DEADMONSTER(magr))
                     res[i] |= M_ATTK_AGR_DIED;
             } else {
@@ -2412,7 +2417,11 @@ passivemm(
             if (canseemon(magr))
                 pline_mon(magr, "%s is suddenly very cold!", Monnam(magr));
             healmon(mdef, tmp/2, tmp/2);
-            if (mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
+            /* every cold-passive defender takes the heat, but only a
+               blue jelly or a brown mold multiplies from it */
+            if ((mdef->data == &mons[PM_BLUE_JELLY]
+                 || mdef->data == &mons[PM_BROWN_MOLD])
+                && mdef->mhpmax > ((int) (mdef->m_lev + 1) * 8))
                 (void) split_mon(mdef, magr);
             break;
         case AD_STUN:
