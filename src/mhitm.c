@@ -419,7 +419,7 @@ mattackm(
         saved_mhp = (mdef ? mdef->mhp : 0); /* for print_mon_wounded() */
     struct attack *mattk, alt_attk;
     struct obj *mwep;
-    struct permonst *pa, *pd;
+    struct permonst *pa;
     unsigned wep_id;
     coord save_bhitpos; /* m_throw() walks bhitpos along the flight path */
     boolean save_notonhead;
@@ -429,7 +429,6 @@ mattackm(
     if (helpless(magr))
         return M_ATTK_MISS;
     pa = magr->data;
-    pd = mdef->data;
 
     /* Grid bugs cannot attack at an angle. */
     if (pa == &mons[PM_GRID_BUG] && magr->mx != mdef->mx
@@ -488,10 +487,6 @@ mattackm(
             }
         }
     }
-
-    /* Elves hate orcs. */
-    if (is_elf(pa) && is_orc(pd))
-        tmp++;
 
     /* Set up the visibility of action */
     gv.vis = ((cansee(magr->mx, magr->my) && canspotmon(magr))
@@ -1596,8 +1591,15 @@ mdamagem(
     if (mhitm_knockback(magr, mdef, mattk, &mhm.hitflags,
                         (MON_WEP(magr) != 0))
         && ((mhm.hitflags & (M_ATTK_DEF_DIED | M_ATTK_AGR_DIED)) != 0
-            || mon_offmap(mdef)))
+            || mon_offmap(mdef))) {
+        /* a defender killed by its landing counts toward the attacker's
+           growth, as one killed by the blow itself does */
+        if ((mhm.hitflags & M_ATTK_DEF_DIED) != 0
+            && (mhm.hitflags & M_ATTK_AGR_DIED) == 0
+            && !grow_up(magr, mdef))
+            mhm.hitflags |= M_ATTK_AGR_DIED;
         return mhm.hitflags;
+    }
 
     if (mhm.done)
         return mhm.hitflags;
