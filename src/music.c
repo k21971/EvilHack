@@ -543,6 +543,16 @@ do_earthquake(int force, boolean player_caused)
                     do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                     break;
                 }
+                /* a trapped sokoban prize door is never brought down
+                   by a quake */
+                if ((levl[x][y].doormask & D_TRAPPED)
+                    && In_sokoban(&u.uz)) {
+                    /* a secret door revealed above needs its glyph */
+                    newsym(x, y);
+                    if (cansee(x, y))
+                        pline_The("door shudders but holds.");
+                    break;
+                }
                 /* a metal or stone door has a good chance to withstand
                    the quake */
                 if (hard_door(&levl[x][y]) && rn2(3)) {
