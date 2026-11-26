@@ -17,7 +17,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-25, session 357: the review-fix
+- Phase 2 status (refreshed 2026-11-26, session 358: the review-fix
+  sweep's P4 tier of 0.9.3's 2018 to 2025 fix commits was SAMPLED -
+  165 of 1,149 units by a seeded random draw, three readers, checker
+  clean, calibration right in all three - and gave no lost fix among
+  its units and one ruled difference; RULED: P4 is not read further;
+  the readers' leads gave six more; the fix slice is in
+  (BUG-3420..3426, five commits 90ffd8e0e to 1a1006743): a Draugr
+  eats a tainted corpse as a meal again and gets its intrinsics, with
+  the rot portion and no nutrition of the corpse's own (ruled: the
+  commit text, not 0.9.3's live meal), travel and every run stop at
+  shallow water and sewage (ruled), a polymorph trap a monster jumps
+  onto is used up and handless monsters do not jump (ruled), an
+  earthquake spares Sokoban's trapped prize doors (ruled), an elf
+  hits an orc with one bonus, and a knock-back kill counts toward
+  growth; kept as it is by ruling: burnarmor()'s shield roll; one
+  MED row minted - the OTHER routes past a Sokoban prize door (a pit
+  on the door square, a tunneling pet, a key on a solved level and
+  more; RULED the next slice) - and one LOW residue row; upstream
+  HELD at ce63d5726 with no question (head 968eedd06, 20 commits
+  ahead: four new, the nudist start count already carried, the rest
+  an object-creation refactor) - after session 357 (2026-11-25): the
+  review-fix
   sweep's P2 and P3 tiers of 0.9.3's 2018 to 2025 fix commits are
   read - 433 units, eight readers, checker clean, calibration right
   in all eight - and gave 11 lost fixes (5 gameplay, 6 minor, no
@@ -390,8 +411,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 67 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 65 LOW):
-  849 rows closed, 67 open
+  prefix; 70 = 0 HIGH + 2 MED + 0 SWEEP + 1 untagged + 67 LOW;
+  recounted 2026-11-26, session 358, which found the 67 here one
+  short of session 357's residue row):
+  849 rows closed, 70 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -401,8 +424,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 1 MED: door-material colors (an unported master feature; it
-    stays with Phase 4). Phase 2 has no other MED row.
+  - 2 MED: door-material colors (an unported master feature; it
+    stays with Phase 4) and the Sokoban prize-door routes (minted
+    2026-11-26, session 358; RULED the next slice).
     Session 341 minted and closed a HIGH, a MED and three LOW rows and
     closed two verify rows: the bones crash for a crowned Infidel or a
     Dark Knight (BUG-3188, ruled); the Convict's alignment rule at
@@ -38788,6 +38812,105 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       READ, NOT RUN on the branch: see it in play first, then ask
       whether master's shape stands (0.9.3 has the same lines) or
       the rider falls as in vanilla.
+- [ ] MED: Sokoban prize doors, the routes with no guard (minted
+      2026-11-26, session 358; RULED the same day: its own slice,
+      NEXT). The three closet doors of each top Sokoban level are
+      closed, stone and TRAPPED (sp_lev.c traps every closed Sokoban
+      door); #open is the one intended way in - b_trapped() then
+      seals the other closets as walls, so the hero takes one prize.
+      Any route that removes, opens or untraps a closet door WITHOUT
+      that seal gives all three. The quake was one such route
+      (BUG-3424, 7c077fe75). A census of every writer of a door's
+      doormask (an Explore agent, 2026-11-26) found the others.
+      RE-READ BY ME on the branch: (a) a PIT on the door square -
+      maketrap() clears the square's flags (D_NODOOR), no trap, no
+      seal: do_break_wand()'s wand of digging beside the closets,
+      and digging down while standing in the doorway; (b) a
+      TUNNELING MONSTER OR PET - mfndpos()'s Sokoban clause sits
+      inside the test that the stone-door exception (`door_material
+      == MINERAL && rockok`) overrides, and mdig_tunnel() then makes
+      the door D_NODOOR through mb_trapped(), no seal; (c) A KEY ON A
+      SOLVED LEVEL - picklock()'s "You cannot lock this door." and
+      doorlock()'s wand / spell of locking refusal test `Sokoban`
+      (the level's rules flag), which maybe_finish_sokoban() clears
+      when the last pit or hole is filled, and picklock()'s
+      in-Sokoban arm then writes a plain D_LOCKED / D_CLOSED that
+      drops D_TRAPPED: lock, unlock, #open, no trap and no seal
+      (0.9.3's lock.c has the same two tests); (d) postmov()'s
+      MASTER KEY arm clears D_TRAPPED for a key-carrying monster
+      that oozes under; (e) vamprises() - a fog-form vampire killed
+      on the door square re-forms and smashes it through
+      mb_trapped(). LISTED BY THE CENSUS, NOT YET RE-READ: dighole()
+      in the doorway, a monster's wand of digging (muse.c, guarded
+      only by `!Sokoban`), launch_obj() (a rolling boulder opens a
+      hard unlocked door; no such trap in dat/soko*.lua),
+      blow_up_landmine() (use_trap() refuses a closed door),
+      kick_door() (saved only by the door being stone),
+      zap_over_floor()'s exploding wand of striking arm (saved only
+      by hard_door()), and two routes that DO fire the seal but
+      still take the chosen door - dig() with a pick-axe or axe and
+      still_chewing() for a tunneling hero form (master's commit
+      text says digging "makes it glow, then fade", which only
+      zap_dig() does). GUARDED ALREADY (the house idiom is
+      `(doormask & D_TRAPPED) && In_sokoban(&u.uz)`):
+      zap_over_floor(), zap_dig(), doorlock()'s striking / force
+      bolt and stone to flesh, domove_fight_burn(), openone() (the
+      Bell), untrap(), picklock()'s Master Key disarm, mfndpos()
+      for openers, unlockers and busters, do_earthquake(). FOR THE
+      SLICE: a guard written with `Sokoban` stops working on a
+      solved level - use In_sokoban(&u.uz); decide per route what
+      the player sees (the existing lines: "The door remains
+      intact.", "The door absorbs the force!", "The door glows,
+      then fades.", "The door shudders but holds."); rule whether a
+      pick-axe or a tunneling form that fires the seal counts as
+      opening; confirm each route on 0.9.3 before calling it
+      master-shared (only the lock.c pair is confirmed there).
+- [ ] LOW, record: session 358 residue (minted 2026-11-26, the review-
+      fix sweep's P4 sample and its fix slice: what was seen and NOT
+      changed; record unless a ruling or a later read wants it).
+      Leads and rulings: (a) dogfood() has 5.0's `polyfood(obj) &&
+      mon->mtame > 1 && !starving` where 0.9.3 has `is_shapeshifter()
+      -> starving ? ACCFOOD : MANFOOD`: a pet at tameness 1 eats a
+      shapeshifter corpse, a starving one rates it as any corpse; not
+      re-read. (b) burnarmor()'s shield roll: 0.9.3 since 3a452ae45
+      (2024-12, a null guard inside an unrelated crash fix) burns the
+      shield AND counts the roll as a body hit that never rerolls -
+      with flammable gloves and boots a fire ray is a body hit 1 in
+      2, the branch 1 in 3; RULED 2026-11-26: the branch keeps
+      vanilla's rule (REMOVALS section 3). The Draugr meal
+      (BUG-3420): (c) the rot portion goes to a corpse not yet
+      started, so one first eaten while merely rancid, in another
+      form, or wished partly eaten gets none when it is tainted
+      later, and a blessing between two meals can turn a tainted,
+      partly eaten corpse back into a rancid one that feeds
+      normally. (d) A resumed meal keeps its tainted mark whatever
+      the hero has become since (eatcorpse() is not re-run on a
+      resume, as for any meal). (e) tp stays 0 in the Draugr arm,
+      as on 0.9.3: 1 time in 7 a tainted zero-nutrition corpse (a
+      wraith) "rots away completely" and its level is lost, and the
+      taste line follows "Mmmm...  tainted meat!". Runs (BUG-3421):
+      (f) deep water and lava keep 5.0's rule - a hero known to be
+      safe runs on, and a levitating hero's G-run still stops at the
+      first edge of a POOL; 0.9.3 stops a water-walker at every pool
+      and never stops a levitating hero. (g) The first step of a
+      run or travel is never checked and travel's "ahead" is the
+      last step's direction, so a path that turns into the water
+      enters one square first (both trees). (h) test_move()'s travel
+      filter routes `_` through known shallow water for a
+      normal-size hero even when a dry detour exists (both trees),
+      and a hero already wading is told "You stop at the edge of the
+      water.". (i) A travel step into sewage shows Slow only once
+      the turn ends (the battery saw it missing after ^R; same code
+      on both builds). The trap jump (BUG-3422 / 3423): (j) a
+      handless monster that no longer jumps can still WALK onto a
+      seen polymorph trap the same turn and be polymorphed by the
+      ordinary trap path (both trees; the battery's naga hatchling
+      did). (k) find_misc()'s spellbook block keeps master's
+      `|| helpless(mtmp)` conjunct, dead after the early return.
+      Process: (l) a batch-1 reader found the missing deltrap() by
+      diffing the SET OF CALLED FUNCTIONS of each master function
+      against the branch function - a cheap mechanical pass that has
+      never been run tree-wide; a candidate census.
 - [ ] LOW, record: session 357 residue (minted 2026-11-25, the review-
       fix sweep's pre-2026 P2 / P3 read and its fix slice: what was
       seen and NOT changed; record unless a ruling or a later read
@@ -43211,6 +43334,40 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       at random, and read in full only if the sample yields at this
       read's rate or better. The session 357 residue row has what
       was recorded and not fixed.
+      PRE-2026 P4 SAMPLED 2026-11-26 (session 358): 165 of the 1,149
+      P4 units by a seeded random draw (`p1probe.py --tiers P4
+      --sample 165 --seed 20261126`; the sample 44% NOT-AT-HEAD, the
+      tier 42%), three readers (210 verdict lines, checker clean,
+      both calibration units right in all three; reports and the
+      draw in doc/claude/fixcensus/pre2026-p4-sample/). NO lost fix
+      among the units; one UNSURE that is a real difference (travel
+      and Shift-run wade into shallow water, 3e8907742) and was
+      ruled. 1 in 165 against P2 + P3's 11 in 433: by the
+      hypergeometric bound the tier holds fewer than about 31
+      unit-level defects at 95%, most likely about 7, for about 9.4M
+      reader tokens. RULED 2026-11-26 (session 358; decisions log):
+      P4 is NOT read further. The readers' LEADS gave six more,
+      each re-read in both trees. FIXED the same day, BUG-3420 to
+      BUG-3426, five commits (master's commit in brackets):
+      90ffd8e0e a Draugr's tainted corpse is a meal again - the rot
+      portion once per corpse, the intrinsics, no nutrition of the
+      corpse's own (f86901227; ruled: the commit text, not the live
+      meal; a branch regression, the port had the use-up outside
+      the else); d2b76528e every run mode stops at shallow water
+      and sewage, a blind hero's does not (3e8907742, ruled);
+      100ddb3d7 a polymorph trap a monster jumps onto is used up
+      (c0daba931) and handless monsters do not jump (4ac81e26f),
+      both ruled; 7c077fe75 an earthquake spares a trapped Sokoban
+      door (master's 2019 guard 7c479955f, lost in its own later
+      rewrite; ruled); 1a1006743 the elf-against-orc to-hit bonus
+      once (a branch regression) and grow_up() after a knock-back
+      kill (master's AD_CLOB arm). KEPT by ruling: burnarmor()'s
+      shield roll (vanilla's; 0.9.3's 3a452ae45 form is an accident
+      of a null guard). MINTED: the MED row for the other routes
+      past a Sokoban prize door (ruled the next slice) and the
+      session 358 residue row. STILL UNREAD: the 2026 WEAK tier
+      (484), the fix commits touching dat/ and the Windows-only
+      paths, and before 2026 P5 (117) and WEAK (1,202).
 - [x] LOW: review-fix sweep, the minor and hardening gaps (minted
       2026-11-22, session 353; 69 lost 0.9.3 fixes with no reach in play
       today, or wording only - 49 from the P1 to P3 read, 20 more from
@@ -44550,10 +44707,12 @@ log). #1726 and #1729 had their commit messages amended that day
 | 2026-11-22 | NOTE, not a bug yet: upstream 5d0bc1bf1 (2026-11-21, past the branch base) renames Maybe_Half_Phys(dmg) to Maybe_Adjust_Phys(dmg, otyp) as groundwork for material-aware physical damage ("things like objects[(otyp)].oc_material"). The macro ignores otyp today, but hurtle_step() already hands it MATERIAL constants (`otyp = IRON;` for iron bars, `otyp = MINERAL;` for a boulder) in a variable meant for an object type, which will index objects[] with a material number once the macro uses it. On the branch the rename meets 83 uses in 26 files (trial merge 2026-11-22: 12 conflicted files, 23 blocks, and EvilHack-only callers that merge clean and then do not compile), and objects[otyp].oc_material is the wrong source for EvilHack, where an object carries its own material | watch; raise with the devteam if the follow-on lands in that shape; decide the branch's form at the next catch-up merge |
 | 2026-11-22 | Lesser candidates from the review-fix sweep's minor row (session 355), each old form found in vanilla at ce63d5726 by grep and none run there: get_level_extends() loops `xmin <= COLNO` / `ymin <= ROWNO`, one past the map on an all-stone level (src/mkmaze.c); lspo_mazewalk() writes and walks with no bounds test after its direction and parity steps (src/sp_lev.c; no vanilla level reaches it - EvilHack's Dis does); light_region() clamps only lit regions; savestateinlock() leaks the level-0 file on a pid mismatch (src/save.c); wc_set_window_colors() and get_feature_notice_ver() copy option text unbounded (it is capped at 128 before it reaches them); maybe_write_ls() and save_light_sources()'s release loop call obj_is_local() on a light whose object is on no chain - panic("obj_is_local") - ahead of write_ls()'s own "can't find obj" report, and write_ls() carries a TODO to skip such a light (src/light.c); count_wsegs() follows wtails[] untested and place_wsegs() warns "over another mon" and places anyway (src/worm.c); Ring_off_or_gone() and Amulet_off() dereference a null slot, which do_takeoff() can hand them after cursed() has complained (src/do_wear.c); schedule_goto() overwrites its saved strings without freeing them; max_passive_dmg() stops at the first passive attack; curses: curses_init_options() forces use_inverse on (its own FIXME), menu_get_selections() leaves selectors[] stale after the three all-pages operations, curses_create_main_windows() has no lower clamp on the map size, curses_add_nhwin() overwrites a slot without delwin(), curses_display_splash_window() clears the player's splash_screen option, curses_prev_mesg() does not test get_msg_line(); tty_nhgetch() bumps vt_tile_current_window with vt_tiledata off | fixed on the branch (BUG-3317..3381, 71981b848 to 78d17977c); not sent; triage pending - none is a crash a player can reach |
 | 2026-11-22 | wormhitu() walks wtails[] to wheads[] and calls mattacku() for every segment next to the hero (src/worm.c). mattacku()'s ceiling-hider arm moves the worm onto the hero's square (src/mhitu.c, `if (mtmp->wormno) worm_move(mtmp);`), and worm_move() -> shrink_worm() frees the tail segment the loop is standing on, so `seg = seg->nseg` reads freed memory; the dropping piercer can also kill the worm there while mattacku() still answers 0. dochug() calls wormhitu() even when the head's own attack was skipped (`inrange && !scared`), so a scared worm's first mattacku() of the turn can be a tail segment's: a hero in piercer form hiding on the ceiling over a scroll of scare monster, head and a tail segment adjacent. Read in vanilla at ce63d5726 (worm.c wormhitu(), the hider arm of mattacku(), dochug()'s attack phase); not run there. On the branch the old build crashed for EvilHack's own triggers of the same loop (a slime passive, gray dragon scales), and the ceiling path was shown on the fixed build with three forced steps. Branch fix: stop the loop when wormno is 0 or wtails[] / wheads[] changed, answering DEADMONSTER(worm). BUG-3383 | fixed on the branch (632f76fe0); not sent; crash class, needs a vanilla repro; triage pending |
-| 2026-11-22 | ini_inv()'s nudist arm skips an armor entry with `trop++; continue;` and leaves `quan` at the skipped entry's count of one, so the table entry after the armor is made once whatever its count (src/u_init.c): a nudist Archeologist starts with 1 food ration instead of 3 (FEDORA, then FOOD_RATION 3) and a Priest with 1 potion of holy water instead of 4 (SMALL_SHIELD, then POT_WATER 4). Read in vanilla at ce63d5726 (the loop and both tables); not run there. Shown on the branch (Knight, Priest, Archeologist, old build against new). Branch fix: `quan = trquan(trop);` after the skip. BUG-3389 | fixed on the branch (30003d884); not sent; gameplay tier; triage pending |
+| 2026-11-22 | ini_inv()'s nudist arm skips an armor entry with `trop++; continue;` and leaves `quan` at the skipped entry's count of one, so the table entry after the armor is made once whatever its count (src/u_init.c): a nudist Archeologist starts with 1 food ration instead of 3 (FEDORA, then FOOD_RATION 3) and a Priest with 1 potion of holy water instead of 4 (SMALL_SHIELD, then POT_WATER 4). Read in vanilla at ce63d5726 (the loop and both tables); not run there. Shown on the branch (Knight, Priest, Archeologist, old build against new). Branch fix: `quan = trquan(trop);` after the skip. BUG-3389 | fixed on the branch (30003d884); FIXED UPSTREAM 2026-11-24 by dc3b08ece (PatR, issue #1761, reported by ars3nly) - nothing to send |
 | 2026-11-25 | xkilled() makes a dead vault guard's corpse from the guard's parked coordinates (src/mon.c). mondead() -> grddead() parks the dead guard at <0,0> when clear_fcorr() cannot finish (the corridor square holds the dying guard itself, or a Punished hero's ball), and mondead() returns before m_detach(); xkilled() goes on, tests accessible() with the square it saved on entry, and make_corpse() reads mtmp->mx / my. mkcorpstat()'s <0,0> special case then rloco()s the corpse to a random square and make_corpse()'s newsym(0, 0) raises impossible("newsym: attempting screen update for <0,0>"). Reach: the death square is still accessible afterwards - a real corridor square on the guard's path, or the ball case. Read in vanilla at ce63d5726 (the same lines); not run there. Shown on the branch (Punished hero's ball on the corridor, guard killed on a corridor square, corpse_chance() forced): old build the impossible and the corpse 9 columns away, new build the corpse on the death square. Branch fix (0.9.3's 067c21ee3): lend mtmp the death square around the corpse blocks. BUG-3419 | fixed on the branch (8b5a62d89); not sent; an impossible() and a misplaced corpse, needs a vanilla repro; triage pending |
 | 2026-11-25 | Lesser candidates from the review-fix sweep's P2 / P3 read (session 357), each read in vanilla at ce63d5726 and not run: calc_capacity() computes `wt * 2` with no overflow test (src/hack.c; past INT_MAX / 2 aum carried the level goes negative and the tty status code indexes its encumbrance table with it - a wizard-mode wish or a very long fuzz run; BUG-3417); mhitm_ad_phys()'s impossible("bad shade attack function flow?") is reachable in principle through the stun / heal / were / legs translations for a hero form with such a weapon attack (src/uhitm.c; no polyable form has one; BUG-3407); passive_obj() passes by_you TRUE to drain_item() for every caller, so a monster's missile drained by a disenchanter on a shop floor is charged to the hero (src/uhitm.c); dealloc_obj() gates light-source removal on obj_sheds_light() where the object's own lamplit bit is the fact (src/mkobj.c; 0.9.3 met a use-after-free there with worn gold dragon armor, 34e9287d1 - whether vanilla can reach it is unchecked) | fixed on the branch where it says so (8b5a62d89 calc_capacity(), fbf6ea5a4 the shade report); not sent; triage pending |
 | 2026-11-25 | NOTE, nothing to send: upstream 982aea4cd (vpline()'s private copy of the message; a nested You() from vision_recalc() with spot_monsters printed "You %s %s." or read a freed buffer) and 074ce9adf (a polymorphed hero's hit points per level went by gy.youmonst.m_lev, which nothing sets) are past the branch base and were HAND-PORTED on 2026-11-25 while the merge stays held (BUG-3401, BUG-3402). At the next catch-up pline.c should merge clean (the hunk's text is upstream's own) and makemon.c's monhp_per_lvl() conflict keeps the branch's comment with upstream's condition; 7388ee0d2 / f54edc2cc (#name offers an undiscovered artifact and identifies it when it resists) were NOT taken and arrive with the merge | on the branch (adc0e9fc4, ebabc67b6); audit at the next catch-up |
+| 2026-11-26 | mdamagem() returns straight from its knock-back test when the landing killed the defender or took it off the map (src/mhitm.c, the `mhitm_knockback(...) && ...` early return), so an attacker whose knock-back throws its victim into water or onto a trap gets no grow_up() for the kill, while a kill by the blow itself does at the function's tail. Read in vanilla at ce63d5726 (the early return, mhitm_knockback() and mhurtle(); not run there). Shown on the branch: a hill giant knocks a jackal into a pool, grow_up() never called on the old build, once on the new. Branch fix: grow_up(magr, mdef) before the return when the defender died and the attacker did not. BUG-3426 | fixed on the branch (1a1006743); not sent; minor; triage pending |
+| 2026-11-26 | NOTE, nothing to send: upstream is at 968eedd06, 20 commits past the branch base ce63d5726 and still HELD. dc3b08ece (PatR, issue #1761) fixes ini_inv()'s nudist count with a `goto nxt`; the branch has carried the same fix since 2026-11-22 as BUG-3389 (`quan = trquan(trop);` after the skip, with EvilHack's wizard-amulet term in the condition) - at the merge keep the branch's arm. db69169c9 with 8b7a9dd71 and 968eedd06 (nhmall) moves the choice of a random object type out of mkobj() into mkobj_otyp_from_oclass(), makes ini_inv_mkobj_filter() work on types, and turns gn.nocreate .. gn.nocreate4 into gn.nocreate[1..4]: no behavior change claimed; it conflicts with the branch's ini_inv() and u_init_role() (src/u_init.c) and src/mkobj.c. Trial merge by the write-nothing recipe: 21 conflicted files, 36 blocks (19 and 34 on 2026-11-25) | none owed |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
@@ -45290,6 +45449,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-22 | Review-fix sweep, the minor row (Phase 5 / session 355, AskUserQuestion x4 with eight questions, all as recommended). (0) UPSTREAM: held with no question, by the cadence rule - NetHack-5.0 is six commits past the base (ce63d5726 -> d0292874a; two new: our farlook PR #1719, already carried, and a follow-up naming the Maybe_Adjust_Phys() rename's `0` argument); trial merge 13 conflicted files, 24 blocks. (1) SLICE: the LOW minor row's 69 lost 0.9.3 fixes as one mechanical slice; rejected: the weak-tier read, the NON_PM hardening, an older gameplay thread (the 2025 doorway-darkness commit, the saddle that burns under a rider). (2) REACH-BACK: the sweep reaches before 2026 as a P1 probe first (205 units, read-only, a later session), the rest decided by its yield; rejected: all strong tiers now, stopping at 2026, deciding after the weak tier. (3) DIS MAZEWALK: guard only - nothing is written or walked from off the map and Dis keeps the lava under both drawbridges; rejected: 0.9.3's reversal as written (by reading, it turns the lava square under each drawbridge into floor and the bridge is built over a moat - recorded as BUG-3382, frozen-unfixed), and the guard plus a 0.9.3 battery leg to confirm it. (4) END OF GAME: 0.9.3's - no blocking wait on the message window before the end-of-game windows (one keypress fewer under curses; tty never waited); rejected: keeping 5.0's. (5) WORM SWEEP: wormgone() scans the map for a leftover pointer to the worm, clears it AND reports it; rejected: 0.9.3's silent scan, no scan. (6) TTY BRIGHT BACKGROUNDS: left as 5.0 has them (the only bright background is 5.0's own target highlight, dim blue on a tty today); rejected: 0.9.3's SGR 100-107 fix. (7) BATTERY: one battery, ten legs; rejected: smoke legs only, no battery. (8) CURSES MAP CLAMP, asked after the reviewer's MEDIUM: clamp silently - a terminal shrunk to 3 rows, or to 25 columns with perm_invent, is the player's doing; rejected: 0.9.3's impossible() (on this base it also stops on "Report now?" where a crash report URL is set), and reporting once per game. Also settled without a question, from the stress test and the reviewer: four of the 69 are not ported (the pet swap, the tty backgrounds, check_room(), scatter()'s statue test) and four are ported in another shape than 0.9.3's (place_wsegs(), drop_ball(), the light release loop, the curses window code) - the minor row has each reason |
 | 2026-11-22 | Review-fix sweep, the pre-2026 P1 probe and its fix slice (Phase 5 / session 356, AskUserQuestion x4 with ten questions, nine as recommended). (0) UPSTREAM: NetHack-5.0 is ten commits past the base (ce63d5726 -> 7654cee4d): four more of our PRs landed 2026-11-22 (#1730 and #1731 the bag of holding blast, #1732 the shape changer placed before it reverts, #1733 the nested Lua call), six since the base, so the count trigger fired; trial merge 18 conflicted files, 33 blocks, and 83 uses of Maybe_Half_Phys in 26 files to rename by hand. HOLD (as recommended): the rename's new argument is unused upstream so far - merge when the follow-on that uses it lands, or when upstream lands a fix the branch lacks; rejected: merge now as the session, slice now and merge next session. (1) SLICE: the pre-2026 P1 probe (as recommended; rejected: the 2026 weak tier, the NON_PM hardening, an older gameplay thread). (2) REACH-BACK, with the probe's yield in hand (15 lost fixes in 205 units - 1 crash, 5 gameplay, 9 minor): P2 and P3 of the older commits next, 432 units, then P4 by that yield (as recommended; rejected: stop at P1, read P2 to P5 at once). (3) FIX SLICE: planned and done in the same session (as recommended; rejected: crash and gameplay only, record now and fix next session). (4) FORGE LIGHT: 0.9.3's - a forge has its room's light, so a Drow can forge drow-made items at a dark forge; the port's forced light was a misreading of a leftover macro (as recommended; rejected: always lit, lit with a new drowcraft test). (5) MEDUSA FILL: rooms and corridors always between Medusa and the Castle, 0.9.3's (as recommended; rejected: vanilla's maze four times in five). (6) SOKOBAN: a phasing hero is refused the diagonal squeeze between boulders, 0.9.3's (as recommended; rejected: 5.0's pass). (7) A PET'S PICKUP of the hero's own shop-floor item: 5.0's rule KEPT - the pet takes possession, the shopkeeper owns the item once it is dropped and the pet exchange bills for it (as recommended; rejected: 0.9.3's kept no_charge mark, which needs new code against 5.0's sanity check). (8) GAZE TEXT: "but nothing happens." KEPT, 5.0's lower-case continuation - NOT as recommended (0.9.3's capital "But" was). (9) BATTERY: one, nine legs (as recommended). Decided without a question and said in the plan: the ring of stealth report is skipped for that ring only where 0.9.3 deleted the check; obj_is_local() takes 0.9.3's bill case and not its free-object case; the Castle arrival lead needed no change |
 | 2026-11-25 | Review-fix sweep, the pre-2026 P2 / P3 read and its fix slice (Phase 5 / session 357, AskUserQuestion x4 with nine questions, eight as recommended). (0) UPSTREAM: NetHack-5.0 is 16 commits past the base (ce63d5726 -> 982aea4cd); two of the six new ones are fixes the branch lacked (982aea4cd the nested message buffer, 074ce9adf a polymorphed hero's hit die), so the hold's second trigger FIRED; trial merge 19 conflicted files, 34 blocks, 83 uses of Maybe_Half_Phys still to rename with an argument nothing reads. HOLD AGAIN and HAND-PORT BOTH (as recommended; rejected: merge now as the session; hold and port nothing). (1) POLYMORPHED HERO'S HIT POINTS: the form's hit die per level gained or lost, upstream's fix on EvilHack's size-based die (as recommended; rejected: 0.9.3's live 1d4 for every form). (2) COLD PASSIVE: every cold-passive monster still heals from its attacker's heat (the 2026-10-01 ruling stands), but only blue jellies and brown molds multiply - about 86% of white dragons split at the first chill; hero forms stay as ruled 2026-10-01 (as recommended; rejected: 0.9.3's rule in full with no healing; 5.0's in full). (3) GEM POLYPILE: 0.9.3's - a stack that comes out as gems or glass turns to rocks when bigger than 1d4, half of it lost (as recommended; rejected: vanilla's rocks-and-gray-stones-only rule). (4) AN UNPAID ITEM HANDED TO A PET: 0.9.3's - billed while the pet holds it, off the bill when it is put down inside the shop; the sanity check accepts the state (as recommended; rejected: refuse the gift; 5.0's unbill at once, a free and deterministic theft route). (5) A PET'S PICKUP of an unpaid item: it stays billed; any other monster's pickup takes it off the bill, 5.0's (as recommended; rejected: always billed as on 0.9.3; 5.0's rule for pets too). (6) EMPTY WISH ("2", "(lit)"): 5.0's re-prompt KEPT once the impossible() is gone - NOT as recommended (0.9.3's and vanilla 3.6's random object with the wish spent was). (7) P4 TIER: a random sample of about 165 units next, the rest only if it yields at this read's rate or better (as recommended; rejected: all 1,149 units; stop the reach-back). (8) DELTA LEGS on the final binary after the review edits: run (as recommended). Decided without a question and said in the plan or the hand-back: rloc_to()'s silent refusal of an occupied square is not ported; the put-down rule also covers armor shed on polymorph, a dropped wielded or off-hand weapon and a thrown missile that lands in its shop, on the ground that the hero's own throw already works that way; the Idol's spe is no longer written at the imbue | maintainer |
+| 2026-11-26 | Review-fix sweep, the pre-2026 P4 sample and its fix slice (Phase 5 / session 358, AskUserQuestion x4 with eight questions, seven as recommended). (0) UPSTREAM: held with no question - NetHack-5.0 is 20 commits past the base (ce63d5726 -> 968eedd06); the four new ones are the nudist start count, which the branch already carries (BUG-3389), and an object-creation refactor with no behavior change; the Maybe_Adjust_Phys argument is still unused. (1) THE P4 TIER: NOT READ FURTHER (as recommended; rejected: read the other 984 units, about 9.4M reader tokens; a second sample of 165) - the sample gave no lost fix among 165 units and one ruled difference, against a bar of about four. (2) RUNS AT SHALLOW WATER AND SEWAGE: 0.9.3's - `_` travel, Shift-run and G / Ctrl runs all halt whenever it is the next square ahead and again at each step while wading, unless levitating, flying or clinging (as recommended; rejected: stop at the edge only; keep the branch, where travel and Shift-run waded in). A blind hero's run is not stopped by it, as on 0.9.3; deep water and lava keep 5.0's rule (not asked). (3) THE POLYMORPH TRAP JUMP: both as on 0.9.3 - the monster that jumps onto the trap uses it up, and a handless monster never jumps; a monster that walks in still leaves the trap (as recommended; rejected: either one alone; leave both as 5.0). (4) A DRAUGR'S TAINTED CORPSE: master's COMMIT TEXT - the rot portion and the corpse's intrinsics over a multi-turn meal, WITHOUT the corpse's own nutrition (NOT as recommended; rejected: 0.9.3's live meal, the portion plus the full corpse - a human corpse 200 + 400). In the plan, and approved with it: the portion is given once per corpse, not again for one already partly eaten, since a meal that takes no nutrition would otherwise be restartable for a fresh portion each time. (5) THE EARTHQUAKE AT SOKOBAN'S PRIZE DOORS: a trapped Sokoban door never collapses in a quake, master's 2019 intent (as recommended; rejected: leave it as live 0.9.3 has it). (6) BURNARMOR()'S SHIELD ROLL: the branch keeps vanilla's rule - the roll burns the shield or rerolls and is never a body hit (as recommended; rejected: 0.9.3's since 3a452ae45, where it always counts as a body hit and fire reaches the inventory more often). (7) THE OTHER ROUTES PAST A SOKOBAN PRIZE DOOR, found while planning (5) - a pit on the door square, a tunneling pet, a key on a solved level, the Master Key ooze, a re-forming vampire: THEIR OWN SLICE, NEXT, with a row minted now (as recommended; rejected: fold all of them into this slice). (8) BATTERY: launched with two testers at once (as recommended) | maintainer |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 

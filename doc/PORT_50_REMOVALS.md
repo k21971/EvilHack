@@ -736,6 +736,16 @@ tracker; sNNN = port session.
   picks it up -> not when the hero's pet does: what the pet carries
   he still owes for, until it is put down inside its shop (ruled
   s357, BUG-3411 / 3412, 997f5d504).
+- [x] A polymorph trap staying in place after a monster jumps onto
+  it on purpose -> the jump uses it up, 0.9.3's rule; a monster
+  that walks in still leaves it (ruled s358, BUG-3422, 100ddb3d7).
+- [x] Handless monsters jumping onto polymorph traps (vanilla tests
+  nohands() after find_misc()'s trap arm) -> they never do, 0.9.3's
+  order (ruled s358, BUG-3423, 100ddb3d7).
+- [x] mattackm()'s own `is_elf(pa) && is_orc(pd)` to-hit line -> gone:
+  EvilHack's racial test above it already gives the bonus, and the
+  two together gave it twice. A catch-up merge must not bring the
+  vanilla line back (s358, BUG-3425, 1a1006743).
 
 ### 2.4 Text and logs
 
@@ -992,6 +1002,13 @@ tracker; sNNN = port session.
   a new prompt kept; 0.9.3 and vanilla 3.6 grant a random object and
   the wish is spent (ruled s357, against the recommendation; the
   impossible() it raised is gone, BUG-3418, 8b5a62d89).
+
+- [r] burnarmor()'s shield roll: vanilla's rule kept - the roll burns
+  the shield, or rerolls another slot when there is none or it
+  cannot burn, and is never a body hit; 0.9.3 since 3a452ae45
+  (2024-12, a null guard) counts every shield roll as a body hit,
+  so fire reaches the inventory more often (ruled s358; a master
+  quirk left as it is on master).
 
 ## 4. Open
 
