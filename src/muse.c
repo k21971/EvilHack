@@ -3926,15 +3926,20 @@ find_misc(struct monst *mtmp)
 
     gm.m.misc = (struct obj *) 0;
     gm.m.has_misc = 0;
-    if (is_animal(mdat) || mindless(mdat))
-        return 0;
+    /* a handless monster uses no item, and jumps onto no polymorph
+       trap either */
+    if (is_animal(mdat) || mindless(mdat) || nohands(mdat))
+        return FALSE;
     if (u.uswallow && stuck)
+        return FALSE;
+    /* helpless monsters can't use misc items */
+    if (helpless(mtmp))
         return FALSE;
 
     /* spellbook reading - checked before the distance check since
        spellcasters should read regardless of where they think the
        player is */
-    if (is_spellcaster(mtmp) && !nohands(mdat) && !helpless(mtmp)) {
+    if (is_spellcaster(mtmp)) {
         struct obj *book;
 
         /* if mid-read, continue unless impaired or hostile and player
@@ -4018,8 +4023,6 @@ find_misc(struct monst *mtmp)
                         }
                     }
     }
-    if (nohands(mdat))
-        return 0;
 
     /* use the generic finder callback for misc items; this handles
        both direct inventory and container recursion */
@@ -4387,6 +4390,9 @@ use_misc(struct monst *mtmp)
                falls off" messages during the transformation; those make
                more sense after we've given "Someone jumps onto a trap." */
         }
+        /* the jump uses the trap up; t is gone from here on and the
+           newsym() of its square below redraws the spot */
+        (void) deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
 
         /*  don't use rloc() due to worms */
         remove_monster(mtmp->mx, mtmp->my);
