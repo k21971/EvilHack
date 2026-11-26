@@ -28,7 +28,7 @@ staticfn void consume_tin(const char *);
 staticfn void start_tin(struct obj *);
 staticfn long rot_by(struct obj *, long);
 staticfn boolean vamp_refuses_corpse(struct obj *, long);
-staticfn int eatcorpse(struct obj *, long);
+staticfn int eatcorpse(struct obj *, long, boolean);
 staticfn void start_eating(struct obj *, boolean);
 staticfn void garlic_breath(struct monst *);
 staticfn boolean fprefx(struct obj *);
@@ -601,7 +601,9 @@ eatfood(void)
         if (food->odrained)
             crumbs -= drain_level(food);
         if (crumbs > 0) {
-            lesshungry(crumbs);
+            /* nor do the crumbs of a Draugr's tainted corpse feed */
+            if (!svc.context.victual.tainted)
+                lesshungry(crumbs);
             food->oeaten -= crumbs;
         }
         done_eating(TRUE);
@@ -2269,7 +2271,10 @@ vamp_refuses_corpse(struct obj *otmp, long rotted)
 /* called when a corpse is selected as food; rotted is its rot, which
    doeat() rolled before it let a vampire start on it */
 staticfn int
-eatcorpse(struct obj *otmp, long rotted)
+eatcorpse(
+    struct obj *otmp,
+    long rotted,
+    boolean partly_eaten) /* some of it was eaten before this meal */
 {
     int retcode = 0, tp = 0, mnum = otmp->corpsenm;
     int ll_conduct = 0;
@@ -2345,9 +2350,18 @@ eatcorpse(struct obj *otmp, long rotted)
                                   ? 50 : 10;
 
             pline("Mmmm...  tainted meat!");
-            lesshungry(rot_nut);
-            if (wizard) /* test pline */
-                pline("Nutrition gained: %d.", rot_nut);
+            /* the rot portion comes once per corpse; a meal started
+               over on one already partly eaten gives no second one */
+            if (!partly_eaten) {
+                lesshungry(rot_nut);
+                if (wizard) /* test pline */
+                    pline("Nutrition gained: %d.", rot_nut);
+            }
+            /* the corpse is not used up here: it is eaten as a meal
+               for whatever its flesh confers, and feeds no further;
+               tp stays 0, so the rotten roll and the taste line
+               below still apply to it */
+            svc.context.victual.tainted = 1;
         } else {
             pline("Ulch - that %s was tainted%s!",
                   (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
@@ -2385,12 +2399,12 @@ eatcorpse(struct obj *otmp, long rotted)
                 You_feel("a horrifying change starting within you.");
                 You("have an overwhelming urge to consume brains...");
             }
+            if (carried(otmp))
+                useup(otmp);
+            else
+                useupf(otmp, 1L);
+            return 2;
         }
-        if (carried(otmp))
-            useup(otmp);
-        else
-            useupf(otmp, 1L);
-        return 2;
     } else if (acidic(&mons[mnum]) && !Acid_resistance) {
         tp++;
         You("have a very bad case of stomach acid.");   /* not body_part() */
@@ -3444,6 +3458,7 @@ doeat_nonfood(struct obj *otmp)
     svc.context.victual.o_id = otmp->o_id;
     /* Don't split it, we don't need to if it's 1 move */
     svc.context.victual.usedtime = 0;
+    svc.context.victual.tainted = 0;
     svc.context.victual.canchoke = (u.uhs == SATIATED);
     /* Note: gold weighs 1 pt. for each 1000 pieces (see
        pickup.c) so gold and non-gold is consistent. */
@@ -3750,6 +3765,7 @@ doeat(void)
         svc.context.victual.piece = otmp;
         svc.context.victual.o_id = otmp->o_id;
         svc.context.victual.usedtime = 0;
+        svc.context.victual.tainted = 0; /* eatcorpse() may set it */
     } else {
         do_reset_eat();
         return ECMD_TIME;
@@ -3775,7 +3791,7 @@ doeat(void)
      * then adjusted in accordance with the amount of food left.
      */
     if (otmp->otyp == CORPSE || otmp->globby) {
-        int tmp = eatcorpse(otmp, rotted);
+        int tmp = eatcorpse(otmp, rotted, already_partly_eaten);
 
         if (tmp == 2) {
             /* used up */
@@ -3946,13 +3962,17 @@ bite(void)
         return 0;
     }
     gf.force_save_hs = TRUE;
+    /* a Draugr's tainted corpse is eaten bite by bite like any other
+       but feeds nothing */
     if (svc.context.victual.nmod < 0) {
-        lesshungry(adj_victual_nutrition(/*-svc.context.victual.nmod*/));
+        if (!svc.context.victual.tainted)
+            lesshungry(adj_victual_nutrition(/*-svc.context.victual.nmod*/));
         consume_oeaten(svc.context.victual.piece,
                        svc.context.victual.nmod); /* -= -nmod */
     } else if (svc.context.victual.nmod > 0
                && (svc.context.victual.usedtime % svc.context.victual.nmod)) {
-        lesshungry(1);
+        if (!svc.context.victual.tainted)
+            lesshungry(1);
         consume_oeaten(svc.context.victual.piece, -1); /* -= 1 */
     }
     gf.force_save_hs = FALSE;

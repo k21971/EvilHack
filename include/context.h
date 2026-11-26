@@ -67,6 +67,8 @@ struct victual_info {
         reqtime;           /* turns required to eat */
     int nmod;              /* coded nutrition per turn */
     Bitfield(canchoke, 1); /* was satiated at beginning */
+    Bitfield(tainted, 1);  /* a Draugr's tainted corpse: the meal gives
+                            * its intrinsics but no nutrition */
 
     /* start_eating() initializes these */
     Bitfield(fullwarn, 1); /* have warned about being full */
