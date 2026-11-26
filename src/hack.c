@@ -3230,6 +3230,21 @@ avoid_moving_on_liquid(
 {
     boolean in_air = (Levitation || Flying);
 
+    /* shallow water and sewage stop every kind of run, travel included,
+       and stop it again at each further step: wading is done one
+       deliberate step at a time; only a hero clear of the surface
+       runs on */
+    if (is_puddle(x, y) || is_sewage(x, y)) {
+        if (in_air || is_clinger(gy.youmonst.data) || !levl[x][y].seenv)
+            return FALSE;
+        if (msg && flags.mention_walls) {
+            set_msg_xy(x, y);
+            You("stop at the edge of the %s.",
+                hliquid(is_sewage(x, y) ? "sewage" : "water"));
+        }
+        return TRUE;
+    }
+
     /* don't stop if you're not on a transition between terrain types... */
     if ((levl[x][y].typ == levl[u.ux][u.uy].typ
          /* or you are using shift-dir running and the transition isn't
@@ -3237,23 +3252,16 @@ avoid_moving_on_liquid(
          || (svc.context.run < 2 && (!is_lava(x, y) || in_air))
          || svc.context.travel)
         /* and you know you won't fall in */
-        && (in_air || Known_lwalking || (is_pool(x, y) && Known_wwalking)
-            /* shallow water can't be fallen into unless the hero is too
-               small to keep their head above it */
-            || ((is_puddle(x, y) || is_sewage(x, y))
-                && !vs_cantflyorswim(gy.youmonst.data)))
+        && (in_air || Known_lwalking || (is_pool(x, y) && Known_wwalking))
         && !(IS_WATERWALL(levl[x][y].typ) || levl[x][y].typ == LAVAWALL)) {
         /* XXX: should send 'is_clinger(gy.youmonst.data)' here once clinging
            polyforms are allowed to move over water */
         return FALSE; /* liquid is safe to traverse */
-    } else if ((is_pool_or_lava(x, y) || is_puddle(x, y) || is_sewage(x, y))
-               && levl[x][y].seenv) {
+    } else if (is_pool_or_lava(x, y) && levl[x][y].seenv) {
         if (msg && flags.mention_walls) {
             set_msg_xy(x, y);
             You("stop at the edge of the %s.",
-                hliquid(is_sewage(x, y) ? "sewage"
-                        : !is_lava(x, y) ? "water"
-                          : "lava"));
+                hliquid(is_pool(x,y) ? "water" : "lava"));
         }
         return TRUE;
     }
@@ -3270,7 +3278,10 @@ avoid_running_into_trap_or_liquid(coordxy x, coordxy y)
         return FALSE;
 
     if (avoid_moving_on_trap(x,y, would_stop)
-        || (Blind && avoid_moving_on_liquid(x,y, would_stop))) {
+        /* a blind hero is held back from known deep water and lava
+           only; shallow water does not stop a run made blind */
+        || (Blind && !is_puddle(x, y) && !is_sewage(x, y)
+            && avoid_moving_on_liquid(x,y, would_stop))) {
         nomul(0);
         if (would_stop)
             svc.context.move = 0;
