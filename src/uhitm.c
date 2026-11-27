@@ -1175,7 +1175,7 @@ hitum(struct monst *mon, struct attack *uattk)
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
         && uarms && !is_bracer(uarms) && !rn2(8)
         && !(gm.multi < 0 || u.umortality > oldumort)
-        && malive && m_at(x, y) == mon)
+        && malive && isok(x, y) && m_at(x, y) == mon)
         pline("Your extra attack is ineffective while wearing %s.",
               an(xname(uarms)));
 
@@ -1188,7 +1188,9 @@ hitum(struct monst *mon, struct attack *uattk)
     if (gt.twohits && !((go.override_confirmation
                          && !forced_attack(secondwep))
                         || gm.multi < 0 || u.umortality > oldumort
-                        || !malive || m_at(x, y) != mon
+                        /* an engulfed hero's typed direction can point
+                           off the map */
+                        || !malive || !isok(x, y) || m_at(x, y) != mon
                         /* the first passive counter-attack may have
                            destroyed the secondary weapon, or bared the
                            hand so that it let the weapon go */
@@ -8981,7 +8983,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
            that's placed at another spot (hero occupies mon's first spot);
            or an earlier attack made it submit (Bourbon or Ozzy), and the
            next one would anger it all over again */
-        if (i > 0 && (m_at(gb.bhitpos.x, gb.bhitpos.y) != mon
+        if (i > 0 && (!isok(gb.bhitpos.x, gb.bhitpos.y)
+                      || m_at(gb.bhitpos.x, gb.bhitpos.y) != mon
                       || DEADMONSTER(mon)
                       || submitted_since(mon, submits)))
             continue;
@@ -9074,7 +9077,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
             } else
                 sum[i] = dhit ? M_ATTK_HIT : M_ATTK_MISS;
             /* might be a worm that gets cut in half; if so, early return */
-            if (m_at(u.ux + u.dx, u.uy + u.dy) != mon) {
+            if (!isok(u.ux + u.dx, u.uy + u.dy)
+                || m_at(u.ux + u.dx, u.uy + u.dy) != mon) {
                 i = NATTK; /* skip additional attacks */
                 /* proceed with uswapwep->cursed check, then exit loop */
                 goto passivedone;

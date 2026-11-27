@@ -136,6 +136,12 @@ readlibdir(library *lp) /* library pointer to fill in */
         return FALSE;
     if (lp->rev > DLB_MAX_VERS || lp->rev < DLB_MIN_VERS)
         return FALSE;
+    /* a header with no entries or no room for their names is not an
+       archive; the reads below would write into nothing */
+    if (lp->nentries < 1 || lp->strsize < 1)
+        panic("readlibdir: corrupt DLB directory header"
+              " (%ld entries, %ld string bytes)",
+              lp->nentries, lp->strsize);
 
     lp->dir = (libdir *) alloc(FITSuint(lp->nentries * sizeof(libdir)));
     lp->sspace = (char *) alloc(FITSuint(lp->strsize));

@@ -5250,7 +5250,8 @@ readobjnam_parse_charges(struct _readobjnam_data *d)
      */
     if (d->spe < 0) {
         d->spesgn = -1; /* cheaters get what they deserve */
-        d->spe = abs(d->spe);
+        /* INT_MIN has no positive counterpart */
+        d->spe = (d->spe == INT_MIN) ? SPE_LIM : -d->spe;
     }
     /* cap on obj->spe is independent of (and less than) SCHAR_LIM */
     if (d->spe > SPE_LIM)

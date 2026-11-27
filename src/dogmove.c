@@ -2231,7 +2231,10 @@ dog_move(
                          Monnam(mtmp), mhis(mtmp));
                 m_unleash(mtmp, FALSE);
             }
-            (void) mattacku(mtmp);
+            /* the attack can be the pet's last: the hero's passive, or
+               its own explosion */
+            if (mattacku(mtmp))
+                return MMOVE_DIED;
             return MMOVE_DONE;
         }
         if (!m_in_out_region(mtmp, nix, niy))

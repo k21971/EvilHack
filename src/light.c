@@ -498,8 +498,15 @@ save_light_sources(NHFILE *nhfp, int range)
      if (release_data(nhfp)) {
         for (prev = &gl.light_base; (curr = *prev) != 0; ) {
             if (!curr->id.a_monst) {
+                /* nothing to ask whether it is local, and nothing it
+                   could light: it goes now, whichever range this is,
+                   and before the report, so that a save the report
+                   leads to does not meet it again */
+                *prev = curr->next;
+                (void) memset((genericptr_t) curr, 0, sizeof(light_source));
+                free((genericptr_t) curr);
                 impossible("save_light_sources: no id! [range=%d]", range);
-                is_global = 0;
+                continue;
             } else if (ls_orphaned(curr)) {
                 /* there is nothing left to ask whether it is local;
                    it was not written and goes with whichever range

@@ -2447,7 +2447,10 @@ mcast_spell(struct monst *mtmp, struct monst *mdef, int dmg, int spellnum,
         dmg = 0;
         break;
     case MCAST_CURE_SELF:
-        dmg = m_cure_self(mtmp, dmg);
+        /* a healing spell never falls into the damage below, whether
+           or not there was anything to heal */
+        (void) m_cure_self(mtmp, dmg);
+        dmg = 0;
         break;
     case MCAST_PSI_BOLT:
         dmg = mcast_psi_bolt(mtmp, mdef, dmg);
