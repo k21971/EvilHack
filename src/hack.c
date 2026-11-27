@@ -1357,11 +1357,16 @@ test_move(
         }
         if (mode == DO_MOVE) {
             /* tunneling monsters will chew before pushing */
+            /* anyone else pushes, but never during a run: without the
+               no-pickup prefix a run stops here, and with it (travel
+               sets it) moverock() only steps over, squeezes past or
+               refuses */
             if (tunnels(gy.youmonst.data) && !needspick(gy.youmonst.data)
                 && !Sokoban) {
                 if (still_chewing(x, y))
                     return FALSE;
-            } else if (moverock() < 0)
+            } else if ((svc.context.run && !svc.context.nopick)
+                       || moverock() < 0)
                 return FALSE;
         } else if (mode == TEST_TRAV) {
             struct obj *obj;
