@@ -3780,13 +3780,17 @@ mfndpos(
                         && !(flag & UNLOCKDOOR)))
                 /* a hard (metal or stone) door resists busting; metal
                    yields only to a metallivore, stone only to a digger,
-                   and either to phasing */
+                   and either to phasing; a trapped sokoban prize door
+                   yields to phasing alone, which leaves it as it is */
                 && !(thrudoor
-                     && (!hard_door(&levl[nx][ny]) || (flag & ALLOW_WALL)
-                         || (metal_door(&levl[nx][ny])
-                             && metallivorous(mdat))
-                         || (door_material(&levl[nx][ny]) == MINERAL
-                             && rockok))))
+                     && ((flag & ALLOW_WALL)
+                         || (!(In_sokoban(&u.uz)
+                               && (levl[nx][ny].doormask & D_TRAPPED))
+                             && (!hard_door(&levl[nx][ny])
+                                 || (metal_door(&levl[nx][ny])
+                                     && metallivorous(mdat))
+                                 || (door_material(&levl[nx][ny]) == MINERAL
+                                     && rockok))))))
                 continue;
             /* avoid poison gas? */
             if (!poisongas_ok && !in_poisongas
@@ -5620,8 +5624,16 @@ vamprises(struct monst *mtmp)
             gv.vamp_rise_msg = TRUE;
         }
         /* revived vampire is in normal shape, so can't be amorphous; if on
-           a closed door spot, destroy the door and if trapped, blow it up */
-        if (closed_door(x, y)) {
+           a closed door spot, destroy the door and if trapped, blow it up;
+           a trapped sokoban prize door holds, and the vampire takes shape
+           beside it as a shape changer under a closed door does */
+        if (closed_door(x, y) && (levl[x][y].doormask & D_TRAPPED)
+            && In_sokoban(&u.uz)) {
+            coord new_xy;
+
+            if (enexto(&new_xy, x, y, mtmp->data))
+                rloc_to(mtmp, new_xy.x, new_xy.y);
+        } else if (closed_door(x, y)) {
             static const char door_smashed[] = "a door being smashed";
             struct rm *door = &levl[x][y];
             boolean trapped = (door->doormask & D_TRAPPED) != 0,

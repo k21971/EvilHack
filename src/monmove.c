@@ -2429,7 +2429,10 @@ postmov(
             && !passes_walls(ptr) /* doesn't need to open doors */
             && !can_tunnel) {     /* taken care of below */
             struct rm *here = &levl[mtmp->mx][mtmp->my];
-            boolean btrapped = (here->doormask & D_TRAPPED) != 0;
+            boolean btrapped = (here->doormask & D_TRAPPED) != 0,
+                    /* a sokoban prize door stays as it is, whatever has
+                       come to be on its square and whatever it carries */
+                    prizedoor = btrapped && In_sokoban(&u.uz);
 
     /* used after monster 'who' has been moved to closed door spot 'where'
        which will now be changed to door state 'what' with map update */
@@ -2444,7 +2447,7 @@ postmov(
     } while (0)
 
             /* if mon has MKoT, disarm door trap; no message given */
-            if (btrapped && has_magic_key(mtmp)) {
+            if (btrapped && !prizedoor && has_magic_key(mtmp)) {
                 /* BUG: this lets a vampire or blob or a doorbuster
                    holding the Key disarm the trap even though it isn't
                    using that Key when squeezing under or smashing the
@@ -2459,6 +2462,8 @@ postmov(
                     pline_mon(mtmp, "%s %s under the door.", YMonnam(mtmp),
                               (ptr == &mons[PM_FOG_CLOUD]
                                || ptr->mlet == S_LIGHT) ? "flows" : "oozes");
+            } else if (prizedoor) {
+                ; /* not opened, unlocked or broken by a monster */
             } else if ((here->doormask & D_LOCKED) != 0 && can_unlock) {
                 /* like the vampshift hack, there are sequencing
                    issues when the monster is moved to the door's spot
