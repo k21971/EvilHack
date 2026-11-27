@@ -6885,8 +6885,10 @@ xkilled(
         spoteffects(TRUE); /* poor man's expels() */
         mtmp = &museum; /* use the reference copy now */
     }
-    /* monster is gone, corpse or other object might now be visible */
-    newsym(x, y);
+    /* monster is gone, corpse or other object might now be visible;
+       a vault guard killed while parked off the map has no square */
+    if (isok(x, y))
+        newsym(x, y);
 
  cleanup:
     /* recalculate malign based on current alignment; it may be stale
@@ -8021,7 +8023,10 @@ setmangry(struct monst *mtmp, boolean via_attack)
             return;
         mtmp->mpeaceful = 0;
         set_malign(mtmp);
-        newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
+        /* clear peaceful glyph; a vault guard parked off the map has
+           none */
+        if (isok(mtmp->mx, mtmp->my))
+            newsym(mtmp->mx, mtmp->my);
         if (mtmp->wormno)
             redraw_worm(mtmp);
         /* peacefuls always catch convicts stealing. but, convicts don't

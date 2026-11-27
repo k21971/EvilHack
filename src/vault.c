@@ -176,6 +176,13 @@ parkguard(struct monst *grd)
         grd->mstate |= MON_PARKED;
         place_monster(grd, 0, 0);
     }
+    /* off the map a live guard is out of every gas cloud as well; left
+       on a cloud's list it would go on coughing there, be angered by
+       the hero's cloud and could be killed where nothing can be
+       dropped; a dead one is taken off by the cloud's own pass, which
+       may be the caller of this very death */
+    if (!DEADMONSTER(grd))
+        update_monster_region(grd);
     /* [grd->mx,my just got set to 0,0 by place_monster(), so this
        just sets EGD(grd)->ogx,ogy to 0,0 too; is that what we want?] */
     EGD(grd)->ogx = grd->mx;

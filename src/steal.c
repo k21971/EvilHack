@@ -1033,6 +1033,23 @@ mdrop_obj(
     boolean was_billed = is_unpaid(obj);
     char *obj_name;
 
+    /* a monster kept off the map (a vault guard parked at <0,0>) has no
+       square to drop anything onto: what it carries goes away, apart
+       from what can never be destroyed, which lands somewhere on the
+       level as it does for a monster that is dismissed */
+    if (!isok(omx, omy)) {
+        if (has_indestructible_contents(obj))
+            spare_indestructible_contents(obj, 0, 0);
+        extract_from_minvent(mon, obj, FALSE, TRUE);
+        if (obj_indestructible(obj) || is_quest_artifact(obj)) {
+            obj->ox = obj->oy = 0;
+            (void) rloco(obj);
+        } else {
+            obfree(obj, (struct obj *) 0);
+        }
+        return;
+    }
+
     /* an unpaid thing a pet carried, put down inside its shop, is off
        the hero's bill: first, so that the drop is not announced as
        unpaid, and before flooreffects() can use the object up */
