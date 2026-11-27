@@ -1370,8 +1370,11 @@ dragon_armor_handling(
     case SHIMMERING_DRAGON_SCALES:
         if (puton) {
             toggle_displacement(otmp, (EDisplaced & ~W_ARM), TRUE);
-            if (Stunned)
+            if (Stunned) {
                 make_stunned(0L, TRUE);
+                /* as well as a stun that comes from the hero's form */
+                HStun = 0L;
+            }
             EStun_resistance |= W_ARM;
         } else {
             toggle_displacement(otmp, (EDisplaced & ~W_ARM), FALSE);

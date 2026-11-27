@@ -1238,8 +1238,11 @@ set_artifact_intrinsic(
         mask = &EDeath_resistance;
     else if (dtyp == AD_STUN) {
         mask = &EStun_resistance;
-        if (Stunned)
+        if (Stunned) {
             make_stunned(0L, TRUE);
+            /* as well as a stun that comes from the hero's form */
+            HStun = 0L;
+        }
     } else if (dtyp == AD_FUSE) {
         /* fusion of fire and frost confers both resistances */
         mask = &EFire_resistance;
