@@ -1158,8 +1158,24 @@ test_move(
         }
     } else if (IS_DOOR(tmpr->typ)) {
         if (closed_door(x, y)) {
+            /* a trapped sokoban prize door has to be opened or broken
+               down, which seals the other closets; like the level's
+               walls it stops a phasing hero, and an oozing one too */
+            boolean prizedoor = ((tmpr->doormask & D_TRAPPED) != 0
+                                 && In_sokoban(&u.uz));
+
             if (Blind && mode == DO_MOVE)
                 feel_location(x, y);
+            if (prizedoor && (Passes_walls || can_ooze(&gy.youmonst))) {
+                if (mode == DO_MOVE) {
+                    if (Passes_walls)
+                        pline_The("door resists your ability.");
+                    else
+                        You("try to ooze under the door,"
+                            " but it is sealed tight.");
+                }
+                return FALSE;
+            }
             if (Passes_walls) {
                 ; /* do nothing */
             } else if (can_ooze(&gy.youmonst)) {

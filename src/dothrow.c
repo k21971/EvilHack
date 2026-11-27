@@ -862,7 +862,7 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
     int *range = (int *) arg;
     struct obj *obj;
     struct monst *mon;
-    boolean may_pass = TRUE, via_jumping, stopping_short;
+    boolean may_pass = TRUE, via_jumping, stopping_short, prizedoor;
     struct trap *ttmp;
     struct rm *lev;
     int ltyp, dmg = 0;
@@ -879,8 +879,11 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
     stopping_short = (via_jumping && *range < 2);
     lev = &levl[x][y];
     ltyp = lev->typ;
+    /* a trapped sokoban prize door stops a phasing hero as well */
+    prizedoor = (closed_door(x, y) && (lev->doormask & D_TRAPPED) != 0
+                 && In_sokoban(&u.uz));
 
-    if (!(Passes_walls && (may_pass = may_passwall(x, y)))
+    if (!(Passes_walls && !prizedoor && (may_pass = may_passwall(x, y)))
         && !(IS_TREES(ltyp) && Passes_trees
              && (may_pass = may_passtree(x, y)))) {
         const char *why = NULL;
