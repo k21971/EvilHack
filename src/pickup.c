@@ -4238,6 +4238,34 @@ dotip(void)
 
     /* check floor container(s) first; at most one will be accessed */
     boxes = container_at(cc.x, cc.y, TRUE);
+    /* if blind and without gloves, attempting to #tip at the location
+       of a cockatrice corpse is fatal before asking whether to
+       manipulate any containers, as it is for #loot; using 'm' to skip
+       the floor avoids it, and so does being unable to touch the floor */
+    if (Blind && !uarmg
+        && (!iflags.menu_requested
+            || (flags.menu_style == MENU_TRADITIONAL && boxes > 1))) {
+        struct trap *t = t_at(cc.x, cc.y);
+
+        /* the tests #loot and able_to_loot() make before the floor is
+           touched, without their messages */
+        if (near_capacity() < EXT_ENCUMBER
+            && can_reach_floor(t && is_pit(t->ttyp))
+            && !((is_pool(cc.x, cc.y) && !Underwater) || is_lava(cc.x, cc.y))
+            && !nolimbs(gy.youmonst.data)) {
+            for (nobj = sobj_at(CORPSE, cc.x, cc.y); nobj;
+                 nobj = nxtobj(nobj, CORPSE, TRUE))
+                if (will_feel_cockatrice(nobj, FALSE)) {
+                    /* a menu that queued this command also queued an
+                       answer for a prompt that will not be asked now */
+                    cmdq_clear(CQ_CANNED);
+                    feel_cockatrice(nobj, FALSE);
+                    /* if life-saved (or poly'd into stone golem),
+                       terminate attempt to tip */
+                    return ECMD_TIME;
+                }
+        }
+    }
     /* this is iffy for menustyle:traditional; 'm' prefix is ambiguous
        for it: skip floor vs handle multiple containers via menu */
     if (boxes > 0
