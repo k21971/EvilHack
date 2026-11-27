@@ -365,6 +365,11 @@ tracker; sNNN = port session.
 - [x] A hurt monster zapping its wand of digging down wherever it
   stands -> not in a trapped Sokoban prize doorway, where no pit or
   hole can be made (s359, BUG-3430, 6027a6cc4).
+- [x] A vault guard who has vanished (parked off the map until his
+  corridor can go) still inside a gas cloud he had stood in: angered
+  by the hero's cloud, hurt and killed by it out of sight -> out of
+  every cloud when parked (ruled s360, BUG-3449, 520b5ce45;
+  vanilla's own gap).
 
 ### 2.3 Combat and magic rules -> master's
 
@@ -894,6 +899,9 @@ tracker; sNNN = port session.
   attack that reaches a ghost with no special damage -> removed, as
   0.9.3 did; a stunning or healing weapon attack gets there honestly
   (s357, BUG-3407, fbf6ea5a4).
+- [x] An object or a seen trap on the span of a raised drawbridge
+  over lava drawn on the map -> hidden, as over a moat; 0.9.3's
+  covers_objects() since its BUG-342 (s360, BUG-3446, 2d81a98cc).
 
 ### 2.5 Levels and content
 
@@ -936,6 +944,13 @@ tracker; sNNN = port session.
 - [x] The ordinary levels between Medusa's island and the Castle
   built as a maze four times in five -> rooms and corridors always,
   0.9.3's choice since 2022 (ruled s356, BUG-3390, 3c48af528).
+- [x] A random altar in an ordinary room on dungeon levels 1 and 2
+  (1 in 60 per room at any depth) -> none above level 3, 0.9.3's
+  rule since 2025-01 (ruled s360, BUG-3440, c8fd3ebe2; master
+  24af3bb53).
+- [x] The themed room "Temple of the gods" (three altars, one of
+  each alignment, at any depth) -> removed; 0.9.3 has no such room
+  (ruled s360, BUG-3441, c8fd3ebe2).
 
 ## 3. Reversed (5.0 kept after a removal was ruled or proposed)
 
@@ -1031,6 +1046,13 @@ tracker; sNNN = port session.
   (2024-12, a null guard) counts every shield roll as a body hit,
   so fire reaches the inventory more often (ruled s358; a master
   quirk left as it is on master).
+
+- [r] A quest leader angered through #chat (banished for a changed
+  alignment, or refused the quest artifact): 5.0's setmangry() kept -
+  "You feel guilty.", -5 alignment (-1 for a chaotic), the abuse
+  record, "<Leader> gets angry!" and the quest guardians turned
+  hostile; 0.9.3 turns him hostile quietly, as walking up to him
+  still does here (ruled s360, against the recommendation).
 
 ## 4. Open
 
