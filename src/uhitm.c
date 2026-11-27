@@ -2186,8 +2186,10 @@ hmon_hitmon_do_hit(
         else
             Strcpy(hmd->saved_oname, bare_artifactname(obj));
 
+        /* a heavy iron ball is swung as a weapon, so a Convict trains
+           flail with it and takes that skill's damage modifier */
         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
-            || obj->oclass == GEM_CLASS) {
+            || obj->oclass == GEM_CLASS || obj->otyp == HEAVY_IRON_BALL) {
             hmon_hitmon_weapon(hmd, mon, obj);
             if (hmd->doreturn)
                 return;
