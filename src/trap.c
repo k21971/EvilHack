@@ -3288,9 +3288,10 @@ trapeffect_poly_trap(
             You_feel("momentarily different.");
             /* Trap did nothing; don't remove it --KAA */
         } else {
-            (void) steedintrap(trap, (struct obj *) 0);
-            /* delete trap before polymorph */
-            deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
+            /* delete trap before polymorph; for a rider steedintrap()
+               has done it already, ahead of the steed's own change */
+            if (!steedintrap(trap, (struct obj *) 0))
+                deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
             newsym(u.ux, u.uy); /* get rid of trap symbol */
             You_feel("a change coming over you.");
             polyself(POLY_NOFLAGS);
@@ -3885,6 +3886,11 @@ steedintrap(struct trap *trap, struct obj *otmp)
         steedhit = TRUE;
         break;
     case POLY_TRAP_SET:
+        /* the trap is used up before the steed changes: a new form
+           that throws its rider can leave the rider on this square (one
+           a monster holds there), and the landing would spring the
+           trap a second time while the caller still has it */
+        deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
         if (!(resists_magm(steed) || defended(steed, AD_MAGM))
             && !resist(steed, WAND_CLASS, 0, NOTELL)) {
             /* newcham() will probably end up calling poly_steed() */
