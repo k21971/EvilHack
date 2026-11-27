@@ -354,6 +354,17 @@ tracker; sNNN = port session.
   f0698e1dc; on the branch the weak level 4 one) -> none, as 0.9.3: a
   bone devil gates in demons like any lesser devil (ruled s349,
   BUG-3251, c8c947cb4).
+- [x] A vampire killed as a fog cloud under a closed door smashing
+  that door when it re-forms (5.0's vamprises()) -> at a trapped
+  Sokoban prize door it re-forms beside the door and the door holds,
+  0.9.3's shape at any closed door; elsewhere 5.0's smash stays
+  (s359, BUG-3434, 2d169c4d1).
+- [x] A monster carrying the Master Key of Thievery disarming any
+  trapped door it steps onto -> not a Sokoban prize door (s359,
+  BUG-3433, 2d169c4d1).
+- [x] A hurt monster zapping its wand of digging down wherever it
+  stands -> not in a trapped Sokoban prize doorway, where no pit or
+  hole can be made (s359, BUG-3430, 6027a6cc4).
 
 ### 2.3 Combat and magic rules -> master's
 
@@ -746,6 +757,17 @@ tracker; sNNN = port session.
   EvilHack's racial test above it already gives the bonus, and the
   two together gave it twice. A catch-up merge must not bring the
   vanilla line back (s358, BUG-3425, 1a1006743).
+- [x] A phasing hero walking through any closed door, and an
+  amorphous one oozing under it -> refused at a trapped Sokoban prize
+  door: "The door resists your ability." / "You try to ooze under the
+  door, but it is sealed tight."; a phasing hero's #jump at one stops
+  short with "Ouch!". An EvilHack rule, not 0.9.3's: the door has to
+  be opened or broken down, which seals the other closets (ruled
+  s359, BUG-3435 / 3436, df7621bf6).
+- [x] A pit or hole dug under any door (a broken wand of digging,
+  digging down) taking the door with it -> not under a trapped
+  Sokoban prize door: the square is skipped, or "too hard to dig in"
+  (s359, BUG-3429, 6027a6cc4).
 
 ### 2.4 Text and logs
 

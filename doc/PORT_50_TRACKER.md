@@ -17,7 +17,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-11-26, session 358: the review-fix
+- Phase 2 status (refreshed 2026-11-27, session 359: the Sokoban
+  prize-door routes are closed (BUG-3427..3436, four commits
+  2778b7716 to df7621bf6), with the stakes corrected first - a
+  bypass never gave three prizes, since picking one up deletes the
+  other two; it gave access to three closets. RULED all the same:
+  every route. A key, lock pick or wand of locking is refused on a
+  solved level too (the old test read the rules flag, which is off
+  by the time the closets can be reached), no pit or hole can be
+  made under a prize door, tunnelers are stopped at it (ruled), a
+  monster standing in the doorway or carrying the Master Key leaves
+  it alone, a vampire killed as fog there re-forms beside it, and a
+  phasing or oozing hero is refused (ruled, two new lines); a
+  pick-axe still opens one and seals the rest (ruled); the prayer
+  rescue is recorded only (ruled); the MED row is closed and one
+  LOW residue row minted; upstream HELD at ce63d5726 with no
+  question (head 968eedd06, unchanged since the last check) - after
+  session 358 (2026-11-26): the review-fix
   sweep's P4 tier of 0.9.3's 2018 to 2025 fix commits was SAMPLED -
   165 of 1,149 units by a seeded random draw, three readers, checker
   clean, calibration right in all three - and gave no lost fix among
@@ -411,10 +427,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-11-12;
   recounted by grep of the Phase 2 section's `- [x]` / `- [ ]`
   rows and their tag prefixes - the door-material MED row carries no
-  prefix; 70 = 0 HIGH + 2 MED + 0 SWEEP + 1 untagged + 67 LOW;
-  recounted 2026-11-26, session 358, which found the 67 here one
-  short of session 357's residue row):
-  849 rows closed, 70 open
+  prefix; 70 = 0 HIGH + 1 MED + 0 SWEEP + 1 untagged + 68 LOW;
+  recounted 2026-11-27, session 359: the Sokoban prize-door MED row
+  closed, one residue row minted):
+  850 rows closed, 70 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -424,9 +440,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4) and the Sokoban prize-door routes (minted
-    2026-11-26, session 358; RULED the next slice).
+  - 1 MED: door-material colors (an unported master feature; it
+    stays with Phase 4). The Sokoban prize-door routes (minted
+    2026-11-26, session 358) were closed by session 359.
     Session 341 minted and closed a HIGH, a MED and three LOW rows and
     closed two verify rows: the bones crash for a crowned Infidel or a
     Dark Knight (BUG-3188, ruled); the Convict's alignment rule at
@@ -38812,14 +38828,55 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       READ, NOT RUN on the branch: see it in play first, then ask
       whether master's shape stands (0.9.3 has the same lines) or
       the rider falls as in vanilla.
-- [ ] MED: Sokoban prize doors, the routes with no guard (minted
-      2026-11-26, session 358; RULED the same day: its own slice,
-      NEXT). The three closet doors of each top Sokoban level are
+- [x] MED: Sokoban prize doors, the routes with no guard (minted
+      2026-11-26, session 358; RULED the same day: its own slice).
+      CLOSED 2026-11-27, session 359: BUG-3427..3436 in 2778b7716
+      (lock.c), 6027a6cc4 (dig.c, trap.c, muse.c), 2d169c4d1 (mon.c,
+      monmove.c) and df7621bf6 (hack.c, dothrow.c). THE STAKES BELOW
+      WERE OVERSTATED: a bypass never gave three prizes. Picking one
+      up deletes the other two (addinv_core1() -> del_soko_prizes())
+      and an unclaimed prize shows only its class, on both trees; a
+      bypass gave access to three closets and, with a wand of
+      polymorph, two ordinary items (run in play: the polymorphed
+      prize gets a new o_id, loses the name, records no achievement).
+      RULED with that corrected (decisions log 2026-11-27): close
+      every route. What landed: (1) lock.c - picklock() and
+      doorlock() test In_sokoban(), so a key, lock pick, wand of
+      locking or wizard lock is refused on a solved level too; the
+      Master Key keeps "You find a trap!  But you see no way to
+      disarm it." (ruled). (2) dig.c, trap.c, muse.c - no pit or hole
+      under a trapped Sokoban door: dig_check() and dighole() refuse,
+      maketrap() returns null, mdig_tunnel() leaves the door, and a
+      monster standing in the doorway does not pick its wand of
+      digging. (3) mon.c, monmove.c - mfndpos() offers the door to
+      phasers only (ruled: tunnelers are stopped, against the 2019
+      text "rock moles can still bust down the doors"); postmov()
+      does nothing to the door under a monster that came to be on
+      it some other way, and the Master Key no longer disarms it;
+      vamprises() moves the risen vampire beside the door instead of
+      smashing it, 0.9.3's shape. (4) hack.c, dothrow.c - a phasing
+      or oozing hero is refused ("The door resists your ability." /
+      "You try to ooze under the door, but it is sealed tight.",
+      ruled, no time used) and a phasing hero's #jump stops short
+      with "Ouch!". Ruled NO CHANGE: a pick-axe, a mattock or a
+      chewing form breaks the door AND seals the others, which
+      counts as opening; the prayer rescue (safe_teleds() ignores
+      no-teleport and can land in a closet) is recorded only.
+      Battery, two testers, nine launches, paniclogs empty: each
+      route open on the old build and closed on the new; corrections
+      to the row and the plan - a phasing hero is never knocked back
+      (hurtle() "You briefly wobble in place."), so only #jump
+      reaches hurtle_step(); a pet polymorphed under the door flees
+      the closet's scare monster scroll first, so that route needs
+      it unable to leave. ORIGINAL ROW, kept for the route census:
+      The three closet doors of each top Sokoban level are
       closed, stone and TRAPPED (sp_lev.c traps every closed Sokoban
       door); #open is the one intended way in - b_trapped() then
       seals the other closets as walls, so the hero takes one prize.
       Any route that removes, opens or untraps a closet door WITHOUT
-      that seal gives all three. The quake was one such route
+      that seal gives access to all three closets (written here as
+      "gives all three", which was wrong: see the closure above). The
+      quake was one such route
       (BUG-3424, 7c077fe75). A census of every writer of a door's
       doormask (an Explore agent, 2026-11-26) found the others.
       RE-READ BY ME on the branch: (a) a PIT on the door square -
@@ -38865,6 +38922,54 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pick-axe or a tunneling form that fires the seal counts as
       opening; confirm each route on 0.9.3 before calling it
       master-shared (only the lock.c pair is confirmed there).
+- [ ] LOW, record: session 359 residue (minted 2026-11-27, the Sokoban
+      prize-door slice: what was seen and NOT changed; record unless
+      a ruling or a later read wants it). Ruled: (a) the prayer
+      rescue - safe_teleds() ignores no-teleport (pray.c
+      TROUBLE_STUCK_IN_WALL, the gas-cloud fix in region.c) and
+      goodpos() takes a closet square, or the door square itself for
+      an amorphous or phasing form: about 3 landings in a few
+      hundred end in a closet; it is one closet the player did not
+      pick, and the ways out are #open, breaking the door (both
+      seal) or digging down; RULED 2026-11-27: record only. Read,
+      and not routes in Sokoban: (b) launch_obj() - a rolling boulder
+      that "slams open" a hard unlocked door writes D_ISOPEN and
+      drops its trap silently, on any level; blow_up_landmine()
+      writes D_BROKEN the same way (no rolling boulder trap on a
+      Sokoban level, and a land mine needs the hero on the square).
+      (c) zap_over_floor()'s exploding wand of striking arm and
+      kick_door() rest on the prize doors being stone (all six
+      soko1-*.lua). (d) b_trapped()'s seal loop tests D_CLOSED only;
+      a prize door can no longer be locked. Seen in the battery: (e)
+      a repeated `_` travel with no path, from the nearest square
+      travel reaches, uses a move with no message - on the old build
+      too, in xorn and in natural form; vanilla not checked. (f)
+      vamprises(): the relocated vampire can be caught a second time
+      by the explosion that killed its fog form (a fireball centred
+      in front of the door did it); 0.9.3 relocates the same way at
+      any closed door. (g) A hurt monster with nowhere to flee
+      attacks from a closet doorway despite the closet's scare
+      monster scroll and Elbereth (a 5-HP xorn killed an XL30 hero in
+      about seven turns). (h) A hero both phasing and in a chewing
+      form is refused at a prize door, not offered the chew, until
+      the phasing ends (vanilla's chain never lets a phasing form
+      chew a door). (i) A monster polymorphed in place on the door
+      square now stands in a closed door harmlessly, but a
+      displacer-beast shape there can still swap the hero onto the
+      square, and the seal turns a door into a wall under a monster
+      sitting in it (both trees). (j) postmov(): a trapped closed
+      door never equals plain D_CLOSED, so a door-opening monster at
+      any trapped door takes the doorbuster arm and removes the door
+      whatever the trap variety (0.9.3 the same). (k) picklock()'s
+      refusal still comes after "Lock it?" and one turn of the
+      occupation, and a cursed tool can break first. (l)
+      check_jump() still validates a phasing hero's jump across a
+      prize door; hurtle_step() then stops it, with the Sokoban jump
+      penalty. (m) A polymorphed prize is an ordinary item with a new
+      o_id: its slot in soko_prize_oid[] then points at nothing, the
+      achievement is never recorded and the other two prizes stay in
+      their sealed closets; nothing to gain now that the other
+      closets cannot be reached.
 - [ ] LOW, record: session 358 residue (minted 2026-11-26, the review-
       fix sweep's P4 sample and its fix slice: what was seen and NOT
       changed; record unless a ruling or a later read wants it).
@@ -43364,8 +43469,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       kill (master's AD_CLOB arm). KEPT by ruling: burnarmor()'s
       shield roll (vanilla's; 0.9.3's 3a452ae45 form is an accident
       of a null guard). MINTED: the MED row for the other routes
-      past a Sokoban prize door (ruled the next slice) and the
-      session 358 residue row. STILL UNREAD: the 2026 WEAK tier
+      past a Sokoban prize door (closed by session 359,
+      BUG-3427..3436) and the session 358 residue row. STILL
+      UNREAD: the 2026 WEAK tier
       (484), the fix commits touching dat/ and the Windows-only
       paths, and before 2026 P5 (117) and WEAK (1,202).
 - [x] LOW: review-fix sweep, the minor and hardening gaps (minted
@@ -45450,6 +45556,7 @@ trees, different content - Phase 0 rename).
 | 2026-11-22 | Review-fix sweep, the pre-2026 P1 probe and its fix slice (Phase 5 / session 356, AskUserQuestion x4 with ten questions, nine as recommended). (0) UPSTREAM: NetHack-5.0 is ten commits past the base (ce63d5726 -> 7654cee4d): four more of our PRs landed 2026-11-22 (#1730 and #1731 the bag of holding blast, #1732 the shape changer placed before it reverts, #1733 the nested Lua call), six since the base, so the count trigger fired; trial merge 18 conflicted files, 33 blocks, and 83 uses of Maybe_Half_Phys in 26 files to rename by hand. HOLD (as recommended): the rename's new argument is unused upstream so far - merge when the follow-on that uses it lands, or when upstream lands a fix the branch lacks; rejected: merge now as the session, slice now and merge next session. (1) SLICE: the pre-2026 P1 probe (as recommended; rejected: the 2026 weak tier, the NON_PM hardening, an older gameplay thread). (2) REACH-BACK, with the probe's yield in hand (15 lost fixes in 205 units - 1 crash, 5 gameplay, 9 minor): P2 and P3 of the older commits next, 432 units, then P4 by that yield (as recommended; rejected: stop at P1, read P2 to P5 at once). (3) FIX SLICE: planned and done in the same session (as recommended; rejected: crash and gameplay only, record now and fix next session). (4) FORGE LIGHT: 0.9.3's - a forge has its room's light, so a Drow can forge drow-made items at a dark forge; the port's forced light was a misreading of a leftover macro (as recommended; rejected: always lit, lit with a new drowcraft test). (5) MEDUSA FILL: rooms and corridors always between Medusa and the Castle, 0.9.3's (as recommended; rejected: vanilla's maze four times in five). (6) SOKOBAN: a phasing hero is refused the diagonal squeeze between boulders, 0.9.3's (as recommended; rejected: 5.0's pass). (7) A PET'S PICKUP of the hero's own shop-floor item: 5.0's rule KEPT - the pet takes possession, the shopkeeper owns the item once it is dropped and the pet exchange bills for it (as recommended; rejected: 0.9.3's kept no_charge mark, which needs new code against 5.0's sanity check). (8) GAZE TEXT: "but nothing happens." KEPT, 5.0's lower-case continuation - NOT as recommended (0.9.3's capital "But" was). (9) BATTERY: one, nine legs (as recommended). Decided without a question and said in the plan: the ring of stealth report is skipped for that ring only where 0.9.3 deleted the check; obj_is_local() takes 0.9.3's bill case and not its free-object case; the Castle arrival lead needed no change |
 | 2026-11-25 | Review-fix sweep, the pre-2026 P2 / P3 read and its fix slice (Phase 5 / session 357, AskUserQuestion x4 with nine questions, eight as recommended). (0) UPSTREAM: NetHack-5.0 is 16 commits past the base (ce63d5726 -> 982aea4cd); two of the six new ones are fixes the branch lacked (982aea4cd the nested message buffer, 074ce9adf a polymorphed hero's hit die), so the hold's second trigger FIRED; trial merge 19 conflicted files, 34 blocks, 83 uses of Maybe_Half_Phys still to rename with an argument nothing reads. HOLD AGAIN and HAND-PORT BOTH (as recommended; rejected: merge now as the session; hold and port nothing). (1) POLYMORPHED HERO'S HIT POINTS: the form's hit die per level gained or lost, upstream's fix on EvilHack's size-based die (as recommended; rejected: 0.9.3's live 1d4 for every form). (2) COLD PASSIVE: every cold-passive monster still heals from its attacker's heat (the 2026-10-01 ruling stands), but only blue jellies and brown molds multiply - about 86% of white dragons split at the first chill; hero forms stay as ruled 2026-10-01 (as recommended; rejected: 0.9.3's rule in full with no healing; 5.0's in full). (3) GEM POLYPILE: 0.9.3's - a stack that comes out as gems or glass turns to rocks when bigger than 1d4, half of it lost (as recommended; rejected: vanilla's rocks-and-gray-stones-only rule). (4) AN UNPAID ITEM HANDED TO A PET: 0.9.3's - billed while the pet holds it, off the bill when it is put down inside the shop; the sanity check accepts the state (as recommended; rejected: refuse the gift; 5.0's unbill at once, a free and deterministic theft route). (5) A PET'S PICKUP of an unpaid item: it stays billed; any other monster's pickup takes it off the bill, 5.0's (as recommended; rejected: always billed as on 0.9.3; 5.0's rule for pets too). (6) EMPTY WISH ("2", "(lit)"): 5.0's re-prompt KEPT once the impossible() is gone - NOT as recommended (0.9.3's and vanilla 3.6's random object with the wish spent was). (7) P4 TIER: a random sample of about 165 units next, the rest only if it yields at this read's rate or better (as recommended; rejected: all 1,149 units; stop the reach-back). (8) DELTA LEGS on the final binary after the review edits: run (as recommended). Decided without a question and said in the plan or the hand-back: rloc_to()'s silent refusal of an occupied square is not ported; the put-down rule also covers armor shed on polymorph, a dropped wielded or off-hand weapon and a thrown missile that lands in its shop, on the ground that the hero's own throw already works that way; the Idol's spe is no longer written at the imbue | maintainer |
 | 2026-11-26 | Review-fix sweep, the pre-2026 P4 sample and its fix slice (Phase 5 / session 358, AskUserQuestion x4 with eight questions, seven as recommended). (0) UPSTREAM: held with no question - NetHack-5.0 is 20 commits past the base (ce63d5726 -> 968eedd06); the four new ones are the nudist start count, which the branch already carries (BUG-3389), and an object-creation refactor with no behavior change; the Maybe_Adjust_Phys argument is still unused. (1) THE P4 TIER: NOT READ FURTHER (as recommended; rejected: read the other 984 units, about 9.4M reader tokens; a second sample of 165) - the sample gave no lost fix among 165 units and one ruled difference, against a bar of about four. (2) RUNS AT SHALLOW WATER AND SEWAGE: 0.9.3's - `_` travel, Shift-run and G / Ctrl runs all halt whenever it is the next square ahead and again at each step while wading, unless levitating, flying or clinging (as recommended; rejected: stop at the edge only; keep the branch, where travel and Shift-run waded in). A blind hero's run is not stopped by it, as on 0.9.3; deep water and lava keep 5.0's rule (not asked). (3) THE POLYMORPH TRAP JUMP: both as on 0.9.3 - the monster that jumps onto the trap uses it up, and a handless monster never jumps; a monster that walks in still leaves the trap (as recommended; rejected: either one alone; leave both as 5.0). (4) A DRAUGR'S TAINTED CORPSE: master's COMMIT TEXT - the rot portion and the corpse's intrinsics over a multi-turn meal, WITHOUT the corpse's own nutrition (NOT as recommended; rejected: 0.9.3's live meal, the portion plus the full corpse - a human corpse 200 + 400). In the plan, and approved with it: the portion is given once per corpse, not again for one already partly eaten, since a meal that takes no nutrition would otherwise be restartable for a fresh portion each time. (5) THE EARTHQUAKE AT SOKOBAN'S PRIZE DOORS: a trapped Sokoban door never collapses in a quake, master's 2019 intent (as recommended; rejected: leave it as live 0.9.3 has it). (6) BURNARMOR()'S SHIELD ROLL: the branch keeps vanilla's rule - the roll burns the shield or rerolls and is never a body hit (as recommended; rejected: 0.9.3's since 3a452ae45, where it always counts as a body hit and fire reaches the inventory more often). (7) THE OTHER ROUTES PAST A SOKOBAN PRIZE DOOR, found while planning (5) - a pit on the door square, a tunneling pet, a key on a solved level, the Master Key ooze, a re-forming vampire: THEIR OWN SLICE, NEXT, with a row minted now (as recommended; rejected: fold all of them into this slice). (8) BATTERY: launched with two testers at once (as recommended) | maintainer |
+| 2026-11-27 | Sokoban prize doors, every route but #open (Phase 2 / session 359, AskUserQuestion x6 with eight questions, seven as recommended; (1) to (5) asked 2026-11-26). (0) UPSTREAM: held with no question - NetHack-5.0 still at 968eedd06, 20 commits past the base ce63d5726, nothing new since session 358's check. (1) SCOPE, asked again because session 358's premise was wrong - a bypass does not give three prizes (picking one up deletes the other two, and an unclaimed prize shows only its class); it gives access to three closets: EVERY ROUTE all the same (as recommended; rejected: only the routes a player can set up, only the lock routes, record only). (2) TUNNELING MONSTERS AND PETS: a trapped prize door stops them (as recommended; rejected: they break it and the other two seal; leave as 0.9.3, whose 2019 text 75a69d71e says "rock moles can still bust down the doors"). (3) A PHASING OR OOZING HERO: the door stops the hero (as recommended; rejected: leave as 0.9.3). (4) A PICK-AXE, MATTOCK OR CHEWING FORM counts as opening: no change, the door breaks and the others seal (as recommended; rejected: the door resists those too). (5) WORDING of the hero's refusal: two lines, "The door resists your ability." for phasing and "You try to ooze under the door, but it is sealed tight." for oozing (NOT as recommended: one line for both). (6) THE PRAYER RESCUE - safe_teleds() ignores no-teleport and can land a stuck hero in a closet: record only (as recommended; rejected: keep rescues off and beside a trapped prize door). (7) THE MASTER KEY at a prize door keeps its own line, "You find a trap!  But you see no way to disarm it.", solved level or not, and other tools get "You cannot lock this door." (as recommended; rejected: one line for every tool, the 2020 arm deleted). (8) BATTERY: launched with two testers at once (as recommended) | maintainer |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 
