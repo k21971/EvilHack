@@ -3633,6 +3633,7 @@ staticfn int
 prayer_done(void) /* M. Stephenson (1.0.3b) */
 {
     aligntyp alignment = gp.p_aligntyp;
+    boolean risen;
 
     u.uinvulnerable = FALSE;
     if (gp.p_type == -2) {
@@ -3648,11 +3649,19 @@ prayer_done(void) /* M. Stephenson (1.0.3b) */
                     ? "Vile creature, thou durst call upon me?"
                     : "Walk no more, perversion of nature!");
         You_feel("like you are falling apart.");
-        /* KMH -- Gods have mastery over unchanging */
+        /* KMH -- Gods have mastery over unchanging, but not over a
+           hero who rose from the grave in this form: that one is
+           destroyed; read the state first, since surviving the death
+           clears it */
+        risen = (HUnchanging != 0L);
+        if (risen)
+            u.mh = 0; /* rehumanize() ends a hero stuck in the form */
         rehumanize();
-        /* no Half_physical_damage adjustment here */
-        losehp(rnd(20), "residual undead turning effect", KILLED_BY_AN);
-        exercise(A_CON, FALSE);
+        if (!risen) {
+            /* no Half_physical_damage adjustment here */
+            losehp(rnd(20), "residual undead turning effect", KILLED_BY_AN);
+            exercise(A_CON, FALSE);
+        }
         return 1;
     }
     if (mitre_inhell() && u.ualign.type != A_NONE) {

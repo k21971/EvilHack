@@ -2195,6 +2195,7 @@ rehumanize(void)
     /* You can't revert back while unchanging */
     if (Unchanging) {
         if (u.mh < 1) {
+            urgent_pline("You die...");
             svk.killer.format = NO_KILLER_PREFIX;
             Strcpy(svk.killer.name, "killed while stuck in creature form");
             done(DIED);
