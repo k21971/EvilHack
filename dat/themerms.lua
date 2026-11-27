@@ -213,15 +213,6 @@ themeroom_fills = {
    },
 
    {
-      name = "Temple of the gods",
-      contents = function(rm)
-         des.altar({ align = align[1] });
-         des.altar({ align = align[2] });
-         des.altar({ align = align[3] });
-      end,
-   },
-
-   {
       name = "Ghost of an Adventurer",
       contents = function(rm)
          local loc = selection.room():rndcoord(0);

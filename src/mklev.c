@@ -1093,7 +1093,8 @@ fill_ordinary_room(
         mksink(croom);
     if (!rn2(40))
         mkforge(croom);
-    if (!rn2(60))
+    /* no random altar on the first two levels */
+    if (depth(&u.uz) > 2 && !rn2(60))
         mkaltar(croom);
     x = 80 - (depth(&u.uz) * 2);
     if (x < 2)
