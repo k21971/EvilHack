@@ -122,7 +122,10 @@ picklock(void)
         }
     }
 
-    if (Sokoban && !gx.xlock.box
+    /* In_sokoban(), not Sokoban: the closets are reached once the puzzle
+       is solved, and solving it clears the level's rules flag; the
+       Master Key gets its own refusal below, after it finds the trap */
+    if (In_sokoban(&u.uz) && !gx.xlock.box && !gx.xlock.magic_key
         && (gx.xlock.door->doormask & D_TRAPPED) != 0) {
         You("cannot lock this door.");
         return ((gx.xlock.usedtime = 0));
@@ -1445,8 +1448,9 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
                   quickly_dissipates);
             return FALSE;
         }
-        /* Don't allow the sokoban closet doors to be locked */
-        if (Sokoban && (door->doormask & D_TRAPPED) != 0) {
+        /* Don't allow the sokoban closet doors to be locked, on a solved
+           level either */
+        if (In_sokoban(&u.uz) && (door->doormask & D_TRAPPED) != 0) {
             pline_The("%s has no effect on this door.",
                       otmp->otyp == WAN_LOCKING ? "wand" : "spell");
             return FALSE;
