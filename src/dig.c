@@ -236,6 +236,11 @@ dig_check(struct monst *madeby, coordxy x, coordxy y)
     } else if ((IS_OBSTRUCTED(levl[x][y].typ) && levl[x][y].typ != SDOOR
                 && (levl[x][y].wall_info & W_NONDIGGABLE) != 0)) {
         return DIGCHECK_FAIL_TOOHARD;
+    } else if (IS_DOOR(levl[x][y].typ) && (levl[x][y].doormask & D_TRAPPED)
+               && In_sokoban(&u.uz)) {
+        /* a pit or hole under a trapped sokoban prize door would take
+           the door with it and leave the other closets unsealed */
+        return DIGCHECK_FAIL_TOOHARD;
     } else if (ttmp && undestroyable_trap(ttmp->ttyp)) {
         return DIGCHECK_FAIL_UNDESTROYABLETRAP;
     } else if (!Can_dig_down(&u.uz) && !levl[x][y].candig) {
@@ -1070,7 +1075,10 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
                            : "are too thick to dig through");
     } else if ((ttmp && (undestroyable_trap(ttmp->ttyp) || nohole))
                || (IS_OBSTRUCTED(old_typ) && old_typ != SDOOR
-                   && (lev->wall_info & W_NONDIGGABLE) != 0)) {
+                   && (lev->wall_info & W_NONDIGGABLE) != 0)
+               /* nor under a trapped sokoban prize door (dig_check()) */
+               || (IS_DOOR(old_typ) && (lev->doormask & D_TRAPPED)
+                   && In_sokoban(&u.uz))) {
         pline_The("%s %shere is too hard to dig in.", surface(dig_x, dig_y),
                   (dig_x != u.ux || dig_y != u.uy) ? "t" : "");
     } else if (ttmp && is_magical_trap(ttmp->ttyp)) {
@@ -1666,6 +1674,11 @@ mdig_tunnel(struct monst *mtmp)
        stays intact (and a metal secret door stays hidden) */
     if ((here->typ == SDOOR || closed_door(mtmp->mx, mtmp->my))
         && metal_door(here) && !metallivorous(mtmp->data))
+        return FALSE;
+    /* a trapped sokoban prize door is not dug through, however the digger
+       came to be on its square (mfndpos() does not offer it) */
+    if (closed_door(mtmp->mx, mtmp->my) && (here->doormask & D_TRAPPED)
+        && In_sokoban(&u.uz))
         return FALSE;
     if (here->typ == SDOOR)
         cvt_sdoor_to_door(here); /* ->typ = DOOR */

@@ -1092,6 +1092,9 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             && !(levl[x][y].wall_info & W_NONDIGGABLE)
             /* nor would it inside a standing tree (dig_check()) */
             && !IS_TREES(levl[x][y].typ)
+            /* nor under a trapped sokoban prize door (maketrap()) */
+            && !(IS_DOOR(levl[x][y].typ) && (levl[x][y].doormask & D_TRAPPED)
+                 && In_sokoban(&u.uz))
             /* nor for a monster a live tree holds above the hole */
             && !mon_tree_held(mtmp)
             && !(Is_botlevel(&u.uz) || In_endgame(&u.uz))
@@ -1240,6 +1243,9 @@ check_defensive_item(
         && !(levl[x][y].wall_info & W_NONDIGGABLE)
         /* nor would it inside a standing tree (dig_check()) */
         && !IS_TREES(levl[x][y].typ)
+        /* nor under a trapped sokoban prize door (maketrap()) */
+        && !(IS_DOOR(levl[x][y].typ) && (levl[x][y].doormask & D_TRAPPED)
+             && In_sokoban(&u.uz))
         /* nor for a monster a live tree holds above the hole */
         && !mon_tree_held(mtmp)
         && !(Is_botlevel(&u.uz) || In_endgame(&u.uz))

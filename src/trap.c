@@ -544,6 +544,11 @@ maketrap(coordxy x, coordxy y, int typ)
 
     if (typ == TRAPPED_DOOR || typ == TRAPPED_CHEST)
         return (struct trap *) 0;
+    /* a pit or hole clears the square's flags below, and with them a
+       door: never under a trapped sokoban prize door, whoever digs */
+    if ((is_pit(typ) || is_hole(typ)) && IS_DOOR(lev->typ)
+        && (lev->doormask & D_TRAPPED) && In_sokoban(&u.uz))
+        return (struct trap *) 0;
 
     if ((ttmp = t_at(x, y)) != 0) {
         if (undestroyable_trap(ttmp->ttyp))
