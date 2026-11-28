@@ -3426,6 +3426,8 @@ accessory_or_armor_on(struct obj *obj)
                 already_wearing("an amulet");
                 return ECMD_OK;
             }
+            /* for the touch test: it lies over a shirt or body armor */
+            mask = W_AMUL;
         } else if (eyewear) {
             if (!has_head(gy.youmonst.data)) {
                 You("have no head to wear %s on.", ansimpleoname(obj));

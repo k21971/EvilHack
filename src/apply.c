@@ -1850,7 +1850,8 @@ use_lamp(struct obj *obj)
     }
     if (!u_handsy())
         return;
-    if (Underwater) {
+    /* a magic lamp can be lit underwater */
+    if (Underwater && obj->otyp != MAGIC_LAMP) {
         pline("%s.",
               !Is_candle(obj) ? "This is not a diving lamp"
                               : "Sorry, fire and water don't mix");

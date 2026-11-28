@@ -98,8 +98,9 @@ new_light_core(coordxy x, coordxy y, int range, int type, anything *id)
 void
 del_light_source(int type, anything *id)
 {
-    light_source *curr;
+    light_source *curr, *next;
     anything tmp_id;
+    boolean found_it = FALSE;
 
     tmp_id = cg.zeroany;
     /* need to be prepared for dealing a with light source which
@@ -121,17 +122,22 @@ del_light_source(int type, anything *id)
         break;
     }
 
-    /* find the light source from its id */
-    for (curr = gl.light_base; curr; curr = curr->next) {
+    /* find the light source from its id; there should be exactly one,
+       and a second would dangle once its owner is freed, so take every
+       match and say so */
+    for (curr = gl.light_base; curr; curr = next) {
+        next = curr->next;
         if (curr->type != type)
             continue;
         if (curr->id.a_obj
-            == ((curr->flags & LSF_NEEDS_FIXUP) ? tmp_id.a_obj : id->a_obj))
-            break;
+            == ((curr->flags & LSF_NEEDS_FIXUP) ? tmp_id.a_obj : id->a_obj)) {
+            delete_ls(curr);
+            if (found_it)
+                impossible("multiple ls attached to type %d", type);
+            found_it = TRUE;
+        }
     }
-    if (curr) {
-        delete_ls(curr);
-    } else {
+    if (!found_it) {
         impossible("del_light_source: not found type=%d, id=%s", type,
                    fmt_ptr((genericptr_t) id->a_obj));
     }

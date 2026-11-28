@@ -3926,8 +3926,9 @@ mstatusline(struct monst *mtmp)
     Strcpy(monnambuf, x_monnam(mtmp, ARTICLE_YOUR, (char *) 0,
                                (SUPPRESS_IT | SUPPRESS_INVISIBLE), FALSE));
 
-    pline("Status of %s (%s, %s):  Level %d  HP %d(%d)  AC %d%s.",
-          monnambuf, align_str(alignment), size_str(mtmp->data->msize),
+    pline("Status of %s (%s, %s, %s):  Level %d  HP %d(%d)  AC %d%s.",
+          monnambuf, genders[gender(mtmp)].adj, align_str(alignment),
+          size_str(mtmp->data->msize),
           mtmp->m_lev, mtmp->mhp, mtmp->mhpmax, find_mac(mtmp), info);
 }
 
@@ -3940,6 +3941,9 @@ ustatusline(void)
        the third BUFSZ is headroom for that name */
     char info[3 * BUFSZ];
     size_t ln;
+    /* a hero in a neuter form reads as neuter */
+    int gend = (Upolyd && is_neuter(gy.youmonst.data)) ? 2
+               : (flags.female ? 1 : 0);
 
     info[0] = '\0';
     if (spot_is_dark(u.ux, u.uy))
@@ -4039,7 +4043,8 @@ ustatusline(void)
         Snprintf(eos(info), sizeof info - ln, ", in a cloud of %s",
                  reg_damg(reg) ? "poison gas" : "vapor");
 
-    pline("Status of %s (%s):  Level %d  HP %d(%d)  AC %d%s.", svp.plname,
+    pline("Status of %s (%s, %s):  Level %d  HP %d(%d)  AC %d%s.",
+          svp.plname, genders[gend].adj,
           piousness(FALSE, align_str(u.ualign.type)),
           Upolyd ? mons[u.umonnum].mlevel : u.ulevel, Upolyd ? u.mh : u.uhp,
           Upolyd ? u.mhmax : u.uhpmax, u.uac, info);

@@ -1910,8 +1910,9 @@ maybe_adjust_light(struct obj *obj, int old_range)
         obj_adjust_light_radius(obj, new_range);
         /* simplifying assumptions:  hero is wielding or wearing this object;
            artifacts have to be in use to emit light and monsters' gear won't
-           change bless or curse state */
-        if (!Blind && get_obj_location(obj, &ox, &oy, 0)) {
+           change bless or curse state; not for armor that has become the
+           hero's skin, which already had its say when it merged */
+        if (!Blind && get_obj_location(obj, &ox, &oy, 0) && obj != uskin) {
             *buf = '\0';
             if (iflags.last_msg == PLNMSG_OBJ_GLOWS)
                 /* we just saw "The <obj> glows <color>." from dipping */

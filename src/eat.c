@@ -3841,6 +3841,15 @@ doeat(void)
                 otmp->orotten = TRUE;
                 dont_start = TRUE;
             }
+            /* a last rotten crumb is not worth a meal: it is just gone */
+            if (otmp->oeaten < 2) {
+                svc.context.victual = zero_victual;
+                if (carried(otmp))
+                    useup(otmp);
+                else
+                    useupf(otmp, 1L);
+                return ECMD_TIME;
+            }
             consume_oeaten(otmp, 1); /* oeaten >>= 1 */
         } else if (!already_partly_eaten) {
             if (!fprefx(otmp)) {
