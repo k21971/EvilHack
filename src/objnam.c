@@ -1680,9 +1680,10 @@ doname_base(
 
     if (bknown && obj->oclass != COIN_CLASS
         && (obj->otyp != POT_WATER || !objects[POT_WATER].oc_name_known
-            || (!obj->cursed && !obj->blessed))) {
+            || (!obj->cursed && !obj->blessed) || !dknown)) {
         /* allow 'blessed clear potion' if we don't know it's holy water;
-         * always allow "uncursed potion of water"
+         * always allow "uncursed potion of water"; an unseen potion is
+         * just "potion", so it shows its curse state like any other
          */
         if (obj->cursed)
             Strcat(prefix, "cursed ");
@@ -5560,6 +5561,7 @@ readobjnam_postparse1(struct _readobjnam_data *d)
         && strncmpi(d->bp, "death wand", 10)  /* 'of inversion', not Rider */
         && strncmpi(d->bp, "master key", 10)  /* not the "master" rank */
         && strncmpi(d->bp, "ninja-to", 8)     /* not the "ninja" rank */
+        && strncmpi(d->bp, "vampire blood", 13) /* not the "vampire" */
         && strncmpi(d->bp, "magenta", 7)      /* not the "mage" rank */
         /* nor the leading word of an object alias that happens to name a
            monster, such as "drow dagger" */

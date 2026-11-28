@@ -8318,7 +8318,8 @@ explum(struct monst *mdef, struct attack *mattk)
         }
         break;
     case AD_HALU:
-        if (mdef && haseyes(mdef->data) && mdef->mcansee) {
+        if (mdef && haseyes(mdef->data) && mdef->mcansee
+            && !mon_prop(mdef, HALLUC_RES)) {
             pline("%s is affected by your flash of light!", Monnam(mdef));
             mdef->mconf = 1;
         }

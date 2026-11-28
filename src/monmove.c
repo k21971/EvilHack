@@ -3446,8 +3446,11 @@ m_move(struct monst *mtmp, int after)
             return MMOVE_MOVED;
         }
         /* for a long worm, shrink it (by discarding end of tail) when
-           it has failed to move */
-        if (mtmp->wormno)
+           it has failed to move, unless what kept it from moving is
+           its own condition */
+        if (mtmp->wormno
+            && !(mtmp->mconf || mtmp->mstun || mtmp->mtrapped
+                 || mtmp->msleeping || mtmp->mentangled))
             worm_nomove(mtmp);
     }
     return postmov(mtmp, ptr, omx, omy, mmoved,

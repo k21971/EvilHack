@@ -375,6 +375,21 @@ place_lregion(
     boolean oneshot;
     coordxy x, y;
 
+    /* a search region given with its corners the wrong way round is
+       put right instead of refused */
+    if (lx > hx) {
+        coordxy tmp = lx;
+
+        lx = hx;
+        hx = tmp;
+    }
+    if (ly > hy) {
+        coordxy tmp = ly;
+
+        ly = hy;
+        hy = tmp;
+    }
+
     if (!lx) { /* default to whole level */
         /*
          * if there are rooms and this a branch, let place_branch choose
