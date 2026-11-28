@@ -7647,12 +7647,10 @@ m_respond_shrieker(struct monst *mtmp)
         stop_occupation();
     }
     if (!rn2(10)) { /* 1/10 chance per shriek to create a monster */
-        /* new monster has a 1/13 chance to be a purple worm, random
-           otherwise; baby purple worm if adult is too difficult */
-        (void) makemon(rn2(13) ? (struct permonst *) 0
-                       : &mons[montoostrong(PM_PURPLE_WORM,
-                                            monmax_difficulty_lev())
-                               ? PM_BABY_PURPLE_WORM : PM_PURPLE_WORM],
+        /* a shrieker's own shriek has a 1/13 chance to bring a purple
+           worm; anything else that shrieks draws a random monster */
+        (void) makemon((mtmp->data == &mons[PM_SHRIEKER] && !rn2(13))
+                           ? &mons[PM_PURPLE_WORM] : (struct permonst *) 0,
                        0, 0, NO_MM_FLAGS);
     }
     aggravate();
