@@ -1500,6 +1500,7 @@ dodown(void)
             return ECMD_OK;
         pline("So be it.");
         u.uevent.gehennom_entered = 1; /* don't ask again */
+        record_achievement(ACH_HELL); /* past the Valley's gate */
     }
 
     if (!next_to_u()) {
@@ -2155,7 +2156,10 @@ goto_level(
         struct trap *ttrap;
 
         for (ttrap = gf.ftrap; ttrap; ttrap = ttrap->ntrap)
-            if (ttrap->ttyp == MAGIC_PORTAL)
+            /* find the portal with the right destination level */
+            if (ttrap->ttyp == MAGIC_PORTAL
+                && u.uz0.dnum == ttrap->dst.dnum
+                && u.uz0.dlevel == ttrap->dst.dlevel)
                 break;
 
         if (!ttrap) {
@@ -2166,7 +2170,8 @@ goto_level(
                    doesn't exist anymore - see expulsion(). */
                 u_on_rndspot(0);
             } else {
-                /* No corresponding portal exists - this can happen with
+                /* No corresponding portal exists, or none that leads
+                 * back where the hero came from - this can happen with
                  * branch portals like Goblin Town that are one-way only.
                  * Place the player at a random location */
                 if (!iflags.debug_fuzzer)
@@ -2334,12 +2339,14 @@ goto_level(
                 You("feel unable to rest or recuperate here.");
             }
         }
-
-        record_achievement(ACH_HELL); /* reached Gehennom */
     }
-    /* in case we've managed to bypass the Valley's stairway down */
-    if (Inhell && !Is_valley(&u.uz))
+    /* in case we've managed to bypass the Valley's stairway down;
+       reaching the Valley is not yet entering Gehennom, getting below
+       it by any road is */
+    if (Inhell && !Is_valley(&u.uz) && !u.uevent.gehennom_entered) {
         u.uevent.gehennom_entered = 1;
+        record_achievement(ACH_HELL);
+    }
 
     if (familiar)
         familiar_level_msg();
