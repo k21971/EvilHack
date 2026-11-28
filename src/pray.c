@@ -612,7 +612,10 @@ fix_worst_trouble(int trouble)
         boolean cure_deaf = (HDeaf & TIMEOUT) ? TRUE : FALSE;
 
         msgbuf[0] = '\0';
-        if (Blinded) {
+        /* the timer, not Blinded: a blindness the Eyes of the Overworld
+           are overriding is still the trouble in_trouble() reported, and
+           it has to be gone when this returns */
+        if (BlindedTimeout) {
             if (eyecount(gy.youmonst.data) != 1)
                 eyes = makeplural(eyes);
             Sprintf(msgbuf, "Your %s %s better", eyes, vtense(eyes, "feel"));
@@ -1642,7 +1645,8 @@ pleased(aligntyp g_align)
         case 4:
             do
                 fix_worst_trouble(trouble);
-            while ((trouble = in_trouble()) != 0);
+            /* allow more tries than there are troubles */
+            while ((trouble = in_trouble()) != 0 && ++tryct < 30);
             break;
 
         case 3:
