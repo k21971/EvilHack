@@ -773,6 +773,40 @@ tracker; sNNN = port session.
   digging down) taking the door with it -> not under a trapped
   Sokoban prize door: the square is skipped, or "too hard to dig in"
   (s359, BUG-3429, 6027a6cc4).
+- [x] A run pushing a boulder (a Shift-run one square, a blind or
+  hallucinating hero in any run mode, Sokoban too) -> no run made
+  without the no-pickup prefix pushes: it stops beside the boulder and
+  uses no turn; 5.0's travel step-over stays, section 3 (s361, BUG-3450,
+  56152124e).
+- [x] Prayer returning a hero stuck in an undead form by intrinsic
+  Unchanging (risen from the grave) to their own form for rnd(20) ->
+  destroyed, "killed while stuck in creature form" (s361, BUG-3451,
+  2457099f9).
+- [x] A heavy iron ball hitting as a non-weapon (no skill training, no
+  skill damage modifier) -> the weapon path, so a Convict trains flail
+  with it (s361, BUG-3452, 4bf34d7aa).
+- [x] #tip while blind and gloveless on a cockatrice corpse's square
+  being safe -> the corpse is felt first, as for #loot, unless the m
+  prefix skips the floor or the hero could not touch it; 0.9.3's literal
+  order (the feel ahead of every reach test) is not taken, by ruling
+  (s361, BUG-3453, 0b5fee147).
+- [x] A stun-resistance cure (Snickersnee seated, shimmering dragon
+  scales melded) clearing only a timed stun -> a stun from the hero's
+  form is cleared too (s361, BUG-3454, 3fd58de3f).
+- [x] An object a monster launched landing intact (a missed potion left
+  for the hero, a lit oil flask left burning, glass weapons surviving)
+  -> it breaks on hard ground, whoever threw it (s361, BUG-3455,
+  ad594caf6).
+- [x] A shriek's 1-in-13 purple worm for any shrieking monster, and a
+  baby purple worm when the adult is too difficult for the level -> a
+  real shrieker only, always the adult (s361, BUG-3457, bb14fd657).
+- [x] Regeneration from worn artifact armor (the Hand of Vecna, Ashmar)
+  burning nutrition on odd turns -> free, as from a wielded or carried
+  artifact (s361, BUG-3458, f3acc7b29).
+- [x] Portal arrival on the first magic portal of the level -> on the
+  portal that leads back where the hero came from; and a level region
+  given backwards refused with an impossible() -> swapped. Neither has a
+  case in today's levels (s361, BUG-3463 / 3464, ea101d715 / 894f5013b).
 
 ### 2.4 Text and logs
 
@@ -902,6 +936,10 @@ tracker; sNNN = port session.
 - [x] An object or a seen trap on the span of a raised drawbridge
   over lava drawn on the map -> hidden, as over a moat; 0.9.3's
   covers_objects() since its BUG-342 (s360, BUG-3446, 2d81a98cc).
+- [x] ACH_HELL and the "entered Gehennom" livelog line on arriving in
+  the Valley -> on answering yes at the Valley's stairs down, or once on
+  first arriving below the Valley another way; 0.9.3 credits only at the
+  stairs (s361, BUG-3465, ea101d715).
 
 ### 2.5 Levels and content
 
@@ -1053,6 +1091,21 @@ tracker; sNNN = port session.
   record, "<Leader> gets angry!" and the quest guardians turned
   hostile; 0.9.3 turns him hostile quietly, as walking up to him
   still does here (ruled s360, against the recommendation).
+
+- [r] `_` travel walking a hero who can occupy a boulder's square (Giant
+  race, a tiny form, nearly empty-handed) over the boulder without
+  pushing: 5.0's could_move_onto_boulder() kept; 0.9.3 never enters a
+  boulder's square in a run or in travel (ruled s361, against the
+  recommendation).
+- [r] A wish with no count for something made in stacks ("blessed +2
+  silver arrow") gives exactly one: vanilla's `cnt > 0` kept; 0.9.3's
+  `cnt > 1` leaves the rolled stack of 6 to 11 (ruled s361, against the
+  recommendation).
+- [r] A random level teleport inside Vlad's Tower can come up "stays on
+  this level" 1 time in 5, as everywhere else: 0.9.3's `!In_V_tower()`
+  in random_teleport_level(), a leftover of 841652730 whose own purpose
+  is served elsewhere, is not ported (ruled s361, against the
+  recommendation).
 
 ## 4. Open
 
