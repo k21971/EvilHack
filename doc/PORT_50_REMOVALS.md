@@ -370,6 +370,25 @@ tracker; sNNN = port session.
   by the hero's cloud, hurt and killed by it out of sight -> out of
   every cloud when parked (ruled s360, BUG-3449, 520b5ce45;
   vanilla's own gap).
+- [x] A long worm with no square to move to keeping its tail for good
+  (the early no-moves return of 82f0b1e8e sits ahead of the shrink) ->
+  it loses a segment and 2 to 4 hit points per failed move, tame worms
+  too (ruled s361 / s362, BUG-3466, commit pending; vanilla's own gap).
+- [x] The genetic engineer's pause of 1 or 2 turns after it changes
+  something (`mspec_used`) -> none: every landed hit the hero's armor
+  does not negate polymorphs (ruled s362, BUG-3474, commit pending).
+- [x] A hezrou's stench only on the squares it walks off (upstream's
+  2024 form) -> on its own square every move, standing or walking
+  (ruled s362, BUG-3475, commit pending). The cloud blocks line of
+  sight on this base.
+- [x] Trap watchers limited to non-animals with eyes within 7 squares
+  of a lit trap, or adjacent to an unlit one -> every monster with a
+  mind and a clear line; 5.0's learning from a hero-sprung trap stays
+  (ruled s362, BUG-3476, commit pending).
+- [x] A random or self-polymorphing monster's dragon armor read from
+  the suit slot only -> armor_to_dragon(): scales worn as a cloak
+  count, chromatic gives red and celestial blue (ruled s362,
+  BUG-3479, commit pending).
 
 ### 2.3 Combat and magic rules -> master's
 
@@ -807,6 +826,14 @@ tracker; sNNN = port session.
   portal that leads back where the hero came from; and a level region
   given backwards refused with an impossible() -> swapped. Neither has a
   case in today's levels (s361, BUG-3463 / 3464, ea101d715 / 894f5013b).
+- [x] Clobbering knockback's 5.0 numbers -> 0.9.3's: 1 or 2 squares at
+  even odds (was 1 two times in three); the hero's stun stacks, 2 or 3
+  turns on top of one already running (was skipped when stunned); a
+  blow must do damage, and must not kill a monster victim, to push
+  (ruled s362, BUG-3471..3473, commit pending).
+- [x] Vanilla's refusal to proof a wielded piece of armor with a
+  confused scroll of enchant weapon -> proofed and repaired (ruled
+  s362, BUG-3484, commit pending).
 
 ### 2.4 Text and logs
 
@@ -1106,6 +1133,17 @@ tracker; sNNN = port session.
   in random_teleport_level(), a leftover of 841652730 whose own purpose
   is served elsewhere, is not ported (ruled s361, against the
   recommendation).
+- [r] Random floor engravings are made on plain floor only (5.0's
+  `typ == ROOM`); 0.9.3 engraves any room square that is not water,
+  lava or furniture, so sand, grass and ice rooms got them (ruled
+  s362; offered as thin).
+- [r] A partly eaten corpse scales only the base sacrifice value; the
+  undead +1, the unicorn +3 and Secespita's half again are added
+  whole. 0.9.3 scales the sum (ruled s362; offered as thin).
+- [r] Gloves do not protect a hero who eats a carried item of a hated
+  material: the branch passes direct contact ("mouth contact"), its
+  own choice since the materials port; 0.9.3 9168f7856 passes
+  `!uarmg` (ruled s362, as suggested).
 
 ## 4. Open
 
