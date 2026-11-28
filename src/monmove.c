@@ -988,8 +988,9 @@ m_postmove_effect(struct monst *mtmp)
     coordxy x = is_u ? u.ux0 : mtmp->mx,
             y = is_u ? u.uy0 : mtmp->my;
 
-    /* Hezrous create clouds of stench. This does not cost a move. */
-    if (mtmp->data == &mons[PM_HEZROU]) /* stench */
+    /* Hezrous create clouds of stench. This does not cost a move. A
+       monster's is laid by dochug(), every move; this is the hero's */
+    if (is_u && mtmp->data == &mons[PM_HEZROU]) /* stench */
         create_gas_cloud(x, y, 1, 8, mtmp);
     else if (mtmp->data == &mons[PM_STEAM_VORTEX] && !mtmp->mcan)
         create_gas_cloud(x, y, 1, 0, mtmp); /* harmless vapor */
@@ -1564,6 +1565,11 @@ dochug(struct monst *mtmp)
     if (mdat == &mons[PM_GELATINOUS_CUBE]
         && (res = gelcube_digests(mtmp)) >= 0)
         return res;
+
+    /* a hezrou's stench hangs over its own square every move, whether
+       or not it then goes anywhere */
+    if (mtmp->data == &mons[PM_HEZROU])
+        create_gas_cloud(mtmp->mx, mtmp->my, 1, 8, mtmp);
 
     /* A monster that passes the following checks has the opportunity
        to move. Movement itself is handled by the m_move() function. */

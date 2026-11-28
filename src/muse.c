@@ -4207,12 +4207,11 @@ check_misc_item(
 staticfn struct permonst *
 muse_newcham_mon(struct monst *mon)
 {
-    struct obj *m_armr;
+    int pm = armor_to_dragon(mon);
 
-    if ((m_armr = which_armor(mon, W_ARM)) != 0) {
-        if (Is_dragon_armor(m_armr))
-            return &mons[Dragon_armor_to_pm(m_armr)];
-    }
+    if (pm != NON_PM)
+        return &mons[pm];
+    /* not wearing anything that would turn it into a dragon */
     return rndmonst();
 }
 
@@ -4979,6 +4978,10 @@ searches_for_item(struct monst *mon, struct obj *obj)
             || typ == AMULET_OF_MAGIC_RESISTANCE
             || obj->oartifact == ART_EYE_OF_THE_AETHIOPICA)
             return TRUE;
+        /* who doesn't want the ultimate amulet? and they can be fooled
+           also */
+        if (typ == AMULET_OF_YENDOR || typ == FAKE_AMULET_OF_YENDOR)
+            return (boolean) !mon_has_amulet(mon);
         break;
     case TOOL_CLASS:
         if (typ == PICK_AXE)

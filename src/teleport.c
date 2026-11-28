@@ -15,7 +15,6 @@ staticfn void vault_tele(void);
 staticfn void rloc_to_core(struct monst *, coordxy, coordxy, unsigned);
 staticfn void mvault_tele(struct monst *);
 staticfn boolean m_blocks_teleporting(struct monst *);
-staticfn stairway *stairway_find_forwiz(boolean, boolean);
 staticfn void wiz_endgame_prereq(d_level *);
 
 /* does monster block others from teleporting? */
@@ -2067,7 +2066,9 @@ mon_lost_in_rloc(struct monst *mtmp)
                     || (mtmp->mstate & MON_OFF_MAP_BITS) != MON_OFFMAP)));
 }
 
-staticfn stairway *
+/* the level's own stairway of this kind and direction: one that leads
+   to another level of this same dungeon, never a branch staircase */
+stairway *
 stairway_find_forwiz(boolean isladder, boolean up)
 {
     stairway *stway = gs.stairs;

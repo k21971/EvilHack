@@ -8946,7 +8946,8 @@ decide_to_shapeshift(struct monst *mon)
         } else {
             /* if we're already in vampire form and are tame, don't shift
                back to an animal/fog form */
-            if (!mon->mtame && mon->mhp >= 9 * mon->mhpmax / 10 && !rn2(6)
+            if (!mon->mtame && mon->mhp >= 9 * mon->mhpmax / 10
+                && !mon->msleeping && !rn2(6)
                 && (!canseemon(mon)
                     || mdistu(mon) > BOLT_LIM * BOLT_LIM))
                 dochng = TRUE; /* 'ptr' stays Null */
@@ -9252,12 +9253,8 @@ select_newcham_form(struct monst *mon)
         mndx = pickvampshape(mon);
         break;
     case NON_PM: /* ordinary */
-      {
-        struct obj *m_armr = which_armor(mon, W_ARM);
-
-        if (m_armr && Is_dragon_armor(m_armr))
-            mndx = Dragon_armor_to_pm(m_armr);
-      }
+        /* might become a dragon based on worn armor */
+        mndx = armor_to_dragon(mon);
         break;
     }
 

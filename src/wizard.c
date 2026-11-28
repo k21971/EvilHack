@@ -833,7 +833,8 @@ nasty(struct monst *summoner, boolean centered_on_stairs)
            unless we're being called with the 'stairs' flag to block the
            adventurer's return with the Amulet */
         if (centered_on_stairs
-            && (stway = stairway_find_type_dir(FALSE, TRUE)) != 0) {
+            /* the level's own up stairs, not a branch staircase */
+            && (stway = stairway_find_forwiz(FALSE, TRUE)) != 0) {
             bypos.x = stway->sx;
             bypos.y = stway->sy;
             /* the stair square is away from the hero, so makemon's

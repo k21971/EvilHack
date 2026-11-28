@@ -2108,13 +2108,11 @@ mons_see_trap(struct trap *ttmp)
 {
     struct monst *mtmp;
     coordxy tx = ttmp->tx, ty = ttmp->ty;
-    int maxdist = levl[tx][ty].lit ? 7*7 : 2;
 
+    /* any monster with a mind and a clear line to the trap learns from
+       it, animals too, at whatever distance */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (is_animal(mtmp->data) || mindless(mtmp->data)
-            || !haseyes(mtmp->data) || !mtmp->mcansee)
-            continue;
-        if (dist2(mtmp->mx, mtmp->my, tx, ty) > maxdist)
+        if (mindless(mtmp->data))
             continue;
         if (!m_cansee(mtmp, tx, ty))
             continue;

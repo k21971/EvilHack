@@ -436,10 +436,15 @@ fixuporacle(struct monst *oracle)
         return FALSE;
 
     oracle->mpeaceful = 1; /* for behavior toward next character */
+    /* the next character finds her visible and at rest */
+    oracle->movement = 0;
+    oracle->minvis = oracle->perminvis = 0;
     o_ridx = isok(oracle->mx, oracle->my)
                  ? levl[oracle->mx][oracle->my].roomno - ROOMOFFSET
                  : -1;
-    if (o_ridx >= 0 && svr.rooms[o_ridx].rtype == DELPHI)
+    if (o_ridx >= 0 && svr.rooms[o_ridx].rtype == DELPHI
+        && oracle->mx == (svr.rooms[o_ridx].lx + svr.rooms[o_ridx].hx) / 2
+        && oracle->my == (svr.rooms[o_ridx].ly + svr.rooms[o_ridx].hy) / 2)
         return TRUE; /* no fixup needed */
 
     /*
@@ -454,8 +459,9 @@ fixuporacle(struct monst *oracle)
         if (svr.rooms[ridx].orig_rtype == DELPHI)
             break;
 
-    if (o_ridx != ridx && ridx < SIZE(svr.rooms)) {
-        /* room found and she's not in it, so try to move her there */
+    if (ridx < SIZE(svr.rooms)) {
+        /* room found; put her on its centre square, from elsewhere in
+           the room too */
         cc.x = (svr.rooms[ridx].lx + svr.rooms[ridx].hx) / 2;
         cc.y = (svr.rooms[ridx].ly + svr.rooms[ridx].hy) / 2;
         if (goodpos(cc.x, cc.y, oracle, NO_MM_FLAGS)

@@ -261,8 +261,10 @@ maybe_generate_rnd_mon(void)
     if (!rn2(current_monclock())) {
         stairway *stway;
 
+        /* the level's own up stairs first; a branch staircase is the
+           next arm's */
         if (u.uevent.invoked
-            && (stway = stairway_find_type_dir(FALSE, TRUE)) != 0
+            && (stway = stairway_find_forwiz(FALSE, TRUE)) != 0
             && rn2(10))
             (void) makemon((struct permonst *) 0, stway->sx, stway->sy,
                            MM_ADJACENTOK | MM_MPLAYEROK);

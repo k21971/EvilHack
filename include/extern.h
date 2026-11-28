@@ -3673,6 +3673,7 @@ extern boolean rloc_pos_ok(coordxy, coordxy, struct monst *) NONNULLARG3;
 extern void rloc_to(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern void rloc_to_flag(struct monst *, coordxy, coordxy,
                          unsigned) NONNULLARG1;
+extern stairway *stairway_find_forwiz(boolean, boolean);
 extern boolean rloc(struct monst *, unsigned) NONNULLARG1;
 extern boolean mon_lost_in_rloc(struct monst *) NONNULLARG1;
 extern boolean control_mon_tele(struct monst *, coord *cc, unsigned,
