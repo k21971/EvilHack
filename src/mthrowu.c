@@ -286,7 +286,12 @@ drop_throw(
     if (broken) {
         delobj(obj);
     } else {
-        if (down_gate(x, y) != -1)
+        /* a breakable object that comes down on hard ground breaks,
+           whoever launched it; glass armor that only cracks is still
+           here afterwards */
+        if (!IS_SOFT(levl[x][y].typ))
+            broken = (breaks(obj, x, y) != 0);
+        if (!broken && down_gate(x, y) != -1)
             broken = ship_object(obj, x, y, FALSE);
         if (!broken) {
             struct monst *mtmp = m_at(x, y);
