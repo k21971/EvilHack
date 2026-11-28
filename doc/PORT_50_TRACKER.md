@@ -21,7 +21,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   worm is fixed (BUG-3466; tame worms too, by ruling) and the
   STATEMENT CENSUS is finished - its last 302 functions were read
   by ten readers, the frame of 482 is done and its Phase 5 row is
-  closed. Twenty more fixes came of it, BUG-3469..3488: a prayer
+  closed. Twenty more fixes came of it, BUG-3469..3488 (with the
+  worm's, six commits 2738392d0 to 29f4d1ba0): a prayer
   that fixes every trouble no longer hangs for a hero wearing the
   Eyes of the Overworld over a blindness timer (vanilla 5.0's bug
   too); a ridden dragon may swallow a monster without "placing
@@ -39019,7 +39020,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       guarded worm_nomove() (not confused, stunned, trapped, asleep or
       entangled) ahead of that return; own plan, review and a short
       battery. Vanilla 5.0's too: add the upstream row with the fix.
-      CLOSED 2026-11-28 (session 362; BUG-3466; commit pending):
+      CLOSED 2026-11-28 (session 362; BUG-3466; 2738392d0):
       m_worm_nomove() holds 0.9.3's condition and is called at the
       early return and at the old call; MMOVE_NOMOVES is still
       returned, so the cornered-monster bite stays. RULED the same
@@ -44073,7 +44074,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       loop's missing cap found 5 of 5 and its HANG 0 of 5 (only
       tranche 3's reader saw it): a reader does not reliably see a
       hang hidden behind a 5.0 macro. YIELD: twenty fixes, BUG-3469
-      to 3488 - the prayer hang (branch and vanilla 5.0), the ridden
+      to 3488 (8f01303f8 to 29f4d1ba0) - the prayer hang (branch and vanilla 5.0), the ridden
       steed's engulf, and eighteen rules restored as 0.9.3 by two
       rounds of rulings; one more ruled restore deferred to its own
       row (the hero knocked over water); three ruled NOT restored
@@ -45332,8 +45333,8 @@ log). #1726 and #1729 had their commit messages amended that day
 | 2026-11-27 | dog_move()'s ALLOW_U arm (src/dogmove.c) ends `(void) mattacku(mtmp); return MMOVE_DONE;`, so a pet that dies attacking the hero under Conflict (stoned by a cockatrice-form hero, or an exploding sphere) is reported as having moved and postmov()'s tail runs for a dead monster (hideunder() for a form that hides) before dochug() stops. Read in vanilla at ce63d5726. Shown on the branch: postmov() entered with mmoved 3 and mhp 0 for three deaths of three on the old build, never on the new (dog_move() answers MMOVE_DIED). Nothing a player sees. BUG-3442 | fixed on the branch (2d81a98cc); not sent; minor; triage pending |
 | 2026-11-27 | hitum()'s second-swing test and hmonas()'s two "is the target still there" tests (src/uhitm.c) call m_at() on u.ux + u.dx, u.uy + u.dy (or gb.bhitpos) with no isok(). An engulfed hero who applies a pick-axe toward the edge of the map attacks the engulfer with that direction (use_pick_axe2() -> do_attack()), and from row 0 or the last column level.monsters[][] is indexed off the map: an out-of-bounds read, an abort under UBSan, the later attacks skipped in a normal build either way. Read in vanilla at ce63d5726 (three sites; the fourth, the Monk message, is EvilHack's). Not run. BUG-3443 | fixed on the branch (2d81a98cc); not sent; minor; triage pending |
 | 2026-11-27 | readobjnam_parse_charges() (src/objnam.c) does `d->spe = abs(d->spe)` on a wished number that overflowed to INT_MIN ("+2147483648 long sword"): the value stays INT_MIN, slips past the SPE_LIM clamp and is negated a second time before it is stored. Undefined behavior; in play the item comes out cursed +0. Read in vanilla at ce63d5726. Shown on the branch: "cursed +0 long sword" on the old build, "cursed -99 long sword" on the new (wizard mode). BUG-3444 | fixed on the branch (2d81a98cc); not sent; minor; triage pending |
-| 2026-11-28 | pleased()'s "fix all troubles" loop (src/pray.c, prayer action 4 / 5) never ends when the hero wears the Eyes of the Overworld over a running blindness timer: in_trouble() returns TROUBLE_BLIND from `BlindedTimeout > 1L`, fix_worst_trouble()'s arm tests `Blinded` (`HBlinded && !BBlinded`, false while the Eyes block it) and does nothing, and the do-while has no bound. A timer under the Eyes is ordinary (a camera flash, a yellow light, a potion). Needs an own-aligned altar and Luck for the roll. HANG, no game time passes. Official_nh50 ce63d5726 pray.c in_trouble(), fix_worst_trouble(), pleased(); read in vanilla, the branch's PRE battery leg stopped at 100 passes by its tracer. Branch fix: the arm tests the timer; the loop is capped at 30 (0.9.3 c1d2eac07). BUG-3469 | fixed on the branch (commit pending); not sent; crash class |
-| 2026-11-28 | m_move() (src/monmove.c) returns MMOVE_NOMOVES for a monster with no legal square (82f0b1e8e, 2022) before the `else` arm that calls worm_nomove(), so a long worm boxed in by walls, boulders or its own tail never loses a segment and never gets free, against worm.c's own header ("non-moving worms ... shrink"). Seen on the branch: 6 segments held over 104 turns; with the call restored, one segment per failed move and the worm backs out on the next. Official_nh50 ce63d5726 monmove.c m_move(). Branch fix: worm_nomove() ahead of that return. BUG-3466 | fixed on the branch (commit pending); not sent; gameplay |
+| 2026-11-28 | pleased()'s "fix all troubles" loop (src/pray.c, prayer action 4 / 5) never ends when the hero wears the Eyes of the Overworld over a running blindness timer: in_trouble() returns TROUBLE_BLIND from `BlindedTimeout > 1L`, fix_worst_trouble()'s arm tests `Blinded` (`HBlinded && !BBlinded`, false while the Eyes block it) and does nothing, and the do-while has no bound. A timer under the Eyes is ordinary (a camera flash, a yellow light, a potion). Needs an own-aligned altar and Luck for the roll. HANG, no game time passes. Official_nh50 ce63d5726 pray.c in_trouble(), fix_worst_trouble(), pleased(); read in vanilla, the branch's PRE battery leg stopped at 100 passes by its tracer. Branch fix: the arm tests the timer; the loop is capped at 30 (0.9.3 c1d2eac07). BUG-3469 | fixed on the branch (8f01303f8); not sent; crash class |
+| 2026-11-28 | m_move() (src/monmove.c) returns MMOVE_NOMOVES for a monster with no legal square (82f0b1e8e, 2022) before the `else` arm that calls worm_nomove(), so a long worm boxed in by walls, boulders or its own tail never loses a segment and never gets free, against worm.c's own header ("non-moving worms ... shrink"). Seen on the branch: 6 segments held over 104 turns; with the call restored, one segment per failed move and the worm backs out on the next. Official_nh50 ce63d5726 monmove.c m_move(). Branch fix: worm_nomove() ahead of that return. BUG-3466 | fixed on the branch (2738392d0); not sent; gameplay |
 
 ### Send queue (triage 2026-10-26, upstream @60a39eb52)
 
