@@ -1613,9 +1613,11 @@ mdamagem(
     /* a knocked-back defender that survived on the map still takes
        the blow's damage below; an attacker killed by the landing (a
        land mine, a magic beam trap) stops here with its death flagged,
-       which the equality tests at the tail would otherwise mask */
-    if (mhitm_knockback(magr, mdef, mattk, &mhm.hitflags,
-                        (MON_WEP(magr) != 0))
+       which the equality tests at the tail would otherwise mask; only
+       a blow that hurts and does not kill pushes its victim */
+    if (mhm.damage > 0 && mhm.damage < mdef->mhp
+        && mhitm_knockback(magr, mdef, mattk, &mhm.hitflags,
+                           (MON_WEP(magr) != 0))
         && ((mhm.hitflags & (M_ATTK_DEF_DIED | M_ATTK_AGR_DIED)) != 0
             || mon_offmap(mdef))) {
         /* a defender killed by its landing counts toward the attacker's
@@ -1769,7 +1771,6 @@ int
 mon_poly(struct monst *magr, struct monst *mdef, int dmg)
 {
     static const char freaky[] = " undergoes a freakish metamorphosis";
-    struct permonst *oldform = mdef->data;
 
     if (mdef == &gy.youmonst) {
         if (Antimagic) {
@@ -1848,12 +1849,6 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
                 pline1(nothing_happens);
         }
     }
-    /* when a transformation has happened, can't attack again for poly
-       effect during next turn or two; not enforced for poly'd hero, nor
-       for an attacker its teleport just killed or sent off the level */
-    if (mdef->data != oldform && magr != &gy.youmonst
-        && !mon_lost_in_rloc(magr))
-        magr->mspec_used += rnd(2);
 
     return dmg;
 }

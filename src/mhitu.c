@@ -775,17 +775,16 @@ getmattk(
 
     /* holders/engulfers who release the hero have mspec_used set to rnd(2)
        and can't re-hold/re-engulf until it has been decremented to zero;
-       likewise for transformation by genetic engineer; an engulfer whose
-       breath/spit attack is cooling down (mbreath_attk) can't engulf
-       either; an Amulet carrier that already has the hero inside keeps
-       its engulf regardless, or a spell or breath cooldown picked up
-       while running for an exit would stall its engulf attack */
+       an engulfer whose breath/spit attack is cooling down (mbreath_attk)
+       can't engulf either (a genetic engineer has no such pause between
+       transformations); an Amulet carrier that already has the hero
+       inside keeps its engulf regardless, or a spell or breath cooldown
+       picked up while running for an exit would stall its engulf attack */
     } else if (!(udefend && attk->aatyp == AT_ENGL && engulfing_u(magr)
                  && m_flees_with_amulet(magr))
                && ((magr->mspec_used && (attk->aatyp == AT_ENGL
                                          || attk->aatyp == AT_HUGS
-                                         || attk->adtyp == AD_STCK
-                                         || attk->adtyp == AD_POLY))
+                                         || attk->adtyp == AD_STCK))
                    || (magr->mbreath_attk && attk->aatyp == AT_ENGL))) {
         boolean wimpy = (attk->damd == 0); /* lichen, violet fungus */
 
@@ -1919,8 +1918,10 @@ hitmu(struct monst *mtmp, struct attack *mattk)
        below need; a knockback afterwards doesn't */
     parted = (mtmp->mx != ax || mtmp->my != ay || !u_at(hx, hy));
 
-    (void) mhitm_knockback(mtmp, &gy.youmonst, mattk, &mhm.hitflags,
-                           (MON_WEP(mtmp) != 0));
+    /* a blow that does no damage pushes nobody */
+    if (mhm.damage > 0)
+        (void) mhitm_knockback(mtmp, &gy.youmonst, mattk, &mhm.hitflags,
+                               (MON_WEP(mtmp) != 0));
 
     if (mhm.done)
         return mhm.hitflags;

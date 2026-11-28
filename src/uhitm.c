@@ -6356,8 +6356,7 @@ mhitm_ad_poly(
     struct monst *magr, struct attack *mattk,
     struct monst *mdef, struct mhitm_data *mhm)
 {
-    boolean negated = (mhitm_mgc_atk_negated(magr, mdef, FALSE)
-                       || magr->mspec_used);
+    boolean negated = mhitm_mgc_atk_negated(magr, mdef, FALSE);
 
     if (magr == &gy.youmonst) {
         /* uhitm */
@@ -8797,7 +8796,7 @@ mhitm_knockback(
     struct obj *otmp;
     const char *knockedhow;
     coordxy dx, dy, defx, defy;
-    int knockdistance = rn2(3) ? 1 : 2; /* 67%: 1 step, 33%: 2 steps */
+    int knockdistance = rnd(2); /* 1 or 2 steps, even odds */
     boolean u_def = (mdef == &gy.youmonst);
     boolean was_u = FALSE, dismount = FALSE;
 
@@ -8915,9 +8914,14 @@ mhitm_knockback(
             hurtle(dx, dy, knockdistance, FALSE);
             *hitflags |= M_ATTK_HIT;
         }
-        set_apparxy(magr); /* update magr's idea of where you are */
-        if (!Stunned && !rn2(4))
-            make_stunned((long) (knockdistance + 1), TRUE); /* 2 or 3 */
+        /* the landing can kill the attacker (a magic beam trap's ray);
+           there is no stun to follow up with then */
+        if (!DEADMONSTER(magr)) {
+            set_apparxy(magr); /* update magr's idea of where you are */
+            /* 2 or 3 more turns, on top of any stun already running */
+            if (!rn2(4))
+                make_stunned((HStun & TIMEOUT) + (long) rnd(2) + 1, TRUE);
+        }
     } else {
         mhurtle(mdef, dx, dy, knockdistance);
         *hitflags |= M_ATTK_HIT;
