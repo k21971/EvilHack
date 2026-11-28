@@ -27,6 +27,7 @@ staticfn int postmov(struct monst *, struct permonst *, coordxy, coordxy, int,
                      unsigned, boolean, boolean, boolean,
                      boolean) NONNULLPTRS;
 staticfn boolean m_leap_at_u(struct monst *) NONNULLARG1;
+staticfn void m_worm_nomove(struct monst *) NONNULLARG1;
 staticfn boolean mon_slowed_by_sewage(struct monst *);
 staticfn boolean leppie_avoidance(struct monst *);
 staticfn void leppie_stash(struct monst *);
@@ -2801,6 +2802,17 @@ m_leap_at_u(struct monst *mtmp)
     return TRUE;
 }
 
+/* a long worm that has failed to move loses the end of its tail, unless
+   what kept it from moving is its own condition */
+staticfn void
+m_worm_nomove(struct monst *mtmp)
+{
+    if (mtmp->wormno
+        && !(mtmp->mconf || mtmp->mstun || mtmp->mtrapped
+             || mtmp->msleeping || mtmp->mentangled))
+        worm_nomove(mtmp);
+}
+
 /* Handles the movement of a standard monster.
  * Return values:
  * 0: did not move, but can still attack and do other stuff;
@@ -3174,6 +3186,8 @@ m_move(struct monst *mtmp, int after)
         if (cnt == 0 && !is_unicorn(mtmp->data)) {
             if (find_defensive(mtmp, TRUE) && use_defensive(mtmp))
                 return MMOVE_DONE;
+            /* nowhere to go is a failed move too */
+            m_worm_nomove(mtmp);
             return MMOVE_NOMOVES;
         }
         chcnt = 0;
@@ -3446,12 +3460,8 @@ m_move(struct monst *mtmp, int after)
             return MMOVE_MOVED;
         }
         /* for a long worm, shrink it (by discarding end of tail) when
-           it has failed to move, unless what kept it from moving is
-           its own condition */
-        if (mtmp->wormno
-            && !(mtmp->mconf || mtmp->mstun || mtmp->mtrapped
-                 || mtmp->msleeping || mtmp->mentangled))
-            worm_nomove(mtmp);
+           it has failed to move */
+        m_worm_nomove(mtmp);
     }
     return postmov(mtmp, ptr, omx, omy, mmoved,
                    seenflgs, can_tunnel, can_unlock, can_open, getitems);
