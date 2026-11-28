@@ -219,7 +219,8 @@ summon_minion(aligntyp alignment, boolean talk)
         mnum = lminion();
         break;
     case A_NEUTRAL:
-        mnum = ROLL_FROM(elementals);
+        /* now and then a neutral god sends something else */
+        mnum = rn2(50) ? ROLL_FROM(elementals) : PM_WOODCHUCK;
         break;
     case A_CHAOTIC:
     case A_NONE:
