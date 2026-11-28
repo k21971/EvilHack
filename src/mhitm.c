@@ -1265,6 +1265,10 @@ gulpmm(
     coordxy ax, ay, dx, dy;
     int status;
     struct obj *obj;
+    /* the hero's own steed is not on the map and can't be put there; it
+       swallows its victim from where the hero sits and the victim keeps
+       its square, so nothing below is moved for it */
+    boolean ridden = (magr == u.usteed);
 
     if (!engulf_target(magr, mdef))
         return M_ATTK_MISS;
@@ -1325,11 +1329,13 @@ gulpmm(
      *  but don't leave it on the screen.  Move the aggressor to the
      *  defender's position.
      */
-    remove_monster(dx, dy);
-    remove_monster(ax, ay);
-    place_monster(magr, dx, dy);
-    newsym(ax, ay); /* erase old position */
-    newsym(dx, dy); /* update new position */
+    if (!ridden) {
+        remove_monster(dx, dy);
+        remove_monster(ax, ay);
+        place_monster(magr, dx, dy);
+        newsym(ax, ay); /* erase old position */
+        newsym(dx, dy); /* update new position */
+    }
 
     gm.mswallower = magr; /* corpse_chance() wants this */
     status = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
@@ -1338,6 +1344,22 @@ gulpmm(
     if ((status & (M_ATTK_AGR_DIED | M_ATTK_DEF_DIED))
         == (M_ATTK_AGR_DIED | M_ATTK_DEF_DIED)) {
         ;                              /* both died -- do nothing  */
+    } else if (ridden && (status & M_ATTK_DEF_DIED) != 0) {
+        /* the steed carries the hero onto its meal's square, where
+           whatever is there takes effect; not while something holds
+           the hero or the steed where they are, not past a shopkeeper
+           who bars that step, nor if the steed was lost */
+        if (u.usteed == magr && !DEADMONSTER(magr) && u_at(ax, ay)
+            && !u.utotype && !u.uinvulnerable && !u.utrap && !u.ustuck
+            && !magr->mentangled
+            && !shk_bars_way(ax, ay, dx, dy, TRUE)
+            && goodpos(dx, dy, &gy.youmonst, 0)) {
+            teleds(dx, dy, TELEDS_ALLOW_DRAG);
+            /* a trap there can kill the steed under the hero, or
+               throw the hero and leave the steed nowhere to stand */
+            if (mon_lost_in_rloc(magr))
+                status |= M_ATTK_AGR_DIED;
+        }
     } else if (status & M_ATTK_DEF_DIED) { /* defender died */
         /*
          *  Note: mdamagem() -> monkilled() -> mondead() -> m_detach()
@@ -1376,8 +1398,10 @@ gulpmm(
         if (mon_lost_in_rloc(magr))
             status |= M_ATTK_AGR_DIED;
     } else if (status & M_ATTK_AGR_DIED) { /* aggressor died */
-        place_monster(mdef, dx, dy);
-        newsym(dx, dy);
+        if (!ridden) {
+            place_monster(mdef, dx, dy);
+            newsym(dx, dy);
+        }
     } else {                           /* both alive, put them back */
         if (cansee(dx, dy)) {
             if (status & M_ATTK_EXPELLED) {
@@ -1397,11 +1421,13 @@ gulpmm(
             }
         }
 
-        remove_monster(dx,dy);
-        place_monster(magr, ax, ay);
-        place_monster(mdef, dx, dy);
-        newsym(ax, ay);
-        newsym(dx, dy);
+        if (!ridden) {
+            remove_monster(dx,dy);
+            place_monster(magr, ax, ay);
+            place_monster(mdef, dx, dy);
+            newsym(ax, ay);
+            newsym(dx, dy);
+        }
     }
 
     return status;

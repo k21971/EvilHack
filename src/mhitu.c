@@ -996,10 +996,9 @@ mattacku(struct monst *mtmp)
             gb.bhitpos.x = mtmp->mx, gb.bhitpos.y = mtmp->my;
             gn.notonhead = FALSE;
             i = mattackm(u.usteed, mtmp);
-            /* the steed died; mtmp wasn't the aggressor here, so the
-               return code mustn't claim that mtmp died */
-            if ((i & M_ATTK_AGR_DIED) != 0 || !u.usteed)
-                return 0;
+            /* mtmp wasn't the aggressor here: a steed that died, or
+               threw the hero, is not mtmp's death, but mtmp's own
+               death in the same exchange still is */
             return !!(i & M_ATTK_DEF_DIED);
         }
     }
