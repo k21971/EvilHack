@@ -4022,7 +4022,7 @@ gethungry(void)
         /* Regeneration uses up food, unless due to an artifact or to
            playing as a race that gains intrinsic regeneration */
         if ((HRegeneration & ~(FROMFORM | FROMRACE))
-            || (ERegeneration & ~(W_ARTI | W_WEP)))
+            || (ERegeneration & ~(W_ARTI | W_WEP | W_ARMOR)))
             u.uhunger--;
         if (near_capacity() > SLT_ENCUMBER)
             u.uhunger--;
